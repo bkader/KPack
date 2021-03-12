@@ -1,0 +1,124 @@
+local addonName, addon = ...
+local L = addon.L
+
+local mod = addon.LookUp or CreateFrame("Frame")
+addon.LookUp = mod
+mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
+mod:RegisterEvent("ADDON_LOADED")
+
+-- cache frequently use globals
+local GetSpellInfo, GetSpellLink = GetSpellInfo, GetSpellLink
+local GetItemInfo = GetItemInfo
+local lower, trim, find = string.lower, string.trim, string.find
+local tonumber = tonumber
+
+-- module's print function
+local function Print(msg)
+    if msg then
+        addon:Print(msg, "LookUp")
+    end
+end
+
+-- ///////////////////////////////////////////////////////
+-- Item Search
+-- ///////////////////////////////////////////////////////
+
+local function RequestItemLink(itemId)
+    local itemName, itemLink = GetItemInfo(itemId)
+    if not itemLink then
+        return 0
+    end
+    return itemLink, itemName
+end
+
+local function SearchItem(query)
+    local i, found = 1, 0
+    query = lower(query)
+    Print(L:F("Searching for items containing |cffffd700%s|r", query))
+
+    while i < 500000 do
+        local link, name = RequestItemLink(i)
+        if link ~= 0 and find(lower(name), query) then
+            print(L:F("|cffffd700Item|r: %s", link))
+            found = found + 1
+        end
+        i = i + 1
+    end
+    print(L:F("Search completed, |cffffd700%d|r items matched.", found))
+end
+
+-- ///////////////////////////////////////////////////////
+-- Spell Search
+-- ///////////////////////////////////////////////////////
+
+local function RequestSpellLink(spellId)
+    local name, _, _, _, _, _, id = GetSpellInfo(spellId)
+    if not name then
+        return 0
+    end
+    return GetSpellLink(spellId), name, spellId
+end
+
+local function SearchSpell(query)
+    local i, found = 1, 0
+    query = lower(query)
+    Print(L:F("Searching for spells containing |cffffd700%s|r", query))
+
+    while i < 500000 do
+        local link, name, spellId = RequestSpellLink(i)
+        if link ~= 0 and find(lower(name), query) then
+            print(L:F("|cffffd700Spell|r : %s [%d]", link, spellId))
+            found = found + 1
+        end
+        i = i + 1
+    end
+    print(L:F("Search completed, |cffffd700%d|r spells matched.", found))
+end
+
+local SlashCommandHandler
+do
+    -- slash commands handler
+    function SlashCommandHandler(msg)
+        local cmd, rest = strsplit(" ", msg, 2)
+        cmd = lower(trim(cmd))
+        rest = rest and trim(rest) or ""
+
+        -- searching for an item:
+        if cmd == "item" and rest ~= "" then
+            -- searching for a spell
+            if tonumber(rest) ~= nil then
+                local link = RequestItemLink(tonumber(rest))
+                if link == 0 then
+                    Print(L["Item ID not found in local cache."])
+                else
+                    print(L:F("|cffffd700Item|r: %s", link))
+                end
+            else
+                SearchItem(rest)
+            end
+        elseif cmd == "spell" and rest ~= "" then
+            -- otherwise tell the player
+            if tonumber(rest) ~= nil then
+                local link, _, spellId = RequestSpellLink(tonumber(rest))
+                if link == 0 then
+                    Print(L["Spell ID not found in local cache."])
+                else
+                    print(L:F("|cffffd700Spell|r : %s [%d]", link, spellId))
+                end
+            else
+                SearchSpell(rest)
+            end
+        else
+            Print(L:F("Acceptable commands for: |caaf49141%s|r", "/lookup"))
+            print("|cffffd700item|r |cff00ffffname|r | |cff00ffffID|r : ", L["Searches for item link in local cache."])
+            print("|cffffd700sspell|r |cff00ffffname|r | |cff00ffffID|r : ", L["Searches for spell link."])
+        end
+    end
+end
+
+function mod:ADDON_LOADED(name)
+	if name ~= addonName then return end
+	self:UnregisterEvent("ADDON_LOADED")
+    SlashCmdList["KPACKLOOKUP"] = SlashCommandHandler
+    _G.SLASH_KPACKLOOKUP1, _G.SLASH_KPACKLOOKUP2 = "/lookup", "/lu"
+end
