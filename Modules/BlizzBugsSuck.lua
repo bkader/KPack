@@ -306,35 +306,32 @@ do
 	    local flag = 0
 	    local duration = 40
 	    local interval = 0.1
-	    obj:SetScript(
-	        "OnUpdate",
-	        function(self, elapsed)
-	            obj.nextUpdate = (obj.nextUpdate or 0) + elapsed
-	            if obj.nextUpdate > interval then
-	                local newTime = GetTime()
-	                local timeleft = newTime - oldTime
-	                if timeleft < duration then
-	                    local width = frame:GetWidth() * timeleft / duration
-	                    frame.bar:SetPoint("BOTTOMRIGHT", frame, 0 - width, 0)
-	                    flag = flag + 1
-	                    if flag >= 10 then
-	                        flag = 0
-	                    end
+	    obj:SetScript("OnUpdate", function(self, elapsed)
+            obj.nextUpdate = (obj.nextUpdate or 0) + elapsed
+            if obj.nextUpdate > interval then
+                local newTime = GetTime()
+                local timeleft = newTime - oldTime
+                if timeleft < duration then
+                    local width = frame:GetWidth() * timeleft / duration
+                    frame.bar:SetPoint("BOTTOMRIGHT", frame, 0 - width, 0)
+                    flag = flag + 1
+                    if flag >= 10 then
+                        flag = 0
+                    end
 
-	                    if timeleft <= 15 then
-	                        frame.bar:SetStatusBarColor(0, 1, 0)
-	                    elseif timeleft <= 30 then
-	                        frame.bar:SetStatusBarColor(1, 0.7, 0)
-	                    elseif timeleft <= duration then
-	                        frame.bar:SetStatusBarColor(1, 0, 0)
-	                    end
-	                else
-	                    obj:SetScript("OnUpdate", nil)
-	                end
-	                obj.nextUpdate = 0
-	            end
-	        end
-	    )
+                    if timeleft <= 15 then
+                        frame.bar:SetStatusBarColor(0, 1, 0)
+                    elseif timeleft <= 30 then
+                        frame.bar:SetStatusBarColor(1, 0.7, 0)
+                    elseif timeleft <= duration then
+                        frame.bar:SetStatusBarColor(1, 0, 0)
+                    end
+                else
+                    obj:SetScript("OnUpdate", nil)
+                end
+                obj.nextUpdate = 0
+            end
+        end)
 	end
 
 	function mod:LFG_PROPOSAL_SHOW()
