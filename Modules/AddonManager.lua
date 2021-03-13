@@ -187,7 +187,7 @@ local function CreateAddonsList()
 
     local ReloadButton = CreateFrame("Button", "ReloadButton", AddonList, "UIPanelButtonTemplate")
     ReloadButton:SetSize(105, 21)
-    ReloadButton:SetPoint("BOTTOMRIGHT", AddonList, "BOTTOMRIGHT", -6, 21)
+    ReloadButton:SetPoint("BOTTOM", AddonList, "BOTTOM", 0, 21)
     ReloadButton:SetText(L["Reload UI"])
     ReloadButton:SetScript("OnClick", function() ReloadUI() end)
 
@@ -202,7 +202,7 @@ local function CreateAddonsList()
 
     local DisableAllButton = CreateFrame("Button", "DisableAllButton", AddonList, "UIPanelButtonTemplate")
     DisableAllButton:SetSize(105, 21)
-    DisableAllButton:SetPoint("LEFT", EnableAllButton, "RIGHT", 1, 0)
+    DisableAllButton:SetPoint("BOTTOMRIGHT", AddonList, "BOTTOMRIGHT", -6, 21)
     DisableAllButton:SetText(L["Disable All"])
     DisableAllButton:SetScript("OnClick", function()
         for k, v in pairs(MainAddonFrame.addons) do
