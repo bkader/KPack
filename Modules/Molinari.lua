@@ -1,7 +1,6 @@
 local folder, core = ...
 
 local mod = CreateFrame("Button", "KPackMolinari", UIParent, "SecureActionButtonTemplate, AutoCastShineTemplate")
-mod:SetAttribute("type", "macro")
 mod:SetScript("OnEvent", function(self, event, ...) self[event](self, event, ...) end)
 mod:RegisterEvent("ADDON_LOADED")
 core.Molinari = mod
@@ -14,12 +13,11 @@ local IsSpellKnown = IsSpellKnown
 local GetSpellInfo = GetSpellInfo
 local GetMouseFocus = GetMouseFocus
 local GetItemInfo = GetItemInfo
-
 local AutoCastShine_AutoCastStart = AutoCastShine_AutoCastStart
 local AutoCastShine_AutoCastStop = AutoCastShine_AutoCastStop
 
 local _
-local enabled
+local enabled, auction
 local macro = "/cast %s\n/use %s %s"
 local spells = {}
 
@@ -59,7 +57,7 @@ local function ScanTooltip(text)
 end
 
 local function Clickable()
-    return (not InCombatLockdown() and IsAltKeyDown())
+    return (not InCombatLockdown() and IsAltKeyDown() and not auction)
 end
 
 local function Disperse(self)
@@ -86,6 +84,7 @@ local function Molinari_OnTooltipSetItem(self)
             bag = slot:GetParent()
         end
         if spell and bag and slot then
+            mod:SetAttribute("type", "macro")
             mod:SetAttribute("macrotext", macro:format(spell, bag:GetID(), slot:GetID()))
             mod:SetAllPoints(slot)
             mod:Show()
@@ -95,9 +94,7 @@ local function Molinari_OnTooltipSetItem(self)
 end
 
 function mod:ADDON_LOADED(event, name)
-    if name ~= folder then
-        return
-    end
+    if name ~= folder then return end
     self:RegisterEvent("PLAYER_LOGIN")
 end
 
@@ -126,9 +123,7 @@ function mod:PLAYER_LOGIN()
         enabled = true
     end
 
-    if not enabled then
-        return
-    end
+    if not enabled then return end
 
     GameTooltip:HookScript("OnTooltipSetItem", Molinari_OnTooltipSetItem)
     self:RegisterEvent("MODIFIER_STATE_CHANGED")
@@ -141,6 +136,11 @@ function mod:PLAYER_LOGIN()
         sparkle:SetHeight(sparkle:GetHeight() * 3)
         sparkle:SetWidth(sparkle:GetWidth() * 3)
     end
+
+    if _G.AUCTIONATOR_ENABLE_ALT == 1 then
+        self:RegisterEvent("AUCTION_HOUSE_SHOW")
+        self:RegisterEvent("AUCTION_HOUSE_CLOSED")
+    end
 end
 
 function mod:MODIFIER_STATE_CHANGED(event, key)
@@ -152,4 +152,13 @@ end
 function mod:PLAYER_REGEN_ENABLED(event)
     self:UnregisterEvent(event)
     Disperse(self)
+end
+
+-- Auctionator check
+function mod:AUCTION_HOUSE_SHOW()
+    auction = true
+end
+
+function mod:AUCTION_HOUSE_CLOSED()
+    auction = nil
 end
