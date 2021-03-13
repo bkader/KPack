@@ -1,6 +1,6 @@
 # KPack - Lots-In-One AddOn Collection!
 
-Currently, this pack contains 48 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 50 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -233,3 +233,7 @@ Show your target and focus health percentage above their unit frames. If you ena
 ## 49. Viewporter:
 
 Just like its name says, it changes your game's viewport, allowing you to put stuff outside of it.
+
+## 50. Molinari:
+
+Molinari was made to aid the player in processing various items throughout the game. As an example: when you'd want to mill herbs, you would normally cast Milling and then click the item in your bags. With Molinari, you simply hold down the Alt key and click the item directly.

@@ -9,6 +9,7 @@
 	<!-- Files -->
 	<Script file="Modules\SpeedyLoad.lua" />
 	<Script file="Modules\BlizzBugsSuck.lua" />
+	<Script file="Modules\BlizzMove.lua" />
 	<Script file="Modules\ActionBars.lua" />
 	<Script file="Modules\AddonManager.lua" />
 	<Script file="Modules\AFK.lua" />
@@ -16,7 +17,6 @@
 	<Script file="Modules\AllStats.lua" />
 	<Script file="Modules\AltTabber.lua" />
 	<Script file="Modules\Automate.lua" />
-	<Script file="Modules\BlizzMove.lua" />
 	<Script file="Modules\BuffFrame.lua" />
 	<Script file="Modules\ChatFilter.lua" />
 	<Script file="Modules\ChatMods.lua" />
@@ -40,6 +40,7 @@
 	<Script file="Modules\Math.lua" />
 	<Include file="Modules\MoveAnything\MoveAnything.xml" />
 	<Script file="Modules\Minimap.lua" />
+	<Script file="Modules\Molinari.lua" />
 	<Script file="Modules\Nameplates.lua" />
 	<Script file="Modules\PersonalResources.lua" />
 	<Script file="Modules\PullnBreak.lua" />
