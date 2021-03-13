@@ -32,8 +32,7 @@ local config = {
 -- if you are using a non-latin client, except russian,
 -- you can here set your custom font to be used.
 -- Just make sure to use a proper path to that file.
-local nonLatinLocales = {koKR = true, zhCN = true, zhTW = true}
-if nonLatinLocales[GetLocale()] then
+if addon.nonLatin then
     config.font = NAMEPLATE_FONT -- here goes the path
 end
 
