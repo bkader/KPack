@@ -1,5 +1,8 @@
 local folder, core = ...
 
+local mod = core.GearScore or {}
+core.GearScore = mod
+
 local E = core:Events()
 local L = core.L
 
@@ -29,6 +32,7 @@ local GS_MANSET
 local inCombat
 local unitName
 
+local DB
 local PersonalGearScore
 
 local itemTypes = {
@@ -64,7 +68,7 @@ local defaults = {
     ["Item"] = 1,
     ["Show"] = 1,
     ["Compare"] = -1,
-    ["Level"] = 1,
+    ["Level"] = -1,
     ["Average"] = -1
 }
 
@@ -159,6 +163,7 @@ function GearScore_GetScore(Name, Target)
         local LevelTotal = 0
         local TitanGrip = 1
         local TempEquip = {}
+        local TempScore = 0
         local TempPVPScore = 0
 
         if (GetInventoryItemLink(Target, 16)) and (GetInventoryItemLink(Target, 17)) then
@@ -184,11 +189,11 @@ function GearScore_GetScore(Name, Target)
 
         for i = 1, 18 do
             if (i ~= 4) and (i ~= 17) then
-                ItemLink = GetInventoryItemLink(Target, i)
+                local link = GetInventoryItemLink(Target, i)
                 GS_ItemLinkTable = {}
-                if (ItemLink) then
+                if (link) then
                     local ItemName, ItemLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = GetItemInfo(ItemLink)
-                    if (GearScoreDB.Detail == 1) then
+                    if (DB.Detail == 1) then
                         GS_ItemLinkTable[i] = ItemLink
                     end
                     TempScore = GearScore_GetItemScore(ItemLink)
@@ -339,14 +344,14 @@ function GearScore_HookSetUnit(arg1, arg2)
         NotifyInspect("mouseover")
         MouseOverGearScore, MouseOverAverage = GearScore_GetScore(Name, "mouseover")
     end
-    if MouseOverGearScore and MouseOverGearScore > 0 and GearScoreDB.Player == 1 then
+    if MouseOverGearScore and MouseOverGearScore > 0 and DB.Player == 1 then
         local Red, Blue, Green = GearScore_GetQuality(MouseOverGearScore)
-        if GearScoreDB.Level == 1 then
+        if DB.Level == 1 then
             GameTooltip:AddDoubleLine("GearScore: " .. MouseOverGearScore, "iLvl: " .. MouseOverAverage .. "", Red, Green, Blue, Red, Green, Blue)
         else
             GameTooltip:AddLine("GearScore: " .. MouseOverGearScore, Red, Green, Blue)
         end
-        if GearScoreDB.Compare == 1 then
+        if DB.Compare == 1 then
             local MyGearScore = GearScore_GetScore(UnitName("player"), "player")
             local TheirGearScore = MouseOverGearScore
             if MyGearScore > TheirGearScore then
@@ -371,7 +376,7 @@ function GearScore_SetDetails(tooltip, Name)
                 local GearScore, itemLevel, _, Red, Green, Blue = GearScore_GetItemScore(ItemLink)
                 if (GearScore) and (i ~= 4) then
                     local Add = ""
-                    if GearScoreDB.Level == 1 then
+                    if DB.Level == 1 then
                         Add = " iLvl: " .. tostring(itemLevel)
                     end
                     tooltip:AddDoubleLine("[" .. ItemName .. "]", tostring(GearScore) .. Add, itemRarity[ItemRarity].Red, itemRarity[ItemRarity].Green, itemRarity[ItemRarity].Blue, Red, Blue, Green)
@@ -410,8 +415,8 @@ function GearScore_HookItem(ItemName, ItemLink, Tooltip)
     local ItemScore, ItemLevel, EquipLoc, Red, Green, Blue, PVPScore, ItemEquipLoc, enchantPercent =
         GearScore_GetItemScore(ItemLink)
     if (ItemScore >= 0) then
-        if (GearScoreDB.Item == 1) then
-            if (ItemLevel) and (GearScoreDB.Level == 1) then
+        if (DB.Item == 1) then
+            if (ItemLevel) and (DB.Level == 1) then
                 Tooltip:AddDoubleLine("GearScore: " .. ItemScore, "iLvl: " .. ItemLevel, Red, Blue, Green, Red, Blue, Green)
                 if (PlayerEnglishClass == "HUNTER") then
                     if (ItemEquipLoc == "INVTYPE_RANGEDRIGHT") or (ItemEquipLoc == "INVTYPE_RANGED") then
@@ -444,7 +449,7 @@ function GearScore_HookItem(ItemName, ItemLink, Tooltip)
             end
         end
     else
-        if (GearScoreDB.Level == 1) and (ItemLevel) then
+        if (DB.Level == 1) and (ItemLevel) then
             Tooltip:AddLine("iLevel " .. ItemLevel)
         end
     end
@@ -452,7 +457,7 @@ end
 function GearScore_OnEnter(Name, ItemSlot, Argument)
     if (UnitName("target")) then
         NotifyInspect("target")
-        GearScoreDB.LastNotified = UnitName("target")
+        DB.LastNotified = UnitName("target")
     end
     local OriginalOnEnter = GearScore_Original_SetInventoryItem(Name, ItemSlot, Argument)
     return OriginalOnEnter
@@ -479,38 +484,41 @@ function GS_MANSET(cmd)
             print(unpack(tbl))
         end
     elseif cmd == "show" then
-        GearScoreDB.Player = showSwitch[GearScoreDB.Player]
-        if GearScoreDB.Player == 1 or GearScoreDB.Player == 2 then
+        DB.Player = showSwitch[DB.Player]
+        if DB.Player == 1 or DB.Player == 2 then
             Print(L:F("Player Scores: %s", L["|cff00ff00ON|r"]))
         else
             Print(L:F("Player Scores: %s", L["|cffff0000OFF|r"]))
         end
         return
     elseif cmd == "player" then
-        GearScoreDB.Player = showSwitch[GearScoreDB.Player]
-        if GearScoreDB.Player == 1 or GearScoreDB.Player == 2 then
+        DB.Player = showSwitch[DB.Player]
+        if DB.Player == 1 or DB.Player == 2 then
             Print(L:F("Player Scores: %s", L["|cff00ff00ON|r"]))
         else
             Print(L:F("Player Scores: %s", L["|cffff0000OFF|r"]))
         end
     elseif cmd == "item" then
-        GearScoreDB.Item = itemSwitch[GearScoreDB.Item]
-        if (GearScoreDB.Item == 1) or (GearScoreDB.Item == 3) then
+        DB.Item = itemSwitch[DB.Item]
+        if (DB.Item == 1) or (DB.Item == 3) then
             Print(L:F("Item Scores: %s", L["|cff00ff00ON|r"]))
         else
             Print(L:F("Item Scores: %s", L["|cffff0000OFF|r"]))
         end
     elseif cmd == "level" then
-        GearScoreDB.Level = GearScoreDB.Level * -1
-        if GearScoreDB.Level == 1 then
+        DB.Level = DB.Level * -1
+        if DB.Level == 1 then
             Print(L:F("Item Levels: %s", L["|cff00ff00ON|r"]))
         else
             Print(L:F("Item Levels: %s", L["|cffff0000OFF|r"]))
+			if core.ItemLevel and core.ItemLevel.HookTooltip then
+				core.ItemLevel:HookTooltip()
+			end
         end
         return
     elseif cmd == "compare" then
-        GearScoreDB.Compare = GearScoreDB.Compare * -1
-        if GearScoreDB.Compare == 1 then
+        DB.Compare = DB.Compare * -1
+        if DB.Compare == 1 then
             Print(L:F("Comparisons: %s", L["|cff00ff00ON|r"]))
         else
             Print(L:F("Comparisons: %s", L["|cffff0000OFF|r"]))
@@ -539,6 +547,13 @@ end
 
 function E:ADDON_LOADED(name)
     if name ~= folder then return end
+	self:UnregisterEvent("ADDON_LOADED")
+
+	if type(KPackDB.GearScore) ~= "table" or not next(KPackDB.GearScore) then
+		KPackDB.GearScore = CopyTable(defaults)
+	end
+	DB = KPackDB.GearScore
+	core.GearScore = DB
 
 	GameTooltip:HookScript("OnTooltipSetUnit", GearScore_HookSetUnit)
 	GameTooltip:HookScript("OnTooltipSetItem", GearScore_HookSetItem)

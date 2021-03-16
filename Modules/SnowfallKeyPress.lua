@@ -8,6 +8,7 @@ local SnowfallKeyPress = {}
 -- Module settings
 --
 
+local DB
 SnowfallKeyPress.settings = {
     keys = {
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
@@ -408,12 +409,12 @@ enableButton:SetPoint("TOPLEFT", resetDefaultButton, "BOTTOMLEFT", 0, -40)
 _G["SnowfallKeyPress_configFrameEnableButtonText"]:SetText(ENABLE)
 enableButton:SetScript("OnClick", function(self)
     if self:GetChecked() then
-        SnowfallKeyPressDB.enable = true
+        DB.enable = true
         hook = true
         overrideFrame:RegisterEvent("UPDATE_BINDINGS")
         updateBindings()
     else
-        SnowfallKeyPressDB.enable = false
+        DB.enable = false
         updateBindings()
     end
 end)
@@ -610,7 +611,7 @@ function updateBindings()
     ClearOverrideBindings(overrideFrame)
     hook = true
 
-    if not SnowfallKeyPressDB.enable then
+    if not DB.enable then
         overrideFrame:UnregisterEvent("UPDATE_BINDINGS")
         hook = false
         return
@@ -672,12 +673,13 @@ local function addonLoaded(_, _, name)
     if name ~= addonName then
         return
     end
-    if not SnowfallKeyPressDB then
-        SnowfallKeyPressDB = {keys = {}, enable = true}
+    if type(KPackDB.SnowfallKeyPress) ~= "table" or not next(KPackDB.SnowfallKeyPress) then
+        KPackDB.SnowfallKeyPress = {keys = {}, enable = true}
     end
-    keysConfig = SnowfallKeyPressDB.keys
+    DB = KPackDB.SnowfallKeyPress
+    keysConfig = DB.keys
 
-    enableButton:SetChecked(SnowfallKeyPressDB.enable)
+    enableButton:SetChecked(DB.enable)
 
     if #keysConfig == 0 then
         populateKeysConfig()

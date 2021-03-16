@@ -6,7 +6,7 @@ core.BlizzMove = mod
 local E = core:Events()
 local L = core.L
 
-BlizzMoveDB = {}
+local DB
 local defaults = {
     AchievementFrame = {save = true},
     CalendarFrame = {save = true},
@@ -30,7 +30,7 @@ do
     do
         -- handlers the frame OnShow event
         local function OnShow(self, ...)
-            local settings = BlizzMoveDB[self:GetName()]
+            local settings = DB[self:GetName()]
             if settings and settings.point and settings.save and _G[settings.relativeTo] then
                 self:ClearAllPoints()
                 self:SetPoint(settings.point, settings.relativeTo, settings.relativePoint, settings.xOfs, settings.yOfs)
@@ -103,8 +103,8 @@ do
                     end
                 else
                     Print(L:F("%s will be saved.", frameToMove:GetName()))
-                    BlizzMoveDB[frameToMove:GetName()] = {}
-                    settings = BlizzMoveDB[frameToMove:GetName()]
+                    DB[frameToMove:GetName()] = {}
+                    settings = DB[frameToMove:GetName()]
                     settings.save = true
                     settings.point, settings.relativeTo, settings.relativePoint, settings.xOfs, settings.yOfs =
                         frameToMove:GetPoint()
@@ -123,10 +123,10 @@ do
             end
             handler = handler or frameToMove
 
-            local settings = BlizzMoveDB[frameToMove:GetName()]
+            local settings = DB[frameToMove:GetName()]
             if not settings then
                 settings = defaults[frameToMove:GetName()] or {}
-                BlizzMoveDB[frameToMove:GetName()] = settings
+                DB[frameToMove:GetName()] = settings
             end
 
             frameToMove.settings = settings
@@ -159,7 +159,7 @@ do
     do
         -- resets all frames positions and scales
         local function ResetDB()
-            for k, v in pairs(BlizzMoveDB) do
+            for k, v in pairs(DB) do
                 wipe(v)
                 v.save = (defaults[k] and defaults[k].save == true) or false
             end
@@ -195,60 +195,63 @@ do
         end
     end
 
-    -- frame event handler
-    function E:PLAYER_ENTERING_WORLD(...)
-        if _G.BlizzMove then
-            return
-        end
-        if next(BlizzMoveDB) == nil then
-            BlizzMoveDB = defaults
-        end
-        self:RegisterEvent("ADDON_LOADED")
-        self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+	-- frame event handler
+	function E:PLAYER_ENTERING_WORLD(...)
+	    if _G.BlizzMove then
+	        return
+	    end
 
-        SetMoveHandler(CharacterFrame, PaperDollFrame)
-        SetMoveHandler(CharacterFrame, TokenFrame)
-        SetMoveHandler(CharacterFrame, SkillFrame)
-        SetMoveHandler(CharacterFrame, ReputationFrame)
-        SetMoveHandler(CharacterFrame, PetPaperDollFrameCompanionFrame)
-        SetMoveHandler(SpellBookFrame)
-        SetMoveHandler(QuestLogFrame)
-        SetMoveHandler(FriendsFrame)
+	    if type(KPackDB.BlizzMove) ~= "table" or not next(KPackDB.BlizzMove) then
+	        KPackDB.BlizzMove = CopyTable(defaults)
+	    end
+	    DB = KPackDB.BlizzMove
 
-        if PVPParentFrame then
-            SetMoveHandler(PVPParentFrame, PVPFrame)
-        else
-            SetMoveHandler(PVPFrame)
-        end
+	    self:RegisterEvent("ADDON_LOADED")
+	    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 
-        SetMoveHandler(_G.LFGParentFrame)
-        SetMoveHandler(GameMenuFrame)
-        SetMoveHandler(GossipFrame)
-        SetMoveHandler(DressUpFrame)
-        SetMoveHandler(QuestFrame)
-        SetMoveHandler(MerchantFrame)
-        SetMoveHandler(HelpFrame)
-        SetMoveHandler(PlayerTalentFrame)
-        SetMoveHandler(ClassTrainerFrame)
-        SetMoveHandler(MailFrame)
-        SetMoveHandler(BankFrame)
-        SetMoveHandler(VideoOptionsFrame)
-        SetMoveHandler(InterfaceOptionsFrame)
-        SetMoveHandler(LootFrame)
-        SetMoveHandler(LFDParentFrame)
-        SetMoveHandler(LFRParentFrame)
-        SetMoveHandler(TradeFrame)
+	    SetMoveHandler(CharacterFrame, PaperDollFrame)
+	    SetMoveHandler(CharacterFrame, TokenFrame)
+	    SetMoveHandler(CharacterFrame, SkillFrame)
+	    SetMoveHandler(CharacterFrame, ReputationFrame)
+	    SetMoveHandler(CharacterFrame, PetPaperDollFrameCompanionFrame)
+	    SetMoveHandler(SpellBookFrame)
+	    SetMoveHandler(QuestLogFrame)
+	    SetMoveHandler(FriendsFrame)
 
-        -- create option frame
-        InterfaceOptionsFrame:HookScript("OnShow", function()
+	    if PVPParentFrame then
+	        SetMoveHandler(PVPParentFrame, PVPFrame)
+	    else
+	        SetMoveHandler(PVPFrame)
+	    end
+
+	    SetMoveHandler(_G.LFGParentFrame)
+	    SetMoveHandler(GameMenuFrame)
+	    SetMoveHandler(GossipFrame)
+	    SetMoveHandler(DressUpFrame)
+	    SetMoveHandler(QuestFrame)
+	    SetMoveHandler(MerchantFrame)
+	    SetMoveHandler(HelpFrame)
+	    SetMoveHandler(PlayerTalentFrame)
+	    SetMoveHandler(ClassTrainerFrame)
+	    SetMoveHandler(MailFrame)
+	    SetMoveHandler(BankFrame)
+	    SetMoveHandler(VideoOptionsFrame)
+	    SetMoveHandler(InterfaceOptionsFrame)
+	    SetMoveHandler(LootFrame)
+	    SetMoveHandler(LFDParentFrame)
+	    SetMoveHandler(LFRParentFrame)
+	    SetMoveHandler(TradeFrame)
+
+	    -- create option frame
+	    InterfaceOptionsFrame:HookScript("OnShow", function()
             if not optionPanel then
                 CreateOptionPanel()
             end
         end)
-    end
+	end
+
 
     function E:ADDON_LOADED(name)
-        self:UnregisterEvent("ADDON_LOADED")
         if name == "Blizzard_InspectUI" then
             -- GuildBankFrame
             SetMoveHandler(InspectFrame)
@@ -288,6 +291,7 @@ do
         elseif name == "Blizzard_AuctionUI" then
             SetMoveHandler(AuctionFrame)
         end
+        self:UnregisterEvent("ADDON_LOADED")
     end
 end
 

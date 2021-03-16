@@ -6,7 +6,7 @@ local L = core.L
 local mod = core.EnhStackSplit or {}
 core.EnhStackSplit = mod
 
-EnhStackSplitDB = {}
+local DB
 local defaults = {mode = 1, xlmode = false}
 
 local _G = _G
@@ -593,12 +593,12 @@ function mod:CreateFrames()
 
     XLButton:SetScript("OnClick", function() mod:XLModeToggle() end)
 
-    mod:ModeSettings(EnhStackSplitDB.mode)
+    mod:ModeSettings(DB.mode)
     mod:RepositionButtons()
 end
 
 function mod:PositionSplitFrame()
-    if EnhStackSplitDB.xlmode then
+    if DB.xlmode then
         StackSplitFrame:SetPoint(positionanchor, positionparent, positionanchorto, 0, 35)
     else
         StackSplitFrame:SetPoint(positionanchor, positionparent, positionanchorto, 0, 14)
@@ -606,7 +606,7 @@ function mod:PositionSplitFrame()
 end
 
 function mod:RepositionButtons()
-    if EnhStackSplitDB.xlmode then
+    if DB.xlmode then
         _G.EnhancedStackSplitBottomTextureFrame:SetHeight(30)
         _G.EnhancedStackSplitAutoSplitButton:SetPoint("TOPRIGHT", "EnhancedStackSplitButton8", "BOTTOMRIGHT", 0, -19)
 
@@ -656,13 +656,13 @@ function mod:RepositionButtons()
 end
 
 function mod:XLModeToggle()
-    EnhStackSplitDB.xlmode = not EnhStackSplitDB.xlmode
+    DB.xlmode = not DB.xlmode
     mod:PositionSplitFrame()
     mod:RepositionButtons()
     if autoSplitMode then
         mod:ModeSettings(3)
     else
-        mod:ModeSettings(EnhStackSplitDB.mode)
+        mod:ModeSettings(DB.mode)
     end
 end
 
@@ -672,14 +672,14 @@ function mod:ModeToggle(mode)
         mod:ModeSettings(3)
     else
         if not autoSplitMode then
-            if EnhStackSplitDB.mode == 2 then
-                EnhStackSplitDB.mode = 1
+            if DB.mode == 2 then
+                DB.mode = 1
             else
-                EnhStackSplitDB.mode = 2
+                DB.mode = 2
             end
         end
         autoSplitMode = false
-        mod:ModeSettings(EnhStackSplitDB.mode)
+        mod:ModeSettings(DB.mode)
     end
 end
 
@@ -727,7 +727,7 @@ function mod:ModeSettings(mode)
         mod:ButtonTweak("EnhancedStackSplitButton" .. i, 1)
     end
     if mode == 3 then
-        if EnhStackSplitDB.xlmode then
+        if DB.xlmode then
             if maxstacksize > 1 and maxstacksize < 10 then
                 for i = maxstacksize - 1, 9 do
                     mod:ButtonTweak("EnhancedStackSplitButton" .. i, 0)
@@ -777,7 +777,7 @@ function mod:ModeSettings(mode)
         )
         _G.EnhancedStackSplitTextAutoText2:SetText("")
     else
-        if EnhStackSplitDB.xlmode then
+        if DB.xlmode then
             if maxstacksize > 1 and maxstacksize < 10 then
                 for i = maxstacksize, 9 do
                     mod:ButtonTweak("EnhancedStackSplitButton" .. i, 0)
@@ -881,8 +881,8 @@ function mod.OpenStackSplitFrame(maxStack, parent, anchor, anchorTo)
     _G.StackSplitCancelButton:SetPoint("LEFT", "StackSplitFrame", "BOTTOM", 5, 40)
     autoSplitMode = false
     mod:AutoSplitButtonToggle(true)
-    _G.EnhancedStackSplitTextFrameTXT:SetText(splitMode[EnhStackSplitDB.mode])
-    mod:ModeSettings(EnhStackSplitDB.mode)
+    _G.EnhancedStackSplitTextFrameTXT:SetText(splitMode[DB.mode])
+    mod:ModeSettings(DB.mode)
 end
 
 function mod:Split(num)
@@ -945,7 +945,7 @@ function mod:SingleSplit(num)
     _G.StackSplitLeftButton:Enable()
     StackSplitFrame.split = num
     StackSplitText:SetText(num)
-    if EnhStackSplitDB.mode == 2 then
+    if DB.mode == 2 then
         StackSplitFrameOkay_Click()
     end
 end
@@ -956,13 +956,13 @@ function E:ADDON_LOADED(name)
     if name == folder then
 	    self:UnregisterEvent("ADDON_LOADED")
 
-	    if next(EnhStackSplitDB) == nil then
-	        EnhStackSplitDB = defaults
+	    if type(KPackDB.StackSplit) ~= "table" or not next(KPackDB.StackSplit) then
+	        KPackDB.StackSplit = CopyTable(defaults)
 	    end
+        DB = KPackDB.StackSplit
 
 	    mod:CreateFrames()
 	    hooksecurefunc("OpenStackSplitFrame", mod.OpenStackSplitFrame)
-	    self:RegisterEvent("ITEM_LOCK_CHANGED")
     end
 end
 

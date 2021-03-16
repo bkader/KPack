@@ -53,7 +53,8 @@ local KPack_UnitFrames_TargetFrame_OnMouseUp
 local KPack_UnitFrames_TargetFrame_Update
 local KPack_UnitFrames_TextStatusBar_UpdateTextString
 
-local DefautDB = {
+local DB
+local defaults = {
     scale = 1,
     player = {x = -19, y = -4, point = "TOPLEFT", locked = true, moved = false},
     target = {x = 250, y = -4, point = "TOPLEFT", locked = true, moved = false}
@@ -75,7 +76,7 @@ function Tokenize(str)
 end
 
 function KPack_UnitFrames_ApplySettings(settings)
-  settings = settings or UnitFramesDB
+  settings = settings or DB
     KPack_UnitFrames_SetFrameScale(settings.scale)
 
     if settings.player.moved == true then
@@ -90,7 +91,10 @@ function KPack_UnitFrames_ApplySettings(settings)
 end
 
 function KPack_UnitFrames_LoadDefaultSettings()
-    UnitFramesDB = CopyTable(DefautDB)
+    if type(KPackCharDB.UnitFrames) ~= "table" or not next(KPackCharDB.UnitFrames) then
+    	KPackCharDB.UnitFrames = CopyTable(defaults)
+	end
+	DB = KPackCharDB.UnitFrames
 end
 
 function EnableUnitFramesImproved()
@@ -146,7 +150,7 @@ function KPack_UnitFrames_SetFrameScale(scale)
     Boss2TargetFrame:SetScale(scale * 0.9)
     Boss3TargetFrame:SetScale(scale * 0.9)
 
-    UnitFramesDB.scale = scale
+    DB.scale = scale
 end
 
 -- Slashcommand stuff
@@ -158,7 +162,7 @@ SlashCmdList["UNITFRAMESIMPROVED"] = function(msg)
 
     if cmd == "scale" then
         local scale = tonumber(rest)
-        if scale and scale ~= UnitFramesDB.scale and (scale >= 0.5 and scale <= 3) then
+        if scale and scale ~= DB.scale and (scale >= 0.5 and scale <= 3) then
             KPack_UnitFrames_SetFrameScale(scale)
         elseif scale then
           Print(L["Scale has to be a number, recommended to be between 0.5 and 3"])
@@ -183,7 +187,7 @@ StaticPopupDialogs["LAYOUT_RESET"] = {
     OnAccept = function()
         PlayerFrame:SetUserPlaced(false)
         TargetFrame:SetUserPlaced(false)
-        UnitFramesDB = nil
+        DB = nil
         KPack_UnitFrames_LoadDefaultSettings()
         ReloadUI()
     end,
@@ -207,10 +211,10 @@ function KPack_UnitFrames_PlayerFrame_OnMouseUp(self, button)
         PlayerFrame:StopMovingOrSizing()
 
         local point, _, _, xOffset, yOffset = PlayerFrame:GetPoint(1)
-        UnitFramesDB.player.moved = true
-        UnitFramesDB.player.point = point
-        UnitFramesDB.player.x = xOffset
-        UnitFramesDB.player.y = yOffset
+        DB.player.moved = true
+        DB.player.point = point
+        DB.player.x = xOffset
+        DB.player.y = yOffset
         return
     end
 end
@@ -230,10 +234,10 @@ function KPack_UnitFrames_TargetFrame_OnMouseUp(self, button)
         TargetFrame:StopMovingOrSizing()
 
         local point, _, _, xOffset, yOffset = TargetFrame:GetPoint(1)
-        UnitFramesDB.target.moved = true
-        UnitFramesDB.target.point = point
-        UnitFramesDB.target.x = xOffset
-        UnitFramesDB.target.y = yOffset
+        DB.target.moved = true
+        DB.target.point = point
+        DB.target.x = xOffset
+        DB.target.y = yOffset
     end
 end
 
@@ -298,10 +302,10 @@ end
 
 function KPack_UnitFrames_PlayerFrame_ToPlayerArt(self)
     KPack_UnitFrames_Style_PlayerFrame()
-    if UnitFramesDB.player.moved == true then
+    if DB.player.moved == true then
         core.After(0.35, function()
             PlayerFrame:ClearAllPoints()
-            PlayerFrame:SetPoint(UnitFramesDB.player.point, UnitFramesDB.player.x, UnitFramesDB.player.y)
+            PlayerFrame:SetPoint(DB.player.point, DB.player.x, DB.player.y)
         end)
     end
 end
@@ -309,10 +313,10 @@ end
 function KPack_UnitFrames_PlayerFrame_ToVehicleArt(self)
     PlayerFrameHealthBar:SetHeight(12)
     PlayerFrameHealthBarText:SetPoint("CENTER", 50, 3)
-    if UnitFramesDB.player.moved == true then
+    if DB.player.moved == true then
         core.After(0.35, function()
             PlayerFrame:ClearAllPoints()
-            PlayerFrame:SetPoint(UnitFramesDB.player.point, UnitFramesDB.player.x, UnitFramesDB.player.y)
+            PlayerFrame:SetPoint(DB.player.point, DB.player.x, DB.player.y)
         end)
     end
 end
@@ -384,8 +388,8 @@ end
 function KPack_UnitFrames_BossTargetFrame_Show(self)
     self.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-UnitFrame-Boss")
 
-    if not (UnitFramesDB.scale == nil) then
-        self:SetScale(UnitFramesDB.scale * 0.9)
+    if not (DB.scale == nil) then
+        self:SetScale(DB.scale * 0.9)
     end
 end
 
@@ -449,16 +453,9 @@ end
 -- Event listener to make sure we've loaded our settings and thta we apply them
 function E:VARIABLES_LOADED()
     self:UnregisterEvent("VARIABLES_LOADED")
-    if UnitFramesDB == nil then
-        KPack_UnitFrames_LoadDefaultSettings()
-    end
-
-    if UnitFramesDB.player == nil then
-        KPack_UnitFrames_LoadDefaultSettings()
-    end
-
+    KPack_UnitFrames_LoadDefaultSettings()
 	core.ufi = true
-    KPack_UnitFrames_ApplySettings(UnitFramesDB)
+    KPack_UnitFrames_ApplySettings(KPackCharDB.UnitFrames)
 end
 
 -- Event listener to make sure we enable the addon at the right time

@@ -6,7 +6,7 @@ core.ErrorFilter = mod
 local E = core:Events()
 local L = core.L
 
-ErrorFilterDB = {}
+local DB
 
 local function Print(msg)
     if msg then
@@ -44,35 +44,35 @@ do
     exec.status = function()
         Print(
             "Filter Enabled: " ..
-                tostring(ErrorFilterDB.options.enabled) .. " - Frame Shown:" .. tostring(ErrorFilterDB.options.shown)
+                tostring(DB.options.enabled) .. " - Frame Shown:" .. tostring(DB.options.shown)
         )
     end
 
     exec.enable = function()
-        if not ErrorFilterDB.options.enabled then
-            ErrorFilterDB.options.enabled = true
+        if not DB.options.enabled then
+            DB.options.enabled = true
             Print(L["module enabled."])
         end
     end
 
     exec.disable = function()
-        if ErrorFilterDB.options.enabled then
-            ErrorFilterDB.options.enabled = false
+        if DB.options.enabled then
+            DB.options.enabled = false
             Print(L["module disable."])
         end
     end
 
     exec.hide = function()
-        if ErrorFilterDB.options.shown then
-            ErrorFilterDB.options.shown = false
+        if DB.options.shown then
+            DB.options.shown = false
             UIErrorsFrame:Hide()
             Print(L["Error frame is now hidden."])
         end
     end
 
     exec.show = function()
-        if not ErrorFilterDB.options.shown then
-            ErrorFilterDB.options.shown = true
+        if not DB.options.shown then
+            DB.options.shown = true
             UIErrorsFrame:Show()
             Print(L["Error frame is now visible."])
         end
@@ -80,23 +80,23 @@ do
 
     exec.list = function()
         Print(L["filter database:"])
-        for i, filter in ipairs(ErrorFilterDB.filters) do
+        for i, filter in ipairs(DB.filters) do
             print("|cff00ff00" .. i .. "|r " .. filter)
         end
     end
 
     exec.clear = function()
-        ErrorFilterDB.filters = {}
+        DB.filters = {}
         Print(L["database cleared."])
     end
 
     exec.reset = function()
         for k, v in pairs(options) do
-            ErrorFilterDB.options[k] = v
+            DB.options[k] = v
         end
 
         for i, filter in ipairs(filters) do
-            ErrorFilterDB.filters[i] = filter
+            DB.filters[i] = filter
         end
 
         Print(L["module's settings reset to default."])
@@ -105,16 +105,16 @@ do
 
     exec.add = function(filter)
         if filter and filter ~= "" then
-            tinsert(ErrorFilterDB.filters, filter)
+            tinsert(DB.filters, filter)
             Print(L:F("filter added: %s", filter))
         end
     end
 
     exec.delete = function(num)
         num = tonumber(num)
-        for i, filter in ipairs(ErrorFilterDB.filters) do
+        for i, filter in ipairs(DB.filters) do
             if i == num then
-                table.remove(ErrorFilterDB.filters, i)
+                table.remove(DB.filters, i)
                 Print(L:F("filter added: %s", filter))
                 break
             end
@@ -150,21 +150,24 @@ function E:ADDON_LOADED(name)
     _G.SLASH_KPACKERRORFILTER1 = "/erf"
     _G.SLASH_KPACKERRORFILTER2 = "/errorfilter"
 
-    ErrorFilterDB.options = ErrorFilterDB.options or {}
+    KPackDB.ErrorFilter = KPackDB.ErrorFilter or {}
+    DB = KPackDB.ErrorFilter
+
+    DB.options = DB.options or {}
     for k, v in pairs(options) do
-        if ErrorFilterDB.options[k] == nil then
-            ErrorFilterDB.options[k] = v
+        if DB.options[k] == nil then
+            DB.options[k] = v
         end
     end
 
-    ErrorFilterDB.filters = ErrorFilterDB.filters or {}
-    if not ErrorFilterDB.filters[1] then
+    DB.filters = DB.filters or {}
+    if not DB.filters[1] then
         for i, filter in ipairs(filters) do
-            ErrorFilterDB.filters[i] = filter
+            DB.filters[i] = filter
         end
     end
 
-    if ErrorFilterDB.options.shown then
+    if DB.options.shown then
         UIErrorsFrame:Show()
     else
         UIErrorsFrame:Hide()
@@ -181,8 +184,8 @@ UIErrorsFrame:SetScript("OnEvent", function(self, event, ...)
 end)
 
 function UIErrorsFrame:UI_ERROR_MESSAGE(event, name, ...)
-    if ErrorFilterDB.options.enabled and ErrorFilterDB.options.shown and ErrorFilterDB.filters[1] then
-        for k, v in next, ErrorFilterDB.filters do
+    if DB.options.enabled and DB.options.shown and DB.filters[1] then
+        for k, v in next, DB.filters do
             if string.find(string.lower(name), v) then
                 return
             end

@@ -1,4 +1,5 @@
 local folder, core = ...
+local E = core:Events()
 local L = core.L
 
 local tinsert = table.insert
@@ -20,6 +21,19 @@ local MAGetScale
 local MADebug
 local MAPrint
 local echo, decho, dechoSub
+
+function E:ADDON_LOADED(name)
+	if name ~= folder then return end
+	self:UnregisterEvent("ADDON_LOADED")
+	if type(KPackDB.MoveAnything) ~= "table" or not next(KPackDB.MoveAnything) then
+		KPackDB.MoveAnything = {
+			CustomFrames = {},
+			CharacterSettings = {},
+			UseCharacterSettings = false
+		}
+	end
+	DB = KPackDB.MoveAnything
+end
 
 local function void()
 end
@@ -67,8 +81,6 @@ end
 local function dbg(s)
 	MAPrint(s)
 end
-
-MoveAnythingDB = {}
 
 local MovAny = {
 		guiLines = -1,
@@ -648,10 +660,6 @@ core.MA = MovAny
 
 BINDING_HEADER_KPACKMOVEANYTHING = "|cff69ccf0K|r|caaf49141Pack|r MoveAnything"
 
-MoveAnythingDB.CustomFrames = {}
-MoveAnythingDB.CharacterSettings = {}
-MoveAnythingDB.UseCharacterSettings = nil
-
 StaticPopupDialogs["MOVEANYTHING_RESET_CONFIRM"] = {
 	text = L["MoveAnything: Reset all frames in the current profile?"],
 	button1 = YES,
@@ -669,9 +677,10 @@ function MovAny:Boot()
 		return
 	end
 
+	self.db = DB
 	_G["MAOptionsCaption"]:SetText(BINDING_HEADER_KPACKMOVEANYTHING)
 
-	if not MoveAnythingDB.noMMMW and Minimap:GetScript("OnMouseWheel") == nil then
+	if not DB.noMMMW and Minimap:GetScript("OnMouseWheel") == nil then
 		Minimap:SetScript("OnMouseWheel", function()
 			if arg1 < 0 then
 				Minimap_ZoomOut()
@@ -683,26 +692,26 @@ function MovAny:Boot()
 	end
 
 	local autoShowUI = nil
-	if MoveAnythingDB.CharacterSettings == nil then
+	if DB.CharacterSettings == nil then
 		autoShowUI = true
 	end
 
 	self:VerifyData()
 
-	local MoveAnythingDB_Defaults = {
+	local DB_Defaults = {
 		autoShowNext = nil,
 		optsPlaySound = nil,
 		alwaysShowNudger = nil
 	}
 
-	for i, v in pairs(MoveAnythingDB_Defaults) do
-		if MoveAnythingDB[i] ~= nil then
+	for i, v in pairs(DB_Defaults) do
+		if DB[i] ~= nil then
 		else
-			MoveAnythingDB[i] = v
+			DB[i] = v
 		end
 	end
 
-	MoveAnythingDB["collapsed"] = true
+	DB["collapsed"] = true
 
 	MAOptionsCharacterSpecific:SetScript("OnEnter", MovAny.TooltipShowMultiline)
 	MAOptionsCharacterSpecific:SetScript("OnLeave", MovAny.TooltipHide)
@@ -753,7 +762,7 @@ function MovAny:Boot()
 	if GameTooltip and GameTooltip.SetOwner then
 		hooksecurefunc(GameTooltip, "SetOwner", self.hGameTooltip_SetOwner)
 	end
-	if updateContainerFrameAnchors and not MoveAnythingDB.noBags then
+	if updateContainerFrameAnchors and not DB.noBags then
 		hooksecurefunc("updateContainerFrameAnchors", self.UpdateContainerFrameAnchors)
 	end
 
@@ -773,9 +782,9 @@ function MovAny:Boot()
 	end
 
 	self.inited = true
-	if MoveAnythingDB.autoShowNext == true then
+	if DB.autoShowNext == true then
 		autoShowUI = true
-		MoveAnythingDB.autoShowNext = nil
+		DB.autoShowNext = nil
 	end
 	if autoShowUI == true then
 		MAOptions:Show()
@@ -784,11 +793,11 @@ end
 
 function MovAny:OnPlayerLogout()
 	if MAOptions:IsShown() then
-		MoveAnythingDB.autoShowNext = true
+		DB.autoShowNext = true
 	end
 
-	if type(MoveAnythingDB.CustomFrames) == "table" then
-		for i, v in pairs(MoveAnythingDB.CustomFrames) do
+	if type(DB.CustomFrames) == "table" then
+		for i, v in pairs(DB.CustomFrames) do
 			v.idx = nil
 			v.cat = nil
 		end
@@ -797,9 +806,9 @@ function MovAny:OnPlayerLogout()
 end
 
 function MovAny:CleanProfile(pn)
-	if pn and type(MoveAnythingDB.CharacterSettings[pn]) == "table" then
+	if pn and type(DB.CharacterSettings[pn]) == "table" then
 		local f
-		for i, v in pairs(MoveAnythingDB.CharacterSettings[pn]) do
+		for i, v in pairs(DB.CharacterSettings[pn]) do
 			f = _G[i]
 			if f and f.SetUserPlaced and (f:IsMovable() or f:IsResizable()) then
 				f:SetUserPlaced(nil)
@@ -816,13 +825,13 @@ function MovAny:CleanProfile(pn)
 end
 
 function MovAny:VerifyData()
-	if MoveAnythingDB.CharacterSettings[self:GetProfileName()] == nil then
-		MoveAnythingDB.CharacterSettings[self:GetProfileName()] = {}
+	if DB.CharacterSettings[self:GetProfileName()] == nil then
+		DB.CharacterSettings[self:GetProfileName()] = {}
 	end
 
 	local fRel
 	local remList = {}
-	for pi, profile in pairs(MoveAnythingDB.CharacterSettings) do
+	for pi, profile in pairs(DB.CharacterSettings) do
 		twipe(remList)
 		for fn, opt in pairs(profile) do
 			if not opt or opt == nil then
@@ -873,7 +882,7 @@ function MovAny:VerifyData()
 			end
 		end
 		for i, v in ipairs(remList) do
-			MoveAnythingDB.CharacterSettings[pi][v] = nil
+			DB.CharacterSettings[pi][v] = nil
 		end
 	end
 end
@@ -881,7 +890,7 @@ end
 function MovAny:ParseData()
 	local sepLast, sep = nil
 
-	if MoveAnythingDB.noList then
+	if DB.noList then
 		for i, v in pairs(self.DefaultFrameList) do
 			if v[1] then
 				if v[1] == "" then
@@ -889,7 +898,7 @@ function MovAny:ParseData()
 					sep.name = nil
 					sep.helpfulName = v[2]
 					sep.sep = true
-					sep.collapsed = MoveAnythingDB.collapsed
+					sep.collapsed = DB.collapsed
 					sepLast = sep
 				end
 			end
@@ -909,7 +918,7 @@ function MovAny:ParseData()
 					sep.name = nil
 					sep.helpfulName = v[2]
 					sep.sep = true
-					sep.collapsed = MoveAnythingDB.collapsed
+					sep.collapsed = DB.collapsed
 					tinsert(self.frames, sep)
 					tinsert(self.cats, sep)
 					self.framesCount = self.framesCount + 1
@@ -930,7 +939,7 @@ function MovAny:ParseData()
 	self.DefaultFrameList = nil
 	self.customCat = sepLast
 
-	self.FrameOptions = MoveAnythingDB.CharacterSettings[self:GetProfileName()]
+	self.FrameOptions = DB.CharacterSettings[self:GetProfileName()]
 	tsort(self.FrameOptions, function(o1, o2) return o1.name:lower() < o2.name:lower() end )
 
 	for i, v in pairs(self.FrameOptions) do
@@ -950,14 +959,14 @@ end
 
 function MovAny:AddCustomFrameIfNew(name)
 	local found = nil
-	for i in pairs(MoveAnythingDB.CustomFrames) do
-		if MoveAnythingDB.CustomFrames[i].name == name then
+	for i in pairs(DB.CustomFrames) do
+		if DB.CustomFrames[i].name == name then
 			found = i
 			break
 		end
 	end
 	if found == nil then
-		tinsert(MoveAnythingDB.CustomFrames, {name = name, helpfulName = name})
+		tinsert(DB.CustomFrames, {name = name, helpfulName = name})
 		self.guiLines = -1
 		self:UpdateGUIIfShown(true)
 		return true
@@ -1165,7 +1174,7 @@ function MovAny:IsProtected(f)
 end
 
 function MovAny:GetProfileName(override)
-	local val = MoveAnythingDB.UseCharacterSettings
+	local val = DB.UseCharacterSettings
 	if override ~= nil then
 		val = override
 	end
@@ -1177,19 +1186,19 @@ function MovAny:GetProfileName(override)
 end
 
 function MovAny:CopySettings(fromName, toName)
-	if MoveAnythingDB.CharacterSettings[toName] == nil then
-		MoveAnythingDB.CharacterSettings[toName] = {}
+	if DB.CharacterSettings[toName] == nil then
+		DB.CharacterSettings[toName] = {}
 	end
-	for i, val in pairs(MoveAnythingDB.CharacterSettings[fromName]) do
+	for i, val in pairs(DB.CharacterSettings[fromName]) do
 		local l = tcopy(val)
 		l.cat = nil
-		MoveAnythingDB.CharacterSettings[toName][i] = l
+		DB.CharacterSettings[toName][i] = l
 	end
 end
 
 function MovAny:UpdateProfile(profile)
 	self:ResetAll(true)
-	self.FrameOptions = MoveAnythingDB.CharacterSettings[self:GetProfileName()]
+	self.FrameOptions = DB.CharacterSettings[self:GetProfileName()]
 	self:SyncAllFrames(true)
 	self:UpdateGUIIfShown(true)
 end
@@ -1227,9 +1236,9 @@ end
 
 function MovAny:RemoveIfCustom(fn)
 	local removed = nil
-	for i in pairs(MoveAnythingDB.CustomFrames) do
-		if MoveAnythingDB.CustomFrames[i].name == fn then
-			tremove(MoveAnythingDB.CustomFrames, i)
+	for i in pairs(DB.CustomFrames) do
+		if DB.CustomFrames[i].name == fn then
+			tremove(DB.CustomFrames, i)
 			self.guiLines = -1
 			removed = true
 			break
@@ -1703,7 +1712,7 @@ function MovAny:AddFrameToMovableList(fn, helpfulName, default)
 			self.defFrames[opts.name] = opts
 		else
 			if default ~= 1 then
-				tinsert(MoveAnythingDB.CustomFrames, opts)
+				tinsert(DB.CustomFrames, opts)
 				self.guiLines = -1
 			end
 		end
@@ -2474,17 +2483,17 @@ function MovAny:OnCheckCharacterSpecific(button)
 	end
 	local oldName = self:GetProfileName()
 	if button:GetChecked() then
-		MoveAnythingDB.UseCharacterSettings = true
+		DB.UseCharacterSettings = true
 	else
-		MoveAnythingDB.UseCharacterSettings = nil
+		DB.UseCharacterSettings = nil
 	end
 	local newProfile = self:GetProfileName()
 
 	local i = 0
-	if MoveAnythingDB.CharacterSettings[newProfile] == nil then
-		MoveAnythingDB.CharacterSettings[newProfile] = {}
+	if DB.CharacterSettings[newProfile] == nil then
+		DB.CharacterSettings[newProfile] = {}
 	else
-		for v in pairs(MoveAnythingDB.CharacterSettings[newProfile]) do
+		for v in pairs(DB.CharacterSettings[newProfile]) do
 			i = i + 1
 		end
 	end
@@ -2497,9 +2506,9 @@ end
 function MovAny:OnCheckToggleCategories(button)
 	local state = button:GetChecked()
 	if state then
-		MoveAnythingDB.collapsed = true
+		DB.collapsed = true
 	else
-		MoveAnythingDB.collapsed = nil
+		DB.collapsed = nil
 	end
 	for i, v in pairs(self.cats) do
 		v.collapsed = state
@@ -2511,9 +2520,9 @@ end
 function MovAny:OnCheckToggleModifiedFramesOnly(button)
 	local state = button:GetChecked()
 	if state then
-		MoveAnythingDB.modifiedFramesOnly = true
+		DB.modifiedFramesOnly = true
 	else
-		MoveAnythingDB.modifiedFramesOnly = nil
+		DB.modifiedFramesOnly = nil
 	end
 
 	self:UpdateGUIIfShown(true)
@@ -2522,9 +2531,9 @@ end
 function MovAny:OnCheckToggleTooltips(button)
 	local state = button:GetChecked()
 	if state then
-		MoveAnythingDB.tooltips = true
+		DB.tooltips = true
 	else
-		MoveAnythingDB.tooltips = nil
+		DB.tooltips = nil
 	end
 	self:UpdateGUIIfShown()
 end
@@ -2661,14 +2670,14 @@ function MovAny:ResetAll(readOnly)
 	self:ReanchorRelatives()
 	if not readOnly then
 		self.FrameOptions = {}
-		MoveAnythingDB.CharacterSettings[self:GetProfileName()] = self.FrameOptions
+		DB.CharacterSettings[self:GetProfileName()] = self.FrameOptions
 	end
 
 	self:UpdateGUIIfShown(true)
 end
 
 function MovAny:OnShow()
-	if MoveAnythingDB.optsPlaySound == true then
+	if DB.optsPlaySound == true then
 		PlaySound("igMainMenuOpen")
 	end
 
@@ -2684,7 +2693,7 @@ function MovAny:OnShow()
 end
 
 function MovAny:OnHide()
-	if MoveAnythingDB.optsPlaySound == true then
+	if DB.optsPlaySound == true then
 		PlaySound("igMainMenuClose")
 	end
 
@@ -2724,7 +2733,7 @@ function MovAny:CountGUIItems()
 			end
 			curSep = o
 		else
-			if MoveAnythingDB.modifiedFramesOnly then
+			if DB.modifiedFramesOnly then
 				if MovAny:IsFrameHooked(o.name) then
 					nextSepItems = nextSepItems + 1
 				end
@@ -2740,7 +2749,7 @@ function MovAny:CountGUIItems()
 
 	for i, o in pairs(MovAny.frames) do
 		if o.sep then
-			if not MoveAnythingDB.modifiedFramesOnly then
+			if not DB.modifiedFramesOnly then
 				if o.collapsed then
 					items = items + 1
 				else
@@ -2781,7 +2790,7 @@ function MovAny:UpdateGUI(recount)
 
 		if o.sep then
 			lastSep = o
-			if MoveAnythingDB.modifiedFramesOnly then
+			if DB.modifiedFramesOnly then
 				if o.items == 0 then
 					hidden = hidden + 1
 				else
@@ -2792,7 +2801,7 @@ function MovAny:UpdateGUI(recount)
 			end
 		else
 			if lastSep and lastSep.collapsed then
-			elseif MoveAnythingDB.modifiedFramesOnly then
+			elseif DB.modifiedFramesOnly then
 				if lastSep.items > 0 then
 					shown = shown + 1
 				else
@@ -2832,7 +2841,7 @@ function MovAny:UpdateGUI(recount)
 			o = MovAny.frames[index]
 
 			if o.sep then
-				if MoveAnythingDB.modifiedFramesOnly then
+				if DB.modifiedFramesOnly then
 					if o.items > 0 then
 						if skip > 0 then
 							index = index + 1
@@ -2860,7 +2869,7 @@ function MovAny:UpdateGUI(recount)
 					index = index + 1
 					wtfOffset = wtfOffset + 1
 				else
-					if MoveAnythingDB.modifiedFramesOnly then
+					if DB.modifiedFramesOnly then
 						if MovAny:IsFrameHooked(o.name) then
 							if skip > 0 then
 								index = index + 1
@@ -2963,7 +2972,7 @@ function MovAny:UpdateGUI(recount)
 			end
 		end
 	end
-	MAOptionsCharacterSpecific:SetChecked(MoveAnythingDB.UseCharacterSettings)
+	MAOptionsCharacterSpecific:SetChecked(DB.UseCharacterSettings)
 	MAOptionsCharacterSpecific.tooltipLines = {
 		L["Use character specific settings"],
 		" ",
@@ -2971,9 +2980,9 @@ function MovAny:UpdateGUI(recount)
 		"Cmds: /movelist, /moveimport, /moveexport & /movedelete"
 	}
 
-	MAOptionsToggleCategories:SetChecked(MoveAnythingDB.collapsed)
-	MAOptionsToggleModifiedFramesOnly:SetChecked(MoveAnythingDB.modifiedFramesOnly)
-	MAOptionsToggleTooltips:SetChecked(MoveAnythingDB.tooltips)
+	MAOptionsToggleCategories:SetChecked(DB.collapsed)
+	MAOptionsToggleModifiedFramesOnly:SetChecked(DB.modifiedFramesOnly)
+	MAOptionsToggleTooltips:SetChecked(DB.tooltips)
 	MovAny:TooltipHide()
 end
 
@@ -3050,7 +3059,7 @@ function MovAny:MoverOnHide()
 end
 
 function MovAny:NudgerOnShow()
-	if not MoveAnythingDB.alwaysShowNudger then
+	if not DB.alwaysShowNudger then
 		local firstMover = self:GetFirstMover()
 		if firstMover == nil then
 			MANudger:Hide()
@@ -3880,7 +3889,7 @@ function MovAny:ResetScale(f, opt, readonly)
 end
 
 -- modfied version of blizzards updateContainerFrameAnchors
--- to prevent this from hooking the original updateContainerFrameAnchors do a "/run MoveAnythingDB.noBags = true" followed by "/reload"
+-- to prevent this from hooking the original updateContainerFrameAnchors do a "/run DB.noBags = true" followed by "/reload"
 function MovAny:UpdateContainerFrameAnchors()
 	local frame, xOffset, yOffset, screenHeight, freeScreenHeight, leftMostPoint, column
 	local screenWidth = GetScreenWidth()
@@ -4003,7 +4012,7 @@ SlashCmdList["KPACKMAIMPORT"] = function(msg)
 		return
 	end
 
-	if MoveAnythingDB.CharacterSettings[msg] == nil then
+	if DB.CharacterSettings[msg] == nil then
 		MAPrint(L:F("Unknown profile: %s", msg))
 		return
 	end
@@ -4027,7 +4036,7 @@ end
 SLASH_KPACKMALIST1 = "/movelist"
 SlashCmdList["KPACKMALIST"] = function(msg)
 	MAPrint(L["Profiles"] .. ":")
-	for i, val in pairs(MoveAnythingDB.CharacterSettings) do
+	for i, val in pairs(DB.CharacterSettings) do
 		local str = ' "' .. i .. '"'
 		if val == MovAny.FrameOptions then
 			str = str .. " <- " .. L["Current"]
@@ -4044,7 +4053,7 @@ SlashCmdList["KPACKMADELETE"] = function(msg)
 		return
 	end
 
-	if MoveAnythingDB.CharacterSettings[msg] == nil then
+	if DB.CharacterSettings[msg] == nil then
 		MAPrint(L:F("Unknown profile: %s", msg))
 		return
 	end
@@ -4056,7 +4065,7 @@ SlashCmdList["KPACKMADELETE"] = function(msg)
 		end
 		MovAny:ResetAll()
 	else
-		MoveAnythingDB.CharacterSettings[msg] = nil
+		DB.CharacterSettings[msg] = nil
 	end
 	MAPrint(L:F("Profile deleted: %s", msg))
 end
@@ -4256,7 +4265,7 @@ function MovAny:TooltipShow()
 	if not this.tooltipText then
 		return
 	end
-	if (MoveAnythingDB.tooltips and not IsShiftKeyDown()) or (not MoveAnythingDB.tooltips and IsShiftKeyDown()) then
+	if (DB.tooltips and not IsShiftKeyDown()) or (not DB.tooltips and IsShiftKeyDown()) then
 		GameTooltip:SetOwner(this, "ANCHOR_CURSOR")
 		GameTooltip:ClearLines()
 		GameTooltip:AddLine(this.tooltipText)
@@ -4288,7 +4297,7 @@ function MovAny:TooltipShowMultiline(reserved, parent, tooltipLines)
 	if not g then
 		return
 	end
-	if (MoveAnythingDB.tooltips and not IsShiftKeyDown()) or (not MoveAnythingDB.tooltips and IsShiftKeyDown()) then
+	if (DB.tooltips and not IsShiftKeyDown()) or (not DB.tooltips and IsShiftKeyDown()) then
 		GameTooltip:SetOwner(parent, "ANCHOR_CURSOR")
 		GameTooltip:ClearLines()
 		for i, v in ipairs(tooltipLines) do
@@ -4582,8 +4591,8 @@ end
 
 function MADebug()
 	local ct = 0
-	MAPrint("Custom frames: " .. tlen(MoveAnythingDB.CustomFrames))
-	for i, v in pairs(MoveAnythingDB.CustomFrames) do
+	MAPrint("Custom frames: " .. tlen(DB.CustomFrames))
+	for i, v in pairs(DB.CustomFrames) do
 		ct = ct + 1
 		MAPrint(ct .. ": " .. v.name)
 	end

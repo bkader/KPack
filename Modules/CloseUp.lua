@@ -6,7 +6,7 @@ core.CloseUp = mod
 local E = core:Events()
 local L = core.L
 
-CloseUpDB = {}
+local DB
 
 -- cache frequetly used globals
 local GetCursorPosition = GetCursorPosition
@@ -27,9 +27,9 @@ end
 -- by holdinh down ctrl button and click.
 local function CloseUp_ToggleBG(noSave)
     if not noSave then
-        CloseUpDB = not CloseUpDB
+        DB = not DB
     end
-    local f = (CloseUpDB and DressUpBackgroundTopLeft.Hide) or DressUpBackgroundTopLeft.Show
+    local f = (DB and DressUpBackgroundTopLeft.Hide) or DressUpBackgroundTopLeft.Show
     f(DressUpBackgroundTopLeft)
     f(DressUpBackgroundTopRight)
     f(DressUpBackgroundBotLeft)
@@ -251,6 +251,9 @@ end
 
 function E:ADDON_LOADED(name)
     self:UnregisterEvent("ADDON_LOADED")
+	if KPackDB.CloseUp == nil then
+		KPackDB.CloseUp = true
+	end
     if name == "Blizzard_AuctionUI" then
         CloseUp_AuctionUI()
     elseif name == "Blizzard_InspectUI" then

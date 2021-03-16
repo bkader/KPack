@@ -3,8 +3,8 @@
 ## Title: |cfff58cbaKader|r|caaf49141Pack|r
 ## Notes: A collection of useful and tiny scripts and addons, All-In-One.
 ## Author: Kader @ Novus Ordo
-## SavedVariables: ActionBarsDB, AutomateDB, BlizzMoveDB, ChatFilterDB, ChatModsDB, CloseUpDB, CombatLogFixDB, CombatTimeDB, EnhStackSplitDB, ErrorFilterDB, FriendsInfoDB, GearScoreDB, GearScoreData, IgnoreMoreDB, LootMessageFilterDB, MinimapDB, MoveAnythingDB, NameplatesDB, SnowfallKeyPressDB
-## SavedVariablesPerCharacter: PersonalResourcesDB, PullnBreakDB, QuickButtonDB, SimpleComboPointsDB, TooltipDB, UnitFramesDB, ViewporterDB
+## SavedVariables: KPackDB
+## SavedVariablesPerCharacter: KPackCharDB
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## RequiredDeps: Blizzard_CombatText

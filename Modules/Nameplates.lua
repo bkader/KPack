@@ -3,11 +3,14 @@ local E = core:Events()
 local L = core.L
 
 -- SavedVariables
+local DB
 local defaults = {
+    barWidth = 120,
+    barHeight = 12,
     enabled = true,
     fontSize = 11,
     showHealthText = false,
-    shortenNumbers = false,
+    shortenNumbers = true,
     showHealthPercent = false
 }
 local disabled
@@ -16,8 +19,6 @@ local disabled
 
 local config = {
     -- bar config
-    barWidth = 120, -- nameplate width
-    barHeight = 12, -- health and cast bars height
     barTexture = [[Interface\Addons\KPack\Media\Textures\statusbar]],
     glowTexture = [[Interface\AddOns\KPack\Media\Textures\glowTex]],
 
@@ -393,23 +394,23 @@ do
     local help = "|cffffd700%s|r: %s"
 
     commands.toggle = function()
-        NameplatesDB.enabled = not NameplatesDB.enabled
+        DB.enabled = not DB.enabled
     end
 
     commands.enable = function()
-        NameplatesDB.enabled = false
+        DB.enabled = false
     end
     commands.on = commands.enable
 
     commands.disable = function()
-        NameplatesDB.enabled = false
+        DB.enabled = false
     end
     commands.off = commands.disable
 
     commands.fontsize = function(num)
         num = tonumber(num)
         if num then
-            NameplatesDB.fontSize = num
+            DB.fontSize = num
             config.fontSize = num
             config.hpTextFont[2] = num
             config.hpPercentFont[2] = num
@@ -418,19 +419,37 @@ do
     commands.size = commands.fontsize
 
     commands.hptext = function()
-        NameplatesDB.showHealthText = not NameplatesDB.showHealthText
+        DB.showHealthText = not DB.showHealthText
     end
     commands.health = commands.hptext
 
     commands.hppercent = function()
-        NameplatesDB.showHealthPercent = not NameplatesDB.showHealthPercent
+        DB.showHealthPercent = not DB.showHealthPercent
     end
     commands.percent = commands.hppercent
 
     commands.shorten = function()
-        NameplatesDB.shortenNumbers = not NameplatesDB.shortenNumbers
+        DB.shortenNumbers = not DB.shortenNumbers
     end
     commands.short = commands.shorten
+
+    commands.height = function(num)
+        num = tonumber(num)
+        if num then
+            DB.barHeight = num
+            config.barHeight = num
+        end
+    end
+    commands.barHeight = commands.height
+
+    commands.width = function(num)
+        num = tonumber(num)
+        if num then
+            DB.barWidth = num
+            config.barWidth = num
+        end
+    end
+    commands.barWidth = commands.width
 
     function SlashCommandHandler(msg)
         local cmd, rest = strsplit(" ", msg, 2)
@@ -444,6 +463,8 @@ do
             print(_format(help, "enable", L["enable module"]))
             print(_format(help, "disable", L["disable module"]))
             print(_format(help, "fontsize|r |cff00ffffn|r", L["changes nameplates font size"]))
+            print(_format(help, "height|r |cff00ffffn|r", L["changes nameplates height"]))
+            print(_format(help, "width|r |cff00ffffn|r", L["changes nameplates width"]))
             print(_format(help, "health", L["toggles health text"]))
             print(_format(help, "shorten", L["shortens health text"]))
             print(_format(help, "percent", L["toggles health percentage"]))
@@ -457,11 +478,12 @@ function E:ADDON_LOADED(name)
     end
     self:UnregisterEvent("ADDON_LOADED")
 
-    if type(NameplatesDB) ~= "table" then
-        NameplatesDB = defaults
+    if type(KPackDB.Nameplates) ~= "table" or not next(KPackDB.Nameplates) then
+        KPackDB.Nameplates = CopyTable(defaults)
     end
+    DB = KPackDB.Nameplates
 
-    for k, v in pairs(NameplatesDB) do
+    for k, v in pairs(DB) do
         if config[k] == nil then
             config[k] = v
         end
@@ -504,7 +526,7 @@ do
             end
         end
 
-        if NameplatesDB.enabled and not disabled then
+        if DB.enabled and not disabled then
             frame:SetScript("OnUpdate", Nameplates_OnUpdate)
             frame:Show()
         else
@@ -515,7 +537,7 @@ do
 end
 
 function E:PLAYER_TARGET_CHANGED()
-    if NameplatesDB.enabled and not disabled then
+    if DB.enabled and not disabled then
         targetExists = UnitExists("target")
     end
 end

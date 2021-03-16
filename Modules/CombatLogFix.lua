@@ -8,7 +8,7 @@ local E = core:Events()
 local L = core.L
 
 -- saved variables and default settings
-CombatLogFixDB = {}
+local DB
 local defaults = {
     enabled = true,
     zone = true,
@@ -37,7 +37,7 @@ local function Print(msg)
 end
 
 local function CombatLogReportEntries()
-    if CombatLogFixDB.enabled and CombatLogFixDB.report and (not throttleBreak or throttleBreak < GetTime()) then
+    if DB.enabled and DB.report and (not throttleBreak or throttleBreak < GetTime()) then
         Print(L:F("%d filtered/%d events found. Cleared combat log, as it broke.", CombatLogGetNumEntries(), CombatLogGetNumEntries(true)))
         throttleBreak = GetTime() + 60 -- every 60sec so we don't spam.
     end
@@ -51,7 +51,7 @@ end
 
 -- handles frame's OnUpdate event
 local function UpdateUIFrame(self, elapsed)
-    if not CombatLogFixDB.enabled then
+    if not DB.enabled then
         self:SetScript("OnUpdate", nil)
         self:Hide()
         return
@@ -64,7 +64,7 @@ local function UpdateUIFrame(self, elapsed)
         end
 
         -- we queue the clear for later if the plauyer is in combat.
-        if not (CombatLogFixDB.wait and InCombatLockdown()) then
+        if not (DB.wait and InCombatLockdown()) then
             CombatLogClearEntries()
         end
         self.lastUpdated = 0
@@ -87,7 +87,7 @@ do
             -- reset to default
             Print(L["Show set options"])
             for k, v in pairs(options) do
-                if CombatLogFixDB[k] then
+                if DB[k] then
                     print(v, ": |cff00ff00ON|r")
                 else
                     print(v, ": |cffff0000OFF|r")
@@ -95,12 +95,12 @@ do
             end
         elseif msg == "reset" then
             -- existing command
-            wipe(CombatLogFixDB)
-            CombatLogFixDB = defaults
+            wipe(DB)
+            DB = defaults
             Print(L["module's settings reset to default."])
         elseif msg == "toggle" then
-            CombatLogFixDB.enabled = not CombatLogFixDB.enabled
-            if CombatLogFixDB.enabled then
+            DB.enabled = not DB.enabled
+            if DB.enabled then
                 frame:SetScript("OnUpdate", UpdateUIFrame)
                 frame:Show()
                 Print(L:F("module status: %s", "|cff00ff00ON|r"))
@@ -111,8 +111,8 @@ do
             end
         elseif msg ~= "enabled" and options[msg] then
             -- non-existing command
-            CombatLogFixDB[msg] = not CombatLogFixDB[msg]
-            local status = (CombatLogFixDB[msg] == true)
+            DB[msg] = not DB[msg]
+            local status = (DB[msg] == true)
             Print(options[msg] .. " - " .. (status and "|cff00ff00ON|r" or "|cffff0000OFF|r"))
         else
             Print(L:F("Acceptable commands for: |caaf49141%s|r", "/logfix"))
@@ -130,9 +130,10 @@ end
 -- main frame event handler
 function E:ADDON_LOADED(name)
     if name == folder then
-        if next(CombatLogFixDB) == nil then
-            CombatLogFixDB = defaults
+        if type(KPackDB.CLF) ~= "table" or not next(KPackDB.CLF) then
+            KPackDB.CLF = CopyTable(defaults)
         end
+        DB = KPackDB.CLF
 
         -- register our slash commands
         SlashCmdList["KPACKLOGFIXER"] = SlashCommandHandler
@@ -140,13 +141,13 @@ function E:ADDON_LOADED(name)
         _G.SLASH_KPACKLOGFIXER2 = "/fixer"
         _G.SLASH_KPACKLOGFIXER3 = "/logfix"
 
-        frame:SetScript("OnUpdate", CombatLogFixDB.enabled and UpdateUIFrame or nil)
+        frame:SetScript("OnUpdate", DB.enabled and UpdateUIFrame or nil)
     end
 end
 
 -- clear combat log on zone change.
 function E:ZONE_CHANGED_NEW_AREA()
-    if CombatLogFixDB.enabled and CombatLogFixDB.zone then
+    if DB.enabled and DB.zone then
         local t = select(2, IsInInstance())
         if instanceType and t ~= instanceType then
             CombatLogClearEntries()
@@ -158,13 +159,13 @@ E.PLAYER_ENTERING_WORLD = E.ZONE_CHANGED_NEW_AREA
 
 -- queued clear after combat ends
 function E:PLAYER_REGEN_ENABLED()
-    if CombatLogFixDB.enabled and CombatLogFixDB.wait then
+    if DB.enabled and DB.wait then
         CombatLogClearEntries()
     end
 end
 
 function E:COMBAT_LOG_EVENT_UNFILTERED()
-    if CombatLogFixDB.enabled then
+    if DB.enabled then
         lastEvent = GetTime()
     end
 end

@@ -9,7 +9,7 @@ local defaults = {
     enabled = true,
     editbox = "top"
 }
-ChatModsDB = {}
+local DB
 
 local gsub, format = string.gsub, string.format
 
@@ -27,15 +27,15 @@ do
 
     -- toggle module
     exec.toggle = function()
-        ChatModsDB.enabled = not ChatModsDB.enabled
-        Print(ChatModsDB.enabled and L["|cff00ff00enabled|r"] or L["|cffff0000disabled|r"])
+        DB.enabled = not DB.enabled
+        Print(DB.enabled and L["|cff00ff00enabled|r"] or L["|cffff0000disabled|r"])
     end
 
     -- center editBox
     exec.editbox = function(rest)
         rest = rest and rest:lower():trim() or ""
         if rest == "top" or rest == "bottom" or rest == "middle" then
-            ChatModsDB.editbox = rest
+            DB.editbox = rest
             Print(L:F("editbox position set to: |cff00ffff%s|r", rest))
         else
             Print(L:F("Acceptable commands for: |caaf49141%s|r", "/cm editbox"))
@@ -47,8 +47,8 @@ do
 
     -- reset to default
     exec.reset = function()
-        wipe(ChatModsDB)
-        ChatModsDB = defaults
+        wipe(DB)
+        DB = defaults
         Print(L["module's settings reset to default."])
     end
     exec.default = exec.reset
@@ -176,10 +176,10 @@ local function ChatMods_EditBox()
         eb:ClearAllPoints()
         eb:EnableMouse(false)
 
-        if ChatModsDB.editbox == "middle" then
+        if DB.editbox == "middle" then
             eb:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -200, 180)
             eb:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", 200, 180)
-        elseif ChatModsDB.editbox == "top" then
+        elseif DB.editbox == "top" then
             eb:SetPoint("BOTTOMLEFT", cf, "TOPLEFT", 2, 20)
             eb:SetPoint("BOTTOMRIGHT", cf, "TOPRIGHT", -2, 20)
         else
@@ -519,10 +519,12 @@ end
 function E:ADDON_LOADED(name)
     if name ~= folder then
         return
-    end
-    if next(ChatModsDB) == nil then
-        ChatModsDB = defaults
-    end
+	end
+
+	if type(KPackDB.ChatMods) ~= "table" or not next(KPackDB.ChatMods) then
+		KPackDB.ChatMods = CopyTable(defaults)
+	end
+	DB = KPackDB.ChatMods
 
     -- Tell Target Command!
     SlashCmdList["KPACKTELLTARGET"] = ChatMods_TellTarget
@@ -534,7 +536,7 @@ function E:ADDON_LOADED(name)
     _G.SLASH_KPACKCHATMODS1 = "/cm"
     _G.SLASH_KPACKCHATMODS2 = "/chatmods"
 
-    if not ChatModsDB.enabled then
+    if not DB.enabled then
         return
     end
 
@@ -558,5 +560,5 @@ ChatMods_Initialize = function()
 end
 
 function E:PLAYER_ENTERING_WORLD()
-    ChatMods_Initialize()
+	if DB.enabled then ChatMods_Initialize() end
 end

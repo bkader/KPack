@@ -1525,7 +1525,7 @@
 						if IsShiftKeyDown() and IsControlKeyDown() and IsAltKeyDown() then
 							ReloadUI()
 						else
-							MoveAnythingDB.autoShowNext = nil
+							KPack.MA.db.autoShowNext = nil
 							MAOptions:Hide()
 						end
 					</OnClick>
@@ -2058,7 +2058,7 @@
 			</OnMouseWheel>
 			<OnEnter>
 				if KPack.MA.currentMover > 0 and _G[ KPack.MA.moverPrefix..KPack.MA.currentMover ].tagged then
-					if  (MoveAnythingDB.tooltips and not IsShiftKeyDown()) or (not MoveAnythingDB.tooltips and IsShiftKeyDown()) then
+					if  (KPack.MA.db.tooltips and not IsShiftKeyDown()) or (not KPack.MA.db.tooltips and IsShiftKeyDown()) then
 						this.tooltipLines = KPack.MA:GetFrameTooltipLines(_G[ KPack.MA.moverPrefix..KPack.MA.currentMover ].tagged:GetName())
 						KPack.MA.TooltipShowMultiline(0, this)
 					end

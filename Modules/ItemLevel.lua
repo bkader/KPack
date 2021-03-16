@@ -1,4 +1,8 @@
 local folder, core = ...
+
+local mod = core.ItemLevel or {}
+core.ItemLevel = mod
+
 local E = core:Events()
 
 local slots = {
@@ -82,16 +86,18 @@ do
         UpdateButtonsText("Character")
     end
 
-	function E:PLAYER_TARGET_CHANGED()
+    function E:PLAYER_TARGET_CHANGED()
         UpdateButtonsText("Inspect")
-	end
+    end
 
     function E:ADDON_LOADED(name)
         if name == "Blizzard_InspectUI" then
             self:UnregisterEvent("ADDON_LOADED")
             CreateButtonsText("Inspect")
             InspectFrame:HookScript("OnShow", function(self) UpdateButtonsText("Inspect") end)
-            self:RegisterEvent("PLAYER_TARGET_CHANGED")
+            if not core.GearScore or not core.GearScore.Level then
+                mod:HookTooltip()
+            end
         end
     end
 end
@@ -100,7 +106,7 @@ end
 -- average item level in tooltips and PaperDoll
 
 do
-    local floor = math.floor
+    local ceil = math.ceil
     local UnitIsPlayer = UnitIsPlayer
     local GetInventoryItemID = GetInventoryItemID
     local GetInventorySlotInfo = GetInventorySlotInfo
@@ -109,31 +115,36 @@ do
         if unit and UnitIsPlayer(unit) then
             local total, itn = 0, 0
 
-            for i in ipairs(slots) do
-                local slot = GetInventoryItemID(unit, GetInventorySlotInfo(slots[i]))
-                if slot then
-                    local sName, sLink, iRarity, iLevel, iMinLevel, sType, sSubType, iStackCount = GetItemInfo(slot)
-                    if iLevel and iLevel > 0 then
-                        itn = itn + 1
-                        total = total + iLevel
+            for i = 1, 18 do
+                if i ~= 4 and i ~= 17 then
+                    local sLink = GetInventoryItemLink(unit, i)
+                    if sLink then
+                        local _, _, _, iLevel, _, _, _, _ = GetItemInfo(sLink)
+                        if iLevel and iLevel > 0 then
+                            itn = itn + 1
+                            total = total + iLevel
+                        end
                     end
                 end
             end
-            return (total < 1 or itn < 1) and 0 or floor(total / itn)
+            return (total < 1 or itn < 1) and 0 or ceil(total / itn)
         end
     end
 
-    GameTooltip:HookScript("OnTooltipSetUnit", function(self, ...)
-        local ilevel
-        local name, unit = GameTooltip:GetUnit()
-        if unit and CanInspect(unit) then
-            local isInspectOpen = (InspectFrame and InspectFrame:IsShown()) or (_G.Examiner and _G.Examiner:IsShown())
-            if unit and CanInspect(unit) and not isInspectOpen then
-                NotifyInspect(unit)
-                ilevel = CalculateItemLevel(unit)
-                ClearInspectPlayer(unit)
-                GameTooltip:AddDoubleLine("Item Level", ilevel, 1, 1, 0)
+    function mod:HookTooltip()
+        GameTooltip:HookScript("OnTooltipSetUnit", function(self, ...)
+            local ilevel
+            local name, unit = self:GetUnit()
+            if unit and CanInspect(unit) then
+                local isInspectOpen =
+                    (InspectFrame and InspectFrame:IsShown()) or (_G.Examiner and _G.Examiner:IsShown())
+                if unit and CanInspect(unit) and not isInspectOpen then
+                    NotifyInspect(unit)
+                    ilevel = CalculateItemLevel(unit)
+                    ClearInspectPlayer(unit)
+                    self:AddDoubleLine("Item Level", ilevel, 1, 1, 0)
+                end
             end
-        end
-    end)
+        end)
+    end
 end

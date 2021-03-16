@@ -6,9 +6,9 @@ local L = core.L
 local frame = CreateFrame("Frame")
 
 -- saved variables and defaults
-ViewporterDB = {}
+local DB
 local defaults = {
-    enabled = true,
+    enabled = false,
     left = 0,
     right = 0,
     top = 0,
@@ -37,11 +37,11 @@ end
 local function Viewporter_Initialize()
 	if initialized then return end
     local left, right, top, bottom = 0, 0, 0, 0
-    if ViewporterDB.enabled then
-        left = ViewporterDB.left
-        right = ViewporterDB.right
-        top = ViewporterDB.top
-        bottom = ViewporterDB.bottom
+    if DB.enabled then
+        left = DB.left
+        right = DB.right
+        top = DB.top
+        bottom = DB.bottom
     end
 
     local scale = 768 / UIParent:GetHeight()
@@ -58,29 +58,31 @@ local function SlashCommandHandler(msg)
     rest = rest and rest:trim() or ""
 
     if cmd == "toggle" then
-        ViewporterDB.enabled = not ViewporterDB.enabled
-        Print(ViewporterDB.enabled and L["|cff00ff00enabled|r"] or L["|cffff0000disabled|r"])
+        DB.enabled = not DB.enabled
+        Print(DB.enabled and L["|cff00ff00enabled|r"] or L["|cffff0000disabled|r"])
         initialized = nil
         frame:Show()
     elseif cmd == "enable" or cmd == "on" then
-        ViewporterDB.enabled = true
+        DB.enabled = true
         initialized = nil
         frame:Show()
         Print(L["|cff00ff00enabled|r"])
     elseif cmd == "disable" or cmd == "off" then
-        ViewporterDB.enabled = false
+        DB.enabled = false
         initialized = nil
         frame:Show()
         Print(L["|cffff0000disabled|r"])
     elseif cmd == "reset" or cmd == "default" then
-        ViewporterDB = defaults
+        wipe(KPackCharDB.Viewporter)
+        KPackCharDB.Viewporter = CopyTable(defaults)
+        DB = KPackCharDB.Viewporter
         initialized = nil
         frame:Show()
         Print(L["module's settings reset to default."])
     elseif sides[cmd] then
         local size = tonumber(rest)
         size = size or 0
-        ViewporterDB[sides[cmd]] = size
+        DB[sides[cmd]] = size
         initialized = nil
         frame:Show()
     else
@@ -99,8 +101,8 @@ end
 
 do
     local function Viewporter_OnUpdate(self, elapsed)
-        if ViewporterDB.firstTime then
-            ViewporterDB.firstTime = false
+        if DB.firstTime then
+            DB.firstTime = false
         end
         Viewporter_Initialize()
 		self:Hide()
@@ -108,7 +110,7 @@ do
 
     function E:PLAYER_ENTERING_WORLD()
         self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-        if ViewporterDB.enabled then
+        if DB.enabled then
             frame:SetScript("OnUpdate", Viewporter_OnUpdate)
         else
             frame:SetScript("OnUpdate", nil)
@@ -121,15 +123,14 @@ function E:ADDON_LOADED(name)
     if name == folder then
         self:UnregisterEvent("ADDON_LOADED")
 
-        if next(ViewporterDB) == nil then
-            ViewporterDB = defaults
+        if type(KPackCharDB.Viewporter) ~= "table" or not next(KPackCharDB.Viewporter) then
+            KPackCharDB.Viewporter = CopyTable(defaults)
         end
+        DB = KPackCharDB.Viewporter
 
         SlashCmdList["KPACKVIEWPORTER"] = SlashCommandHandler
         SLASH_KPACKVIEWPORTER1 = "/vp"
         SLASH_KPACKVIEWPORTER2 = "/viewport"
         SLASH_KPACKVIEWPORTER3 = "/viewporter"
-
-        self:RegisterEvent("PLAYER_ENTERING_WORLD")
     end
 end

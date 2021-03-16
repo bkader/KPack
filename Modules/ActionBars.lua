@@ -24,7 +24,7 @@ local _format, _match, _tostring, _tonumber = string.format, string.match, tostr
 local math_min, math__max, _select = math.min, math.max, select
 local _SetCVar, _GetCVar = SetCVar, GetCVar
 
-ActionBarsDB = {}
+local DB
 local defaults = {
     scale = 1,
     dark = false,
@@ -74,7 +74,7 @@ end
 -- scales action bar elements
 --
 local function ActionBars_ScaleBars(scale)
-    scale = scale or ActionBarsDB.scale or 1
+    scale = scale or DB.scale or 1
     _G.MainMenuBar:SetScale(scale)
     _G.MultiBarBottomLeft:SetScale(scale)
     _G.MultiBarBottomRight:SetScale(scale)
@@ -87,7 +87,7 @@ end
 -- Dark mode
 --
 local function ActionBars_DarkMode()
-    local vertex = ActionBarsDB.dark and 0.32 or 1.00
+    local vertex = DB.dark and 0.32 or 1.00
     for i, v in pairs({
         -- UnitFrames
         PlayerFrameTexture,
@@ -205,7 +205,7 @@ end
 --
 local _GetScreenResolutions, _GetCurrentResolution = GetScreenResolutions, GetCurrentResolution
 local function ActionBars_PixelPerfect()
-    if ActionBarsDB.perfect and not _InCombatLockdown() and not _UnitAffectingCombat("player") then
+    if DB.perfect and not _InCombatLockdown() and not _UnitAffectingCombat("player") then
         local scale = math_min(2, math__max(0.20, 768 / _match(({_GetScreenResolutions()})[_GetCurrentResolution()], "%d+x(%d+)")))
         if scale < 0.64 then
             UIParent:SetScale(scale)
@@ -247,7 +247,7 @@ do
     end
 
     function ActionBars_Range()
-        if ActionBarsDB.range == true then
+        if DB.range == true then
             _hooksecurefunc("ActionButton_OnEvent", KPackActionButton_OnEvent)
             _hooksecurefunc("ActionButton_UpdateUsable", KPackActionButton_UpdateUsable)
             _hooksecurefunc("ActionButton_OnUpdate", KPackActionButton_OnUpdate)
@@ -259,7 +259,7 @@ end
 -- handle hiding/showing action bar gryphons
 --
 local function ActionBars_Gryphons()
-    if ActionBarsDB.art then
+    if DB.art then
         _G.MainMenuBarLeftEndCap:Hide()
         _G.MainMenuBarRightEndCap:Hide()
     else
@@ -269,7 +269,7 @@ local function ActionBars_Gryphons()
 end
 
 local function ActionBars_Hotkeys(opacity)
-    opacity = opacity or ActionBarsDB.hotkeys or 1
+    opacity = opacity or DB.hotkeys or 1
     local mopacity = opacity / 1.2 -- macro name opacity
     for i = 1, 12 do
         _G["ActionButton" .. i .. "HotKey"]:SetAlpha(opacity)
@@ -290,7 +290,7 @@ end
 -- moves bars around, the way we want it.
 --
 local function ActionBars_MoveBars()
-    if not ActionBarsDB.moved then
+    if not DB.moved then
         return
     end
 
@@ -348,7 +348,7 @@ do
     end
 
     function ActionBars_MouseOver()
-        if ActionBarsDB.hover == true then
+        if DB.hover == true then
             for _, frame in _ipairs({MultiBarLeft, MultiBarRight}) do
                 if frame:IsShown() then
                     frame.lastUpdate = 0
@@ -382,74 +382,74 @@ do
     exec.scale = function(num)
         num = _tonumber(num)
         if num and num >= 0.5 then
-            ActionBarsDB.scale = num
+            DB.scale = num
             Print(L:F("action bars scale set to: |cff00ffff%s|r", num))
             ActionBars_ScaleBars(num)
         end
     end
 
     exec.dark = function()
-        if ActionBarsDB.dark == true then
-            ActionBarsDB.dark = false
+        if DB.dark == true then
+            DB.dark = false
             Print(L:F("dark mode: %s", L["|cffff0000OFF|r"]))
         else
-            ActionBarsDB.dark = true
+            DB.dark = true
             Print(L:F("dark mode: %s", L["|cff00ff00ON|r"]))
         end
     end
 
     exec.perfect = function()
-        if ActionBarsDB.perfect == true then
-            ActionBarsDB.perfect = false
+        if DB.perfect == true then
+            DB.perfect = false
             Print(L:F("pixel perfect mode: %s", L["|cffff0000OFF|r"]))
         else
-            ActionBarsDB.perfect = true
+            DB.perfect = true
             Print(L:F("pixel perfect mode: %s", L["|cff00ff00ON|r"]))
         end
     end
     exec.pixel = exec.perfect
 
     exec.range = function()
-        if ActionBarsDB.range == true then
-            ActionBarsDB.range = false
+        if DB.range == true then
+            DB.range = false
             Print(L:F("range detection: %s", L["|cffff0000OFF|r"]))
         else
-            ActionBarsDB.range = true
+            DB.range = true
             Print(L:F("range detection: %s", L["|cff00ff00ON|r"]))
         end
     end
 
     exec.art = function()
-        if ActionBarsDB.art == true then
-            ActionBarsDB.art = false
+        if DB.art == true then
+            DB.art = false
             Print(L:F("gryphons: %s", L["|cff00ff00ON|r"]))
         else
-            ActionBarsDB.art = true
+            DB.art = true
             Print(L:F("gryphons: %s", L["|cffff0000OFF|r"]))
         end
     end
 
     exec.hotkeys = function(num)
-        local onum = ActionBarsDB.hotkeys
+        local onum = DB.hotkeys
         num = _tonumber(num)
-        ActionBarsDB.hotkeys = num and num or onum
+        DB.hotkeys = num and num or onum
         ActionBars_Hotkeys(num)
-        Print(L:F("hotkeys opacity set to: |cff00ffff%s|r", ActionBarsDB.hotkeys))
+        Print(L:F("hotkeys opacity set to: |cff00ffff%s|r", DB.hotkeys))
     end
     exec.opacity = exec.hotkeys
 
     exec.on = function()
-        ActionBarsDB.moved = true
+        DB.moved = true
         ReloadUI()
     end
 
     exec.off = function()
-        ActionBarsDB.moved = false
+        DB.moved = false
         ReloadUI()
     end
 
     exec.move = function()
-        if ActionBarsDB.moved == true then
+        if DB.moved == true then
             exec.off()
         else
             exec.on()
@@ -457,21 +457,21 @@ do
     end
 
     exec.hover = function()
-        if ActionBarsDB.hover == true then
-            ActionBarsDB.hover = false
+        if DB.hover == true then
+            DB.hover = false
             Print(L:F("mouseover right bars: %s", L["|cffff0000OFF|r"]))
         else
-            ActionBarsDB.hover = true
+            DB.hover = true
             Print(L:F("mouseover right bars: %s", L["|cff00ff00ON|r"]))
         end
     end
     exec.mouseover = exec.hover
 
     exec.reset = function()
-        wipe(ActionBarsDB)
-        ActionBarsDB = defaults
+        wipe(DB)
+        DB = defaults
         Print(L["addon settings reset to default."])
-        if ActionBarsDB.moved then
+        if DB.moved then
             ReloadUI()
         end
     end
@@ -512,13 +512,13 @@ end
 -- ========================================================== --
 
 function E:ADDON_LOADED(name)
-    if name ~= addonName then
-        return
-    end
-    E:UnregisterEvent("ADDON_LOADED")
-    if _next(ActionBarsDB) == nil then
-        ActionBarsDB = CopyTable(defaults)
-    end
+    if name ~= addonName then return end
+    self:UnregisterEvent("ADDON_LOADED")
+
+	if type(KPackDB.ActionBars) ~= "table" or not next(KPackDB.ActionBars) then
+		KPackDB.ActionBars = CopyTable(defaults)
+	end
+	DB = KPackDB.ActionBars
 
     -- register slash commands
     SlashCmdList["KPACKACTIONBATS"] = SlashCommandHandler
@@ -526,19 +526,18 @@ function E:ADDON_LOADED(name)
 end
 
 function E:PLAYER_LOGIN()
-    -- -- if we are using an action bars addon, better skip.
+    self:UnregisterEvent("PLAYER_LOGIN")
+    -- if we are using an action bars addon, better skip.
     for _, n in _ipairs({"Dominos", "Bartender4", "MiniMainBar", "ElvUI", "KActionBars"}) do
         if _G[n] then
             disabled = true
             break
         end
     end
-    E:UnregisterEvent("PLAYER_LOGIN")
-    E:RegisterEvent("PLAYER_ENTERING_WORLD")
 end
 
 function E:PLAYER_ENTERING_WORLD()
-	E:UnregisterEvent("PLAYER_ENTERING_WORLD")
+	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
     if not disabled then
         ActionBars_ScaleBars()
         ActionBars_PixelPerfect()

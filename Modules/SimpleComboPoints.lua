@@ -21,7 +21,7 @@ local druidForm, shown = false, true
 local pointsFrame = {}
 
 -- saved variables and default options
-SimpleComboPointsDB = {}
+local DB
 local defaults = {
     enabled = true,
     width = 22,
@@ -76,7 +76,7 @@ end
 -- updates the combo points frames
 function SCP_UpdatePoints()
     local power, i = GetComboPoints("player"), 1
-    local r, g, b = SimpleComboPointsDB.color.r, SimpleComboPointsDB.color.g, SimpleComboPointsDB.color.b
+    local r, g, b = DB.color.r, DB.color.g, DB.color.b
     while i <= power do
         if pointsFrame[i] then
             pointsFrame[i]:SetBackdropColor(r, g, b, 1)
@@ -89,16 +89,16 @@ function SCP_UpdatePoints()
         end
         i = i + 1
     end
-    if SimpleComboPointsDB.combat then
+    if DB.combat then
         SCP_RefreshDisplay()
     end
 end
 
 -- updates the whole frame
 function SCP_UpdateFrames()
-    local width = SimpleComboPointsDB.width or 22
-    local height = SimpleComboPointsDB.height or 22
-    local r, g, b = SimpleComboPointsDB.color.r, SimpleComboPointsDB.color.g, SimpleComboPointsDB.color.b
+    local width = DB.width or 22
+    local height = DB.height or 22
+    local r, g, b = DB.color.r, DB.color.g, DB.color.b
 
     for i = 1, maxPoints do
         if pointsFrame[i] then
@@ -108,13 +108,13 @@ function SCP_UpdateFrames()
 
             if i == 1 then
                 pointsFrame[i]:SetPoint(
-                    SimpleComboPointsDB.anchor,
+                    DB.anchor,
                     UIParent,
-                    SimpleComboPointsDB.anchor,
-                    SimpleComboPointsDB.xPos,
-                    SimpleComboPointsDB.yPos
+                    DB.anchor,
+                    DB.xPos,
+                    DB.yPos
                 )
-                pointsFrame[i]:SetScale(SimpleComboPointsDB.scale)
+                pointsFrame[i]:SetScale(DB.scale)
 
                 pointsFrame[i]:SetMovable(true)
                 pointsFrame[i]:EnableMouse(true)
@@ -133,13 +133,13 @@ function SCP_UpdateFrames()
                     function(self)
                         self:StopMovingOrSizing()
                         local anchor, _, _, x, y = self:GetPoint(1)
-                        SimpleComboPointsDB.xPos = x
-                        SimpleComboPointsDB.yPos = y
-                        SimpleComboPointsDB.anchor = anchor
+                        DB.xPos = x
+                        DB.yPos = y
+                        DB.anchor = anchor
                     end
                 )
             else
-                pointsFrame[i]:SetPoint("RIGHT", width + 1 + (SimpleComboPointsDB.spacing or 0), 0)
+                pointsFrame[i]:SetPoint("RIGHT", width + 1 + (DB.spacing or 0), 0)
             end
             pointsFrame[i]:Show()
         end
@@ -153,7 +153,7 @@ function SCP_RefreshDisplay()
         return
     end
 
-    if not InCombatLockdown() and GetComboPoints("player") == 0 and SimpleComboPointsDB.combat then
+    if not InCombatLockdown() and GetComboPoints("player") == 0 and DB.combat then
         for i = 1, maxPoints do
             pointsFrame[i]:Hide()
         end
@@ -187,9 +187,9 @@ function SCP_ColorPickCallback(restore)
     end
 
     if r and g and b then
-        SimpleComboPointsDB.color.r = r
-        SimpleComboPointsDB.color.g = g
-        SimpleComboPointsDB.color.b = b
+        DB.color.r = r
+        DB.color.g = g
+        DB.color.b = b
         SCP_UpdateFrames()
     end
 end
@@ -253,27 +253,27 @@ local function SlashCommandHandler(txt)
     -- enable or disable the module
     if cmd == "toggle" then
         -- reset settings
-        SimpleComboPointsDB.enabled = not SimpleComboPointsDB.enabled
+        DB.enabled = not DB.enabled
         SCP_DestroyFrames()
-        if not SimpleComboPointsDB.enabled then
+        if not DB.enabled then
             SCP_UpdateFrames()
         else
             SCP_InitializeFrames()
         end
     elseif cmd == "reset" then
         -- changing size
-        wipe(SimpleComboPointsDB)
-        SimpleComboPointsDB = defaults
+        wipe(DB)
+        DB = defaults
 
         SCP_DestroyFrames()
         SCP_InitializeFrames()
 
         Print(L["module's settings reset to default."])
-    elseif cmd == "width" or cmd == "height" and SimpleComboPointsDB[cmd] ~= nil then
+    elseif cmd == "width" or cmd == "height" and DB[cmd] ~= nil then
         -- scaling
         local num = tonumber(msg)
         if num then
-            SimpleComboPointsDB[cmd] = num
+            DB[cmd] = num
             SCP_UpdateFrames()
         else
             Print(L["The " .. cmd .. " must be a valid number"])
@@ -281,7 +281,7 @@ local function SlashCommandHandler(txt)
     elseif cmd == "scale" then
         local scale = tonumber(msg)
         if scale then
-            SimpleComboPointsDB.scale = scale
+            DB.scale = scale
             SCP_UpdateFrames()
         else
             Print(L["Scale has to be a number, recommended to be between 0.5 and 3"])
@@ -290,14 +290,14 @@ local function SlashCommandHandler(txt)
         -- changing color
         local spacing = tonumber(msg)
         if spacing then
-            SimpleComboPointsDB.spacing = spacing
+            DB.spacing = spacing
             SCP_UpdateFrames()
         else
             Print(L["Spacing has to be a number, recommended to be between 0.5 and 3"])
         end
     elseif cmd == "color" or cmd == "colour" then
         -- toggle in and out of combat
-        local r, g, b = SimpleComboPointsDB.color.r, SimpleComboPointsDB.color.g, SimpleComboPointsDB.color.b
+        local r, g, b = DB.color.r, DB.color.g, DB.color.b
         ColorPickerFrame:SetColorRGB(r, g, b)
         ColorPickerFrame.previousValues = {r, g, b}
         ColorPickerFrame.func = SCP_ColorPickCallback
@@ -307,9 +307,9 @@ local function SlashCommandHandler(txt)
         ColorPickerFrame:Show()
     elseif cmd == "combat" or cmd == "nocombat" then
         -- otherwise, show commands help
-        SimpleComboPointsDB.combat = not SimpleComboPointsDB.combat
+        DB.combat = not DB.combat
 
-        local status = (SimpleComboPointsDB.combat == false)
+        local status = (DB.combat == false)
         Print(L:F("Show out of combat: %s", (status and "|cff00ff00ON|r" or "|cffff0000OFF|r")))
 
         SCP_RefreshDisplay()
@@ -326,16 +326,13 @@ local function SlashCommandHandler(txt)
 end
 
 function E:ADDON_LOADED(name)
-    if name ~= folder then
-        return
-    end
+    if name ~= folder then return end
     self:UnregisterEvent("ADDON_LOADED")
 
-    for k, v in pairs(defaults) do
-        if SimpleComboPointsDB[k] == nil then
-            SimpleComboPointsDB[k] = v
-        end
+    if type(KPackCharDB.SCP) ~= "table" or not next(KPackCharDB.SCP) then
+    	KPackCharDB.SCP = CopyTable(defaults)
     end
+	DB = KPackCharDB.SCP
 
     -- hold the unit class
     unitClass = select(2, UnitClass("player"))
@@ -351,7 +348,7 @@ function E:ADDON_LOADED(name)
     SLASH_KPACKSCP1, SLASH_KPACKSCP2 = "/scp", "/simplecombopoints"
 
     -- if the module is disabled, ignore
-    if not SimpleComboPointsDB.enabled then
+    if not DB.enabled then
         return
     end
 end

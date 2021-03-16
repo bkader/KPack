@@ -1,6 +1,9 @@
 local folder, core = ...
 _G[folder] = core
 
+-- main saved varialbes
+KPackDB =  {}
+KPackCharDB =  {}
 -------------------------------------------------------------------------------
 -- Event handling system
 --
@@ -251,32 +254,32 @@ do
         end
     end
 
-    do
-        local collectgarbage = collectgarbage
-        local UnitIsAFK = UnitIsAFK
-        local InCombatLockdown = InCombatLockdown
-        eventcount = 0
+	do
+	    -- automatic garbage collection
+	    local collectgarbage = collectgarbage
+	    local UnitIsAFK = UnitIsAFK
+	    local InCombatLockdown = InCombatLockdown
+	    eventcount = 0
 
-        function E:PLAYER_ENTERING_WORLD(event, unit)
-            self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-
-            eventcount = eventcount + 1
-
+	    local f = CreateFrame("Frame")
+	    f:SetScript("OnEvent", function(self, event, ...)
             if (InCombatLockdown() and eventcount > 25000) or (not InCombatLockdown() and eventcount > 10000) or event == "PLAYER_ENTERING_WORLD" then
                 collectgarbage("collect")
                 eventcount = 0
                 self:UnregisterEvent(event)
             else
-                if unit ~= "player" then
+                if arg1 ~= "player" then
                     return
                 end
-                if UnitIsAFK(unit) then
+                if UnitIsAFK(arg1) then
                     collectgarbage("collect")
                 end
             end
-        end
-        E.PLAYER_FLAGS_CHANGED = E.PLAYER_ENTERING_WORLD
-    end
+            eventcount = eventcount + 1
+        end)
+	    f:RegisterEvent("PLAYER_FLAGS_CHANGED")
+	    f:RegisterEvent("PLAYER_ENTERING_WORLD")
+	end
 
     -- Addon sync
     function core:Sync(prefix, msg)

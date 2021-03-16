@@ -6,7 +6,6 @@ core.CombatTime = mod
 local E = core:Events()
 local L = core.L
 
-CombatTimeDB = {}
 local defaults = {
     enabled = false,
     stopwatch = false
@@ -115,8 +114,9 @@ do
     end
 
     exec.reset = function()
-        wipe(CombatTimeDB)
-        CombatTimeDB = CopyTable(defaults)
+        wipe(KPackDB.CombatTime)
+        KPackDB.CombatTime = CopyTable(defaults)
+        DB = KPackDB.CombatTime
         Print(L["module's settings reset to default."])
         if mod.frame then
             mod.frame:Hide()
@@ -144,10 +144,10 @@ do
         if name == folder then
             self:UnregisterEvent("ADDON_LOADED")
             -- disabled by default
-            if next(CombatTimeDB) == nil then
-                CombatTimeDB = CopyTable(defaults)
+            if type(KPackDB.CombatTime) ~= "table" or not next(KPackDB.CombatTime) then
+                KPackDB.CombatTime = CopyTable(defaults)
             end
-            mod.db = CombatTimeDB
+            mod.db = KPackDB.CombatTime
 
             -- register our slash commands
             _G.SLASH_KPACKCOMBATTIME1 = "/ctm"

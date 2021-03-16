@@ -7,7 +7,7 @@ local E = addon:Events()
 local L = addon.L
 
 -- saved variables & defaults
-TooltipDB = {}
+local DB
 local defaults = {
     unit = false,
     spell = false,
@@ -49,41 +49,41 @@ do
 
         -- toggles unit tooltips
         exec.unit = function()
-            TooltipDB.unit = not TooltipDB.unit
-            Print(L:F("unit tooltip in combat: %s", TooltipDB.unit and L["|cffff0000disabled|r"] or L["|cff00ff00enabled|r"]))
+            DB.unit = not DB.unit
+            Print(L:F("unit tooltip in combat: %s", DB.unit and L["|cffff0000disabled|r"] or L["|cff00ff00enabled|r"]))
         end
 
         -- toggles spells tooltips
         exec.action = function()
-            TooltipDB.spell = not TooltipDB.spell
-            Print(L:F("bar spells tooltip in combat: %s", TooltipDB.spell and L["|cffff0000disabled|r"] or L["|cff00ff00enabled|r"]))
+            DB.spell = not DB.spell
+            Print(L:F("bar spells tooltip in combat: %s", DB.spell and L["|cffff0000disabled|r"] or L["|cff00ff00enabled|r"]))
         end
 
         -- toggles pet spells tooltips
         exec.pet = function()
-            TooltipDB.petspell = not TooltipDB.petspell
-            Print(L:F("pet bar spells tooltip in combat: %s", TooltipDB.petspell and L["|cffff0000disabled|r"] or L["|cff00ff00enabled|r"]))
+            DB.petspell = not DB.petspell
+            Print(L:F("pet bar spells tooltip in combat: %s", DB.petspell and L["|cffff0000disabled|r"] or L["|cff00ff00enabled|r"]))
         end
 
         -- toggles class spells tooltips
         exec.class = function()
-            TooltipDB.class = not TooltipDB.class
-            Print(L:F("class bar spells tooltip in combat: %s", TooltipDB.class and L["|cffff0000disabled|r"] or L["|cff00ff00enabled|r"]))
+            DB.class = not DB.class
+            Print(L:F("class bar spells tooltip in combat: %s", DB.class and L["|cffff0000disabled|r"] or L["|cff00ff00enabled|r"]))
         end
 
         -- change tooltip scale
         exec.scale = function(scale)
             scale = tonumber(scale)
-            if scale and scale ~= TooltipDB.scale then
-                TooltipDB.scale = scale
+            if scale and scale ~= DB.scale then
+                DB.scale = scale
                 Print(L:F("tooltip scale set to: |cff00ffff%s|r", scale))
             end
         end
 
         -- move tooltip to top middle of the screen, or not
         exec.move = function()
-            TooltipDB.move = not TooltipDB.move
-            if TooltipDB.move then
+            DB.move = not DB.move
+            if DB.move then
                 Print(L["tooltip moved to top middle of the screen."])
             else
                 Print(L["tooltip moved to default position."] .. " " .. L["Please reload ui."])
@@ -92,8 +92,8 @@ do
 
         -- toggle tooltip enhancement
         exec.enhance = function()
-            TooltipDB.enhance = not TooltipDB.enhance
-            Print(L:F("enhanced tooltips: %s", TooltipDB.enhance and L["|cff00ff00enabled|r"] or L["|cffff0000disabled|r"]))
+            DB.enhance = not DB.enhance
+            Print(L:F("enhanced tooltips: %s", DB.enhance and L["|cff00ff00enabled|r"] or L["|cffff0000disabled|r"]))
         end
 
         -- main slash commands function
@@ -117,32 +117,32 @@ do
     end
 
     local function Tooltip_SetUnit()
-        if TooltipDB.unit and inCombat then
+        if DB.unit and inCombat then
             GameTooltip:Hide()
         end
     end
 
     local function Tooltip_SetAction()
-        if TooltipDB.spell and inCombat then
+        if DB.spell and inCombat then
             GameTooltip:Hide()
         end
     end
 
     local function Tooltip_SetPetAction()
-        if TooltipDB.petspell and inCombat then
+        if DB.petspell and inCombat then
             GameTooltip:Hide()
         end
     end
 
     local function Tooltip_SetShapeshift()
-        if TooltipDB.class and inCombat then
+        if DB.class and inCombat then
             GameTooltip:Hide()
         end
     end
 
     -- change game tooltip position
     local function Tooltip_ChangePosition(tooltip, parent)
-        if TooltipDB.move then
+        if DB.move then
             tooltip:SetOwner(parent, "ANCHOR_NONE")
             tooltip:SetPoint("TOP", UIParent, "TOP", 0, -25)
             tooltip.default = 1
@@ -153,9 +153,10 @@ do
         self:UnregisterEvent("ADDON_LOADED")
         if name ~= addonName then return end
 
-        if next(TooltipDB) == nil then
-            TooltipDB = defaults
+        if type(KPackCharDB.Tooltip) ~= "table" or not next(KPackCharDB.Tooltip) then
+            KPackCharDB.Tooltip = CopyTable(defaults)
         end
+        DB = KPackCharDB.Tooltip
 
         SlashCmdList["KPACK_TOOLTIP"] = SlashCommandHandler
         SLASH_KPACK_TOOLTIP1 = "/tip"
@@ -399,7 +400,7 @@ do
             return
         end
 
-        if not TooltipDB.enhance then
+        if not DB.enhance then
             return
         end
 
@@ -420,7 +421,7 @@ do
                 t:SetBackdrop(backdrop)
                 t:SetBackdropColor(0, 0, 0, 0.6)
                 t:SetBackdropBorderColor(0, 0, 0, 1)
-                t:SetScale(TooltipDB.scale or 1)
+                t:SetScale(DB.scale or 1)
                 t:SetScript("OnShow", Tooltip_OnShow)
                 t:HookScript("OnHide", Tooltip_OnHide)
             end
@@ -461,7 +462,7 @@ do
 end
 
 function E:UPDATE_MOUSEOVER_UNIT()
-    if TooltipDB.unit and inCombat then
+    if DB.unit and inCombat then
         GameTooltip:Hide()
     end
 end

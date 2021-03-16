@@ -11,7 +11,7 @@ core.QuickButton = mod
 local updateInterval = 0.1
 
 -- saved variables and defaults
-QuickButtonDB = {}
+local DB
 local defaults = {
     enabled = true,
     scale = 1,
@@ -105,7 +105,7 @@ end
 
 -- creates the macro
 local function QuickButton_Macro()
-    if QuickButtonDB.macro == false then
+    if DB.macro == false then
         DeleteMacro("KPackQuickButton")
         return
     end
@@ -126,30 +126,30 @@ do
 
     -- toggle module status
     exec.toggle = function()
-        QuickButtonDB.enabled = not QuickButtonDB.enabled
-        Print(QuickButtonDB.enabled and L["|cff00ff00enabled|r"] or L["|cffff0000disabled|r"])
+        DB.enabled = not DB.enabled
+        Print(DB.enabled and L["|cff00ff00enabled|r"] or L["|cffff0000disabled|r"])
     end
 
     -- set scale
     exec.scale = function(n)
         n = tonumber(n)
-        if n and n ~= QuickButtonDB.scale then
-            QuickButtonDB.scale = n
+        if n and n ~= DB.scale then
+            DB.scale = n
             button:SetScale(n)
         end
     end
 
     -- toggle macro creation
     exec.macro = function()
-        QuickButtonDB.macro = not QuickButtonDB.macro
+        DB.macro = not DB.macro
         QuickButton_Macro()
-        Print(L:F("macro creation %s", QuickButtonDB.macro and L["|cff00ff00enabled|r"] or L["|cffff0000disabled|r"]))
+        Print(L:F("macro creation %s", DB.macro and L["|cff00ff00enabled|r"] or L["|cffff0000disabled|r"]))
     end
 
     -- reset to default
     exec.reset = function()
-        wipe(QuickButtonDB)
-        QuickButtonDB = defaults
+        wipe(DB)
+        DB = defaults
         Print(L["module's settings reset to default."])
     end
     exec.default = exec.reset
@@ -171,12 +171,13 @@ end
 
 -- frame events handler
 function E:ADDON_LOADED(name)
-	self:UnregisterEvent("ADDON_LOADED")
 	if name ~= folder then return end
+	self:UnregisterEvent("ADDON_LOADED")
 
-    if next(QuickButtonDB) == nil then
-        QuickButtonDB = defaults
+    if type(KPackCharDB.QuickButton) ~= "table" or not next(KPackCharDB.QuickButton) then
+        KPackCharDB.QuickButton = CopyTable(defaults)
     end
+    DB = defaults
 
     unitClass = select(2, UnitClass("player"))
     if not classes[unitClass] or not LibQTip then
@@ -249,7 +250,7 @@ do
                     function()
                         unitId = (unit == "player" and unitClass == "HUNTER") and "pet" or unit
                         assigned = UnitName(unitId)
-                        QuickButtonDB.assigned = assigned
+                        DB.assigned = assigned
                         icon:SetAttribute("unit", unitId)
                         tooltip:Hide()
                         Print(L:F("%s will be placed on %s.", spellName, assigned))
@@ -300,10 +301,10 @@ do
         -- handles button OnDragStop event
         local function Icon_OnDragStop(self)
             local point, _, rPoint, xOfs, yOfs = self:GetPoint()
-            QuickButtonDB.point = point
-            QuickButtonDB.rPoint = rPoint
-            QuickButtonDB.xOfs = xOfs
-            QuickButtonDB.yOfs = yOfs
+            DB.point = point
+            DB.rPoint = rPoint
+            DB.xOfs = xOfs
+            DB.yOfs = yOfs
 
             self.moving = false
             self:StopMovingOrSizing()
@@ -319,7 +320,7 @@ do
             button.hotkey = _G[btnName .. "HotKey"]
             button.texture:SetTexture(spellIcon)
             -- button.texture:SetAllPoints(button)
-            button:SetScale(QuickButtonDB.scale or 1)
+            button:SetScale(DB.scale or 1)
 
             -- make the icon movable and clamp it to screen
             button:SetMovable(true)
@@ -331,7 +332,7 @@ do
 
             -- position the icon
             button:SetPoint("CENTER", UIParent, "CENTER")
-            button:SetPoint(QuickButtonDB.point, UIParent, QuickButtonDB.rPoint, QuickButtonDB.xOfs, QuickButtonDB.yOfs)
+            button:SetPoint(DB.point, UIParent, DB.rPoint, DB.xOfs, DB.yOfs)
 
             -- set button attributes
             button:SetAttribute("type1", "spell")
@@ -406,14 +407,14 @@ do
 
     -- called upon initialization or party/raid update
     local function QuickButton_Initialize()
-        if not QuickButtonDB.enabled then
+        if not DB.enabled then
             unitId = unitClass == "HUNTER" and "pet" or "player"
             assigned = UnitName(unitId)
             QuickButton_DestroyButton()
             return
         end
 
-        assigned = assigned or QuickButtonDB.assigned
+        assigned = assigned or DB.assigned
 
         if IsInGroup() then
             local prefix, min, max = "raid", 1, GetNumRaidMembers()
@@ -470,7 +471,7 @@ do
 
         QuickButton_Initialize()
 
-        if QuickButtonDB.enabled and button then
+        if DB.enabled and button then
             ShowHide(button, IsUsableSpell(spellName) == 1)
             self:UPDATE_BINDINGS()
         elseif button then

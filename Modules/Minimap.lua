@@ -6,7 +6,7 @@ core.Minimap = mod
 local E = core:Events()
 local L = core.L
 
-MinimapDB = {}
+local DB
 local defaults = {
     enabled = true,
     locked = true,
@@ -45,8 +45,8 @@ do
     local help = "|cffffd700%s|r: %s"
 
     exec.enable = function()
-        if not MinimapDB.enabled then
-            MinimapDB.enabled = true
+        if not DB.enabled then
+            DB.enabled = true
             Print(L:F("module status: %s", L["|cff00ff00enabled|r"]))
             Print(L["Please reload ui."])
             E:PLAYER_ENTERING_WORLD()
@@ -55,8 +55,8 @@ do
     exec.on = exec.enable
 
     exec.disable = function()
-        if MinimapDB.enabled then
-            MinimapDB.enabled = false
+        if DB.enabled then
+            DB.enabled = false
             Print(L:F("module status: %s", L["|cff00ff00enabled|r"]))
             Print(L["Please reload ui."])
             E:PLAYER_ENTERING_WORLD()
@@ -65,44 +65,44 @@ do
     exec.off = exec.disable
 
     exec.lock = function()
-        if not MinimapDB.locked then
-            MinimapDB.locked = true
+        if not DB.locked then
+            DB.locked = true
             Print(L["minimap locked."])
             E:PLAYER_ENTERING_WORLD()
         end
     end
 
     exec.unlock = function()
-        if MinimapDB.locked then
-            MinimapDB.locked = false
-            Print(L["minimap unlocked."])
+        if DB.locked then
+            DB.locked = false
+            Print(L["minimap unlocked. Hold SHIFT+ALT to move it."])
             E:PLAYER_ENTERING_WORLD()
         end
     end
 
     exec.show = function()
-        if MinimapDB.hide then
-            MinimapDB.hide = false
+        if DB.hide then
+            DB.hide = false
             Print(L["minimap shown."])
             E:PLAYER_ENTERING_WORLD()
         end
     end
 
     exec.hide = function()
-        if not MinimapDB.hide then
-            MinimapDB.hide = true
+        if not DB.hide then
+            DB.hide = true
             Print(L["minimap hidden."])
             E:PLAYER_ENTERING_WORLD()
         end
     end
 
     exec.combat = function()
-        MinimapDB.combat = not MinimapDB.combat
-        if MinimapDB.combat then
+        DB.combat = not DB.combat
+        if DB.combat then
             Print(L:F("hide in combat: %s", L["|cff00ff00ON|r"]))
         else
             Print(L:F("hide in combat: %s", L["|cffff0000OFF|r"]))
-            if not MinimapDB.hide and not MinimapCluster:IsShown() then
+            if not DB.hide and not MinimapCluster:IsShown() then
                 MinimapCluster:Show()
             end
         end
@@ -112,19 +112,19 @@ do
     exec.scale = function(n)
         n = tonumber(n)
         if n then
-            MinimapDB.scale = n
+            DB.scale = n
             E:PLAYER_ENTERING_WORLD()
         end
     end
 
     exec.reset = function()
         -- moved? Put it back to its position
-        if MinimapDB.moved then
+        if DB.moved then
             MinimapCluster:ClearAllPoints()
             MinimapCluster:SetPoint(defaults.point, defaults.x, defaults.y)
         end
-        wipe(MinimapDB)
-        MinimapDB = defaults
+        wipe(DB)
+        DB = defaults
         Print(L["module's settings reset to default."])
         E:PLAYER_ENTERING_WORLD()
     end
@@ -153,9 +153,10 @@ end
 function E:ADDON_LOADED(name)
 	if name ~= folder then return end
 	self:UnregisterEvent("ADDON_LOADED")
-	if type(MinimapDB) ~= "table" or next(MinimapDB) == nil then
-		MinimapDB = defaults
+	if type(KPackDB.Minimap) ~= "table" or not next(KPackDB.Minimap) then
+		KPackDB.Minimap = CopyTable(defaults)
 	end
+	DB = KPackDB.Minimap
 
 	SlashCmdList["KPACKMINIMAP"] = SlashCommandHandler
 	SLASH_KPACKMINIMAP1, SLASH_KPACKMINIMAP2 = "/minimap", "/mm"
@@ -274,7 +275,7 @@ do
     end
 
     local function Cluster_OnMouseDown(self, button)
-        if MinimapDB.lock then
+        if DB.lock then
             return
         end
         if IsAltKeyDown() and IsShiftKeyDown() and button == "LeftButton" then
@@ -283,16 +284,16 @@ do
     end
 
     local function Cluster_OnMouseUp(self, button)
-        if MinimapDB.lock then
+        if DB.lock then
             return
         end
         if button == "LeftButton" then
             self:StopMovingOrSizing()
             local point, _, _, xOfs, yOfs = self:GetPoint(1)
-            MinimapDB.moved = true
-            MinimapDB.point = point
-            MinimapDB.x = xOfs
-            MinimapDB.y = yOfs
+            DB.moved = true
+            DB.point = point
+            DB.x = xOfs
+            DB.y = yOfs
         end
     end
 
@@ -312,7 +313,7 @@ do
 
     -- called once the user enter the world
     function E:PLAYER_ENTERING_WORLD()
-        if _G.SexyMap or _G.MinimapBar or not MinimapDB.enabled then
+        if _G.SexyMap or _G.MinimapBar or not DB.enabled then
             return
         end
         -- fix the stupid buff with MoveAnything Condolidate buffs
@@ -356,15 +357,15 @@ do
             insets = {top = -1, bottom = -1, left = -1, right = -1}
         })
         Minimap:SetBackdropColor(0, 0, 0, 1)
-        MinimapCluster:SetScale(MinimapDB.scale or 1)
+        MinimapCluster:SetScale(DB.scale or 1)
 
-		if MinimapDB.hide then
+		if DB.hide then
 			MinimapCluster:Hide()
-		elseif not MinimapDB.combat and not inCombat then
+		elseif not DB.combat and not inCombat then
 			MinimapCluster:Show()
 		end
 
-        if MinimapDB.locked then
+        if DB.locked then
             MinimapCluster:SetMovable(false)
             MinimapCluster:SetClampedToScreen(false)
             MinimapCluster:RegisterForDrag(nil)
@@ -379,9 +380,9 @@ do
         end
 
         -- move to position
-        if MinimapDB.moved then
+        if DB.moved then
             MinimapCluster:ClearAllPoints()
-            MinimapCluster:SetPoint(MinimapDB.point, MinimapDB.x, MinimapDB.y)
+            MinimapCluster:SetPoint(DB.point, DB.x, DB.y)
             MinimapCluster.SetPoint = function()
             end
         end
@@ -390,14 +391,14 @@ end
 
 function E:PLAYER_REGEN_ENABLED()
 	inCombat = false
-    if MinimapDB.enabled and MinimapDB.combat and not MinimapCluster:IsShown() and not MinimapDB.hide then
+    if DB.enabled and DB.combat and not MinimapCluster:IsShown() and not DB.hide then
         MinimapCluster:Show()
     end
 end
 
 function E:PLAYER_REGEN_DISABLED()
 	inCombat = true
-    if MinimapDB.enabled and MinimapDB.combat and MinimapCluster:IsShown() then
+    if DB.enabled and DB.combat and MinimapCluster:IsShown() then
         MinimapCluster:Hide()
     end
 end

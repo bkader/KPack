@@ -5,10 +5,9 @@ core.ChatFilter = mod
 local E = core:Events()
 local L = core.L
 
--- saved variables
-ChatFilterDB = {}
 
 -- defaults
+local DB
 local defaults = {
     enabled = true,
     verbose = false,
@@ -64,17 +63,17 @@ local function SlashCommandHandler(msg)
     -- toggle the chat filter.
     if cmd == "toggle" then
         -- toggle verbose mode
-        ChatFilterDB.enabled = not ChatFilterDB.enabled
-        Print(L:F("filter is now %s", ChatFilter_StatusMessage(ChatFilterDB.enabled)))
+        DB.enabled = not DB.enabled
+        Print(L:F("filter is now %s", ChatFilter_StatusMessage(DB.enabled)))
     elseif cmd == "verbose" then
         -- list words
-        ChatFilterDB.verbose = not ChatFilterDB.verbose
-        Print(L:F("notifications are now %s", ChatFilter_StatusMessage(ChatFilterDB.verbose)))
+        DB.verbose = not DB.verbose
+        Print(L:F("notifications are now %s", ChatFilter_StatusMessage(DB.verbose)))
     elseif cmd == "words" or cmd == "list" then
         -- logs of messages that were hidden
         Print(L["filter keywords are:"])
         local words = {}
-        for i, word in ipairs(ChatFilterDB.words) do
+        for i, word in ipairs(DB.words) do
             words[i] = i .. ".|cff00ffff" .. word .. "|r"
         end
         print(table.concat(words, ", "))
@@ -90,7 +89,7 @@ local function SlashCommandHandler(msg)
         end
     elseif cmd == "add" and rest then
         -- remove a word from the list
-        tinsert(ChatFilterDB.words, rest:trim())
+        tinsert(DB.words, rest:trim())
         Print(L:F("the word |cff00ffff%s|r was added successfully.", rest:trim()))
     elseif (cmd == "remove" or cmd == "delete") and rest then
         -- reset or default values
@@ -99,19 +98,19 @@ local function SlashCommandHandler(msg)
             return
         end
 
-        local count = #ChatFilterDB.words
+        local count = #DB.words
         local index = tonumber(rest)
         if index > count then
             Print(L:F("Index is out of range. Max value is |cff00ffff%d|r.", count))
             return
         end
 
-        local word = ChatFilterDB.words[index]
-        tremove(ChatFilterDB.words, index)
+        local word = DB.words[index]
+        tremove(DB.words, index)
         Print(L:F("the word |cff00ffff%s|r was removed successfully.", word))
     elseif cmd == "default" or cmd == "reset" then
         -- anything else will display the help menu
-        ChatFilterDB = CopyTable(defaults)
+        DB = CopyTable(defaults)
         Print(L["settings were set to default."])
 
         -- clear logs
@@ -134,7 +133,7 @@ local ChatFilter_Filter
 do
     -- adds a filtered message to the logs table.
     local function ChatFilter_AddLog(name, msg)
-        if ChatFilterDB.verbose and last + 2 <= GetTime() then
+        if DB.verbose and last + 2 <= GetTime() then
             Print(L:F("filtered a message from |cff00ffff%s|r", name))
             last = GetTime()
         end
@@ -157,15 +156,15 @@ do
         -- or the player is a friend
         -- or the player is in a raid or party group
         if
-            not ChatFilterDB.enabled or UnitIsInMyGuild(player) or UnitIsFriend(player) or UnitInRaid(player) or
+            not DB.enabled or UnitIsInMyGuild(player) or UnitIsFriend(player) or UnitInRaid(player) or
                 UnitInParty(player)
          then
             return false
         end
 
-        local temp, count = lower(msg), #ChatFilterDB.words
+        local temp, count = lower(msg), #DB.words
         for i = 1, count do
-            if find(temp, lower(ChatFilterDB.words[i])) then
+            if find(temp, lower(DB.words[i])) then
                 ChatFilter_AddLog(player, msg)
                 return true
             end
@@ -175,17 +174,16 @@ end
 
 function E:ADDON_LOADED(name)
     if name == folder then
-	    -- prepare our saved variables
-	    if next(ChatFilterDB) == nil then
-	        ChatFilterDB = defaults
-	    end
+		if type(KPackDB.ChatFilter) ~= "table" or not next(KPackDB.ChatFilter) then
+			KPackDB.ChatFilter = CopyTable(defaults)
+		end
+		DB = KPackDB.ChatFilter
 
 	    -- register our slash commands handler
 	    SlashCmdList["KPACKCHATFILTER"] = SlashCommandHandler
 	    _G.SLASH_KPACKCHATFILTER1, _G.SLASH_KPACKCHATFILTER2 = "/chatfilter", "/cf"
 
 	    self:UnregisterEvent("ADDON_LOADED")
-	    self:RegisterEvent("PLAYER_ENTERING_WORLD")
     end
 end
 

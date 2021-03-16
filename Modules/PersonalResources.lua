@@ -9,7 +9,7 @@ local UnitPowerType, UnitPower, UnitPowerMax = UnitPowerType, UnitPower, UnitPow
 local floor, format = math.floor, string.format
 
 -- saved variables and default
-PersonalResourcesDB = {}
+local DB
 local defaults = {
     enabled = true,
     xOfs = 0,
@@ -75,15 +75,15 @@ do
         self:StopMovingOrSizing()
         self.moving = false
         local anchor, _, _, x, y = self:GetPoint(1)
-        PersonalResourcesDB.anchor = anchor
-        PersonalResourcesDB.xOfs = x
-        PersonalResourcesDB.yOfs = y
+        DB.anchor = anchor
+        DB.xOfs = x
+        DB.yOfs = y
     end
 
     -- frame event handler
     local function Frame_OnEvent(self, event, ...)
         if event == "PLAYER_REGEN_ENABLED" then
-            ShowHide(self, PersonalResourcesDB.combat)
+            ShowHide(self, DB.combat)
         elseif event == "PLAYER_REGEN_DISABLED" then
             self:Show()
         end
@@ -129,7 +129,7 @@ do
 
         -- handles OnUpdate event
         function Frame_OnUpdate(self, elapsed)
-            if not PersonalResourcesDB.enabled then
+            if not DB.enabled then
                 self:SetScript("OnUpdate", nil)
             end
 
@@ -148,13 +148,13 @@ do
 			frame = nil
 		end
 
-        local width = PersonalResourcesDB.width or 180
-        local height = PersonalResourcesDB.height or 32
-        local scale = PersonalResourcesDB.scale or 1
+        local width = DB.width or 180
+        local height = DB.height or 32
+        local scale = DB.scale or 1
 
-        local anchor = PersonalResourcesDB.anchor or "CENTER"
-        local xOfs = PersonalResourcesDB.xOfs or 0
-        local yOfs = PersonalResourcesDB.yOfs or -120
+        local anchor = DB.anchor or "CENTER"
+        local xOfs = DB.xOfs or 0
+        local yOfs = DB.yOfs or -120
 
         -- create main frame
 		frame = frame or CreateFrame("Frame", fname, UIParent)
@@ -174,7 +174,7 @@ do
         frame.power:SetPoint("RIGHT", -2, 0)
         frame.power:SetHeight(height * 0.40)
         frame.power:SetStatusBarColor(nil)
-        ShowHide(frame, PersonalResourcesDB.enabled and PersonalResourcesDB.combat)
+        ShowHide(frame, DB.enabled and DB.combat)
         frame:SetScale(scale)
 
         -- background & border
@@ -190,7 +190,7 @@ do
         frame:RegisterForDrag("LeftButton")
 
         -- register our frame event
-        if PersonalResourcesDB.enabled then
+        if DB.enabled then
             frame:RegisterEvent("PLAYER_REGEN_ENABLED")
             frame:RegisterEvent("PLAYER_REGEN_DISABLED")
         else
@@ -220,21 +220,21 @@ do
 
     -- enable the module
     commands.enable = function()
-        PersonalResourcesDB.enabled = true
+        DB.enabled = true
         Print(L:F("module status: %s", L["|cff00ff00enabled|r"]))
     end
     commands.on = commands.enable
 
     -- disable the module
     commands.disable = function()
-        PersonalResourcesDB.enabled = false
+        DB.enabled = false
         Print(L:F("module status: %s", L["|cffff0000disabled|r"]))
     end
     commands.off = commands.disable
 
     -- hide the bar
     commands.show = function()
-        ShowHide(frame, PersonalResourcesDB.enabled)
+        ShowHide(frame, DB.enabled)
     end
 
     -- hide bar
@@ -245,33 +245,33 @@ do
     -- change scale
     commands.scale = function(n)
         n = tonumber(n)
-        if n then PersonalResourcesDB.scale = n end
+        if n then DB.scale = n end
     end
 
     -- change width
     commands.width = function(n)
         n = tonumber(n)
-        if n then PersonalResourcesDB.width = n end
+        if n then DB.width = n end
     end
 
     -- change height
     commands.height = function(n)
         n = tonumber(n)
-        if n then PersonalResourcesDB.height = n end
+        if n then DB.height = n end
     end
 
     -- reset module
     commands.reset = function()
-        wipe(PersonalResourcesDB)
-        PersonalResourcesDB = defaults
+        wipe(DB)
+        DB = defaults
         Print(L["module's settings reset to default."])
     end
     commands.default = commands.reset
 
     -- toggle combat
     commands.combat = function()
-        PersonalResourcesDB.combat = not PersonalResourcesDB.combat
-        if PersonalResourcesDB.combat then
+        DB.combat = not DB.combat
+        if DB.combat then
             Print(L:F("show out on combat: %s", L["|cff00ff00ON|r"]))
             frame:Hide()
         else
@@ -310,9 +310,10 @@ function E:ADDON_LOADED(name)
 	if name == folder then
         self:UnregisterEvent("ADDON_LOADED")
 
-        if next(PersonalResourcesDB) == nil then
-            PersonalResourcesDB = defaults
+        if type(KPackCharDB.PersonalResources) ~= "table" or not next(KPackCharDB.PersonalResources) then
+            KPackCharDB.PersonalResources = CopyTable(defaults)
         end
+        DB = KPackCharDB.PersonalResources
 
         SlashCmdList["KPACKPLAYERRESOURCES"] = SlashCommandHandler
         _G.SLASH_KPACKPLAYERRESOURCES1 = "/ps"

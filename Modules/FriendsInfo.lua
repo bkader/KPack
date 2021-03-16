@@ -1,11 +1,11 @@
 local folder, core = ...
-local E = core:Events()
-local L = core.L
 
 local mod = core.FriendsInfo or CreateFrame("Frame")
 core.FriendsInfo = mod
 
-FriendsInfoDB = {}
+local E = core:Events()
+local L = core.L
+local DB
 
 -- cache frequently used globals
 local BNGetFriendInfo, GetFriendInfo = BNGetFriendInfo, GetFriendInfo
@@ -48,27 +48,27 @@ do
         if note then n = noteColor .. "(" .. note .. ")" end
 
         -- add the friend to database
-        FriendsInfoDB[realm] = FriendsInfoDB[realm] or {}
-        FriendsInfoDB[realm][name] = FriendsInfoDB[realm][name] or {}
+        DB[realm] = DB[realm] or {}
+        DB[realm][name] = DB[realm][name] or {}
 
         -- is the player online?
         if connected then
             -- offline? display old details.
-            FriendsInfoDB[realm][name].level = level
-            FriendsInfoDB[realm][name].class = class
-            FriendsInfoDB[realm][name].area = area
-            FriendsInfoDB[realm][name].lastSeen = format("%i", time())
+            DB[realm][name].level = level
+            DB[realm][name].class = class
+            DB[realm][name].area = area
+            DB[realm][name].lastSeen = format("%i", time())
 
             if n then button.info:SetText(button.info:GetText() .. " " .. n) end
         else
-            level = FriendsInfoDB[realm][name].level
-            class = FriendsInfoDB[realm][name].class
+            level = DB[realm][name].level
+            class = DB[realm][name].class
             if class and level then
                 local nameText = name .. ", " .. format(FRIENDS_LEVEL_TEMPLATE, level, class)
                 button.name:SetText(nameText)
             end
 
-            local lastSeen = FriendsInfoDB[realm][name].lastSeen
+            local lastSeen = DB[realm][name].lastSeen
             if lastSeen then
                 local infoText = L:F("Last seen %s ago", FriendsFrame_GetLastOnline(lastSeen))
                 if n then
@@ -89,7 +89,16 @@ do
     end
 
     -- on player entering the world
+    function E:ADDON_LOADED(name)
+        if name ~= folder then return end
+        self:UnregisterEvent("ADDON_LOADED")
+        KPackDB.FriendsInfo = KPackDB.FriendsInfo or {}
+        DB = KPackDB.FriendsInfo
+    end
+
+    -- on player entering the world
     function E:PLAYER_ENTERING_WORLD()
+        self:UnregisterEvent("PLAYER_ENTERING_WORLD")
         FriendsInfo_Initialize()
     end
 end

@@ -6,7 +6,7 @@ core.AutoMate = mod
 local E = core:Events()
 local L = core.L
 
-AutomateDB = {}
+local DB
 local defaults = {
     enabled = true,
     duels = false,
@@ -45,7 +45,7 @@ do
 
     -- automatic ui scale
     local function Automate_UIScale()
-        if AutomateDB.uiscale then
+        if DB.uiscale then
             local scalefix = CreateFrame("Frame")
             scalefix:RegisterEvent("PLAYER_LOGIN")
             scalefix:SetScript("OnEvent", function()
@@ -63,27 +63,10 @@ do
 
     function E:PLAYER_ENTERING_WORLD()
         self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-
-        if AutomateDB.enabled then
-            self:RegisterEvent("DUEL_REQUESTED")
-            self:RegisterEvent("GOSSIP_SHOW")
-            self:RegisterEvent("QUEST_GREETING")
-            self:RegisterEvent("PLAYER_REGEN_DISABLED")
-            self:RegisterEvent("PLAYER_REGEN_ENABLED")
-            self:RegisterEvent("MERCHANT_SHOW")
-            self:RegisterEvent("ACHIEVEMENT_EARNED")
-
+        if DB.enabled then
             hooksecurefunc("ShowReadyCheck", Automate_ReadyCheck)
             Automate_UIScale()
             mod:AdjustCamera()
-        else
-            self:UnregisterEvent("DUEL_REQUESTED")
-            self:UnregisterEvent("GOSSIP_SHOW")
-            self:UnregisterEvent("QUEST_GREETING")
-            self:UnregisterEvent("PLAYER_REGEN_DISABLED")
-            self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-            self:UnregisterEvent("MERCHANT_SHOW")
-            self:UnregisterEvent("ACHIEVEMENT_EARNED")
         end
     end
 end
@@ -93,9 +76,11 @@ end
 -- ///////////////////////////////////////////////////////
 
 function E:DUEL_REQUESTED()
-    if AutomateDB.duels then
+    if DB.duels then
         CancelDuel()
         StaticPopup_Hide("DUEL_REQUESTED")
+    else
+        self:UnregisterEvent("DUEL_REQUESTED")
     end
 end
 
@@ -104,7 +89,9 @@ end
 -- ///////////////////////////////////////////////////////
 
 function E:GOSSIP_SHOW()
-    if not AutomateDB.gossip then
+    if not DB.gossip then
+        self:UnregisterEvent("GOSSIP_SHOW")
+        self:UnregisterEvent("QUEST_GREETING")
         return
     end
     if (GetNumGossipActiveQuests() + GetNumGossipAvailableQuests()) == 0 and GetNumGossipOptions() == 1 then
@@ -123,19 +110,25 @@ E.QUEST_GREETING = E.GOSSIP_SHOW
 -- ///////////////////////////////////////////////////////
 
 function E:PLAYER_REGEN_ENABLED()
-    if AutomateDB.nameplate then
-        SetCVar("nameplateShowEnemies", 0)
-        _G.NAMEPLATES_ON = false
-    end
-    if AutomateDB.camera then
-        mod:AdjustCamera()
+    if DB.enabled then
+	    if DB.nameplate then
+	        SetCVar("nameplateShowEnemies", 0)
+	        _G.NAMEPLATES_ON = false
+	    end
+	    if DB.camera then
+	        mod:AdjustCamera()
+	    end
+    else
+    	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
     end
 end
 
 function E:PLAYER_REGEN_DISABLED()
-    if AutomateDB.nameplate then
+    if DB.nameplate then
         SetCVar("nameplateShowEnemies", 1)
         _G.NAMEPLATES_ON = true
+    else
+    	self:UnregisterEvent("PLAYER_REGEN_DISABLED")
     end
 end
 
@@ -146,7 +139,7 @@ end
 do
     -- handles auto selling junk
     local function Automate_SellJunk()
-        if AutomateDB.junk then
+        if DB.junk then
             local i = 0
 
             for bag = 0, 4 do
@@ -168,7 +161,7 @@ do
 
     -- handles auto repair
     local function Automate_Repair()
-        if AutomateDB.repair and CanMerchantRepair() == 1 then
+        if DB.repair and CanMerchantRepair() == 1 then
             local repairAllCost, canRepair = GetRepairAllCost()
             if repairAllCost > 0 and canRepair == 1 then
                 -- use guild gold
@@ -203,8 +196,12 @@ do
     end
 
     function E:MERCHANT_SHOW()
-        Automate_Repair()
-        Automate_SellJunk()
+        if DB.enabled then
+	        Automate_Repair()
+	        Automate_SellJunk()
+        else
+        	self:UnregisterEvent("MERCHANT_SHOW")
+        end
     end
 
     -- replace default action so we can buy stack
@@ -227,7 +224,7 @@ end
 -- ///////////////////////////////////////////////////////
 
 function mod:AdjustCamera()
-    if AutomateDB.camera and not InCombatLockdown() then
+    if DB.camera and not InCombatLockdown() then
         SetCVar("cameraDistanceMaxFactor", "2.6")
         MoveViewOutStart(50000)
     end
@@ -332,9 +329,11 @@ end
 -- ///////////////////////////////////////////////////////
 
 function E:ACHIEVEMENT_EARNED()
-    if AutomateDB.screenshot then
-        core.After(1, function() Screenshot() end)
-    end
+	if DB.enabled and DB.screenshot then
+		core.After(1, function() Screenshot() end)
+	else
+		self:UnregisterEvent("ACHIEVEMENT_EARNED")
+	end
 end
 
 -- ///////////////////////////////////////////////////////
@@ -366,46 +365,46 @@ do
         local msg, status
 
         if cmd == "toggle" then
-            AutomateDB.enabled = not AutomateDB.enabled
+            DB.enabled = not DB.enabled
             msg = "module status: %s"
-            status = (AutomateDB.enabled == true)
+            status = (DB.enabled == true)
         elseif cmd == "duel" or cmd == "duels" then
-            AutomateDB.duels = not AutomateDB.duels
+            DB.duels = not DB.duels
             msg = "ignore duels: %s"
-            status = (AutomateDB.duels == true)
+            status = (DB.duels == true)
         elseif cmd == "gossip" then
-            AutomateDB.gossip = not AutomateDB.gossip
+            DB.gossip = not DB.gossip
             msg = "skip gossip: %s"
-            status = (AutomateDB.gossip == true)
+            status = (DB.gossip == true)
         elseif cmd == "grey" or cmd == "junk" then
-            AutomateDB.junk = not AutomateDB.junk
+            DB.junk = not DB.junk
             msg = "sell junk: %s"
-            status = (AutomateDB.junk == true)
+            status = (DB.junk == true)
         elseif cmd == "repair" then
-            AutomateDB.repair = not AutomateDB.repair
+            DB.repair = not DB.repair
             msg = "auto repair: %s"
-            status = (AutomateDB.repair == true)
+            status = (DB.repair == true)
         elseif cmd == "nameplate" or cmd == "nameplates" then
-            AutomateDB.nameplate = not AutomateDB.nameplate
+            DB.nameplate = not DB.nameplate
             msg = "auto nameplates: %s"
-            status = (AutomateDB.nameplate == true)
+            status = (DB.nameplate == true)
             if status then
                 E:PLAYER_REGEN_ENABLED()
             else
                 E:PLAYER_REGEN_DISABLED()
             end
         elseif cmd == "ui" or cmd == "uiscale" then
-            AutomateDB.uiscale = not AutomateDB.uiscale
+            DB.uiscale = not DB.uiscale
             msg = "auto ui scale: %s"
-            status = (AutomateDB.uiscale == true)
+            status = (DB.uiscale == true)
         elseif cmd == "camera" then
-            AutomateDB.camera = not AutomateDB.camera
+            DB.camera = not DB.camera
             msg = "auto max camera: %s"
-            status = (AutomateDB.camera == true)
+            status = (DB.camera == true)
         elseif cmd == "ss" or cmd == "screenshot" then
-            AutomateDB.screenshot = not AutomateDB.screenshot
+            DB.screenshot = not DB.screenshot
             msg = "auto screenshot on achievement: %s"
-            status = (AutomateDB.screenshot == true)
+            status = (DB.screenshot == true)
         end
 
         if msg then
@@ -427,14 +426,16 @@ do
 
     function E:ADDON_LOADED(name)
         if name == folder then
-	        if next(AutomateDB) == nil then
-	            AutomateDB = defaults
-	        end
+
+			if type(KPackDB.Automate) ~= "table" or not next(KPackDB.Automate) then
+				KPackDB.Automate = CopyTable(defaults)
+			end
+			DB = KPackDB.Automate
 
 	        SlashCmdList["KPACKAUTOMATE"] = SlashCommandHandler
 	        _G.SLASH_KPACKAUTOMATE1 = "automate"
 	        _G.SLASH_KPACKAUTOMATE2 = "/auto"
-		elseif name == "Blizzard_TrainerUI" and AutomateDB.enabled then
+		elseif name == "Blizzard_TrainerUI" and DB.enabled then
 			mod:TrainButtonCreate()
 			hooksecurefunc("ClassTrainerFrame_Update", mod.TrainButtonUpdate)
 			self:UnregisterEvent("ADDON_LOADED")

@@ -6,7 +6,7 @@ core.IgnoreMore = mod
 local E = core:Events()
 local L = core.L
 
-IgnoreMoreDB = {}
+local DB
 local defaults = {
     enabled = true,
     list = {}
@@ -386,16 +386,16 @@ do
     local help = "|cffffd700%s|r: %s"
 
     exec.enable = function()
-        if not IgnoreMoreDB.enabled then
-            IgnoreMoreDB.enabled = true
+        if not DB.enabled then
+            DB.enabled = true
             Print(L:F("module status: %s", L["|cff00ff00enabled|r"]) .. " " .. L["Please reload ui."])
         end
     end
     exec.on = exec.enable
 
     exec.disable = function()
-        if IgnoreMoreDB.enabled then
-            IgnoreMoreDB.enabled = false
+        if DB.enabled then
+            DB.enabled = false
             Print(L:F("module status: %s", L["|cffff0000disabled|r"]) .. " " .. L["Please reload ui."])
         end
     end
@@ -403,8 +403,8 @@ do
 
     exec.wipe = function()
         realm = realm or IgnoreMore_GetRealm()
-        wipe(IgnoreMoreDB.list[realm])
-        list = IgnoreMoreDB.list[realm]
+        wipe(DB.list[realm])
+        list = DB.list[realm]
         Print(L["ignore list wiped"])
     end
 
@@ -482,12 +482,12 @@ do
     local function IgnoreMore_OnUpdate(self, elapsed)
         frame:Hide()
 
-        if not IgnoreMoreDB.enabled then
+        if not DB.enabled then
             list = nil
             return
         end
 
-        list = IgnoreMoreDB.list[realm]
+        list = DB.list[realm]
 
         local num = GetNumIgnores()
         for i = num, 1, -1 do
@@ -530,12 +530,13 @@ do
 		self:UnregisterEvent("ADDON_LOADED")
 
         -- set our default variables
-        if next(IgnoreMoreDB) == nil then
-            IgnoreMoreDB = defaults
+        if type(KPackDB.IgnoreMore) ~= "table" or not next(KPackDB.IgnoreMore) then
+            KPackDB.IgnoreMore = CopyTable(defaults)
         end
+        DB = KPackDB.IgnoreMore
 
         realm = realm or IgnoreMore_GetRealm()
-        IgnoreMoreDB.list[realm] = IgnoreMoreDB.list[realm] or {}
+        DB.list[realm] = DB.list[realm] or {}
 
         -- register our slash commands handler
         SlashCmdList["KPACKIGNOREMORE"] = SlashCommandHandler
@@ -543,7 +544,7 @@ do
         _G.SLASH_KPACKIGNOREMORE2 = "/ignoremore"
         _G.SLASH_KPACKIGNOREMORE3 = "/igmore"
 
-        if IgnoreMoreDB.enabled then
+        if DB.enabled then
             UIParent:UnregisterEvent("PARTY_INVITE_REQUEST")
             UIParent:UnregisterEvent("DUEL_REQUESTED")
             frame:SetScript("OnUpdate", IgnoreMore_OnUpdate)
@@ -559,7 +560,10 @@ end
 
 -- whether to accept or decline invites.
 function E:PARTY_INVITE_REQUEST(name)
-	if not IgnoreMoreDB.enabled then return end
+	if not DB.enabled then
+		self:UnregisterEvent("PARTY_INVITE_REQUEST")
+		return
+	end
     if list and type(list[name]) == "table" then
         DeclineGroup()
     else
@@ -569,7 +573,10 @@ end
 
 -- cancel or accept duels.
 function E:DUEL_REQUESTED(name)
-	if not IgnoreMoreDB.enabled then return end
+	if not DB.enabled then
+		self:UnregisterEvent("DUEL_REQUESTED")
+		return
+	end
     if list and type(list[name]) == "table" then
         CancelDuel()
     else
@@ -579,7 +586,10 @@ end
 
 -- handles trade window show
 function E:TRADE_SHOW(...)
-	if not IgnoreMoreDB.enabled then return end
+	if not DB.enabled then
+		self:UnregisterEvent("TRADE_SHOW")
+		return
+	end
     local name = UnitName("NPC")
     if list and name and type(list[name]) == "table" then
         CloseTrade()

@@ -317,7 +317,9 @@ L["minimap shown."] = true
 L["minimap hidden."] = true
 L["hide in combat: %s"] = true
 L["lock the minimap"] = true
+L["minimap locked."] = true
 L["unlocks the minimap"] = true
+L["minimap unlocked. Hold SHIFT+ALT to move it."] = true
 L["Once unlocked, the minimap can be moved by holding both SHIFT and ALT buttons."] = true
 
 -- //////////////////////////////////////////////////////
@@ -369,6 +371,8 @@ L["changes nameplates font size"] = true
 L["toggles health text"] = true
 L["shortens health text"] = true
 L["toggles health percentage"] = true
+L["changes nameplates height"] = true
+L["changes nameplates width"] = true
 
 -- //////////////////////////////////////////////////////
 -- Personal Resources

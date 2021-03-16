@@ -135,7 +135,6 @@ end
 function E:PLAYER_ENTERING_WORLD()
     AfkFrame = AfkFrame or CreateWindow()
     self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    self:RegisterEvent("PLAYER_FLAGS_CHANGED")
 end
 
 function E:PLAYER_FLAGS_CHANGED()
