@@ -1,9 +1,10 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
 
-local mod = CreateFrame("Frame")
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local mod = core.CombatTime or {}
+core.CombatTime = mod
+
+local E = core:Events()
+local L = core.L
 
 CombatTimeDB = {}
 local defaults = {
@@ -17,111 +18,66 @@ local _format = string.format
 
 local function Print(msg)
     if msg then
-        addon:Print(msg, "CombatTime")
+        core:Print(msg, "CombatTime")
     end
 end
 
-local CombatTime_CreateFrame
-do
-    local function CombatTime_OnUpdate(self, elapsed)
-        self.updated = self.updated + elapsed
+local function CombatTime_OnUpdate(self, elapsed)
+    self.updated = (self.updated or 0) + elapsed
 
-        if self.updated > 1 then
-            local total = _GetTime() - self.starttime
-            local _hor = math_min(math_floor(total / 3600), 99)
-            local _min = math_min(math_floor(total / 60), 60)
-            local _sec = math_min(math_floor(total), 60)
+    if self.updated > 1 then
+        local total = _GetTime() - self.starttime
+        local _hor = math_min(math_floor(total / 3600), 99)
+        local _min = math_min(math_floor(total / 60), 60)
+        local _sec = math_min(math_floor(total), 60)
 
-            self.timer:SetText(_format("%02d:%02d:%02d", _hor, _min, _sec))
-            self.updated = 0
-        end
+        self.timer:SetText(_format("%02d:%02d:%02d", _hor, _min, _sec))
+        self.updated = 0
+    end
+end
+
+local function CombatTime_CreateFrame()
+    local frame = CreateFrame("Frame", "KPackCombatTime")
+    frame:SetSize(100, 40)
+    frame:SetFrameStrata("LOW")
+    frame:SetPoint("TOPLEFT", Minimap, "BOTTOMLEFT", 0, -10)
+
+    -- make the frame movable
+    frame:SetMovable(true)
+    frame:EnableMouse(true)
+    frame:SetClampedToScreen(true)
+    frame:RegisterForDrag("RightButton")
+    frame:SetScript("OnDragStart", function(self)
+        self.moving = true
+        self:StartMoving()
+    end)
+    frame:SetScript("OnDragStop", function(self)
+        self.moving = false
+        self:StopMovingOrSizing()
+    end)
+
+    -- frame background
+    frame:SetBackdrop({
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        tile = true,
+        tileSize = 32,
+        insets = {left = 11, right = 12, top = 12, bottom = 11}
+    })
+
+    -- timer text
+    local timer = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    timer:SetJustifyH("CENTER")
+    timer:SetAllPoints(frame)
+    timer:SetText("00:00:00")
+    frame.timer = timer
+
+    if mod.db.stopwatch then
+        frame:Hide()
+    else
+        frame:Show()
     end
 
-    function CombatTime_CreateFrame()
-        local frame = CreateFrame("Frame", "KPackCombatTime")
-        frame:SetSize(100, 40)
-        frame:SetFrameStrata("LOW")
-        frame:SetPoint("TOPLEFT", Minimap, "BOTTOMLEFT", 0, -10)
-
-        -- make the frame movable
-        frame:SetMovable(true)
-        frame:EnableMouse(true)
-        frame:SetClampedToScreen(true)
-        frame:RegisterForDrag("RightButton")
-        frame:SetScript("OnDragStart", function(self)
-            self.moving = true
-            self:StartMoving()
-        end)
-        frame:SetScript("OnDragStop", function(self)
-            self.moving = false
-            self:StopMovingOrSizing()
-        end)
-
-        -- frame background
-        frame:SetBackdrop({
-            bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-            tile = true,
-            tileSize = 32,
-            insets = {left = 11, right = 12, top = 12, bottom = 11}
-        })
-
-        -- timer text
-        local timer = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        timer:SetJustifyH("CENTER")
-        timer:SetAllPoints(frame)
-        timer:SetText("00:00:00")
-        frame.timer = timer
-
-        -- add out events and scripts
-        frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-        frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-        frame:SetScript("OnEvent", function(self, event, ...)
-            if event == "PLAYER_REGEN_ENABLED" then
-                -- change the text and color
-                self.timer:SetTextColor(0.5, 0.5, 0, 1)
-
-                -- remove the update event
-                self.updated = nil
-                self:SetScript("OnUpdate", nil)
-
-                -- are we using the stopwatch? reset it
-                if mod.db.stopwatch and StopwatchFrame and StopwatchFrame:IsShown() then
-                    Stopwatch_Pause()
-                    self:Hide()
-                else
-                    self:Show()
-                end
-            elseif event == "PLAYER_REGEN_DISABLED" then
-                if mod.db.stopwatch then
-                    if not StopwatchFrame:IsShown() then
-                        Stopwatch_Toggle()
-                    end
-                    Stopwatch_Clear()
-                    Stopwatch_Play()
-
-                    self:Hide()
-                    self:SetScript("OnUpdate", nil)
-                else
-                    -- change the text and color
-                    self.timer:SetTextColor(1, 1, 0, 1)
-
-                    -- add the update event
-                    self.starttime = _GetTime() - 1
-                    self.updated = 0
-                    self:SetScript("OnUpdate", CombatTime_OnUpdate)
-                    self:Show()
-                end
-            end
-        end)
-
-        if mod.db.stopwatch then
-            frame:Hide()
-        else
-            frame:Show()
-        end
-
-        return frame
-    end
+    return frame
 end
 
 do
@@ -166,7 +122,7 @@ do
             mod.frame:Hide()
             mod.frame:UnregisterAllEvents()
             mod.frame = nil
-            mod:ADDON_LOADED(addonName)
+            E:ADDON_LOADED(folder)
         end
     end
     exec.defaults = exec.reset
@@ -184,24 +140,69 @@ do
         end
     end
 
-    function mod:ADDON_LOADED(name)
-        if name ~= addonName then
-            return
-        end
+    function E:ADDON_LOADED(name)
+        if name == folder then
+            self:UnregisterEvent("ADDON_LOADED")
+            -- disabled by default
+            if next(CombatTimeDB) == nil then
+                CombatTimeDB = CopyTable(defaults)
+            end
+            mod.db = CombatTimeDB
 
-        -- disabled by default
-        if next(CombatTimeDB) == nil then
-            CombatTimeDB = CopyTable(defaults)
-        end
-        self.db = CombatTimeDB
+            -- register our slash commands
+            _G.SLASH_KPACKCOMBATTIME1 = "/ctm"
+            SlashCmdList["KPACKCOMBATTIME"] = SlashCommandHandler
 
-        -- register our slash commands
-        _G.SLASH_KPACKCOMBATTIME1 = "/ctm"
-        SlashCmdList["KPACKCOMBATTIME"] = SlashCommandHandler
-
-        -- we create the combat time frame only if enabled
-        if self.db.enabled == true then
-            self.frame = self.frame or CombatTime_CreateFrame()
+            -- we create the combat time frame only if enabled
+            if mod.db.enabled == true then
+                mod.frame = mod.frame or CombatTime_CreateFrame()
+            end
         end
+    end
+end
+
+function E:PLAYER_REGEN_ENABLED()
+    if not mod.db.enabled or not mod.frame then
+        return
+    end
+    -- change the text and color
+    mod.frame.timer:SetTextColor(0.5, 0.5, 0, 1)
+
+    -- remove the update event
+    mod.frame.updated = nil
+    mod.frame:SetScript("OnUpdate", nil)
+
+    -- are we using the stopwatch? reset it
+    if mod.db.stopwatch and StopwatchFrame and StopwatchFrame:IsShown() then
+        Stopwatch_Pause()
+        mod.frame:Hide()
+    else
+        mod.frame:Show()
+    end
+end
+
+function E:PLAYER_REGEN_DISABLED()
+    if not mod.db.enabled then
+        return
+    end
+    mod.frame = mod.frame or CombatTime_CreateFrame()
+
+    if mod.db.stopwatch then
+        if not StopwatchFrame:IsShown() then
+            Stopwatch_Toggle()
+        end
+        Stopwatch_Clear()
+        Stopwatch_Play()
+
+        mod.frame:Hide()
+        mod.frame:SetScript("OnUpdate", nil)
+    else
+        -- change the text and color
+        mod.frame.timer:SetTextColor(1, 1, 0, 1)
+
+        -- add the update event
+        mod.frame.starttime = _GetTime() - 1
+        mod.frame:SetScript("OnUpdate", CombatTime_OnUpdate)
+        mod.frame:Show()
     end
 end

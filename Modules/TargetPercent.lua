@@ -1,19 +1,8 @@
-local addonName, addon = ...
-
--- main event frame
-local f = CreateFrame("Frame")
-f:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-f:RegisterEvent("ADDON_LOADED")
+local folder, core = ...
+local E = core:Events()
 
 -- cache frequently used globals
 local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax
-
--- frame event handler
-function f:ADDON_LOADED(name)
-	if name ~= addonName then return end
-	self:UnregisterEvent("ADDON_LOADED")
-	self:RegisterEvent("PLAYER_ENTERING_WORLD")
-end
 
 -- ///////////////////////////////////////////////////////
 
@@ -37,7 +26,7 @@ do
         if name and parent then
             -- Create Frame:
             frame = CreateFrame("Frame", name, parent)
-            if addon.ufi then
+            if core.ufi then
                 frame:SetPoint("BOTTOMRIGHT", parent, "TOPRIGHT", 15, 0)
             else
                 frame:SetPoint("BOTTOMRIGHT", parent, "TOPRIGHT", 14, 16)
@@ -66,10 +55,11 @@ do
     end
 
     -- called when the player enters the world
-    function f:PLAYER_ENTERING_WORLD()
+    function E:PLAYER_ENTERING_WORLD()
+		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		-- if we are using our custom nameplates and are
 		-- showing percentage, we skip target perecntage
-		if not addon.NP or not addon.NP.showHealthPercent then
+		if not core.NP or not core.NP.showHealthPercent then
 	        -- create target percentage
 	        targetPercent = targetPercent or TargetPercent_CreateFrame("TargetPercent", TargetFrameHealthBar)
 	        targetPercent:RegisterEvent("PLAYER_TARGET_CHANGED")

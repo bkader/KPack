@@ -150,6 +150,21 @@ L["%s will not be saved."] = true
 L["%s will move with handler %s"] = true
 
 -- //////////////////////////////////////////////////////
+-- Death Recap
+-- //////////////////////////////////////////////////////
+
+L["Death Recap"] = true
+L["Death Recap unavailable."] = true
+L["%s %s"] = true
+L["%s by %s"] = true
+L["(%d Overkill)"] = true
+L["(%d Absorbed)"] = true
+L["(%d Resisted)"] = true
+L["(%d Blocked)"] = true
+L["%s sec before death at %s%% health."] = true
+L["Killing blow at %s%% health."] = true
+
+-- //////////////////////////////////////////////////////
 -- Chat Filter
 -- //////////////////////////////////////////////////////
 
@@ -347,6 +362,15 @@ L.MACloseHelp = "Closes this dialog. Ctrl-Shift-Alt click reloads the interface"
 L.MAResetHelp = "Resets all frames"
 
 -- //////////////////////////////////////////////////////
+-- Nameplates
+-- //////////////////////////////////////////////////////
+
+L["changes nameplates font size"] = true
+L["toggles health text"] = true
+L["shortens health text"] = true
+L["toggles health percentage"] = true
+
+-- //////////////////////////////////////////////////////
 -- Personal Resources
 -- //////////////////////////////////////////////////////
 
@@ -422,6 +446,14 @@ L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."] = true
 L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = true
 L["button scale set to |cff00ffff%s|r"] = true
 L["Scales the button."] = true
+
+-- //////////////////////////////////////////////////////
+-- Raid Utility
+-- //////////////////////////////////////////////////////
+
+L["Disband Group"] = true
+L["Raid Menu"] = true
+L["Are you sure you want to disband the group?"] = true
 
 -- //////////////////////////////////////////////////////
 -- UnitFrames

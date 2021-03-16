@@ -1,5 +1,10 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
+
+local mod = core.AutoMate or {}
+core.AutoMate = mod
+
+local E = core:Events()
+local L = core.L
 
 AutomateDB = {}
 local defaults = {
@@ -16,14 +21,10 @@ local defaults = {
 
 local chatFrame = DEFAULT_CHAT_FRAME
 
-local mod = CreateFrame("Frame")
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
-
 -- module's print function
 local function Print(msg)
     if msg then
-        addon:Print(msg, "AutoMate")
+        core:Print(msg, "AutoMate")
     end
 end
 
@@ -47,16 +48,10 @@ do
         if AutomateDB.uiscale then
             local scalefix = CreateFrame("Frame")
             scalefix:RegisterEvent("PLAYER_LOGIN")
-            scalefix:SetScript(
-                "OnEvent",
-                function()
-                    SetCVar("useUiScale", 1)
-                    SetCVar(
-                        "uiScale",
-                        768 / string.match(({GetScreenResolutions()})[GetCurrentResolution()], "%d+x(%d+)")
-                    )
-                end
-            )
+            scalefix:SetScript("OnEvent", function()
+                SetCVar("useUiScale", 1)
+                SetCVar("uiScale", 768 / string.match(({GetScreenResolutions()})[GetCurrentResolution()], "%d+x(%d+)"))
+            end)
         end
 
         -- Max camera distance, screenshots quality.
@@ -66,8 +61,8 @@ do
         SaveView(5)
     end
 
-    function mod:PLAYER_ENTERING_WORLD()
-        mod:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    function E:PLAYER_ENTERING_WORLD()
+        self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 
         if AutomateDB.enabled then
             self:RegisterEvent("DUEL_REQUESTED")
@@ -80,7 +75,7 @@ do
 
             hooksecurefunc("ShowReadyCheck", Automate_ReadyCheck)
             Automate_UIScale()
-            self:AdjustCamera()
+            mod:AdjustCamera()
         else
             self:UnregisterEvent("DUEL_REQUESTED")
             self:UnregisterEvent("GOSSIP_SHOW")
@@ -97,7 +92,7 @@ end
 -- Ignore Duels
 -- ///////////////////////////////////////////////////////
 
-function mod:DUEL_REQUESTED()
+function E:DUEL_REQUESTED()
     if AutomateDB.duels then
         CancelDuel()
         StaticPopup_Hide("DUEL_REQUESTED")
@@ -108,7 +103,7 @@ end
 -- Skip Gossip
 -- ///////////////////////////////////////////////////////
 
-function mod:GOSSIP_SHOW()
+function E:GOSSIP_SHOW()
     if not AutomateDB.gossip then
         return
     end
@@ -121,23 +116,23 @@ function mod:GOSSIP_SHOW()
         end
     end
 end
-mod.QUEST_GREETING = mod.GOSSIP_SHOW
+E.QUEST_GREETING = E.GOSSIP_SHOW
 
 -- ///////////////////////////////////////////////////////
 -- Auto Nameplates
 -- ///////////////////////////////////////////////////////
 
-function mod:PLAYER_REGEN_ENABLED()
+function E:PLAYER_REGEN_ENABLED()
     if AutomateDB.nameplate then
         SetCVar("nameplateShowEnemies", 0)
         _G.NAMEPLATES_ON = false
     end
-	if AutomateDB.camera then
-		self:AdjustCamera()
-	end
+    if AutomateDB.camera then
+        mod:AdjustCamera()
+    end
 end
 
-function mod:PLAYER_REGEN_DISABLED()
+function E:PLAYER_REGEN_DISABLED()
     if AutomateDB.nameplate then
         SetCVar("nameplateShowEnemies", 1)
         _G.NAMEPLATES_ON = true
@@ -187,14 +182,7 @@ do
                         local vCopper = repairAllCost % 100
                         local vSilver = floor((repairAllCost % 10000) / 100)
                         local vGold = floor(repairAllCost / 100000)
-                        PrintSys(
-                            L:F(
-                                "Repair cost covered by Guild Bank: %dg %ds %dc.",
-                                tostring(vGold),
-                                tostring(vSilver),
-                                tostring(vCopper)
-                            )
-                        )
+                        PrintSys(L:F("Repair cost covered by Guild Bank: %dg %ds %dc.", tostring(vGold), tostring(vSilver), tostring(vCopper)))
                         return
                     end
                 end
@@ -206,14 +194,7 @@ do
                     local vCopper = repairAllCost % 100
                     local vSilver = floor((repairAllCost % 10000) / 100)
                     local vGold = floor(repairAllCost / 100000)
-                    PrintSys(
-                        L:F(
-                            "Your items have been repaired for %dg %ds %dc.",
-                            tostring(vGold),
-                            tostring(vSilver),
-                            tostring(vCopper)
-                        )
-                    )
+                    PrintSys(L:F("Your items have been repaired for %dg %ds %dc.", tostring(vGold), tostring(vSilver), tostring(vCopper)))
                 else
                     PrintSys(L["You don't have enough money to repair items!"])
                 end
@@ -221,7 +202,7 @@ do
         end
     end
 
-    function mod:MERCHANT_SHOW()
+    function E:MERCHANT_SHOW()
         Automate_Repair()
         Automate_SellJunk()
     end
@@ -246,19 +227,113 @@ end
 -- ///////////////////////////////////////////////////////
 
 function mod:AdjustCamera()
-	if AutomateDB.camera and not InCombatLockdown() then
-		SetCVar("cameraDistanceMaxFactor", "2.6")
-		MoveViewOutStart(50000)
-	end
+    if AutomateDB.camera and not InCombatLockdown() then
+        SetCVar("cameraDistanceMaxFactor", "2.6")
+        MoveViewOutStart(50000)
+    end
+end
+
+-- ///////////////////////////////////////////////////////
+-- Trainer Button
+-- ///////////////////////////////////////////////////////
+
+do
+    local button, locked
+    local skillsToLearn, skillsLearned
+    local process
+
+    local function Automate_TrainReset()
+        button:SetScript("OnUpdate", nil)
+        locked = nil
+        skillsLearned = nil
+        skillsToLearn = nil
+        process = nil
+        button.delay = nil
+    end
+
+    local function Automate_TrainAll_OnUpdate(self, elapsed)
+        self.delay = self.delay - elapsed
+        if self.delay <= 0 then
+            Automate_TrainReset()
+        end
+    end
+
+    local function Automate_TrainAll()
+        locked = true
+        button:Disable()
+
+        local j, cost = 0
+        local money = GetMoney()
+
+        for i = 1, GetNumTrainerServices() do
+            if select(3, GetTrainerServiceInfo(i)) == "available" then
+                j = j + 1
+                cost = GetTrainerServiceCost(i)
+                if money >= cost then
+                    money = money - cost
+                    BuyTrainerService(i)
+                else
+                    Automate_TrainReset()
+                    return
+                end
+            end
+        end
+
+        if j > 0 then
+            skillsToLearn = j
+            skillsLearned = 0
+
+            process = true
+            button.delay = 1
+            button:SetScript("OnUpdate", Automate_TrainAll_OnUpdate)
+        else
+            Automate_TrainReset()
+        end
+    end
+
+    function E:TRAINER_UPDATE()
+        if not process then return end
+
+        skillsLearned = skillsLearned + 1
+
+        if skillsLearned >= skillsToLearn then
+            Automate_TrainReset()
+            Automate_TrainAll()
+        else
+            button.delay = 1
+        end
+    end
+
+    function mod:TrainButtonCreate()
+        if button then return end
+        button = CreateFrame("Button", "KPackTrainAllButton", ClassTrainerFrame, "KPackButtonTemplate")
+        button:SetSize(80, 18)
+        button:SetFormattedText("%s %s", TRAIN, ALL)
+        button:SetPoint("RIGHT", ClassTrainerFrameCloseButton, "LEFT", 1, 0)
+        button:SetScript("OnClick", function() Automate_TrainAll() end)
+    end
+
+    function mod:TrainButtonUpdate()
+        if locked then return end
+
+        for i = 1, GetNumTrainerServices() do
+            if select(3, GetTrainerServiceInfo(i)) == "available" then
+                button:Enable()
+                return
+            end
+        end
+
+        button:Disable()
+    end
 end
 
 -- ///////////////////////////////////////////////////////
 -- Automatic Screenshot
 -- ///////////////////////////////////////////////////////
 
-function mod:ACHIEVEMENT_EARNED()
+function E:ACHIEVEMENT_EARNED()
     if AutomateDB.screenshot then
-        addon.Timer.After(1, function() Screenshot() end)
+        core.After(1, function() Screenshot() end)
     end
 end
 
@@ -315,9 +390,9 @@ do
             msg = "auto nameplates: %s"
             status = (AutomateDB.nameplate == true)
             if status then
-                mod:PLAYER_REGEN_ENABLED()
+                E:PLAYER_REGEN_ENABLED()
             else
-                mod:PLAYER_REGEN_DISABLED()
+                E:PLAYER_REGEN_DISABLED()
             end
         elseif cmd == "ui" or cmd == "uiscale" then
             AutomateDB.uiscale = not AutomateDB.uiscale
@@ -335,7 +410,7 @@ do
 
         if msg then
             Print(L:F(msg, status and L["|cff00ff00ON|r"] or L["|cffff0000OFF|r"]))
-            mod:PLAYER_ENTERING_WORLD()
+            E:PLAYER_ENTERING_WORLD()
             return
         end
 
@@ -350,20 +425,21 @@ do
         end
     end
 
-    function mod:ADDON_LOADED(name)
-		if name ~= addonName then return end
-		self:UnregisterEvent("ADDON_LOADED")
+    function E:ADDON_LOADED(name)
+        if name == folder then
+	        if next(AutomateDB) == nil then
+	            AutomateDB = defaults
+	        end
 
-		if next(AutomateDB) == nil then
-			AutomateDB = defaults
+	        SlashCmdList["KPACKAUTOMATE"] = SlashCommandHandler
+	        _G.SLASH_KPACKAUTOMATE1 = "automate"
+	        _G.SLASH_KPACKAUTOMATE2 = "/auto"
+		elseif name == "Blizzard_TrainerUI" and AutomateDB.enabled then
+			mod:TrainButtonCreate()
+			hooksecurefunc("ClassTrainerFrame_Update", mod.TrainButtonUpdate)
+			self:UnregisterEvent("ADDON_LOADED")
 		end
-
-		SlashCmdList["KPACKAUTOMATE"] = SlashCommandHandler
-		_G.SLASH_KPACKAUTOMATE1 = "automate"
-		_G.SLASH_KPACKAUTOMATE2 = "/auto"
-
-		self:RegisterEvent("PLAYER_ENTERING_WORLD")
-    end
+	end
 end
 
 _G.BINDING_HEADER_KPACKAUTOMATE = "|cff69ccf0K|r|caaf49141Pack|r AutoMate"

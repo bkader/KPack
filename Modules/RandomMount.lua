@@ -1,9 +1,10 @@
 --[[ Credits to: Mike Hendricks(AttilaTheFun) ]]
-local addonName, addon = ...
-local mod = addon.RandomMount or CreateFrame("Frame")
-addon.RandomMount = mod
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local folder, core = ...
+
+local mod = core.RandomMount or {}
+core.RandomMount = mod
+
+local E = core:Events()
 
 -- lua api
 local format = string.format
@@ -388,7 +389,7 @@ BINDING_NAME_KPACKRANDOMMOUNT_FLYING = "Summon Flying"
 
 local function Print(msg)
     if msg then
-        addon:Print(msg, "RandomMount")
+        core:Print(msg, "RandomMount")
     end
 end
 
@@ -1198,8 +1199,9 @@ function mod:FindMount(arg1)
     return KPack_FindMount(arg1)
 end
 
-function mod:ADDON_LOADED(name)
-    if name == addonName then
+function E:ADDON_LOADED(name)
+    if name == folder then
+        self:UnregisterEvent("ADDON_LOADED")
         SlashCmdList["KPACKRANDOMMOUNT"] = KPack_FindMount
         SLASH_KPACKRANDOMMOUNT1 = "/mnt"
         SLASH_KPACKRANDOMMOUNT2 = "/rmount"

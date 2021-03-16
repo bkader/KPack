@@ -1,14 +1,14 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
 
-local mod = addon.Simplified or CreateFrame("Frame")
-addon.Simplified = mod
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local mod = core.Simplified or {}
+core.Simplified = mod
+
+local E = core:Events()
+local L = core.L
 
 local function Print(msg)
     if msg then
-        addon:Print(msg, "Simplified")
+        core:Print(msg, "Simplified")
     end
 end
 
@@ -40,15 +40,12 @@ do
     end
 
     -- frame event handler
-    function mod:ADDON_LOADED(name)
-        if name ~= addonName then
-            return
-        end
+    function E:ADDON_LOADED(name)
+        if name ~= folder then return end
         self:UnregisterEvent("ADDON_LOADED")
         SlashCmdList["KPACKSIMPLIFIED"] = SlashCommandHandler
         SLASH_KPACKSIMPLIFIED1 = "/os"
         SLASH_KPACKSIMPLIFIED2 = "/simp"
-        self:RegisterEvent("PLAYER_ENTERING_WORLD")
     end
 end
 
@@ -222,7 +219,7 @@ end
 
 -- ///////////////////////////////////////////////////////
 
-function mod:PLAYER_ENTERING_WORLD()
+function E:PLAYER_ENTERING_WORLD()
     self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 
     -- leave battleground / arena

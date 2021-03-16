@@ -1,19 +1,19 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
 
-local mod = addon.SCP or CreateFrame("Frame")
-addon.SCP = mod
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local mod = core.SCP or {}
+core.SCP = mod
+
+local E = core:Events()
+local L = core.L
 
 -- cache frequently used globals
+local pairs = pairs
 local UnitClass, unitClass = UnitClass
 local CreateFrame = CreateFrame
 local GetComboPoints = GetComboPoints
 local IsAltKeyDown = IsAltKeyDown
 local InCombatLockdown = InCombatLockdown
 local ColorPickerFrame = ColorPickerFrame
-local pairs = pairs
 
 -- some locales we need
 local maxPoints, xPos, yPos = 5, 0, 0
@@ -38,6 +38,7 @@ local defaults = {
     xPos = xPos,
     yPos = yPos
 }
+local disabled
 
 -- local functions
 local SCP_InitializeFrames, SCP_RefreshDisplay
@@ -48,7 +49,7 @@ local SCP_ColorPickCallback
 -- module's print function
 local function Print(msg)
     if msg then
-        addon:Print(msg, "ComboPoints")
+        core:Print(msg, "ComboPoints")
     end
 end
 
@@ -58,14 +59,16 @@ end
 function SCP_InitializeFrames()
     for i = 1, maxPoints do
         pointsFrame[i] = CreateFrame("Frame", "KPackSCPFrame" .. i, i == 1 and UIParent or pointsFrame[i - 1])
-        pointsFrame[i]:SetBackdrop({
-            bgFile = [[Interface\ChatFrame\ChatFrameBackground]],
-            edgeFile = [[Interface/Tooltips/UI-Tooltip-Border]],
-            tile = true,
-            tileSize = 4,
-            edgeSize = 4,
-            insets = {left = 0.5, right = 0.5, top = 0.5, bottom = 0.5}
-        })
+        pointsFrame[i]:SetBackdrop(
+            {
+                bgFile = [[Interface\ChatFrame\ChatFrameBackground]],
+                edgeFile = [[Interface/Tooltips/UI-Tooltip-Border]],
+                tile = true,
+                tileSize = 4,
+                edgeSize = 4,
+                insets = {left = 0.5, right = 0.5, top = 0.5, bottom = 0.5}
+            }
+        )
     end
     SCP_UpdateFrames()
 end
@@ -95,7 +98,7 @@ end
 function SCP_UpdateFrames()
     local width = SimpleComboPointsDB.width or 22
     local height = SimpleComboPointsDB.height or 22
-	local r, g, b = SimpleComboPointsDB.color.r, SimpleComboPointsDB.color.g, SimpleComboPointsDB.color.b
+    local r, g, b = SimpleComboPointsDB.color.r, SimpleComboPointsDB.color.g, SimpleComboPointsDB.color.b
 
     for i = 1, maxPoints do
         if pointsFrame[i] then
@@ -117,16 +120,24 @@ function SCP_UpdateFrames()
                 pointsFrame[i]:EnableMouse(true)
                 pointsFrame[i]:RegisterForDrag("LeftButton")
 
-                pointsFrame[i]:SetScript("OnDragStart", function(self)
-                    if IsAltKeyDown() then self:StartMoving() end
-                end)
-                pointsFrame[i]:SetScript("OnDragStop", function(self)
-                    self:StopMovingOrSizing()
-                    local anchor, _, _, x, y = self:GetPoint(1)
-                    SimpleComboPointsDB.xPos = x
-                    SimpleComboPointsDB.yPos = y
-                    SimpleComboPointsDB.anchor = anchor
-                end)
+                pointsFrame[i]:SetScript(
+                    "OnDragStart",
+                    function(self)
+                        if IsAltKeyDown() then
+                            self:StartMoving()
+                        end
+                    end
+                )
+                pointsFrame[i]:SetScript(
+                    "OnDragStop",
+                    function(self)
+                        self:StopMovingOrSizing()
+                        local anchor, _, _, x, y = self:GetPoint(1)
+                        SimpleComboPointsDB.xPos = x
+                        SimpleComboPointsDB.yPos = y
+                        SimpleComboPointsDB.anchor = anchor
+                    end
+                )
             else
                 pointsFrame[i]:SetPoint("RIGHT", width + 1 + (SimpleComboPointsDB.spacing or 0), 0)
             end
@@ -138,7 +149,9 @@ end
 
 -- simply refreshes the display of the frame
 function SCP_RefreshDisplay()
-    if druidForm then return end
+    if druidForm then
+        return
+    end
 
     if not InCombatLockdown() and GetComboPoints("player") == 0 and SimpleComboPointsDB.combat then
         for i = 1, maxPoints do
@@ -184,30 +197,38 @@ end
 -- //////////////////////////////////////////////////////////////
 
 -- after the player enters the world
-function mod:PLAYER_ENTERING_WORLD()
+function E:PLAYER_ENTERING_WORLD()
     self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    if disabled then return end
+
     SCP_InitializeFrames()
     SCP_UpdatePoints()
-    self:RegisterEvent("UNIT_COMBO_POINTS")
-    self:RegisterEvent("PLAYER_REGEN_ENABLED")
-    self:RegisterEvent("PLAYER_TARGET_CHANGED")
-
     -- only for druids.
     if unitClass == "DRUID" then
-        self:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
         self:UPDATE_SHAPESHIFT_FORM()
     end
 end
 
 -- used to update combo points
-function mod:UNIT_COMBO_POINTS()
-    SCP_UpdatePoints()
+function E:UNIT_COMBO_POINTS()
+	if disabled then
+		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+		self:UnregisterEvent("PLAYER_TARGET_CHANGED")
+		self:UnregisterEvent("UNIT_COMBO_POINTS")
+	else
+		SCP_UpdatePoints()
+	end
 end
-mod.PLAYER_REGEN_ENABLED = mod.UNIT_COMBO_POINTS
-mod.PLAYER_TARGET_CHANGED = mod.UNIT_COMBO_POINTS
+E.PLAYER_REGEN_ENABLED = E.UNIT_COMBO_POINTS
+E.PLAYER_TARGET_CHANGED = E.UNIT_COMBO_POINTS
 
 -- used only for druids
-function mod:UPDATE_SHAPESHIFT_FORM()
+function E:UPDATE_SHAPESHIFT_FORM()
+    if disabled or unitClass ~= "DRUID" then
+        self:UnregisterEvent("UPDATE_SHAPESHIFT_FORM")
+        return
+    end
+
     if GetShapeshiftForm() == 3 then
         for i = 1, maxPoints do
             pointsFrame[i]:Show()
@@ -304,8 +325,8 @@ local function SlashCommandHandler(txt)
     end
 end
 
-function mod:ADDON_LOADED(name)
-    if name ~= addonName then
+function E:ADDON_LOADED(name)
+    if name ~= folder then
         return
     end
     self:UnregisterEvent("ADDON_LOADED")
@@ -321,6 +342,7 @@ function mod:ADDON_LOADED(name)
 
     -- if the player isn't a rogue or druid, ignore
     if unitClass ~= "ROGUE" and unitClass ~= "DRUID" then
+        disabled = true
         return
     end
 
@@ -332,6 +354,4 @@ function mod:ADDON_LOADED(name)
     if not SimpleComboPointsDB.enabled then
         return
     end
-
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
 end

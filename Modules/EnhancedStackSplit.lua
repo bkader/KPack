@@ -1,10 +1,10 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
 
-local mod = addon.EnhStackSplit or CreateFrame("Frame")
-addon.EnhStackSplit = mod
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local E = core:Events()
+local L = core.L
+
+local mod = core.EnhStackSplit or {}
+core.EnhStackSplit = mod
 
 EnhStackSplitDB = {}
 local defaults = {mode = 1, xlmode = false}
@@ -43,7 +43,7 @@ local mainBankFrames = {
 
 local function Print(msg)
     if msg then
-        addon:Print(msg, "EnhancedStackSplit")
+        core:Print(msg, "EnhancedStackSplit")
     end
 end
 
@@ -138,19 +138,7 @@ local function autoSplitCalc(num)
     return freeslots or 0, numstacks or 0, leftover or 0
 end
 
-local function createButton(
-    name,
-    parent,
-    template,
-    anchorparent,
-    width,
-    anchorp,
-    anchorrp,
-    adimx,
-    adimy,
-    text,
-    func1,
-    func2)
+local function createButton(name, parent, template, anchorparent, width, anchorp, anchorrp, adimx, adimy, text, func1, func2)
     local b = CreateFrame("Button", name, _G[parent], template)
     b:SetWidth(width)
     b:SetHeight(24)
@@ -159,12 +147,7 @@ local function createButton(
     b:SetScript("OnClick", func1)
     if func2 then
         b:SetScript("OnEnter", func2)
-        b:SetScript(
-            "OnLeave",
-            function()
-                _G.EnhancedStackSplitTextAutoText2:SetText("")
-            end
-        )
+        b:SetScript("OnLeave", function() _G.EnhancedStackSplitTextAutoText2:SetText("") end)
     end
 end
 
@@ -235,7 +218,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitAuto1Button",
         "StackSplitFrame",
-        "UIPanelButtonTemplate",
+        "KPackButtonTemplate",
         "StackSplitFrame",
         64,
         "RIGHT",
@@ -255,7 +238,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton1",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitBottomTextureFrame",
         22,
         "TOPLEFT",
@@ -273,7 +256,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton2",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton1",
         22,
         "TOPLEFT",
@@ -291,7 +274,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton3",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton2",
         22,
         "TOPLEFT",
@@ -309,7 +292,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton4",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton3",
         22,
         "TOPLEFT",
@@ -327,7 +310,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton5",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton4",
         22,
         "TOPLEFT",
@@ -345,7 +328,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton6",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton5",
         22,
         "TOPLEFT",
@@ -363,7 +346,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton7",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton6",
         22,
         "TOPLEFT",
@@ -381,7 +364,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton8",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton7",
         22,
         "TOPLEFT",
@@ -399,7 +382,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton9",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton1",
         26,
         "TOPLEFT",
@@ -417,7 +400,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton10",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton9",
         26,
         "TOPLEFT",
@@ -436,7 +419,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton11",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton1",
         26,
         "TOPLEFT",
@@ -454,7 +437,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton12",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton11",
         26,
         "TOPLEFT",
@@ -472,7 +455,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton13",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton12",
         26,
         "TOPLEFT",
@@ -490,7 +473,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton14",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton13",
         26,
         "TOPLEFT",
@@ -508,7 +491,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton15",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton14",
         26,
         "TOPLEFT",
@@ -526,7 +509,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitButton16",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton15",
         26,
         "TOPLEFT",
@@ -545,7 +528,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitAutoSplitButton",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitButton8",
         1,
         "TOPRIGHT",
@@ -560,7 +543,7 @@ function mod:CreateFrames()
     createButton(
         "EnhancedStackSplitModeTXTButton",
         "EnhancedStackSplitBottomTextureFrame",
-        "UIPanelButtonTemplate2",
+        "KPackButtonTemplate",
         "EnhancedStackSplitAutoSplitButton",
         1,
         "TOPRIGHT",
@@ -608,12 +591,7 @@ function mod:CreateFrames()
         textureDisabled:SetVertexColor(0.5, 0.5, 0.5)
     end
 
-    XLButton:SetScript(
-        "OnClick",
-        function()
-            mod:XLModeToggle()
-        end
-    )
+    XLButton:SetScript("OnClick", function() mod:XLModeToggle() end)
 
     mod:ModeSettings(EnhStackSplitDB.mode)
     mod:RepositionButtons()
@@ -634,18 +612,8 @@ function mod:RepositionButtons()
 
         _G.EnhancedStackSplitButton9:SetText("100")
         _G.EnhancedStackSplitButton9:SetWidth(34)
-        _G.EnhancedStackSplitButton9:SetScript(
-            "OnClick",
-            function()
-                mod:Split(100)
-            end
-        )
-        _G.EnhancedStackSplitButton9:SetScript(
-            "OnEnter",
-            function()
-                mod:AutoSplitInfo(100)
-            end
-        )
+        _G.EnhancedStackSplitButton9:SetScript("OnClick", function() mod:Split(100) end)
+        _G.EnhancedStackSplitButton9:SetScript("OnEnter", function() mod:AutoSplitInfo(100) end)
         _G.EnhancedStackSplitButton9:SetPoint("TOPLEFT", "EnhancedStackSplitButton1", "BOTTOMLEFT", 0, -19)
         _G.EnhancedStackSplitButton10:Hide()
 
@@ -667,18 +635,8 @@ function mod:RepositionButtons()
 
         _G.EnhancedStackSplitButton9:SetText("10")
         _G.EnhancedStackSplitButton9:SetWidth(26)
-        _G.EnhancedStackSplitButton9:SetScript(
-            "OnClick",
-            function()
-                mod:Split(10)
-            end
-        )
-        _G.EnhancedStackSplitButton9:SetScript(
-            "OnEnter",
-            function()
-                mod:AutoSplitInfo(10)
-            end
-        )
+        _G.EnhancedStackSplitButton9:SetScript("OnClick", function() mod:Split(10) end)
+        _G.EnhancedStackSplitButton9:SetScript("OnEnter", function() mod:AutoSplitInfo(10) end)
         _G.EnhancedStackSplitButton9:SetPoint("TOPLEFT", "EnhancedStackSplitButton1", "BOTTOMLEFT", 0, 2)
         _G.EnhancedStackSplitButton10:Show()
 
@@ -994,21 +952,20 @@ end
 
 -- ================================================================== --
 
-function mod:ADDON_LOADED(name)
-    if name ~= addonName then
-        return
-    end
-    self:UnregisterEvent("ADDON_LOADED")
+function E:ADDON_LOADED(name)
+    if name == folder then
+	    self:UnregisterEvent("ADDON_LOADED")
 
-    if next(EnhStackSplitDB) == nil then
-        EnhStackSplitDB = defaults
-    end
+	    if next(EnhStackSplitDB) == nil then
+	        EnhStackSplitDB = defaults
+	    end
 
-    self:CreateFrames()
-    hooksecurefunc("OpenStackSplitFrame", self.OpenStackSplitFrame)
-    self:RegisterEvent("ITEM_LOCK_CHANGED")
+	    mod:CreateFrames()
+	    hooksecurefunc("OpenStackSplitFrame", mod.OpenStackSplitFrame)
+	    self:RegisterEvent("ITEM_LOCK_CHANGED")
+    end
 end
 
-function mod:ITEM_LOCK_CHANGED(...)
-    self:CheckItemLock(...)
+function E:ITEM_LOCK_CHANGED(...)
+    mod:CheckItemLock(...)
 end

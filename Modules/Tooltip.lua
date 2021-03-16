@@ -1,15 +1,10 @@
 local addonName, addon = ...
-local L = addon.L
 
-local mod = addon.Tooltip or CreateFrame("Frame")
+local mod = addon.Tooltip or {}
 addon.Tooltip = mod
-mod:SetScript(
-    "OnEvent",
-    function(self, event, ...)
-        self[event](self, ...)
-    end
-)
-mod:RegisterEvent("ADDON_LOADED")
+
+local E = addon:Events()
+local L = addon.L
 
 -- saved variables & defaults
 TooltipDB = {}
@@ -107,7 +102,7 @@ do
             cmd = cmd:lower()
             if type(exec[cmd]) == "function" then
                 exec[cmd](rest)
-                mod:PLAYER_ENTERING_WORLD()
+                E:PLAYER_ENTERING_WORLD()
             else
                 Print(L:F("Acceptable commands for: |caaf49141%s|r", "/tip"))
                 print(helpStr:format("unit", L["toggles unit tooltip in combat"]))
@@ -154,11 +149,9 @@ do
         end
     end
 
-    function mod:ADDON_LOADED(name)
-        if name ~= addonName then
-            return
-        end
+    function E:ADDON_LOADED(name)
         self:UnregisterEvent("ADDON_LOADED")
+        if name ~= addonName then return end
 
         if next(TooltipDB) == nil then
             TooltipDB = defaults
@@ -173,8 +166,6 @@ do
         hooksecurefunc(GameTooltip, "SetPetAction", Tooltip_SetPetAction)
         hooksecurefunc(GameTooltip, "SetShapeshift", Tooltip_SetShapeshift)
         hooksecurefunc("GameTooltip_SetDefaultAnchor", Tooltip_ChangePosition)
-
-        self:RegisterEvent("PLAYER_ENTERING_WORLD")
     end
 end
 
@@ -314,33 +305,16 @@ do
                     end
 
                     for i = 2, GameTooltip:NumLines() do
-                        if
-                            _G["GameTooltipTextLeft" .. i] and _G["GameTooltipTextLeft" .. i].GetText and
-                                _G["GameTooltipTextLeft" .. i]:GetText():find(PLAYER)
-                         then
+                        if _G["GameTooltipTextLeft" .. i] and _G["GameTooltipTextLeft" .. i].GetText and _G["GameTooltipTextLeft" .. i]:GetText():find(PLAYER) then
                             local str = LEVEL .. " %s%s|r %s |cff%s%s|r"
-                            _G["GameTooltipTextLeft" .. i]:SetText(
-                                str:format(
-                                    Tooltip_Hex(diffColor.r, diffColor.g, diffColor.b),
-                                    unitLevel,
-                                    unitRace,
-                                    classColors[classFile],
-                                    unitClass
-                                )
-                            )
+                            _G["GameTooltipTextLeft" .. i]:SetText(str:format(Tooltip_Hex(diffColor.r, diffColor.g, diffColor.b), unitLevel, unitRace, classColors[classFile], unitClass))
                             break
                         end
                     end
                 else
                     for i = 2, GameTooltip:NumLines() do
-                        if
-                            _G["GameTooltipTextLeft" .. i]:GetText():find(LEVEL) or
-                                _G["GameTooltipTextLeft" .. i]:GetText():find(creatureType)
-                         then
-                            _G["GameTooltipTextLeft" .. i]:SetText(
-                                format(Tooltip_Hex(diffColor.r, diffColor.g, diffColor.b) .. "%s|r", unitLevel) ..
-                                    unitClassification .. creatureType
-                            )
+                        if _G["GameTooltipTextLeft" .. i]:GetText():find(LEVEL) or _G["GameTooltipTextLeft" .. i]:GetText():find(creatureType) then
+                            _G["GameTooltipTextLeft" .. i]:SetText(format(Tooltip_Hex(diffColor.r, diffColor.g, diffColor.b) .. "%s|r", unitLevel) .. unitClassification .. creatureType)
                             break
                         end
                     end
@@ -419,15 +393,11 @@ do
         end
     end
 
-    function mod:PLAYER_ENTERING_WORLD()
+    function E:PLAYER_ENTERING_WORLD()
         self:UnregisterEvent("PLAYER_ENTERING_WORLD")
         if _G.Aurora then
             return
         end
-
-        mod:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
-        mod:RegisterEvent("PLAYER_REGEN_ENABLED")
-        mod:RegisterEvent("PLAYER_REGEN_DISABLED")
 
         if not TooltipDB.enhance then
             return
@@ -436,7 +406,6 @@ do
         local tooltips = {
             GameTooltip,
             ItemRefTooltip,
-            mod,
             ShoppingTooltip2,
             ShoppingTooltip3,
             WorldMapTooltip,
@@ -491,16 +460,16 @@ do
     end
 end
 
-function mod:UPDATE_MOUSEOVER_UNIT()
+function E:UPDATE_MOUSEOVER_UNIT()
     if TooltipDB.unit and inCombat then
         GameTooltip:Hide()
     end
 end
 
-function mod:PLAYER_REGEN_ENABLED()
+function E:PLAYER_REGEN_ENABLED()
     inCombat = false
 end
 
-function mod:PLAYER_REGEN_DISABLED()
+function E:PLAYER_REGEN_DISABLED()
     inCombat = true
 end

@@ -1,10 +1,10 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
 
-local mod = addon.Minimap or CreateFrame("Frame")
-addon.Minimap = mod
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local mod = core.Minimap or {}
+core.Minimap = mod
+
+local E = core:Events()
+local L = core.L
 
 MinimapDB = {}
 local defaults = {
@@ -27,6 +27,7 @@ local ToggleAchievementFrame = ToggleAchievementFrame
 local ToggleFriendsFrame = ToggleFriendsFrame
 local ToggleHelpFrame = ToggleHelpFrame
 local ToggleFrame = ToggleFrame
+local inCombat
 
 -- function used to kill or replace other functions.
 local function noFunc()
@@ -34,7 +35,7 @@ end
 
 local function Print(msg)
     if msg then
-        addon:Print(msg, "Minimap")
+        core:Print(msg, "Minimap")
     end
 end
 
@@ -48,7 +49,7 @@ do
             MinimapDB.enabled = true
             Print(L:F("module status: %s", L["|cff00ff00enabled|r"]))
             Print(L["Please reload ui."])
-            mod:PLAYER_ENTERING_WORLD()
+            E:PLAYER_ENTERING_WORLD()
         end
     end
     exec.on = exec.enable
@@ -58,7 +59,7 @@ do
             MinimapDB.enabled = false
             Print(L:F("module status: %s", L["|cff00ff00enabled|r"]))
             Print(L["Please reload ui."])
-            mod:PLAYER_ENTERING_WORLD()
+            E:PLAYER_ENTERING_WORLD()
         end
     end
     exec.off = exec.disable
@@ -67,7 +68,7 @@ do
         if not MinimapDB.locked then
             MinimapDB.locked = true
             Print(L["minimap locked."])
-            mod:PLAYER_ENTERING_WORLD()
+            E:PLAYER_ENTERING_WORLD()
         end
     end
 
@@ -75,7 +76,7 @@ do
         if MinimapDB.locked then
             MinimapDB.locked = false
             Print(L["minimap unlocked."])
-            mod:PLAYER_ENTERING_WORLD()
+            E:PLAYER_ENTERING_WORLD()
         end
     end
 
@@ -83,7 +84,7 @@ do
         if MinimapDB.hide then
             MinimapDB.hide = false
             Print(L["minimap shown."])
-            mod:PLAYER_ENTERING_WORLD()
+            E:PLAYER_ENTERING_WORLD()
         end
     end
 
@@ -91,7 +92,7 @@ do
         if not MinimapDB.hide then
             MinimapDB.hide = true
             Print(L["minimap hidden."])
-            mod:PLAYER_ENTERING_WORLD()
+            E:PLAYER_ENTERING_WORLD()
         end
     end
 
@@ -105,14 +106,14 @@ do
                 MinimapCluster:Show()
             end
         end
-        mod:PLAYER_ENTERING_WORLD()
+        E:PLAYER_ENTERING_WORLD()
     end
 
     exec.scale = function(n)
         n = tonumber(n)
         if n then
             MinimapDB.scale = n
-            mod:PLAYER_ENTERING_WORLD()
+            E:PLAYER_ENTERING_WORLD()
         end
     end
 
@@ -125,7 +126,7 @@ do
         wipe(MinimapDB)
         MinimapDB = defaults
         Print(L["module's settings reset to default."])
-        mod:PLAYER_ENTERING_WORLD()
+        E:PLAYER_ENTERING_WORLD()
     end
     exec.defaults = exec.reset
 
@@ -149,8 +150,8 @@ do
     end
 end
 
-function mod:ADDON_LOADED(name)
-	if name ~= addonName then return end
+function E:ADDON_LOADED(name)
+	if name ~= folder then return end
 	self:UnregisterEvent("ADDON_LOADED")
 	if type(MinimapDB) ~= "table" or next(MinimapDB) == nil then
 		MinimapDB = defaults
@@ -158,7 +159,6 @@ function mod:ADDON_LOADED(name)
 
 	SlashCmdList["KPACKMINIMAP"] = SlashCommandHandler
 	SLASH_KPACKMINIMAP1, SLASH_KPACKMINIMAP2 = "/minimap", "/mm"
-	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 end
 
 do
@@ -311,12 +311,12 @@ do
     end
 
     -- called once the user enter the world
-    function mod:PLAYER_ENTERING_WORLD()
+    function E:PLAYER_ENTERING_WORLD()
         if _G.SexyMap or _G.MinimapBar or not MinimapDB.enabled then
             return
         end
         -- fix the stupid buff with MoveAnything Condolidate buffs
-		if not (_G.MOVANY or _G.MovAny or addon.MA) then
+		if not (_G.MOVANY or _G.MovAny or core.MA) then
 			ConsolidatedBuffs:SetParent(UIParent)
 			ConsolidatedBuffs:ClearAllPoints()
 			ConsolidatedBuffs:SetPoint("TOPRIGHT", -205, -13)
@@ -338,8 +338,8 @@ do
         MinimapZoomIn:Hide()
         MinimapZoomOut:Hide()
         MiniMapWorldMapButton:Hide()
-        addon:Kill(GameTimeFrame)
-        addon:Kill(MiniMapTracking)
+        core:Kill(GameTimeFrame)
+        core:Kill(MiniMapTracking)
         MinimapZoneText:SetPoint("TOPLEFT", "MinimapZoneTextButton", "TOPLEFT", 5, 5)
         Minimap:EnableMouseWheel(true)
 
@@ -358,17 +358,11 @@ do
         Minimap:SetBackdropColor(0, 0, 0, 1)
         MinimapCluster:SetScale(MinimapDB.scale or 1)
 
-        if MinimapDB.hide then
-            MinimapCluster:Hide()
-            self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-            self:UnregisterEvent("PLAYER_REGEN_DISABLED")
-        elseif MinimapDB.combat then
-            self:RegisterEvent("PLAYER_REGEN_ENABLED")
-            self:RegisterEvent("PLAYER_REGEN_DISABLED")
-        else
-            self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-            self:UnregisterEvent("PLAYER_REGEN_DISABLED")
-        end
+		if MinimapDB.hide then
+			MinimapCluster:Hide()
+		elseif not MinimapDB.combat and not inCombat then
+			MinimapCluster:Show()
+		end
 
         if MinimapDB.locked then
             MinimapCluster:SetMovable(false)
@@ -391,41 +385,41 @@ do
             MinimapCluster.SetPoint = function()
             end
         end
-
-        self:RegisterEvent("MINIMAP_PING")
-        self:UnregisterEvent("PLAYER_ENTERING_WORLD")
     end
 end
 
-function mod:PLAYER_REGEN_ENABLED()
-    if MinimapDB.combat and not MinimapCluster:IsShown() and not MinimapDB.hide then
+function E:PLAYER_REGEN_ENABLED()
+	inCombat = false
+    if MinimapDB.enabled and MinimapDB.combat and not MinimapCluster:IsShown() and not MinimapDB.hide then
         MinimapCluster:Show()
     end
 end
 
-function mod:PLAYER_REGEN_DISABLED()
-    if MinimapDB.combat and MinimapCluster:IsShown() then
+function E:PLAYER_REGEN_DISABLED()
+	inCombat = true
+    if MinimapDB.enabled and MinimapDB.combat and MinimapCluster:IsShown() then
         MinimapCluster:Hide()
     end
 end
 
 local pinger
-function mod:MINIMAP_PING(unit, coordx, coordy)
-    if UnitName(unit) ~= addon.name then
+local frame = CreateFrame("Frame")
+function E:MINIMAP_PING(unit, coordx, coordy)
+    if UnitName(unit) ~= core.name then
         -- create the pinger
         if not pinger then
-            pinger = mod:CreateFontString(nil, "OVERLAY")
+            pinger = frame:CreateFontString(nil, "OVERLAY")
             pinger:SetFont("Fonts\\FRIZQT__.ttf", 13, "OUTLINE")
             pinger:SetPoint("CENTER", Minimap, "CENTER", 0, 0)
             pinger:SetJustifyH("CENTER")
         end
 
-        if self.timer and time() - self.timer > 1 or not self.timer then
+        if mod.timer and time() - mod.timer > 1 or not mod.timer then
             local Class = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS[select(2, UnitClass(unit))]
             pinger:SetText(format("|cffff0000*|r %s |cffff0000*|r", UnitName(unit)))
             pinger:SetTextColor(Class.r, Class.g, Class.b)
-            UIFrameFlash(self, 0.2, 2.8, 5, false, 0, 5)
-            self.timer = time()
+            UIFrameFlash(frame, 0.2, 2.8, 5, false, 0, 5)
+            mod.timer = time()
         end
     end
 end

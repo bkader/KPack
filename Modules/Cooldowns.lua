@@ -1,6 +1,5 @@
-local Cooldowns = CreateFrame("Frame")
-Cooldowns:SetScript("OnEvent",function(self) self:Enable() end)
-Cooldowns:RegisterEvent("PLAYER_LOGIN")
+local folder, core = ...
+local E = core:Events()
 
 local DAY, HOUR, MINUTE, SHORT = 86400, 3600, 60, 5
 local ICON_SIZE = 36
@@ -84,11 +83,13 @@ local function Cooldowns_StartTimer(self, start, duration)
     end
 end
 
-function Cooldowns:Enable()
+
+function E:ADDON_LOADED(name)
+	if name ~= folder or _G.OmniCC then return end
+    self:UnregisterEvent("ADDON_LOADED")
+	_G.OmniCC = true
     hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, "SetCooldown", function(self, start, duration)
-        if not _G.OmniCC then
-            _G.OmniCC = true
-        end
+		if self.noOCC then return end
         if start > 0 and duration > minDuration then
             Cooldowns_StartTimer(self, start, duration)
         else

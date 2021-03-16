@@ -1,5 +1,6 @@
-local _, addon = ...
-local L = addon.L
+local folder, core = ...
+local E = core:Events()
+local L = core.L
 
 -- Setup some locals
 local KPack_UnitFrames_PlayerFrame_IsMoving = false
@@ -44,7 +45,6 @@ local KPack_UnitFrames_PlayerFrame_OnMouseUp
 local KPack_UnitFrames_PlayerFrame_ToPlayerArt
 local KPack_UnitFrames_PlayerFrame_ToVehicleArt
 local KPack_UnitFrames_SetFrameScale
-local KPack_UnitFrames_StartUp
 local KPack_UnitFrames_Style_PlayerFrame
 local KPack_UnitFrames_TargetFrame_CheckClassification
 local KPack_UnitFrames_TargetFrame_CheckFaction
@@ -62,7 +62,7 @@ local DefautDB = {
 -- Debug function. Adds message to the chatbox (only visible to the loacl player)
 function Print(msg)
     if msg then
-        addon:Print(msg, "UnitFrames")
+        core:Print(msg, "UnitFrames")
     end
 end
 
@@ -72,63 +72,6 @@ function Tokenize(str)
         tinsert(tbl, v)
     end
     return tbl
-end
-
--- Create the addon main instance
-local UnitFramesImproved = CreateFrame("Frame", "UnitFramesImproved")
-
--- Event listener to make sure we enable the addon at the right time
-function UnitFramesImproved:PLAYER_ENTERING_WORLD()
-    EnableUnitFramesImproved()
-end
-
--- Event listener to make sure we've loaded our settings and thta we apply them
-function UnitFramesImproved:VARIABLES_LOADED()
-    if UnitFramesDB == nil then
-        KPack_UnitFrames_LoadDefaultSettings()
-    end
-
-    if UnitFramesDB.player == nil then
-        KPack_UnitFrames_LoadDefaultSettings()
-    end
-
-    KPack_UnitFrames_ApplySettings(UnitFramesDB)
-end
-
-function UnitFramesImproved:PLAYER_REGEN_ENABLED()
-    PlayerFrame:SetScript("OnMouseDown", KPack_UnitFrames_PlayerFrame_OnMouseDown)
-    PlayerFrame:SetScript("OnMouseUp", KPack_UnitFrames_PlayerFrame_OnMouseUp)
-    TargetFrame:SetScript("OnMouseDown", KPack_UnitFrames_TargetFrame_OnMouseDown)
-    TargetFrame:SetScript("OnMouseUp", KPack_UnitFrames_TargetFrame_OnMouseUp)
-end
-
-function UnitFramesImproved:PLAYER_REGEN_DISABLED()
-    PlayerFrame:SetScript("OnMouseDown", nil)
-    PlayerFrame:SetScript("OnMouseUp", nil)
-    TargetFrame:SetScript("OnMouseDown", nil)
-    TargetFrame:SetScript("OnMouseUp", nil)
-end
-
-function UnitFramesImproved:UNIT_ENTERED_VEHICLE(unit)
-  if unit == "player" then
-    PlayerFrame.state = "vehicle"
-    UnitFrame_SetUnit(PlayerFrame, "vehicle", PlayerFrameHealthBar, PlayerFrameManaBar)
-    UnitFrame_SetUnit(PetFrame, "player", PetFrameHealthBar, PetFrameManaBar)
-    PetFrame_Update(PetFrame)
-    PlayerFrame:Show()
-    PlayerFrame_Update()
-  end
-end
-
-function UnitFramesImproved:UNIT_EXITED_VEHICLE(unit)
-  if unit == "player" then
-    PlayerFrame.state = "player"
-    UnitFrame_SetUnit(PlayerFrame, "player", PlayerFrameHealthBar, PlayerFrameManaBar)
-    UnitFrame_SetUnit(PetFrame, "pet", PetFrameHealthBar, PetFrameManaBar)
-    PetFrame_Update(PetFrame)
-    PlayerFrame_Update()
-    PlayerFrame:Show()
-  end
 end
 
 function KPack_UnitFrames_ApplySettings(settings)
@@ -356,7 +299,7 @@ end
 function KPack_UnitFrames_PlayerFrame_ToPlayerArt(self)
     KPack_UnitFrames_Style_PlayerFrame()
     if UnitFramesDB.player.moved == true then
-        addon.Timer.After(0.35, function()
+        core.After(0.35, function()
             PlayerFrame:ClearAllPoints()
             PlayerFrame:SetPoint(UnitFramesDB.player.point, UnitFramesDB.player.x, UnitFramesDB.player.y)
         end)
@@ -367,7 +310,7 @@ function KPack_UnitFrames_PlayerFrame_ToVehicleArt(self)
     PlayerFrameHealthBar:SetHeight(12)
     PlayerFrameHealthBarText:SetPoint("CENTER", 50, 3)
     if UnitFramesDB.player.moved == true then
-        addon.Timer.After(0.35, function()
+        core.After(0.35, function()
             PlayerFrame:ClearAllPoints()
             PlayerFrame:SetPoint(UnitFramesDB.player.point, UnitFramesDB.player.x, UnitFramesDB.player.y)
         end)
@@ -503,14 +446,59 @@ function KPack_UnitFrames_CapDisplayOfNumericValue(value)
     return retString
 end
 
--- Bootstrap
-function KPack_UnitFrames_StartUp(self)
-    self:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-    self:RegisterEvent("VARIABLES_LOADED")
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
-    self:RegisterEvent("PLAYER_REGEN_ENABLED")
-    self:RegisterEvent("PLAYER_REGEN_DISABLED")
-    addon.ufi = true
+-- Event listener to make sure we've loaded our settings and thta we apply them
+function E:VARIABLES_LOADED()
+    self:UnregisterEvent("VARIABLES_LOADED")
+    if UnitFramesDB == nil then
+        KPack_UnitFrames_LoadDefaultSettings()
+    end
+
+    if UnitFramesDB.player == nil then
+        KPack_UnitFrames_LoadDefaultSettings()
+    end
+
+	core.ufi = true
+    KPack_UnitFrames_ApplySettings(UnitFramesDB)
 end
 
-KPack_UnitFrames_StartUp(UnitFramesImproved)
+-- Event listener to make sure we enable the addon at the right time
+function E:PLAYER_ENTERING_WORLD()
+    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    EnableUnitFramesImproved()
+end
+
+function E:PLAYER_REGEN_ENABLED()
+    PlayerFrame:SetScript("OnMouseDown", KPack_UnitFrames_PlayerFrame_OnMouseDown)
+    PlayerFrame:SetScript("OnMouseUp", KPack_UnitFrames_PlayerFrame_OnMouseUp)
+    TargetFrame:SetScript("OnMouseDown", KPack_UnitFrames_TargetFrame_OnMouseDown)
+    TargetFrame:SetScript("OnMouseUp", KPack_UnitFrames_TargetFrame_OnMouseUp)
+end
+
+function E:PLAYER_REGEN_DISABLED()
+    PlayerFrame:SetScript("OnMouseDown", nil)
+    PlayerFrame:SetScript("OnMouseUp", nil)
+    TargetFrame:SetScript("OnMouseDown", nil)
+    TargetFrame:SetScript("OnMouseUp", nil)
+end
+
+function E:UNIT_ENTERED_VEHICLE(unit)
+  if unit == "player" then
+    PlayerFrame.state = "vehicle"
+    UnitFrame_SetUnit(PlayerFrame, "vehicle", PlayerFrameHealthBar, PlayerFrameManaBar)
+    UnitFrame_SetUnit(PetFrame, "player", PetFrameHealthBar, PetFrameManaBar)
+    PetFrame_Update(PetFrame)
+    PlayerFrame:Show()
+    PlayerFrame_Update()
+  end
+end
+
+function E:UNIT_EXITED_VEHICLE(unit)
+  if unit == "player" then
+    PlayerFrame.state = "player"
+    UnitFrame_SetUnit(PlayerFrame, "player", PlayerFrameHealthBar, PlayerFrameManaBar)
+    UnitFrame_SetUnit(PetFrame, "pet", PetFrameHealthBar, PetFrameManaBar)
+    PetFrame_Update(PetFrame)
+    PlayerFrame_Update()
+    PlayerFrame:Show()
+  end
+end

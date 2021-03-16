@@ -1,8 +1,7 @@
-local addonName, addon = ...
-local mod = addon.Math or CreateFrame("Frame")
-addon.Math = mod
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local folder, core = ...
+local mod = core.Math or {}
+core.Math = mod
+local E = core:Events()
 
 -- cache frequently used globals
 local find, gsub = string.find, string.gsub
@@ -36,8 +35,8 @@ function KPack_Math(eq)
     RunScript("previous = " .. eq)
 end
 
-function mod:ADDON_LOADED(name)
-	if name ~= addonName then return end
+function E:ADDON_LOADED(name)
+	if name ~= folder then return end
 	self:UnregisterEvent("ADDON_LOADED")
 	SlashCmdList["KPACKMATH"] = KPack_Math
 	_G.SLASH_KPACKMATH1 = "/math"

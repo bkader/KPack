@@ -1224,7 +1224,7 @@
 		</Scripts>
 	</Frame>
 
-	<Button name="MAOptionsButtonTemplate" inherits="UIPanelButtonTemplate" virtual="true">
+	<Button name="MAOptionsButtonTemplate" inherits="KPackButtonTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="70" y="22"/>
 		</Size>
@@ -1328,7 +1328,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<Button name="$parentReset" inherits="UIPanelButtonTemplate" text="Reset">
+			<Button name="$parentReset" inherits="KPackButtonTemplate" text="Reset">
 				<Size>
 					<AbsDimension x="44" y="20"/>
 				</Size>
@@ -1786,7 +1786,7 @@
 			</OnEvent>
 		</Scripts>
 	</Frame>
-	<Button name="MA_NudgeButton" inherits="UIPanelButtonTemplate" virtual="true" hidden="false">
+	<Button name="MA_NudgeButton" inherits="KPackButtonTemplate" virtual="true" hidden="false">
 		<Size><AbsDimension x="24" y="24"/></Size>
 		<Scripts>
 			<OnClick>
@@ -1794,7 +1794,7 @@
 			</OnClick>
 		</Scripts>
 	</Button>
-	<Button name="MA_MoverButton" inherits="UIPanelButtonTemplate" virtual="true" hidden="false">
+	<Button name="MA_MoverButton" inherits="KPackButtonTemplate" virtual="true" hidden="false">
 		<Size><AbsDimension x="15" y="15"/></Size>
 		<Scripts>
 			<OnLoad>
@@ -1862,7 +1862,7 @@
 					</OnLoad>
 				</Scripts>
 			</Button>
-			<Button name="$parent_CenterMe" inherits="UIPanelButtonTemplate" hidden="false">
+			<Button name="$parent_CenterMe" inherits="KPackButtonTemplate" hidden="false">
 				<Size><AbsDimension x="24" y="24"/></Size>
 				<Anchors>
 					<Anchor point="TOP" relativeTo="$parent_NudgeUp" relativePoint="BOTTOM">
@@ -1921,7 +1921,7 @@
 					</OnLoad>
 				</Scripts>
 			</Button>
-			<Button name="$parent_CenterH" inherits="UIPanelButtonTemplate" hidden="false">
+			<Button name="$parent_CenterH" inherits="KPackButtonTemplate" hidden="false">
 				<Size><AbsDimension x="32" y="24"/></Size>
 				<Anchors>
 					<Anchor point="RIGHT" relativeTo="$parent_NudgeLeft" relativePoint="LEFT">
@@ -1938,7 +1938,7 @@
 					</OnClick>
 				</Scripts>
 			</Button>
-			<Button name="$parent_CenterV" inherits="UIPanelButtonTemplate" hidden="false">
+			<Button name="$parent_CenterV" inherits="KPackButtonTemplate" hidden="false">
 				<Size><AbsDimension x="32" y="24"/></Size>
 				<Anchors>
 					<Anchor point="TOP" relativeTo="$parent_CenterH" relativePoint="BOTTOM">
@@ -1955,7 +1955,7 @@
 					</OnClick>
 				</Scripts>
 			</Button>
-			<Button name="$parent_Detach" inherits="UIPanelButtonTemplate" hidden="false">
+			<Button name="$parent_Detach" inherits="KPackButtonTemplate" hidden="false">
 				<Size><AbsDimension x="32" y="24"/></Size>
 				<Anchors>
 					<Anchor point="LEFT" relativeTo="$parent_NudgeRight" relativePoint="RIGHT">
@@ -1986,7 +1986,7 @@
 					</OnClick>
 				</Scripts>
 			</Button>
-			<Button name="$parent_Hide" inherits="UIPanelButtonTemplate" hidden="false" text="H">
+			<Button name="$parent_Hide" inherits="KPackButtonTemplate" hidden="false" text="H">
 				<Size><AbsDimension x="32" y="24"/></Size>
 				<Anchors>
 					<Anchor point="TOP" relativeTo="$parent_Detach" relativePoint="BOTTOM">

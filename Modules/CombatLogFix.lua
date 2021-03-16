@@ -1,13 +1,11 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
 
-local mod = addon.CLF
-if not mod then
-    mod = CreateFrame("Frame")
-    addon.CLF = mod
-end
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local mod = core.CLF or {}
+core.CLF = mod
+local frame = CreateFrame("Frame")
+
+local E = core:Events()
+local L = core.L
 
 -- saved variables and default settings
 CombatLogFixDB = {}
@@ -25,7 +23,6 @@ local SlashCommandHandler
 
 -- cache frequently used globals
 local CombatLogGetNumEntries = CombatLogGetNumEntries
-local CombatLogClearEntries = CombatLogClearEntries
 local IsInInstance = IsInInstance
 local GetTime = GetTime
 local lower, trim, print = string.lower, string.trim, print
@@ -35,64 +32,48 @@ local setmetatable, rawset, rawget = setmetatable, rawset, rawget
 -- main print function
 local function Print(msg)
     if msg then
-        addon:Print(msg, "CombatLogFix")
+        core:Print(msg, "CombatLogFix")
     end
 end
 
--- handles events registeration for the main frame.
-local function CombatLogFix_CheckEvents()
-    -- check zone
-    if CombatLogFixDB.zone then
-        mod:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-        mod:RegisterEvent("PLAYER_ENTERING_WORLD")
-    else
-        mod:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
-        mod:UnregisterEvent("PLAYER_ENTERING_WORLD")
+local function CombatLogReportEntries()
+    if CombatLogFixDB.enabled and CombatLogFixDB.report and (not throttleBreak or throttleBreak < GetTime()) then
+        Print(L:F("%d filtered/%d events found. Cleared combat log, as it broke.", CombatLogGetNumEntries(), CombatLogGetNumEntries(true)))
+        throttleBreak = GetTime() + 60 -- every 60sec so we don't spam.
     end
+end
 
-    -- auto fix
-    if CombatLogFixDB.auto then
-        mod:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-        mod:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-        mod:RegisterEvent("PLAYER_REGEN_ENABLED")
-    else
-        mod:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-        mod:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-        mod:UnregisterEvent("PLAYER_REGEN_ENABLED")
-    end
+local OldCombatLogClearEntries = CombatLogClearEntries
+_G.CombatLogClearEntries = function()
+    CombatLogReportEntries()
+    OldCombatLogClearEntries()
 end
 
 -- handles frame's OnUpdate event
 local function UpdateUIFrame(self, elapsed)
-    self.timeout = self.timeout - elapsed
-    if self.timeout > 0 then return end
-    self:Hide()
-
-    -- if the last combat log event was within a second
-    -- of the case succeeding, we stop.
-    if lastEvent and ((GetTime() - lastEvent) <= 1) then
+    if not CombatLogFixDB.enabled then
+        self:SetScript("OnUpdate", nil)
+        self:Hide()
         return
     end
 
-    -- tell the player about filtered events
-    if CombatLogFixDB.report then
-        if not throttleBreak or throttleBreak < GetTime() then
-            Print(L:F("%d filtered/%d events found. Cleared combat log, as it broke.", CombatLogGetNumEntries(), CombatLogGetNumEntries(true)))
-            throttleBreak = GetTime() + 60
+    self.lastUpdated = (self.lastUpdated or 0) + elapsed
+    if self.lastUpdated > 0.5 then
+        if lastEvent and ((GetTime() - lastEvent) <= 1) then
+            return
         end
-    end
 
-    -- we queue the clear for later if the plauyer is in combat.
-    if CombatLogFixDB.wait and InCombatLockdown() then
-        mod:RegisterEvent("PLAYER_REGEN_ENABLED")
-    else
-        CombatLogClearEntries()
+        -- we queue the clear for later if the plauyer is in combat.
+        if not (CombatLogFixDB.wait and InCombatLockdown()) then
+            CombatLogClearEntries()
+        end
+        self.lastUpdated = 0
     end
 end
 do
     -- set of options and their texts
     local options = {
-        toggle = L["Module Status"],
+        enabled = L["Module Status"],
         zone = L["Zone Clearing"],
         auto = L["Auto Clearing"],
         wait = L["Queued Clearing"],
@@ -116,12 +97,21 @@ do
             -- existing command
             wipe(CombatLogFixDB)
             CombatLogFixDB = defaults
-            CombatLogFix_CheckEvents()
             Print(L["module's settings reset to default."])
-        elseif options[msg] then
+        elseif msg == "toggle" then
+            CombatLogFixDB.enabled = not CombatLogFixDB.enabled
+            if CombatLogFixDB.enabled then
+                frame:SetScript("OnUpdate", UpdateUIFrame)
+                frame:Show()
+                Print(L:F("module status: %s", "|cff00ff00ON|r"))
+            else
+                frame:SetScript("OnUpdate", nil)
+                frame:Hide()
+                Print(L:F("module status: %s", "|cffff0000OFF|r"))
+            end
+        elseif msg ~= "enabled" and options[msg] then
             -- non-existing command
             CombatLogFixDB[msg] = not CombatLogFixDB[msg]
-            CombatLogFix_CheckEvents() -- recheck events.
             local status = (CombatLogFixDB[msg] == true)
             Print(options[msg] .. " - " .. (status and "|cff00ff00ON|r" or "|cffff0000OFF|r"))
         else
@@ -138,68 +128,43 @@ do
 end
 
 -- main frame event handler
-function mod:ADDON_LOADED(name)
-    if name ~= addonName then return end
-    self:UnregisterEvent("ADDON_LOADED")
+function E:ADDON_LOADED(name)
+    if name == folder then
+        if next(CombatLogFixDB) == nil then
+            CombatLogFixDB = defaults
+        end
 
-    if next(CombatLogFixDB) == nil then
-        CombatLogFixDB = defaults
+        -- register our slash commands
+        SlashCmdList["KPACKLOGFIXER"] = SlashCommandHandler
+        _G.SLASH_KPACKLOGFIXER1 = "/clf"
+        _G.SLASH_KPACKLOGFIXER2 = "/fixer"
+        _G.SLASH_KPACKLOGFIXER3 = "/logfix"
+
+        frame:SetScript("OnUpdate", CombatLogFixDB.enabled and UpdateUIFrame or nil)
     end
-
-    -- register our slash commands
-    SlashCmdList["KPACKLOGFIXER"] = SlashCommandHandler
-    _G.SLASH_KPACKLOGFIXER1 = "/clf"
-    _G.SLASH_KPACKLOGFIXER2 = "/fixer"
-    _G.SLASH_KPACKLOGFIXER3 = "/logfix"
-
-    if CombatLogFixDB.enabled then
-        CombatLogFix_CheckEvents()
-        self:SetScript("OnUpdate", UpdateUIFrame)
-	else
-		self:SetScript("OnUpdate", nil)
-		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-		self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
-		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-	end
-
-    self:Hide()
 end
 
 -- clear combat log on zone change.
-function mod:ZONE_CHANGED_NEW_AREA()
-    local t = select(2, IsInInstance())
-    if instanceType and t ~= instanceType then
-        CombatLogClearEntries()
+function E:ZONE_CHANGED_NEW_AREA()
+    if CombatLogFixDB.enabled and CombatLogFixDB.zone then
+        local t = select(2, IsInInstance())
+        if instanceType and t ~= instanceType then
+            CombatLogClearEntries()
+        end
+        instanceType = t
     end
-    instanceType = t
 end
-mod.PLAYER_ENTERING_WORLD = mod.ZONE_CHANGED_NEW_AREA
+E.PLAYER_ENTERING_WORLD = E.ZONE_CHANGED_NEW_AREA
 
 -- queued clear after combat ends
-function mod:PLAYER_REGEN_ENABLED()
-    CombatLogClearEntries()
-end
-
-do
-    -- if a cast is sent, we expect a combat log event.
-    local spells = setmetatable({}, {
-        __index = function(tbl, name)
-            local cost = select(4, GetSpellInfo(name))
-            rawset(tbl, name, not (not (cost and cost > 0)))
-            return rawget(tbl, name)
-        end
-    })
-
-    function mod:UNIT_SPELLCAST_SUCCEEDED(event, unit, name, range, castId)
-        if unit == "player" and name and spells[name] then
-            self.timeout = 0.5
-            self:Show()
-        end
+function E:PLAYER_REGEN_ENABLED()
+    if CombatLogFixDB.enabled and CombatLogFixDB.wait then
+        CombatLogClearEntries()
     end
 end
 
-function mod:COMBAT_LOG_EVENT_UNFILTERED()
-    lastEvent = GetTime()
+function E:COMBAT_LOG_EVENT_UNFILTERED()
+    if CombatLogFixDB.enabled then
+        lastEvent = GetTime()
+    end
 end

@@ -1,95 +1,74 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
+_G[folder] = core
 
-_G.KPack = addon
+-------------------------------------------------------------------------------
+-- Event handling system
+--
 
-local CreateFrame = CreateFrame
-local lower, tostring = string.lower, tostring
-
--- used to replace fonts
 do
-	local nonLatin = {ruRU = true, koKR = true, zhCN = true, zhTW = true}
-	if nonLatin[GetLocale()] then
-		addon.nonLatin = true
-	end
-end
+    local F, events = CreateFrame("Frame"), {}
 
-local f = CreateFrame("Frame")
-f:SetScript("OnEvent", function(self, event, ...) self[event](self, event, ...) end)
-f:RegisterEvent("ADDON_LOADED")
-f:RegisterEvent("PLAYER_FLAGS_CHANGED")
-f:RegisterEvent("PLAYER_ENTERING_WORLD")
+    local pairs = pairs
+    local next = next
+    local strmatch = string.match
 
-local help = "|cffffd700%s|r: %s"
-
-local function SlashCommandHandler(cmd)
-    if cmd:lower() == "help" or cmd:lower() == "" then
-        addon:Print(L["Accessible module commands are:"])
-        print(help:format("/abm", L:F("access |caaf49141%s|r module commands", "ActionBars")))
-        print(help:format("/align", L:F("access |caaf49141%s|r module commands", "Align")))
-        print(help:format("/auto", L:F("access |caaf49141%s|r module commands", "AutoMate")))
-        print(help:format("/cf", L:F("access |caaf49141%s|r module commands", "ChatFilter")))
-        print(help:format("/cm", L:F("access |caaf49141%s|r module commands", "ChatMods")))
-        print(help:format("/gs", L:F("access |caaf49141%s|r module commands", "GearScore")))
-        print(help:format("/clf", L:F("access |caaf49141%s|r module commands", "CombatLogFix")))
-        print(help:format("/erf", L:F("access |caaf49141%s|r module commands", "ErrorFilter")))
-        print(help:format("/im", L:F("access |caaf49141%s|r module commands", "IgnoreMore")))
-        print(help:format("/lu", L:F("access |caaf49141%s|r module commands", "LookUp")))
-        print(help:format("/lmf", L:F("access |caaf49141%s|r module commands", "LootMessageFilter")))
-        print(help:format("/math", L:F("to use the |caaf49141%s|r module", "Math")))
-        print(help:format("/mm", L:F("to use the |caaf49141%s|r module", "Minimap")))
-        print(help:format("/np", L:F("access |caaf49141%s|r module commands", "Nameplates")))
-        print(help:format("/ps", L:F("access |caaf49141%s|r module commands", "PersonalResources")))
-        print(help:format("/qb", L:F("access |caaf49141%s|r module commands", "QuickButton")))
-        print(help:format("/scp", L:F("access |caaf49141%s|r module commands", "SimpleComboPoints")))
-        print(help:format("/simp", L:F("access |caaf49141%s|r module commands", "Simplified")))
-        print(help:format("/tip", L:F("access |caaf49141%s|r module commands", "Tooltip")))
-        print(help:format("/uf", L:F("access |caaf49141%s|r module commands", "UnitFrames")))
-        print(help:format("/vp", L:F("access |caaf49141%s|r module commands", "Viewporter")))
-    else
-        addon:Print(L:F("Available command for |caaf49141%s|r is |cffffd700%s|r", "/kpack", "help"))
-    end
-end
-
--- main print function
-function addon:Print(msg, pref)
-    if msg then
-        -- prepare the prefix:
-        if not pref then
-            pref = "|cff33ff99" .. addonName .. "|r"
-        else
-            pref = "|cff33ff99" .. addonName .. "|r - |caaf49141" .. pref .. "|r"
-        end
-        print(string.format("%s : %s", pref, tostring(msg)))
-    end
-end
-
--- used to kill a frame
-local function noFunc() end
-do
-    function addon:Kill(frame)
-        if frame and frame.SetScript then
-            frame:UnregisterAllEvents()
-            frame:SetScript("OnEvent", nil)
-            frame:SetScript("OnUpdate", nil)
-            frame:SetScript("OnHide", nil)
-            frame:Hide()
-            frame.SetScript = noFunc
-            frame.RegisterEvent = noFunc
-            frame.RegisterAllEvents = noFunc
-            frame.Show = noFunc
+    local function Raise(_, event, ...)
+        if events[event] then
+            for module in pairs(events[event]) do
+                module[event](module, ...)
+            end
         end
     end
+
+    local function RegisterEvent(module, event, func)
+        if func then
+            rawset(module, event, func)
+        end
+        events[event] = events[event] or {}
+        events[event][module] = true
+        if strmatch(event, "^[%u_]+$") then
+            F:RegisterEvent(event)
+        end
+        return module
+    end
+
+    local function UnregisterEvent(module, event)
+        if events[event] then
+            events[event][module] = nil
+            if not next(events[event]) and strmatch(event, "^[%u_]+$") then -- don't unregister unless the event table is empty
+                F:UnregisterEvent(event)
+            end
+        end
+        return module
+    end
+
+    local Module = {
+        __newindex = RegisterEvent,
+        __call = Raise,
+        __index = {
+            RegisterEvent = RegisterEvent,
+            UnregisterEvent = UnregisterEvent,
+            Raise = Raise
+        }
+    }
+
+    core.Events = setmetatable({}, { __call = function(eve)
+            local module = setmetatable({}, Module)
+            eve[#eve + 1] = module
+            return module
+        end
+    })
+
+    F:SetScript("OnEvent", Raise)
 end
 
--- Timer mimic
+-------------------------------------------------------------------------------
+-- C_Timer mimic
+--
+
 do
     local setmetatable = setmetatable
-    local Timer = addon.Timer
-    if not Timer then
-        Timer = {}
-        addon.Timer = Timer
-    end
+    local Timer = {}
 
     local TickerPrototype = {}
     local TickerMetatable = {
@@ -169,51 +148,145 @@ do
     function TickerPrototype:Cancel()
         self._cancelled = true
     end
+
+    core.After = Timer.After
+    core.NewTimer = Timer.NewTimer
+    core.NewTicker = Timer.NewTicker
 end
 
--- Events
-function f:ADDON_LOADED(_, name)
-    if lower(name) == lower(addonName) then
-        addon:Print(L["addon loaded. use |cffffd700/kp help|r for help."])
-
-        SlashCmdList["KPACK"] = SlashCommandHandler
-        _G.SLASH_KPACK1 = "/kp"
-        _G.SLASH_KPACK2 = "/kpack"
-
-        addon.name = select(1, UnitName("player"))
-        addon.class = select(2, UnitClass("player"))
-    end
-end
+-------------------------------------------------------------------------------
+-- Core
+--
 
 do
-    local collectgarbage = collectgarbage
-    local UnitIsAFK = UnitIsAFK
-    local InCombatLockdown = InCombatLockdown
-    eventcount = 0
+    local E = core:Events()
+    local L = core.L
 
-    function f:PLAYER_ENTERING_WORLD(event, unit)
-        eventcount = eventcount + 1
+    local tostring = tostring
 
-        if (InCombatLockdown() and eventcount > 25000) or (not InCombatLockdown() and eventcount > 10000) or event == "PLAYER_ENTERING_WORLD" then
-            collectgarbage("collect")
-            eventcount = 0
-            self:UnregisterEvent(event)
-        else
-            if unit ~= "player" then return end
-            if UnitIsAFK(unit) then collectgarbage("collect") end
+    -- used to replace fonts
+    do
+        local nonLatin = {ruRU = true, koKR = true, zhCN = true, zhTW = true}
+        if nonLatin[GetLocale()] then
+            core.nonLatin = true
         end
     end
-    f.PLAYER_FLAGS_CHANGED = f.PLAYER_ENTERING_WORLD
-end
 
--- Addon sync
-function addon:Sync(prefix, msg)
-    local zoneType = select(2, IsInInstance())
-    if zoneType == "pvp" or zoneType == "arena" then
-        SendAddonMessage(prefix, msg, "BATTLEGROUND")
-    elseif GetRealNumRaidMembers() > 0 then
-        SendAddonMessage(prefix, msg, "RAID")
-    elseif GetRealNumPartyMembers() > 0 then
-        SendAddonMessage(prefix, msg, "PARTY")
+    local help = "|cffffd700%s|r: %s"
+
+    local function SlashCommandHandler(cmd)
+        if cmd:lower() == "help" or cmd:lower() == "" then
+            core:Print(L["Accessible module commands are:"])
+            print(help:format("/abm", L:F("access |caaf49141%s|r module commands", "ActionBars")))
+            print(help:format("/align", L:F("access |caaf49141%s|r module commands", "Align")))
+            print(help:format("/auto", L:F("access |caaf49141%s|r module commands", "AutoMate")))
+            print(help:format("/cf", L:F("access |caaf49141%s|r module commands", "ChatFilter")))
+            print(help:format("/cm", L:F("access |caaf49141%s|r module commands", "ChatMods")))
+            print(help:format("/gs", L:F("access |caaf49141%s|r module commands", "GearScore")))
+            print(help:format("/clf", L:F("access |caaf49141%s|r module commands", "CombatLogFix")))
+            print(help:format("/erf", L:F("access |caaf49141%s|r module commands", "ErrorFilter")))
+            print(help:format("/im", L:F("access |caaf49141%s|r module commands", "IgnoreMore")))
+            print(help:format("/lu", L:F("access |caaf49141%s|r module commands", "LookUp")))
+            print(help:format("/lmf", L:F("access |caaf49141%s|r module commands", "LootMessageFilter")))
+            print(help:format("/math", L:F("to use the |caaf49141%s|r module", "Math")))
+            print(help:format("/mm", L:F("to use the |caaf49141%s|r module", "Minimap")))
+            print(help:format("/np", L:F("access |caaf49141%s|r module commands", "Nameplates")))
+            print(help:format("/ps", L:F("access |caaf49141%s|r module commands", "PersonalResources")))
+            print(help:format("/qb", L:F("access |caaf49141%s|r module commands", "QuickButton")))
+            print(help:format("/scp", L:F("access |caaf49141%s|r module commands", "SimpleComboPoints")))
+            print(help:format("/simp", L:F("access |caaf49141%s|r module commands", "Simplified")))
+            print(help:format("/tip", L:F("access |caaf49141%s|r module commands", "Tooltip")))
+            print(help:format("/uf", L:F("access |caaf49141%s|r module commands", "UnitFrames")))
+            print(help:format("/vp", L:F("access |caaf49141%s|r module commands", "Viewporter")))
+        else
+            core:Print(L:F("Available command for |caaf49141%s|r is |cffffd700%s|r", "/kpack", "help"))
+        end
+    end
+
+    -- main print function
+    function core:Print(msg, pref)
+        if msg then
+            -- prepare the prefix:
+            if not pref then
+                pref = "|cff33ff99" .. folder .. "|r"
+            else
+                pref = "|cff33ff99" .. folder .. "|r - |caaf49141" .. pref .. "|r"
+            end
+            print(string.format("%s : %s", pref, tostring(msg)))
+        end
+    end
+
+    -- used to kill a frame
+    local function noFunc()
+    end
+    do
+        function core:Kill(frame)
+            if frame and frame.SetScript then
+                frame:UnregisterAllEvents()
+                frame:SetScript("OnEvent", nil)
+                frame:SetScript("OnUpdate", nil)
+                frame:SetScript("OnHide", nil)
+                frame:Hide()
+                frame.SetScript = noFunc
+                frame.RegisterEvent = noFunc
+                frame.RegisterAllEvents = noFunc
+                frame.Show = noFunc
+            end
+        end
+    end
+
+    -- Events
+    function E:ADDON_LOADED(name)
+        if name == folder then
+            self:UnregisterEvent("ADDON_LOADED")
+            core:Print(L["addon loaded. use |cffffd700/kp help|r for help."])
+
+            SlashCmdList["KPACK"] = SlashCommandHandler
+            _G.SLASH_KPACK1 = "/kp"
+            _G.SLASH_KPACK2 = "/kpack"
+
+            core.name = select(1, UnitName("player"))
+            core.class = select(2, UnitClass("player"))
+            core.guid = UnitGUID("player")
+        end
+    end
+
+    do
+        local collectgarbage = collectgarbage
+        local UnitIsAFK = UnitIsAFK
+        local InCombatLockdown = InCombatLockdown
+        eventcount = 0
+
+        function E:PLAYER_ENTERING_WORLD(event, unit)
+            self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+
+            eventcount = eventcount + 1
+
+            if (InCombatLockdown() and eventcount > 25000) or (not InCombatLockdown() and eventcount > 10000) or event == "PLAYER_ENTERING_WORLD" then
+                collectgarbage("collect")
+                eventcount = 0
+                self:UnregisterEvent(event)
+            else
+                if unit ~= "player" then
+                    return
+                end
+                if UnitIsAFK(unit) then
+                    collectgarbage("collect")
+                end
+            end
+        end
+        E.PLAYER_FLAGS_CHANGED = E.PLAYER_ENTERING_WORLD
+    end
+
+    -- Addon sync
+    function core:Sync(prefix, msg)
+        local zoneType = select(2, IsInInstance())
+        if zoneType == "pvp" or zoneType == "arena" then
+            SendAddonMessage(prefix, msg, "BATTLEGROUND")
+        elseif GetRealNumRaidMembers() > 0 then
+            SendAddonMessage(prefix, msg, "RAID")
+        elseif GetRealNumPartyMembers() > 0 then
+            SendAddonMessage(prefix, msg, "PARTY")
+        end
     end
 end

@@ -1,14 +1,10 @@
-local addonName, addon = ...
-local L = addon.L
-local mod = addon.BlizzMove
-if not mod then
-    mod = {}
-    addon.BlizzMove = mod
-end
+local folder, core = ...
 
--- module's event frame
-local f = CreateFrame("Frame")
-f:RegisterEvent("PLAYER_ENTERING_WORLD")
+local mod = core.BlizzMove or {}
+core.BlizzMove = mod
+
+local E = core:Events()
+local L = core.L
 
 BlizzMoveDB = {}
 local defaults = {
@@ -25,7 +21,7 @@ local GetMouseFocus = GetMouseFocus
 -- print function
 local function Print(msg)
     if msg then
-        addon:Print(msg, "BlizzMove")
+        core:Print(msg, "BlizzMove")
     end
 end
 
@@ -187,7 +183,7 @@ do
             subtitle:SetJustifyV("TOP")
             subtitle:SetText(L["Click the button below to reset all frames."])
 
-            local button = CreateFrame("Button", nil, optionPanel, "UIPanelButtonTemplate")
+            local button = CreateFrame("Button", nil, optionPanel, "KPackButtonTemplate")
             button:SetWidth(100)
             button:SetHeight(30)
             button:SetScript("OnClick", ResetDB)
@@ -200,101 +196,99 @@ do
     end
 
     -- frame event handler
-    local function EventHandler(self, event, arg1, arg2)
-        if event == "PLAYER_ENTERING_WORLD" then
-            -- InspectFrame
-            if _G.BlizzMove then
-                return
+    function E:PLAYER_ENTERING_WORLD(...)
+        if _G.BlizzMove then
+            return
+        end
+        if next(BlizzMoveDB) == nil then
+            BlizzMoveDB = defaults
+        end
+        self:RegisterEvent("ADDON_LOADED")
+        self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+
+        SetMoveHandler(CharacterFrame, PaperDollFrame)
+        SetMoveHandler(CharacterFrame, TokenFrame)
+        SetMoveHandler(CharacterFrame, SkillFrame)
+        SetMoveHandler(CharacterFrame, ReputationFrame)
+        SetMoveHandler(CharacterFrame, PetPaperDollFrameCompanionFrame)
+        SetMoveHandler(SpellBookFrame)
+        SetMoveHandler(QuestLogFrame)
+        SetMoveHandler(FriendsFrame)
+
+        if PVPParentFrame then
+            SetMoveHandler(PVPParentFrame, PVPFrame)
+        else
+            SetMoveHandler(PVPFrame)
+        end
+
+        SetMoveHandler(_G.LFGParentFrame)
+        SetMoveHandler(GameMenuFrame)
+        SetMoveHandler(GossipFrame)
+        SetMoveHandler(DressUpFrame)
+        SetMoveHandler(QuestFrame)
+        SetMoveHandler(MerchantFrame)
+        SetMoveHandler(HelpFrame)
+        SetMoveHandler(PlayerTalentFrame)
+        SetMoveHandler(ClassTrainerFrame)
+        SetMoveHandler(MailFrame)
+        SetMoveHandler(BankFrame)
+        SetMoveHandler(VideoOptionsFrame)
+        SetMoveHandler(InterfaceOptionsFrame)
+        SetMoveHandler(LootFrame)
+        SetMoveHandler(LFDParentFrame)
+        SetMoveHandler(LFRParentFrame)
+        SetMoveHandler(TradeFrame)
+
+        -- create option frame
+        InterfaceOptionsFrame:HookScript("OnShow", function()
+            if not optionPanel then
+                CreateOptionPanel()
             end
+        end)
+    end
 
-            if next(BlizzMoveDB) == nil then
-                BlizzMoveDB = defaults
-            end
-
-            f:RegisterEvent("ADDON_LOADED")
-
-            SetMoveHandler(CharacterFrame, PaperDollFrame)
-            SetMoveHandler(CharacterFrame, TokenFrame)
-            SetMoveHandler(CharacterFrame, SkillFrame)
-            SetMoveHandler(CharacterFrame, ReputationFrame)
-            SetMoveHandler(CharacterFrame, PetPaperDollFrameCompanionFrame)
-            SetMoveHandler(SpellBookFrame)
-            SetMoveHandler(QuestLogFrame)
-            SetMoveHandler(FriendsFrame)
-
-            if PVPParentFrame then
-                SetMoveHandler(PVPParentFrame, PVPFrame)
-            else
-                SetMoveHandler(PVPFrame)
-            end
-
-            SetMoveHandler(_G.LFGParentFrame)
-            SetMoveHandler(GameMenuFrame)
-            SetMoveHandler(GossipFrame)
-            SetMoveHandler(DressUpFrame)
-            SetMoveHandler(QuestFrame)
-            SetMoveHandler(MerchantFrame)
-            SetMoveHandler(HelpFrame)
-            SetMoveHandler(PlayerTalentFrame)
-            SetMoveHandler(ClassTrainerFrame)
-            SetMoveHandler(MailFrame)
-            SetMoveHandler(BankFrame)
-            SetMoveHandler(VideoOptionsFrame)
-            SetMoveHandler(InterfaceOptionsFrame)
-            SetMoveHandler(LootFrame)
-            SetMoveHandler(LFDParentFrame)
-            SetMoveHandler(LFRParentFrame)
-            SetMoveHandler(TradeFrame)
-
-            -- create option frame
-            InterfaceOptionsFrame:HookScript("OnShow", function()
-                if not optionPanel then
-                    CreateOptionPanel()
-                end
-            end)
-
-            f:UnregisterEvent("PLAYER_ENTERING_WORLD")
-        elseif arg1 == "Blizzard_InspectUI" then
+    function E:ADDON_LOADED(name)
+        self:UnregisterEvent("ADDON_LOADED")
+        if name == "Blizzard_InspectUI" then
             -- GuildBankFrame
             SetMoveHandler(InspectFrame)
-        elseif arg1 == "Blizzard_GuildBankUI" then
+        elseif name == "Blizzard_GuildBankUI" then
             -- TradeSkillFrame
             SetMoveHandler(GuildBankFrame)
-        elseif arg1 == "Blizzard_TradeSkillUI" then
+        elseif name == "Blizzard_TradeSkillUI" then
             -- ItemSocketingFrame
             SetMoveHandler(TradeSkillFrame)
-        elseif arg1 == "Blizzard_ItemSocketingUI" then
+        elseif name == "Blizzard_ItemSocketingUI" then
             -- BarberShopFrame
             SetMoveHandler(ItemSocketingFrame)
-        elseif arg1 == "Blizzard_BarbershopUI" then
+        elseif name == "Blizzard_BarbershopUI" then
             -- GlyphFrame
             SetMoveHandler(BarberShopFrame)
-        elseif arg1 == "Blizzard_GlyphUI" then
+        elseif name == "Blizzard_GlyphUI" then
             -- MacroFrame
             SetMoveHandler(SpellBookFrame, GlyphFrame)
-        elseif arg1 == "Blizzard_MacroUI" then
+        elseif name == "Blizzard_MacroUI" then
             -- AchievementFrame
             SetMoveHandler(MacroFrame)
-        elseif arg1 == "Blizzard_AchievementUI" then
+        elseif name == "Blizzard_AchievementUI" then
             -- PlayerTalentFrame
             SetMoveHandler(AchievementFrame, AchievementFrameHeader)
-        elseif arg1 == "Blizzard_TalentUI" then
+        elseif name == "Blizzard_TalentUI" then
             -- CalendarFrame
             SetMoveHandler(PlayerTalentFrame)
-        elseif arg1 == "Blizzard_Calendar" then
+        elseif name == "Blizzard_Calendar" then
             -- ClassTrainerFrame
             SetMoveHandler(CalendarFrame)
-        elseif arg1 == "Blizzard_TrainerUI" then
+        elseif name == "Blizzard_TrainerUI" then
             -- KeyBindingFrame
             SetMoveHandler(ClassTrainerFrame)
-        elseif arg1 == "Blizzard_BindingUI" then
+        elseif name == "Blizzard_BindingUI" then
             -- AuctionFrame
             SetMoveHandler(KeyBindingFrame)
-        elseif arg1 == "Blizzard_AuctionUI" then
+        elseif name == "Blizzard_AuctionUI" then
             SetMoveHandler(AuctionFrame)
         end
     end
-    f:SetScript("OnEvent", EventHandler)
 end
 
 -- toggles frames lock/unlock statuses

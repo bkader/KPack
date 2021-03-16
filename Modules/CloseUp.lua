@@ -1,14 +1,10 @@
-local _, addon = ...
-local L = addon.L
+local _, core = ...
 
-local mod = addon.CloseUp
-if not mod then
-    mod = {}
-    addon.CloseUp = mod
-end
+local mod = core.CloseUp or {}
+core.CloseUp = mod
 
-local f = CreateFrame("Frame")
-f:RegisterEvent("PLAYER_ENTERING_WORLD")
+local E = core:Events()
+local L = core.L
 
 CloseUpDB = {}
 
@@ -23,7 +19,7 @@ end
 -- module's print function.
 function mod:Print(msg)
     if msg then
-        addon:Print(msg, "CloseUp")
+        core:Print(msg, "CloseUp")
     end
 end
 
@@ -150,7 +146,7 @@ do
 
     -- this function allows us to create buttons.
     function CloseUp_NewButton(name, parent, text, w, h, button, tt, func)
-        local b = button or CreateFrame("Button", name, parent, "UIPanelButtonTemplate")
+        local b = button or CreateFrame("Button", name, parent, "KPackButtonTemplate")
         b:SetText(text or b:GetText())
         b:SetWidth(w or b:GetWidth())
         b:SetHeight(h or b:GetHeight())
@@ -230,32 +226,34 @@ local function CloseUp_DressingRoom()
 end
 
 -- frame event handler.
-local function EventHandler(self, event, arg1, arg2)
-    if event == "PLAYER_ENTERING_WORLD" then
-        f:RegisterEvent("ADDON_LOADED")
 
-        mod:Apply("CharacterModelFrame")
-        mod:Apply("TabardModel", nil, nil, nil, nil, "TabardCharacterModel")
-        mod:Apply("PetModelFrame")
-        mod:Apply("PetStableModel")
-        PetPaperDollPetInfo:SetFrameStrata("HIGH")
-        if CompanionModelFrame then
-            mod:Apply("CompanionModelFrame")
-        end
+function E:PLAYER_ENTERING_WORLD()
+    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    self:RegisterEvent("ADDON_LOADED")
 
-        if AuctionDressUpModel then
-            CloseUp_AuctionUI()
-        end
-        if InspectModelFrame then
-            CloseUp_InspectUI()
-        end
-        CloseUp_DressingRoom()
+    mod:Apply("CharacterModelFrame")
+    mod:Apply("TabardModel", nil, nil, nil, nil, "TabardCharacterModel")
+    mod:Apply("PetModelFrame")
+    mod:Apply("PetStableModel")
+    PetPaperDollPetInfo:SetFrameStrata("HIGH")
+    if CompanionModelFrame then
+        mod:Apply("CompanionModelFrame")
+    end
 
-        f:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    elseif arg1 == "Blizzard_AuctionUI" then
+    if AuctionDressUpModel then
         CloseUp_AuctionUI()
-    elseif arg1 == "Blizzard_InspectUI" then
+    end
+    if InspectModelFrame then
+        CloseUp_InspectUI()
+    end
+    CloseUp_DressingRoom()
+end
+
+function E:ADDON_LOADED(name)
+    self:UnregisterEvent("ADDON_LOADED")
+    if name == "Blizzard_AuctionUI" then
+        CloseUp_AuctionUI()
+    elseif name == "Blizzard_InspectUI" then
         CloseUp_InspectUI()
     end
 end
-f:SetScript("OnEvent", EventHandler)

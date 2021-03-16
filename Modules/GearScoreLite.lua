@@ -1,7 +1,9 @@
-local addonName, addon = ...
-local L = addon.L
-local _
+local folder, core = ...
 
+local E = core:Events()
+local L = core.L
+
+local _
 local pairs, ipairs = pairs, ipairs
 local unpack = unpack
 local UnitName, UnitClass = UnitName, UnitClass
@@ -9,7 +11,6 @@ local UnitIsPlayer, UnitIsUnit = UnitIsPlayer, UnitIsUnit
 local CanInspect, NotifyInspect = CanInspect, NotifyInspect
 local GetInventoryItemLink = GetInventoryItemLink
 
-local GearScore_OnEvent
 local GearScore_GetScore
 local GearScore_GetEnchantInfo
 local GearScore_GetItemScore
@@ -27,6 +28,8 @@ local GS_MANSET
 
 local inCombat
 local unitName
+
+local PersonalGearScore
 
 local itemTypes = {
     ["INVTYPE_RELIC"] = {["SlotMOD"] = 0.3164, ["ItemSlot"] = 18, ["Enchantable"] = false},
@@ -142,38 +145,10 @@ local itemSwitch = {[0] = 3, [1] = 2, [2] = 1, [3] = 0}
 
 local function Print(msg)
     if msg then
-        addon:Print(msg, "GeatScore")
+        core:Print(msg, "GeatScore")
     end
 end
 
-------------------------------------------------------------------------------
-
-function GearScore_OnEvent(_, event, prefix, _, _, _)
-    if event == "PLAYER_REGEN_ENABLED" then
-        inCombat = false
-    elseif event == "PLAYER_REGEN_DISABLED" then
-        inCombat = true
-    elseif event == "PLAYER_EQUIPMENT_CHANGED" then
-        local MyGearScore = GearScore_GetScore(UnitName("player"), "player")
-        local Red, Blue, Green = GearScore_GetQuality(MyGearScore)
-        PersonalGearScore:SetText(MyGearScore)
-        PersonalGearScore:SetTextColor(Red, Green, Blue, 1)
-    elseif event == "ADDON_LOADED" then
-        if prefix == addonName then
-            GearScoreDB = GearScoreDB or defaults
-            GearScoreData = GearScoreData or {}
-            local realm = GetRealmName()
-            if not GearScoreData[realm] then
-                GearScoreData[realm] = {Players = {}}
-            end
-            for i, v in pairs(defaults) do
-                if not GearScoreDB[i] then
-                    GearScoreDB[i] = defaults[i]
-                end
-            end
-        end
-    end
-end
 -------------------------- Get Mouseover Score -----------------------------------
 function GearScore_GetScore(Name, Target)
     if (UnitIsPlayer(Target)) then
@@ -547,33 +522,47 @@ end
 
 ------------------------ GUI PROGRAMS -------------------------------------------------------
 
-local f = CreateFrame("Frame", "GearScore", UIParent)
-f:SetScript("OnEvent", GearScore_OnEvent)
-f:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-f:RegisterEvent("ADDON_LOADED")
-f:RegisterEvent("PLAYER_REGEN_ENABLED")
-f:RegisterEvent("PLAYER_REGEN_DISABLED")
-GameTooltip:HookScript("OnTooltipSetUnit", GearScore_HookSetUnit)
-GameTooltip:HookScript("OnTooltipSetItem", GearScore_HookSetItem)
-ShoppingTooltip1:HookScript("OnTooltipSetItem", GearScore_HookCompareItem)
-ShoppingTooltip2:HookScript("OnTooltipSetItem", GearScore_HookCompareItem2)
-ItemRefTooltip:HookScript("OnTooltipSetItem", GearScore_HookRefItem)
-CharacterModelFrame:HookScript("OnShow", MyPaperDoll)
-CharacterModelFrame:CreateFontString("PersonalGearScore")
+function E:PLAYER_REGEN_ENABLED()
+	inCombat = false
+end
 
-PersonalGearScore:SetFont("Fonts\\FRIZQT__.TTF", 10)
-PersonalGearScore:SetText("GS: 0")
-PersonalGearScore:SetPoint("BOTTOMLEFT", CharacterModelFrame, "TOPLEFT", 6, -176)
-PersonalGearScore:Show()
-local gs2 = CharacterModelFrame:CreateFontString("GearScore2")
-gs2:SetFont("Fonts\\FRIZQT__.TTF", 10)
-gs2:SetText("GearScore")
-gs2:SetPoint("BOTTOMLEFT", CharacterModelFrame, "TOPLEFT", 5, -186)
-gs2:Show()
-GearScore_Original_SetInventoryItem = GameTooltip.SetInventoryItem
-GameTooltip.SetInventoryItem = GearScore_OnEnter
+function E:PLAYER_REGEN_DISABLED()
+	inCombat = true
+end
 
-SlashCmdList["KPACKGEARSCORE"] = GS_MANSET
-SLASH_KPACKGEARSCORE1 = "/gset"
-SLASH_KPACKGEARSCORE2 = "/gs"
-SLASH_KPACKGEARSCORE3 = "/gearscore"
+function E:PLAYER_EQUIPMENT_CHANGED()
+	local MyGearScore = GearScore_GetScore(UnitName("player"), "player")
+	local Red, Blue, Green = GearScore_GetQuality(MyGearScore)
+	PersonalGearScore:SetText(MyGearScore)
+	PersonalGearScore:SetTextColor(Red, Green, Blue, 1)
+end
+
+function E:ADDON_LOADED(name)
+    if name ~= folder then return end
+
+	GameTooltip:HookScript("OnTooltipSetUnit", GearScore_HookSetUnit)
+	GameTooltip:HookScript("OnTooltipSetItem", GearScore_HookSetItem)
+	ShoppingTooltip1:HookScript("OnTooltipSetItem", GearScore_HookCompareItem)
+	ShoppingTooltip2:HookScript("OnTooltipSetItem", GearScore_HookCompareItem2)
+	ItemRefTooltip:HookScript("OnTooltipSetItem", GearScore_HookRefItem)
+	CharacterModelFrame:HookScript("OnShow", MyPaperDoll)
+
+	PersonalGearScore = CharacterModelFrame:CreateFontString("PersonalGearScore")
+	PersonalGearScore:SetFont("Fonts\\FRIZQT__.TTF", 10)
+	PersonalGearScore:SetText("GS: 0")
+	PersonalGearScore:SetPoint("BOTTOMLEFT", CharacterModelFrame, "TOPLEFT", 6, -176)
+	PersonalGearScore:Show()
+
+	local gs2 = CharacterModelFrame:CreateFontString("GearScore2")
+	gs2:SetFont("Fonts\\FRIZQT__.TTF", 10)
+	gs2:SetText("GearScore")
+	gs2:SetPoint("BOTTOMLEFT", CharacterModelFrame, "TOPLEFT", 5, -186)
+	gs2:Show()
+	GearScore_Original_SetInventoryItem = GameTooltip.SetInventoryItem
+	GameTooltip.SetInventoryItem = GearScore_OnEnter
+
+	SlashCmdList["KPACKGEARSCORE"] = GS_MANSET
+	SLASH_KPACKGEARSCORE1 = "/gset"
+	SLASH_KPACKGEARSCORE2 = "/gs"
+	SLASH_KPACKGEARSCORE3 = "/gearscore"
+end

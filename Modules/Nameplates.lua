@@ -1,8 +1,16 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
+local E = core:Events()
+local L = core.L
 
 -- SavedVariables
-NameplatesDB = true
+local defaults = {
+    enabled = true,
+    fontSize = 11,
+    showHealthText = false,
+    shortenNumbers = false,
+    showHealthPercent = false
+}
+local disabled
 
 -- ::::::::::::::::::::::::: START of Configuration ::::::::::::::::::::::::: --
 
@@ -15,31 +23,21 @@ local config = {
 
     -- font config
     font = [[Interface\Addons\KPack\Media\Fonts\yanone.ttf]], -- path to the font used for all texts
-    fontSize = 11, -- obviously, the font size
     fontOutline = "THINOUTLINE", -- the font outline
 
-    -- Health text config:
-    showHealthText = false, -- whether to show the hp left text
-    showHealthPercent = false, -- show percentage or not
-    shortenNumbers = false, -- whether to shorten numbers
+    -- positions of health text and percent (both enabled)
+    hpTextPos = {"LEFT", 3, 1},
+	hpPercentPos = {"RIGHT", -3, 1},
 
-    -- positions of health text and percent
-    hpTextPos = {"LEFT", -3, 1},
-    hpPercentPos = {"CENTER", 0, 1}
+	-- positions of health text and percent if one of them is enabled
+	hpTextLonePos = {"CENTER", 0, 1},
+	hpPercentLonePos = {"CENTER", 0, 1}
 }
 
 -- Non-Latin Font Bypass
--- if you are using a non-latin client, except russian,
--- you can here set your custom font to be used.
--- Just make sure to use a proper path to that file.
-if addon.nonLatin then
+if core.nonLatin then
     config.font = NAMEPLATE_FONT -- here goes the path
 end
-
--- here you can change the fonts of health text and percet
--- Options are: {fontpath, fontsize, fontflags}
-config.hpTextFont = {config.font, config.fontSize, config.fontOutline}
-config.hpPercentFont = {config.font, config.fontSize, config.fontOutline}
 
 -- :::::::::::::::::::::::::: END of Configuration ::::::::::::::::::::::::: --
 
@@ -58,15 +56,13 @@ local UnitExists = UnitExists
 local targetExists
 
 -- events frame
-local mod = CreateFrame("Frame")
-mod:RegisterEvent("ADDON_LOADED")
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-addon.NP = config
+local frame = CreateFrame("Frame")
+core.NP = config
 
 -- module's print function
 local function Print(msg)
     if msg then
-        addon:Print(msg, "Nameplates")
+        core:Print(msg, "Nameplates")
     end
 end
 
@@ -279,7 +275,6 @@ local function Nameplate_Create(frame)
 
     local hp = CreateFrame("Frame", nil, frame.healthBar)
     hp:SetHeight(config.barHeight)
-    hp:SetPoint(unpack(config.hpTextPos))
     hp:SetFrameLevel(healthBar.hpGlow:GetFrameLevel() + 1)
     hp.text = hp:CreateFontString(nil, "OVERLAY")
     hp.text:SetPoint("CENTER")
@@ -293,7 +288,6 @@ local function Nameplate_Create(frame)
 
     local percent = CreateFrame("Frame", nil, frame.healthBar)
     percent:SetHeight(config.barHeight)
-    percent:SetPoint(unpack(config.hpPercentPos))
     percent:SetFrameLevel(healthBar.hpGlow:GetFrameLevel() + 1)
     percent.text = percent:CreateFontString(nil, "OVERLAY")
     percent.text:SetPoint("CENTER")
@@ -304,6 +298,14 @@ local function Nameplate_Create(frame)
     percent.text:SetJustifyV("MIDDLE")
     percent.text:Hide()
     frame.hpPercent = percent.text
+
+    if config.showHealthText and config.showHealthPercent then
+        hp:SetPoint(unpack(config.hpTextPos))
+        percent:SetPoint(unpack(config.hpPercentPos))
+    else
+        hp:SetPoint(unpack(config.hpTextLonePos))
+        percent:SetPoint(unpack(config.hpPercentLonePos))
+    end
 
     frame.FormatHealthText = Nameplate_FormatHealthText
     frame:FormatHealthText()
@@ -348,9 +350,8 @@ local function Nameplate_Create(frame)
     frame.highlight = highlightRegion
 
     raidIconRegion:ClearAllPoints()
-    raidIconRegion:SetPoint("LEFT", healthBar, "RIGHT", 2, 0)
-    raidIconRegion:SetHeight(15)
-    raidIconRegion:SetWidth(15)
+    raidIconRegion:SetPoint("BOTTOM", healthBar, "TOP", 0, config.barHeight + 3)
+    raidIconRegion:SetSize(15, 15)
 
     frame.oldglow = glowRegion
     frame.elite = stateIconRegion
@@ -391,40 +392,84 @@ do
     local commands = {}
     local help = "|cffffd700%s|r: %s"
 
+    commands.toggle = function()
+        NameplatesDB.enabled = not NameplatesDB.enabled
+    end
+
     commands.enable = function()
-        NameplatesDB = true
-        Print(L:F("module status: %s", L["|cff00ff00enabled|r"]))
+        NameplatesDB.enabled = false
     end
     commands.on = commands.enable
 
     commands.disable = function()
-        NameplatesDB = false
-        Print(L:F("module status: %s", L["|cffff0000disabled|r"]))
+        NameplatesDB.enabled = false
     end
     commands.off = commands.disable
 
-    function SlashCommandHandler(cmd)
-        cmd = cmd and cmd:lower() or ""
+    commands.fontsize = function(num)
+        num = tonumber(num)
+        if num then
+            NameplatesDB.fontSize = num
+            config.fontSize = num
+            config.hpTextFont[2] = num
+            config.hpPercentFont[2] = num
+        end
+    end
+    commands.size = commands.fontsize
+
+    commands.hptext = function()
+        NameplatesDB.showHealthText = not NameplatesDB.showHealthText
+    end
+    commands.health = commands.hptext
+
+    commands.hppercent = function()
+        NameplatesDB.showHealthPercent = not NameplatesDB.showHealthPercent
+    end
+    commands.percent = commands.hppercent
+
+    commands.shorten = function()
+        NameplatesDB.shortenNumbers = not NameplatesDB.shortenNumbers
+    end
+    commands.short = commands.shorten
+
+    function SlashCommandHandler(msg)
+        local cmd, rest = strsplit(" ", msg, 2)
+        cmd = cmd:lower()
 
         if _type(commands[cmd]) == "function" then
-            commands[cmd]()
+            commands[cmd](rest)
             ReloadUI()
         else
             Print(L:F("Acceptable commands for: |caaf49141%s|r", "/np"))
             print(_format(help, "enable", L["enable module"]))
             print(_format(help, "disable", L["disable module"]))
+            print(_format(help, "fontsize|r |cff00ffffn|r", L["changes nameplates font size"]))
+            print(_format(help, "health", L["toggles health text"]))
+            print(_format(help, "shorten", L["shortens health text"]))
+            print(_format(help, "percent", L["toggles health percentage"]))
         end
     end
 end
 
-function mod:ADDON_LOADED(name)
-    if name ~= addonName then
+function E:ADDON_LOADED(name)
+    if name ~= folder then
         return
     end
     self:UnregisterEvent("ADDON_LOADED")
-    if NameplatesDB == nil then
-        NameplatesDB = false
+
+    if type(NameplatesDB) ~= "table" then
+        NameplatesDB = defaults
     end
+
+    for k, v in pairs(NameplatesDB) do
+        if config[k] == nil then
+            config[k] = v
+        end
+    end
+
+    -- you can manually override things here
+    config.hpTextFont = {config.font, config.fontSize, config.fontOutline}
+    config.hpPercentFont = {config.font, config.fontSize, config.fontOutline}
 
     SlashCmdList["KPACKNAMEPLATES"] = SlashCommandHandler
     _G.SLASH_KPACKNAMEPLATES1 = "/np"
@@ -451,23 +496,26 @@ do
     end
 
     -- on mod loaded.
-    function mod:PLAYER_ENTERING_WORLD()
+    function E:PLAYER_ENTERING_WORLD()
         for _, name in ipairs({"TidyPlates", "KuiNameplates"}) do
             if _G[name] then
+                disabled = true
                 return
             end
         end
 
-        if NameplatesDB then
-            self:RegisterEvent("PLAYER_TARGET_CHANGED")
-            self:SetScript("OnUpdate", Nameplates_OnUpdate)
+        if NameplatesDB.enabled and not disabled then
+            frame:SetScript("OnUpdate", Nameplates_OnUpdate)
+            frame:Show()
         else
-            self:UnregisterEvent("PLAYER_TARGET_CHANGED")
-            self:SetScript("OnUpdate", nil)
+            frame:SetScript("OnUpdate", nil)
+            frame:Hide()
         end
     end
 end
 
-function mod:PLAYER_TARGET_CHANGED()
-    targetExists = UnitExists("target")
+function E:PLAYER_TARGET_CHANGED()
+    if NameplatesDB.enabled and not disabled then
+        targetExists = UnitExists("target")
+    end
 end

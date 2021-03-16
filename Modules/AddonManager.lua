@@ -36,16 +36,6 @@ local function CreateAddonsList()
     CloseButton:SetPoint("TOPRIGHT", AddonList, "TOPRIGHT", 5, -4)
     CloseButton:SetScript("OnClick", function() AddonList:Hide() end)
 
-    AddonList:Hide()
-    AddonList:SetScript("OnHide", function(self)
-        self:ClearAllPoints()
-        self:SetPoint("CENTER", UIParent, 0, 24)
-        if menuWasShown then
-            ShowUIPanel(GameMenuFrame)
-            menuWasShown = nil
-        end
-    end)
-
     -- add some cool textures
     local t = AddonList:CreateTexture(nil, "BACKGROUND")
     t:SetTexture([[Interface\HelpFrame\HelpFrame-TopLeft]])
@@ -98,7 +88,7 @@ local function CreateAddonsList()
     ScrollFrame:SetPoint("BOTTOMRIGHT", AddonList, "BOTTOMRIGHT", -32, 52)
     ScrollFrame:SetScrollChild(MainAddonFrame)
 
-    local makeList = function()
+    local UpdateAddonList = function()
         local self = MainAddonFrame
         self:SetPoint("TOPLEFT")
         self:SetWidth(ScrollFrame:GetWidth())
@@ -183,24 +173,37 @@ local function CreateAddonsList()
         info:SetText(L:F("|cffffffff%d|r AddOns: |cffffffff%d|r |cff00ff00Enabled|r, |cffffffff%d|r |cffff0000Disabled|r", countAll, countOn, countOff))
     end
 
-    makeList()
+	AddonList:SetScript("OnShow", function(self)
+		PlaySound("igMainMenuOption")
+		UpdateAddonList()
+	end)
+	AddonList:SetScript("OnHide", function(self)
+		PlaySound("igMainMenuOptionCheckBoxOn")
+		self:ClearAllPoints()
+		self:SetPoint("CENTER", UIParent, 0, 24)
+		if menuWasShown then
+			ShowUIPanel(GameMenuFrame)
+			menuWasShown = nil
+		end
+	end)
+	AddonList:Hide()
 
-    local ReloadButton = CreateFrame("Button", "ReloadButton", AddonList, "UIPanelButtonTemplate")
+    local ReloadButton = CreateFrame("Button", "ReloadButton", AddonList, "KPackButtonTemplate")
     ReloadButton:SetSize(105, 21)
     ReloadButton:SetPoint("BOTTOM", AddonList, "BOTTOM", 0, 21)
     ReloadButton:SetText(L["Reload UI"])
     ReloadButton:SetScript("OnClick", function() ReloadUI() end)
 
-    local EnableAllButton = CreateFrame("Button", "EnableAllButton", AddonList, "UIPanelButtonTemplate")
+    local EnableAllButton = CreateFrame("Button", "EnableAllButton", AddonList, "KPackButtonTemplate")
     EnableAllButton:SetSize(105, 21)
-    EnableAllButton:SetPoint("BOTTOMLEFT", AddonList, "BOTTOMLEFT", 6, 21)
+    EnableAllButton:SetPoint("BOTTOMLEFT", AddonList, "BOTTOMLEFT", 7, 21)
     EnableAllButton:SetText(L["Enable All"])
     EnableAllButton:SetScript("OnClick", function()
         EnableAllAddOns()
-        makeList()
+        UpdateAddonList()
     end)
 
-    local DisableAllButton = CreateFrame("Button", "DisableAllButton", AddonList, "UIPanelButtonTemplate")
+    local DisableAllButton = CreateFrame("Button", "DisableAllButton", AddonList, "KPackButtonTemplate")
     DisableAllButton:SetSize(105, 21)
     DisableAllButton:SetPoint("BOTTOMRIGHT", AddonList, "BOTTOMRIGHT", -6, 21)
     DisableAllButton:SetText(L["Disable All"])
@@ -211,7 +214,7 @@ local function CreateAddonsList()
                 DisableAddOn(name)
             end
         end
-        makeList()
+        UpdateAddonList()
     end)
 end
 

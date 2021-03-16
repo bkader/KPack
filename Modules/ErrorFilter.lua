@@ -1,16 +1,16 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
 
-local mod = addon.ErrorFilter or CreateFrame("Frame")
-addon.ErrorFilter = mod
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local mod = core.ErrorFilter or {}
+core.ErrorFilter = mod
+
+local E = core:Events()
+local L = core.L
 
 ErrorFilterDB = {}
 
 local function Print(msg)
     if msg then
-        addon:Print(msg, "ErrorFilter")
+        core:Print(msg, "ErrorFilter")
     end
 end
 
@@ -142,8 +142,8 @@ do
     end
 end
 
-function mod:ADDON_LOADED(name)
-	if name ~= addonName then return end
+function E:ADDON_LOADED(name)
+	if name ~= folder then return end
 	self:UnregisterEvent("ADDON_LOADED")
 
     SlashCmdList["KPACKERRORFILTER"] = SlashCommandHandler

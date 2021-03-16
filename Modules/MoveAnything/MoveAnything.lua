@@ -392,7 +392,7 @@ local MovAny = {
 			{"BankBagFrame6", "Bank Bag 6"},
 			{"BankBagFrame7", "Bank Bag 7"},
 
-			{"", BATTLEFIELDS},
+			{"", "Battlegrounds & PvP"},
 			{"PVPParentFrame", PLAYER_V_PLAYER},
 			{"BattlefieldMinimap", BATTLEFIELD_MINIMAP},
 			{"BattlefieldFrame", "Battleground Queue"},

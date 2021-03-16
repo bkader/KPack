@@ -1,4 +1,5 @@
---[[ Credits:  lynstats --]]
+--[[ Credits:  lynstats ]]
+
 -- CONFIG
 ---------------------------------------------
 local addon = select(2, ...)
@@ -12,6 +13,7 @@ if addon.nonLatin then font = [[Fonts\\FRIZQT__.ttf]] end
 local textAlign = "CENTER"
 local position = {"BOTTOMLEFT", UIParent, "BOTTOMLEFT", 3, 5}
 local tooltipAnchor = "ANCHOR_TOPRIGHT"
+
 local customColor = true
 local useShadow = true
 local showMail = true

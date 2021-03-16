@@ -1,14 +1,10 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
 
-local mod = addon.ChatMods
-if not mod then
-    mod = CreateFrame("Frame")
-    addon.ChatMods = mod
-end
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local mod = core.ChatMods or {}
+core.ChatMods = mod
 
+local E = core:Events()
+local L = core.L
 local defaults = {
     enabled = true,
     editbox = "top"
@@ -19,10 +15,11 @@ local gsub, format = string.gsub, string.format
 
 local function Print(msg)
     if msg then
-        addon:Print(msg, "ChatMods")
+        core:Print(msg, "ChatMods")
     end
 end
 
+local ChatMods_Initialize
 local SlashCommandHandler
 do
     local exec = {}
@@ -60,7 +57,7 @@ do
         local cmd, rest = strsplit(" ", msg, 2)
         if type(exec[cmd]) == "function" then
             exec[cmd](rest)
-            mod:PLAYER_ENTERING_WORLD()
+            ChatMods_Initialize()
         else
             Print(L:F("Acceptable commands for: |caaf49141%s|r", "/cm"))
             print("|cffffd700toggle|r : ", L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."])
@@ -377,7 +374,7 @@ do
 
         local currentLink
 
-        ChatFrame_OnHyperlinkShow = function(self, link, text, button)
+        _G.ChatFrame_OnHyperlinkShow = function(self, link, text, button)
             if not StaticPopupDialogs["CHATMODS_URLCOPY_DIALOG"] then
                 StaticPopupDialogs["CHATMODS_URLCOPY_DIALOG"] = {
                     text = "URL",
@@ -519,8 +516,8 @@ end
 -- Event Handler
 -- :::::::::::::::::::::::::::::::::::::::::::::
 
-function mod:ADDON_LOADED(name)
-    if name ~= addonName then
+function E:ADDON_LOADED(name)
+    if name ~= folder then
         return
     end
     if next(ChatModsDB) == nil then
@@ -542,15 +539,11 @@ function mod:ADDON_LOADED(name)
     end
 
     hooksecurefunc("FloatingChatFrame_OnMouseScroll", ChatMods_FloatingChatFrame_OnMouseScroll)
-
-    self:UnregisterEvent("ADDON_LOADED")
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
 end
 
 -- :::::::::::::::::::::::::::::::::::::::::::::
 
-function mod:PLAYER_ENTERING_WORLD()
-    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+ChatMods_Initialize = function()
     hooksecurefunc("ChatFrame_OpenChat", ChatMods_ChatFrame_OpenChat)
     hooksecurefunc("ChatEdit_SendText", ChatMods_ChatEdit_SendText)
 
@@ -562,4 +555,8 @@ function mod:PLAYER_ENTERING_WORLD()
     ChatMods_ChatCopy()
     ChatMods_ChatFrame()
     ChatMods_EditBox()
+end
+
+function E:PLAYER_ENTERING_WORLD()
+    ChatMods_Initialize()
 end

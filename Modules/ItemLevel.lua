@@ -1,3 +1,6 @@
+local folder, core = ...
+local E = core:Events()
+
 local slots = {
     "HeadSlot",
     "NeckSlot",
@@ -24,9 +27,6 @@ local slots = {
 -- Equipment slots item level
 
 do
-    local eventFrame = CreateFrame("Frame", nil, UIParent)
-    local loadFrame = CreateFrame("Frame", nil, UIParent)
-
     local function CreateButtonsText(frame)
         for _, slot in pairs(slots) do
             local button = _G[frame .. slot]
@@ -38,7 +38,7 @@ do
     end
 
     local function UpdateButtonsText(frame)
-        if frame == "Inspect" and not InspectFrame:IsShown() then
+        if frame == "Inspect" and not (InspectFrame and InspectFrame:IsShown()) then
             return
         end
 
@@ -72,44 +72,33 @@ do
         end
     end
 
-    eventFrame:RegisterEvent("PLAYER_LOGIN")
-    eventFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-    eventFrame:SetScript(
-        "OnEvent",
-        function(self, event)
-            if event == "PLAYER_LOGIN" then
-                CreateButtonsText("Character")
-                UpdateButtonsText("Character")
-                self:UnregisterEvent("PLAYER_LOGIN")
-            elseif event == "PLAYER_TARGET_CHANGED" then
-                UpdateButtonsText("Inspect")
-            else
-                UpdateButtonsText("Character")
-            end
-        end
-    )
+    function E:PLAYER_LOGIN()
+        self:UnregisterEvent("PLAYER_LOGIN")
+        CreateButtonsText("Character")
+        UpdateButtonsText("Character")
+    end
 
-    loadFrame:RegisterEvent("ADDON_LOADED")
-    loadFrame:SetScript(
-        "OnEvent",
-        function(self, event, addon)
-            if addon == "Blizzard_InspectUI" then
-                CreateButtonsText("Inspect")
-                InspectFrame:HookScript(
-                    "OnShow",
-                    function(self)
-                        UpdateButtonsText("Inspect")
-                    end
-                )
-                eventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-                self:UnregisterEvent("ADDON_LOADED")
-            end
+    function E:PLAYER_EQUIPMENT_CHANGED()
+        UpdateButtonsText("Character")
+    end
+
+	function E:PLAYER_TARGET_CHANGED()
+        UpdateButtonsText("Inspect")
+	end
+
+    function E:ADDON_LOADED(name)
+        if name == "Blizzard_InspectUI" then
+            self:UnregisterEvent("ADDON_LOADED")
+            CreateButtonsText("Inspect")
+            InspectFrame:HookScript("OnShow", function(self) UpdateButtonsText("Inspect") end)
+            self:RegisterEvent("PLAYER_TARGET_CHANGED")
         end
-    )
+    end
 end
 
 -----------------------------------------------------------------------
 -- average item level in tooltips and PaperDoll
+
 do
     local floor = math.floor
     local UnitIsPlayer = UnitIsPlayer

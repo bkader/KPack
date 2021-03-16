@@ -1,10 +1,8 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
+local E = core:Events()
+local L = core.L
 
-local mod = CreateFrame("Frame")
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
-
+local KPackAllStats
 local function AllStats_CreateMidTex(parent)
     local frame = parent:CreateTexture(nil, parent)
     frame:SetSize(144, 53)
@@ -14,24 +12,25 @@ local function AllStats_CreateMidTex(parent)
 end
 
 local function AllStats_CreateFrame()
-    local frame = CreateFrame("Frame", "KPackAllStats", PaperDollFrame)
-    frame:SetPoint("TOPLEFT", PaperDollFrame, "TOPRIGHT", -35, -33)
-    frame:SetSize(144, 500)
-    frame:SetToplevel(true)
+	if KPackAllStats then return end
+    KPackAllStats = CreateFrame("Frame", "KPackAllStats", PaperDollFrame)
+    KPackAllStats:SetPoint("TOPLEFT", PaperDollFrame, "TOPRIGHT", -35, -33)
+    KPackAllStats:SetSize(144, 500)
+    KPackAllStats:SetToplevel(true)
 
-    local textop = frame:CreateTexture(nil, frame)
+    local textop = KPackAllStats:CreateTexture(nil, KPackAllStats)
     textop:SetSize(144, 16)
     textop:SetTexture([[Interface\PaperDollInfoFrame\UI-Character-StatBackground]])
     textop:SetTexCoord(0, 0.8984375, 0, 0.125)
     textop:SetPoint("TOPLEFT")
 
-    local texmid1 = AllStats_CreateMidTex(frame)
-    local texmid2 = AllStats_CreateMidTex(frame)
-    local texmid3 = AllStats_CreateMidTex(frame)
-    local texmid4 = AllStats_CreateMidTex(frame)
-    local texmid5 = AllStats_CreateMidTex(frame)
-    local texmid6 = AllStats_CreateMidTex(frame)
-    local texmid7 = AllStats_CreateMidTex(frame)
+    local texmid1 = AllStats_CreateMidTex(KPackAllStats)
+    local texmid2 = AllStats_CreateMidTex(KPackAllStats)
+    local texmid3 = AllStats_CreateMidTex(KPackAllStats)
+    local texmid4 = AllStats_CreateMidTex(KPackAllStats)
+    local texmid5 = AllStats_CreateMidTex(KPackAllStats)
+    local texmid6 = AllStats_CreateMidTex(KPackAllStats)
+    local texmid7 = AllStats_CreateMidTex(KPackAllStats)
 
     texmid1:SetPoint("TOPLEFT", textop, "BOTTOMLEFT")
     texmid2:SetPoint("TOPLEFT", texmid1, "BOTTOMLEFT")
@@ -41,19 +40,17 @@ local function AllStats_CreateFrame()
     texmid6:SetPoint("TOPLEFT", texmid5, "BOTTOMLEFT")
     texmid7:SetPoint("TOPLEFT", texmid6, "BOTTOMLEFT")
 
-    local texbot = frame:CreateTexture(nil, frame)
+    local texbot = KPackAllStats:CreateTexture(nil, KPackAllStats)
     texbot:SetSize(144, 16)
     texbot:SetTexture([[Interface\PaperDollInfoFrame\UI-Character-StatBackground]])
     texbot:SetTexCoord(0, 0.8984375, 0.484375, 0.609375)
     texbot:SetPoint("TOPLEFT", texmid7, "BOTTOMLEFT")
-
-    return frame
 end
 
-local AllStats_PritStats
+local AllStats_PrintStats
 do
     local function AllStats_CreateStatFrame(name, text)
-        local frame = CreateFrame("Frame", "AllStatsFrame" .. name, mod.frame, "StatFrameTemplate")
+        local frame = CreateFrame("Frame", "KPackAllStatsAllStatsFrame" .. name, KPackAllStats, "StatFrameTemplate")
         frame:SetWidth(128)
         if text ~= nil then
             local t = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -64,7 +61,7 @@ do
         return frame
     end
 
-    function AllStats_PritStats()
+    function AllStats_PrintStats()
         -- strength
         local str = AllStats_CreateStatFrame("1", PLAYERSTAT_BASE_STATS)
         str:SetPoint("TOPLEFT", 9, -13)
@@ -189,38 +186,39 @@ do
 end
 
 local function AllStats_PaperDollFrame_UpdateStats()
-    AllStats_PritStats()
+    AllStats_PrintStats()
 end
 
 local btn
 local function AllStats_PaperDollFrame_OnShow(self)
     if not btn then
-        btn = CreateFrame("Button", nil, PaperDollFrame, "UIPanelButtonTemplate")
+        btn = CreateFrame("Button", nil, PaperDollFrame, "KPackButtonTemplate")
         btn:SetSize(50, 20)
         btn:SetPoint("BOTTOMRIGHT", -43, 86)
         btn:SetText(L["Stats"])
         btn:SetScript("OnClick", function(self, button)
-            if mod.frame and mod.frame:IsShown() then
-                mod.frame:Hide()
+            if KPackAllStats and KPackAllStats:IsShown() then
+                KPackAllStats:Hide()
                 self:UnlockHighlight()
-            elseif mod.frame then
-                mod.frame:Show()
+            elseif KPackAllStats then
+                KPackAllStats:Show()
                 self:LockHighlight()
             end
         end)
     end
 
-    if btn and mod.frame and mod.frame:IsShown() then
+    if btn and KPackAllStats and KPackAllStats:IsShown() then
         btn:LockHighlight()
     end
 end
 
-function mod:ADDON_LOADED(name)
-	if name == addonName then
-		self.frame = self.frame or AllStats_CreateFrame()
+function E:ADDON_LOADED(name)
+	if name == folder then
+		self:UnregisterEvent("ADDON_LOADED")
+		AllStats_CreateFrame()
 		_G.CharacterAttributesFrame:Hide()
 		_G.CharacterModelFrame:SetHeight(300)
-		PaperDollFrame_UpdateStats = AllStats_PaperDollFrame_UpdateStats
-		PaperDollFrame:HookScript("OnShow", AllStats_PaperDollFrame_OnShow)
+		_G.PaperDollFrame_UpdateStats = AllStats_PaperDollFrame_UpdateStats
+		_G.PaperDollFrame:HookScript("OnShow", AllStats_PaperDollFrame_OnShow)
 	end
 end

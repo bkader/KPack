@@ -1,5 +1,6 @@
-local _, addon = ...
-local L = addon.L
+local _, core = ...
+local E = core:Events()
+local L = core.L
 
 local _CreateFrame = CreateFrame
 local _UnitIsAFK = UnitIsAFK
@@ -7,11 +8,7 @@ local _SendChatMessage = SendChatMessage
 local _GetGameTime = GetGameTime
 local _floor, _format, _tostring = math.floor, string.format, tostring
 
-local mod = _CreateFrame("Frame")
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("PLAYER_ENTERING_WORLD")
-
-local AFK
+local AFK, AfkFrame
 local total, afk_minutes, afk_seconds = 0, 0, 0
 local update, updateInterval = 0, 1
 local cameraSpeed = 0.05
@@ -35,11 +32,11 @@ local Window_OnUpdate
 do
     -- handles back button OnClick event
     local function Button_OnClick(self)
-        if mod.frame then
-            mod.frame:Hide() -- hide the window by default.
+        if AfkFrame then
+            AfkFrame:Hide() -- hide the window by default.
             if _UnitIsAFK("player") then -- remove the AFK status.
                 _SendChatMessage("", "AFK")
-                mod.frame.timer:SetText("00:00")
+                AfkFrame.timer:SetText("00:00")
             end
         end
     end
@@ -47,8 +44,8 @@ do
     do
         -- changes the window timer's text.
         local function Window_DisplayTime(minutes, seconds)
-            if mod.frame then
-                mod.frame.timer:SetText(_format("%02d", _tostring(minutes)) .. ":" .. _format("%02d", _tostring(seconds)))
+            if AfkFrame then
+                AfkFrame.timer:SetText(_format("%02d", _tostring(minutes)) .. ":" .. _format("%02d", _tostring(seconds)))
             end
         end
 
@@ -116,7 +113,7 @@ do
         frame.timer = timer
 
         -- I'm back button
-        local button = _CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+        local button = _CreateFrame("Button", nil, frame, "KPackButtonTemplate")
         button:SetSize(100, 25)
         button:SetPoint("BOTTOM", frame, "BOTTOM", 0, 10)
         button:SetText(L["I am Back"])
@@ -135,23 +132,23 @@ do
     end
 end
 
-function mod:PLAYER_ENTERING_WORLD()
-    self.frame = self.frame or CreateWindow()
+function E:PLAYER_ENTERING_WORLD()
+    AfkFrame = AfkFrame or CreateWindow()
     self:UnregisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("PLAYER_FLAGS_CHANGED")
 end
 
-function mod:PLAYER_FLAGS_CHANGED()
+function E:PLAYER_FLAGS_CHANGED()
     if _UnitIsAFK("player") then
-        self.frame:Show()
+        AfkFrame:Show()
         AFK = true
         View_MoveCamera(cameraSpeed)
-        self.frame:SetScript("OnUpdate", Window_OnUpdate)
+        AfkFrame:SetScript("OnUpdate", Window_OnUpdate)
     else
-        self.frame:Hide()
+        AfkFrame:Hide()
         AFK = false
         total = 0
         View_StopCamera()
-        self.frame:SetScript("OnUpdate", nil)
+        AfkFrame:SetScript("OnUpdate", nil)
     end
 end

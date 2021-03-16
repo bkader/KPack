@@ -1,10 +1,9 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
 
--- module event frame
-local f = CreateFrame("Frame")
-f.lastUpdated = 0
-f:RegisterEvent("ADDON_LOADED")
+local E = core:Events()
+local L = core.L
+
+local frame = CreateFrame("Frame")
 
 -- saved variables and defaults
 ViewporterDB = {}
@@ -18,24 +17,25 @@ local defaults = {
 }
 
 -- needed locales
-local updateInterval = 0.1
-local initialized = false
+local initialized
 local sides = {
-    left = true,
-    right = true,
-    top = true,
-    bottom = true
+	left = "left",
+	right = "right",
+	top = "top",
+	bottom = "bottom",
+	bot = "bottom"
 }
 
 -- module's print function
 local function Print(msg)
     if msg then
-        addon:Print(msg, "Viewporter")
+        core:Print(msg, "Viewporter")
     end
 end
 
 -- called everytime we need to make changes to the viewport
 local function Viewporter_Initialize()
+	if initialized then return end
     local left, right, top, bottom = 0, 0, 0, 0
     if ViewporterDB.enabled then
         left = ViewporterDB.left
@@ -60,24 +60,29 @@ local function SlashCommandHandler(msg)
     if cmd == "toggle" then
         ViewporterDB.enabled = not ViewporterDB.enabled
         Print(ViewporterDB.enabled and L["|cff00ff00enabled|r"] or L["|cffff0000disabled|r"])
-        initialized = false
+        initialized = nil
+        frame:Show()
     elseif cmd == "enable" or cmd == "on" then
         ViewporterDB.enabled = true
-        initialized = false
+        initialized = nil
+        frame:Show()
         Print(L["|cff00ff00enabled|r"])
     elseif cmd == "disable" or cmd == "off" then
         ViewporterDB.enabled = false
-        initialized = false
+        initialized = nil
+        frame:Show()
         Print(L["|cffff0000disabled|r"])
     elseif cmd == "reset" or cmd == "default" then
         ViewporterDB = defaults
-        initialized = false
+        initialized = nil
+        frame:Show()
         Print(L["module's settings reset to default."])
     elseif sides[cmd] then
         local size = tonumber(rest)
         size = size or 0
-        ViewporterDB[cmd] = size
-        initialized = false
+        ViewporterDB[sides[cmd]] = size
+        initialized = nil
+        frame:Show()
     else
         Print(L:F("Acceptable commands for: |caaf49141%s|r", "/vp"))
         print("|cffffd700toggle|r", L["Toggles viewporter status."])
@@ -92,50 +97,39 @@ local function SlashCommandHandler(msg)
     Viewporter_Initialize()
 end
 
--- frame event handler
-local function EventHandler(self, event, ...)
-    if event == "ADDON_LOADED" then
-        local name = ...
-        if name:lower() == addonName:lower() then
-            f:UnregisterEvent("ADDON_LOADED")
-
-            if next(ViewporterDB) == nil then
-                ViewporterDB = defaults
-            end
-
-            SlashCmdList["KPACKVIEWPORTER"] = SlashCommandHandler
-            SLASH_KPACKVIEWPORTER1 = "/vp"
-            SLASH_KPACKVIEWPORTER2 = "/viewport"
-            SLASH_KPACKVIEWPORTER3 = "/viewporter"
-
-            f:RegisterEvent("PLAYER_ENTERING_WORLD")
-        end
-    elseif f[event] and type(f[event]) == "function" then
-        return f[event](self, ...)
-    end
-end
-f:SetScript("OnEvent", EventHandler)
-
 do
     local function Viewporter_OnUpdate(self, elapsed)
-        self.lastUpdated = self.lastUpdated + elapsed
-        if self.lastUpdated > updateInterval then
-            if ViewporterDB.firstTime then
-                ViewporterDB.firstTime = false
-            end
-            if not initialized then
-                Viewporter_Initialize()
-            end
-            self.lastUpdated = 0
+        if ViewporterDB.firstTime then
+            ViewporterDB.firstTime = false
         end
+        Viewporter_Initialize()
+		self:Hide()
     end
 
-    function f:PLAYER_ENTERING_WORLD()
+    function E:PLAYER_ENTERING_WORLD()
+        self:UnregisterEvent("PLAYER_ENTERING_WORLD")
         if ViewporterDB.enabled then
-            f:SetScript("OnUpdate", Viewporter_OnUpdate)
+            frame:SetScript("OnUpdate", Viewporter_OnUpdate)
         else
-            f:SetScript("OnUpdate", nil)
+            frame:SetScript("OnUpdate", nil)
         end
-        f:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    end
+end
+
+-- frame event handler
+function E:ADDON_LOADED(name)
+    if name == folder then
+        self:UnregisterEvent("ADDON_LOADED")
+
+        if next(ViewporterDB) == nil then
+            ViewporterDB = defaults
+        end
+
+        SlashCmdList["KPACKVIEWPORTER"] = SlashCommandHandler
+        SLASH_KPACKVIEWPORTER1 = "/vp"
+        SLASH_KPACKVIEWPORTER2 = "/viewport"
+        SLASH_KPACKVIEWPORTER3 = "/viewporter"
+
+        self:RegisterEvent("PLAYER_ENTERING_WORLD")
     end
 end

@@ -1,12 +1,16 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
 
-local mod = addon.PullnBreak or CreateFrame("Frame")
-addon.PullnBreak = mod
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local mod = core.PullnBreak or {}
+core.PullnBreak = mod
 
-PullnBreakDB = nil
+local E = core:Events()
+local L = core.L
+
+local defaults = {
+	type = "pull",
+	duration = 10,
+	starttime = 0
+}
 
 -- cache frequently used global
 local formatMin = INT_SPELL_DURATION_MIN
@@ -19,10 +23,11 @@ local floor, ceil = math.floor, math.ceil
 
 -- needed locals
 local started, isBreak
+local frame = CreateFrame("Frame")
 
 -- guesses the channel to which send the message
 local function PullnBreak_GuessChannel()
-    local channel
+    local channel = "GUILD"
     if GetRealNumRaidMembers() > 0 then
         channel = (IsRaidLeader() or IsRaidOfficer()) and "RAID_WARNING" or "RAID"
     elseif GetRealNumPartyMembers() > 0 then
@@ -50,21 +55,25 @@ function mod:StartTimer(dur, t)
     isBreak = (t == "break")
     local ended = false
 
-    dur = dur or PullnBreakDB
-    PullnBreakDB = dur
+    dur = dur or PullnBreakDB.duration
+    PullnBreakDB.type = isBreak and "break" or "pull"
 
     local timer = floor(isBreak and dur * 60 or dur) + 1
+    PullnBreakDB.duration = timer
 
     if not started then
         PullnBreak_Announce(isBreak and L["{rt7} Break Canceled {rt7}"] or L["{rt7} Pull ABORTED {rt7}"])
-        ended = true
-        isBreak = false
+		PullnBreakDB.type = "pull"
+		PullnBreakDB.startTime = 0
+		ended = true
+		isBreak = nil
     end
 
     local startTime = floor(GetTime())
+    PullnBreakDB.starttime = startTime
     local throttle = timer
 
-    self:SetScript("OnUpdate", function(self, elapsed)
+    frame:SetScript("OnUpdate", function(self, elapsed)
         ended = not started
 
         if ended then
@@ -78,11 +87,13 @@ function mod:StartTimer(dur, t)
             if countdown == 0 then
                 local output = isBreak and L["{rt1} Break Ends Now {rt1}"] or L["{rt8} Pull Now! {rt8}"]
                 PullnBreak_Announce(output)
+                PullnBreakDB.type = "pull"
+                PullnBreakDB.startTime = 0
 
                 throttle = countdown
                 ended = true
-                started = false
-                isBreak = false
+                started = nil
+                isBreak = nil
             else
                 if throttle == timer then
                     local output
@@ -94,7 +105,7 @@ function mod:StartTimer(dur, t)
                             L:F(isBreak and "%s Break starts now!" or "Pull in %s", formatSec:format(countdown))
                     end
 
-                    addon:Sync("DBMv4-Pizza", ("%s\t%s"):format(countdown, isBreak and "Break time!" or "Pull in"))
+                    core:Sync("DBMv4-Pizza", ("%s\t%s"):format(countdown, isBreak and "Break time!" or "Pull in"))
                     PullnBreak_Announce(output)
                 elseif countdown >= 60 and countdown % 60 == 0 then
                     local output = L:F(isBreak and "Break ends in %s" or "Pull in %s", formatMin:format(ceil(countdown / 60)))
@@ -129,12 +140,35 @@ local function CommandHandler_Break(cmd)
     mod:StartTimer(tonumber(cmd), "break")
 end
 
-function mod:ADDON_LOADED(name)
-	if name ~= addonName then return end
+function E:ADDON_LOADED(name)
+	if name ~= folder then return end
 	self:UnregisterEvent("ADDON_LOADED")
-	PullnBreakDB = PullnBreakDB or 10
+
+	if type(PullnBreakDB) ~= "table" then
+		PullnBreakDB = defaults
+	end
+
 	SlashCmdList["KPACKPULL"] = CommandHandler_Pull
 	_G.SLASH_KPACKPULL1 = "/pull"
 	SlashCmdList["KPACKBREAK"] = CommandHandler_Break
 	_G.SLASH_KPACKBREAK1 = "/break"
+end
+
+-- used to resume after reload or relog
+function E:PLAYER_ENTERING_WORLD()
+	local currtime = GetTime()
+
+	if PullnBreakDB.starttime > (currtime-PullnBreakDB.duration) then
+		local timeleft = ceil(PullnBreakDB.starttime+PullnBreakDB.duration-currtime)
+		if PullnBreakDB.type == "break" then
+			mod:StartTimer(timeleft/60, "break")
+		else
+			mod:StartTimer(timeleft)
+		end
+	elseif PullnBreakDB.starttime ~= 0 or PullnBreakDB.type ~= "pull" then
+		PullnBreakDB.type = "pull"
+		PullnBreakDB.starttime = 0
+        started = nil
+        isBreak = nil
+	end
 end

@@ -1,10 +1,10 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
 
-local mod = addon.IgnoreMore or CreateFrame("Frame")
-addon.IgnoreMore = mod
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local mod = core.IgnoreMore or {}
+core.IgnoreMore = mod
+
+local E = core:Events()
+local L = core.L
 
 IgnoreMoreDB = {}
 local defaults = {
@@ -12,6 +12,7 @@ local defaults = {
     list = {}
 }
 
+local frame = CreateFrame("Frame")
 local realm
 
 -- cache frequently used globlas
@@ -36,7 +37,7 @@ end
 -- module's print function
 local function Print(msg)
     if msg then
-        addon:Print(msg, "IgnoreMore")
+        core:Print(msg, "IgnoreMore")
     end
 end
 
@@ -479,7 +480,7 @@ do
     end
 
     local function IgnoreMore_OnUpdate(self, elapsed)
-        mod:Hide()
+        frame:Hide()
 
         if not IgnoreMoreDB.enabled then
             list = nil
@@ -524,8 +525,8 @@ do
         ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", IgnoreMore_SystemFilter)
     end
 
-    function mod:ADDON_LOADED(name)
-		if name ~= addonName then return end
+    function E:ADDON_LOADED(name)
+		if name ~= folder then return end
 		self:UnregisterEvent("ADDON_LOADED")
 
         -- set our default variables
@@ -543,31 +544,22 @@ do
         _G.SLASH_KPACKIGNOREMORE3 = "/igmore"
 
         if IgnoreMoreDB.enabled then
-            self:RegisterEvent("PARTY_INVITE_REQUEST")
             UIParent:UnregisterEvent("PARTY_INVITE_REQUEST")
-
-            self:RegisterEvent("DUEL_REQUESTED")
             UIParent:UnregisterEvent("DUEL_REQUESTED")
-
-            self:RegisterEvent("TRADE_SHOW")
-
-            self:SetScript("OnUpdate", IgnoreMore_OnUpdate)
-            self:Show()
+            frame:SetScript("OnUpdate", IgnoreMore_OnUpdate)
+            frame:Show()
         else
-            self:UnregisterEvent("PARTY_INVITE_REQUEST")
             UIParent:RegisterEvent("PARTY_INVITE_REQUEST")
-
-            self:UnregisterEvent("DUEL_REQUESTED")
             UIParent:RegisterEvent("DUEL_REQUESTED")
-
-            self:SetScript("OnUpdate", nil)
-            self:Hide()
+            frame:SetScript("OnUpdate", nil)
+            frame:Hide()
         end
     end
 end
 
 -- whether to accept or decline invites.
-function mod:PARTY_INVITE_REQUEST(name)
+function E:PARTY_INVITE_REQUEST(name)
+	if not IgnoreMoreDB.enabled then return end
     if list and type(list[name]) == "table" then
         DeclineGroup()
     else
@@ -576,7 +568,8 @@ function mod:PARTY_INVITE_REQUEST(name)
 end
 
 -- cancel or accept duels.
-function mod:DUEL_REQUESTED(name)
+function E:DUEL_REQUESTED(name)
+	if not IgnoreMoreDB.enabled then return end
     if list and type(list[name]) == "table" then
         CancelDuel()
     else
@@ -585,7 +578,8 @@ function mod:DUEL_REQUESTED(name)
 end
 
 -- handles trade window show
-function mod:TRADE_SHOW(...)
+function E:TRADE_SHOW(...)
+	if not IgnoreMoreDB.enabled then return end
     local name = UnitName("NPC")
     if list and name and type(list[name]) == "table" then
         CloseTrade()

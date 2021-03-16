@@ -1,7 +1,5 @@
-local addonName, addon = ...
-
-local f = CreateFrame("Frame")
-f:RegisterEvent("ADDON_LOADED")
+local folder, core = ...
+local E = core:Events()
 
 -- cache frequently used globals
 local tonumber = tonumber
@@ -11,7 +9,7 @@ local MacroEditBox_OnEvent
 -- module's print function
 local function Print(msg)
     if msg then
-        addon:Print(msg, "SlashIn")
+        core:Print(msg, "SlashIn")
     end
 end
 
@@ -32,24 +30,18 @@ do
         elseif cmd:find("cast") or cmd:find("use") then
             Print("/use or /cast are blocked by Blizzard UI.")
         else
-            addon.Timer.After(tonumber(secs) - 0.5, function() OnCallback(cmd) end)
+            core.After(tonumber(secs) - 0.5, function() OnCallback(cmd) end)
         end
     end
 end
 
 -- frame event handler
-local function EventHandler(self, event, ...)
-    if event == "ADDON_LOADED" then
-        local name = ...
-        if name:lower() == addonName:lower() then
-            f:UnregisterEvent("ADDON_LOADED")
-
-            MacroEditBox_OnEvent = MacroEditBox:GetScript("OnEvent")
-
-            SlashCmdList["KPACKSLASHIN"] = SlashCommandHandler
-            SLASH_KPACKSLASHIN1 = "/in"
-            SLASH_KPACKSLASHIN2 = "/slashin"
-        end
+function E:ADDON_LOADED(name)
+    if name == folder then
+        self:UnregisterEvent("ADDON_LOADED")
+        MacroEditBox_OnEvent = MacroEditBox:GetScript("OnEvent")
+        SlashCmdList["KPACKSLASHIN"] = SlashCommandHandler
+        SLASH_KPACKSLASHIN1 = "/in"
+        SLASH_KPACKSLASHIN2 = "/slashin"
     end
 end
-f:SetScript("OnEvent", EventHandler)

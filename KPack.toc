@@ -8,4 +8,5 @@
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## RequiredDeps: Blizzard_CombatText
+
 Load.xml

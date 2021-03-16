@@ -1,15 +1,14 @@
-local addonName, addon = ...
+local folder, core = ...
+local E = core:Events()
 
-local mod = addon.ECP or CreateFrame("Frame")
-addon.ECP = mod
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local mod = core.ECP or {}
+core.ECP = mod
 
 local format = string.format
 
 local function Print(msg)
     if msg then
-        addon:Print(msg, "EnhancedColorPicker")
+        core:Print(msg, "EnhancedColorPicker")
     end
 end
 
@@ -89,8 +88,8 @@ local function ECP_Opacity_OnValueChanged(self, ...)
     mod:UpdateEB(nil, nil, nil, self.opacity)
 end
 
-function mod:ADDON_LOADED(name)
-	if name ~= addonName then return end
+function E:ADDON_LOADED(name)
+	if name ~= folder then return end
     self:UnregisterEvent("ADDON_LOADED")
 
     ColorPickerFrame:HookScript("OnShow", ECP_OnShow)
@@ -98,7 +97,7 @@ function mod:ADDON_LOADED(name)
     OpacitySliderFrame:HookScript("OnValueChanged", ECP_Opacity_OnValueChanged)
 
     -- Add Buttons and EditBoxes to the original ColorPicker Frame
-    local cb = CreateFrame("Button", "ECPCopy", ColorPickerFrame, "UIPanelButtonTemplate")
+    local cb = CreateFrame("Button", "ECPCopy", ColorPickerFrame, "KPackButtonTemplate")
     cb:SetText("Copy")
     cb:SetWidth(75)
     cb:SetHeight(22)
@@ -115,7 +114,7 @@ function mod:ADDON_LOADED(name)
         CurrentlyCopiedColor.a = a
     end)
 
-    local pb = CreateFrame("Button", "ECPPaste", ColorPickerFrame, "UIPanelButtonTemplate")
+    local pb = CreateFrame("Button", "ECPPaste", ColorPickerFrame, "KPackButtonTemplate")
     pb:SetText("Paste")
     pb:SetWidth(75)
     pb:SetHeight(22)

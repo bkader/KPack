@@ -1,13 +1,10 @@
-local addonName, addon = ...
+local folder, core = ...
+local E = core:Events()
 
 -- cache some globals
 local _CreateFrame = CreateFrame
 local _GetScreenWidth, _GetScreenHeight = GetScreenWidth, GetScreenHeight
 local _floor, _ceil = math.floor, math.ceil
-
-local mod = _CreateFrame("Frame")
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
 
 -- default box size and grid frame
 local boxSize, frame = 32
@@ -93,8 +90,8 @@ local function SlashCommandHandler(str)
     end
 end
 
-function mod:ADDON_LOADED(name)
-    if name == addonName then
+function E:ADDON_LOADED(name)
+    if name == folder then
         self:UnregisterEvent("ADDON_LOADED")
 
         -- register slash commands.

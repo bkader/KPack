@@ -1,7 +1,5 @@
 local addonName, addon = ...
-local mod = CreateFrame("Frame")
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local E = addon:Events()
 
 -- Fixes are:
 --
@@ -54,7 +52,6 @@ do
     end
 end
 
-
 -- ///////////////////////////////////////////////////////
 
 do
@@ -78,7 +75,6 @@ do
         end)
     end
 end
-
 
 -- ///////////////////////////////////////////////////////
 
@@ -105,7 +101,9 @@ do
     end
 
     local function OpenToCategory_Hook(pan)
-        if InCombatLockdown() then return end
+        if InCombatLockdown() then
+            return
+        end
 
         if doNotRun then
             doNotRun = false
@@ -114,7 +112,9 @@ do
 
         local panelName = GetPanelName(pan)
         -- if its not part of our list return early
-        if not panelName then return end
+        if not panelName then
+            return
+        end
 
         local noncollapsedHeaders = {}
         local shownpanels, t, mypanel = 0, {}
@@ -146,7 +146,6 @@ do
     end
 end
 
-
 -- ///////////////////////////////////////////////////////
 
 -- fixe "You are not in party" error.
@@ -157,7 +156,10 @@ do
     local _IsInGuild = IsInGuild
     local function Fix_SendAddonMessage(prefix, msg, channel, ...)
         local chann = strlower(channel)
-        if (chann == "raid" and _GetRealNumRaidMembers() == 0) or (chann == "party" and _GetRealNumPartyMembers() == 0) or (chann == "guild" and not _IsInGuild()) then
+        if
+            (chann == "raid" and _GetRealNumRaidMembers() == 0) or (chann == "party" and _GetRealNumPartyMembers() == 0) or
+                (chann == "guild" and not _IsInGuild())
+         then
             return
         end
         _SendAddonMessage(prefix, msg, channel, ...)
@@ -202,12 +204,10 @@ end
 --         end
 --     end
 
--- 	function mod:VARIABLES_LOADED()
--- 		AlertFrame_FixAnchors = KPack_AlertFrame_FixAnchors
--- 	end
--- 	mod:RegisterEvent("VARIABLES_LOADED")
+--     function E:VARIABLES_LOADED()
+--         AlertFrame_FixAnchors = KPack_AlertFrame_FixAnchors
+--     end
 -- end
-
 
 -- ///////////////////////////////////////////////////////
 
@@ -215,7 +215,8 @@ do
     INTERFACE_ACTION_BLOCKED = ""
 
     -- Fix RemoveTalent() taint
-    FCF_StartAlertFlash = function() end
+    FCF_StartAlertFlash = function()
+    end
 
     local TaintFix = CreateFrame("Frame")
     TaintFix:SetScript("OnUpdate", function(self, elapsed)
@@ -279,34 +280,34 @@ end
 
 -- LFG bar
 do
-	local frame
+    local frame
 
-	local function LFGBar_Create()
-	    if not frame then
-	        frame = CreateFrame("Frame", nil, LFDDungeonReadyDialog)
-	        frame:SetPoint("TOP", LFDDungeonReadyDialog, "BOTTOM", 0, -5)
-	        frame:SetSize(280, 10)
-	        frame.t = frame:CreateTexture(nil, "OVERLAY")
-	        frame.t:SetTexture("Interface\\CastingBar\\UI-CastingBar-Border")
-	        frame.t:SetSize(375, 64)
-	        frame.t:SetPoint("TOP", 0, 28)
+    local function LFGBar_Create()
+        if not frame then
+            frame = CreateFrame("Frame", nil, LFDDungeonReadyDialog)
+            frame:SetPoint("TOP", LFDDungeonReadyDialog, "BOTTOM", 0, -5)
+            frame:SetSize(280, 10)
+            frame.t = frame:CreateTexture(nil, "OVERLAY")
+            frame.t:SetTexture("Interface\\CastingBar\\UI-CastingBar-Border")
+            frame.t:SetSize(375, 64)
+            frame.t:SetPoint("TOP", 0, 28)
 
-	        frame.bar = CreateFrame("StatusBar", nil, frame)
-	        frame.bar:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
-	        frame.bar:SetAllPoints()
-	        frame.bar:SetFrameLevel(LFDDungeonReadyDialog:GetFrameLevel() + 1)
-	        frame.bar:SetStatusBarColor(0, 1, 0)
-	    end
-	end
+            frame.bar = CreateFrame("StatusBar", nil, frame)
+            frame.bar:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
+            frame.bar:SetAllPoints()
+            frame.bar:SetFrameLevel(LFDDungeonReadyDialog:GetFrameLevel() + 1)
+            frame.bar:SetStatusBarColor(0, 1, 0)
+        end
+    end
 
-	local function LFGBar_Update()
-	    LFGBar_Create()
-	    local obj = LFDDungeonReadyDialog
-	    local oldTime = GetTime()
-	    local flag = 0
-	    local duration = 40
-	    local interval = 0.1
-	    obj:SetScript("OnUpdate", function(self, elapsed)
+    local function LFGBar_Update()
+        LFGBar_Create()
+        local obj = LFDDungeonReadyDialog
+        local oldTime = GetTime()
+        local flag = 0
+        local duration = 40
+        local interval = 0.1
+        obj:SetScript("OnUpdate", function(self, elapsed)
             obj.nextUpdate = (obj.nextUpdate or 0) + elapsed
             if obj.nextUpdate > interval then
                 local newTime = GetTime()
@@ -332,34 +333,34 @@ do
                 obj.nextUpdate = 0
             end
         end)
-	end
+    end
 
-	function mod:LFG_PROPOSAL_SHOW()
-	    if LFDDungeonReadyDialog:IsShown() then
-	        LFGBar_Update()
-	    end
-	end
-	mod:RegisterEvent("LFG_PROPOSAL_SHOW")
-
+    function E:LFG_PROPOSAL_SHOW()
+        if LFDDungeonReadyDialog:IsShown() then
+            LFGBar_Update()
+        end
+    end
 end
 
 -- ///////////////////////////////////////////////////////
 -- WorldMap Fix
 UIPanelWindows["WorldMapFrame"] = {area = "center", pushable = 9}
-hooksecurefunc(WorldMapFrame, "Show", function(self)
-	self:SetScale(0.75)
-	self:EnableKeyboard(false)
-	BlackoutWorld:Hide()
-	WorldMapFrame:EnableMouse(false)
+hooksecurefunc(WorldMapFrame, "Show",
+function(self)
+    self:SetScale(0.75)
+    self:EnableKeyboard(false)
+    BlackoutWorld:Hide()
+    WorldMapFrame:EnableMouse(false)
 end)
 
 -- ///////////////////////////////////////////////////////
 
-function mod:ADDON_LOADED(name)
-	if name == addonName then
-		Fix_UIDropDownMenu()
-		Fix_GermanLocale()
-		Fix_MinimapPing()
-		Fix_InterfaceOptionsCategory()
-	end
+function E:ADDON_LOADED(name)
+    if name == addonName then
+        self:UnregisterEvent("ADDON_LOADED")
+        Fix_UIDropDownMenu()
+        Fix_GermanLocale()
+        Fix_MinimapPing()
+        Fix_InterfaceOptionsCategory()
+    end
 end

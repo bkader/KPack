@@ -1,9 +1,9 @@
 local folder, core = ...
 
-local mod = CreateFrame("Button", "KPackMolinari", UIParent, "SecureActionButtonTemplate, AutoCastShineTemplate")
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, event, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local mod = core.Molinari or {}
 core.Molinari = mod
+
+local E = core:Events()
 
 local unpack = unpack
 local select = select
@@ -17,6 +17,7 @@ local AutoCastShine_AutoCastStart = AutoCastShine_AutoCastStart
 local AutoCastShine_AutoCastStop = AutoCastShine_AutoCastStop
 
 local _
+local button
 local enabled, auction
 local macro = "/cast %s\n/use %s %s"
 local spells = {}
@@ -61,9 +62,7 @@ local function Clickable()
 end
 
 local function Disperse(self)
-    if InCombatLockdown() then
-        self:RegisterEvent("PLAYER_REGEN_ENABLED")
-    else
+    if not InCombatLockdown() then
         self:Hide()
         self:ClearAllPoints()
         AutoCastShine_AutoCastStop(self)
@@ -84,21 +83,18 @@ local function Molinari_OnTooltipSetItem(self)
             bag = slot:GetParent()
         end
         if spell and bag and slot then
-            mod:SetAttribute("type", "macro")
-            mod:SetAttribute("macrotext", macro:format(spell, bag:GetID(), slot:GetID()))
-            mod:SetAllPoints(slot)
-            mod:Show()
-            AutoCastShine_AutoCastStart(mod, r, g, b)
+            button:SetAttribute("type", "macro")
+            button:SetAttribute("macrotext", macro:format(spell, bag:GetID(), slot:GetID()))
+            button:SetAllPoints(slot)
+            button:Show()
+            AutoCastShine_AutoCastStart(button, r, g, b)
         end
     end
 end
 
-function mod:ADDON_LOADED(event, name)
-    if name ~= folder then return end
-    self:RegisterEvent("PLAYER_LOGIN")
-end
+function E:PLAYER_LOGIN()
+	self:UnregisterEvent("PLAYER_LOGIN")
 
-function mod:PLAYER_LOGIN()
     -- Lockpicking
     if IsSpellKnown(1804) then
         spells[LOCKED] = {select(1, GetSpellInfo(1804)), 0, 1, 1}
@@ -125,40 +121,38 @@ function mod:PLAYER_LOGIN()
 
     if not enabled then return end
 
-    GameTooltip:HookScript("OnTooltipSetItem", Molinari_OnTooltipSetItem)
-    self:RegisterEvent("MODIFIER_STATE_CHANGED")
-    self:RegisterForClicks("LeftButtonUp")
-    self:SetFrameStrata("DIALOG")
-    self:SetScript("OnLeave", Disperse)
-    self:Hide()
+    button = CreateFrame("Button", "KPackMolinari", UIParent, "SecureActionButtonTemplate, AutoCastShineTemplate")
+	button:SetPoint("TOPLEFT", -999, 0)
+    button:RegisterForClicks("LeftButtonUp")
+    button:SetFrameStrata("DIALOG")
+    button:SetScript("OnLeave", Disperse)
+    button:Hide()
 
-    for _, sparkle in pairs(self.sparkles) do
+    for _, sparkle in pairs(button.sparkles) do
         sparkle:SetHeight(sparkle:GetHeight() * 3)
         sparkle:SetWidth(sparkle:GetWidth() * 3)
     end
 
-    if _G.AUCTIONATOR_ENABLE_ALT == 1 then
-        self:RegisterEvent("AUCTION_HOUSE_SHOW")
-        self:RegisterEvent("AUCTION_HOUSE_CLOSED")
+    GameTooltip:HookScript("OnTooltipSetItem", Molinari_OnTooltipSetItem)
+end
+
+function E:MODIFIER_STATE_CHANGED(key)
+    if button and button:IsShown() and (key == "LALT" or key == "RALT") then
+        Disperse(button)
     end
 end
 
-function mod:MODIFIER_STATE_CHANGED(event, key)
-    if self:IsShown() and (key == "LALT" or key == "RALT") then
-        Disperse(self)
-    end
-end
-
-function mod:PLAYER_REGEN_ENABLED(event)
-    self:UnregisterEvent(event)
-    Disperse(self)
+function E:PLAYER_REGEN_ENABLED()
+    if button then Disperse(button) end
 end
 
 -- Auctionator check
-function mod:AUCTION_HOUSE_SHOW()
-    auction = true
+function E:AUCTION_HOUSE_SHOW()
+	if _G.AUCTIONATOR_ENABLE_ALT == 1 then
+		auction = true
+	end
 end
 
-function mod:AUCTION_HOUSE_CLOSED()
+function E:AUCTION_HOUSE_CLOSED()
     auction = nil
 end

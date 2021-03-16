@@ -1,5 +1,6 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
+local E = core:Events()
+local L = core.L
 
 -- cache frequently used glboals
 local CreateFrame = CreateFrame
@@ -18,18 +19,15 @@ local defaults = {
     width = 180,
     height = 32,
     scale = 1
-}
 
--- main event frame
-local f, frame = CreateFrame("Frame")
-f:RegisterEvent("ADDON_LOADED")
+}
 
 local fname = "KPack_PersonalResources"
 
 -- module print function
 local function Print(msg)
     if msg then
-        addon:Print(msg, "PersonalResources")
+        core:Print(msg, "PersonalResources")
     end
 end
 
@@ -144,7 +142,12 @@ do
     end
 
     -- initializes personal resources
-    function PersonalResources_Initialize()
+    function PersonalResources_Initialize(force)
+		if force and frame then
+			frame:Hide()
+			frame = nil
+		end
+
         local width = PersonalResourcesDB.width or 180
         local height = PersonalResourcesDB.height or 32
         local scale = PersonalResourcesDB.scale or 1
@@ -154,7 +157,7 @@ do
         local yOfs = PersonalResourcesDB.yOfs or -120
 
         -- create main frame
-        frame = frame or CreateFrame("Frame", fname, UIParent)
+		frame = frame or CreateFrame("Frame", fname, UIParent)
         frame:SetSize(width, height)
         frame:SetPoint(anchor, xOfs, yOfs)
 
@@ -204,9 +207,9 @@ do
     end
 end
 
-function f:PLAYER_ENTERING_WORLD()
-    f:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    PersonalResources_Initialize()
+function E:PLAYER_ENTERING_WORLD(cmd)
+    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    PersonalResources_Initialize(cmd)
 end
 
 -- slash commands handler
@@ -242,28 +245,19 @@ do
     -- change scale
     commands.scale = function(n)
         n = tonumber(n)
-        if n then
-            PersonalResourcesDB.scale = n
-            f:PLAYER_ENTERING_WORLD()
-        end
+        if n then PersonalResourcesDB.scale = n end
     end
 
     -- change width
     commands.width = function(n)
         n = tonumber(n)
-        if n then
-            PersonalResourcesDB.width = n
-            f:PLAYER_ENTERING_WORLD()
-        end
+        if n then PersonalResourcesDB.width = n end
     end
 
     -- change height
     commands.height = function(n)
         n = tonumber(n)
-        if n then
-            PersonalResourcesDB.height = n
-            f:PLAYER_ENTERING_WORLD()
-        end
+        if n then PersonalResourcesDB.height = n end
     end
 
     -- reset module
@@ -288,14 +282,14 @@ do
 
     function SlashCommandHandler(msg)
         if InCombatLockdown() then
-            mod:Print("|cffffe02e" .. ERR_NOT_IN_COMBAT .. "|r")
+            Print("|cffffe02e" .. ERR_NOT_IN_COMBAT .. "|r")
             return
         end
 
         local cmd, rest = strsplit(" ", msg, 2)
         if type(commands[cmd]) == "function" then
             commands[cmd](rest)
-            f:PLAYER_ENTERING_WORLD()
+            E:PLAYER_ENTERING_WORLD(true)
         else
             Print(L:F("Acceptable commands for: |caaf49141%s|r", "/ps"))
             print(format(help, "enable", L["enable module"]))
@@ -312,24 +306,16 @@ do
 end
 
 -- frame event handler
-local function EventHandler(self, event, ...)
-    if event == "ADDON_LOADED" then
-        local name = ...
-        if name:lower() == addonName:lower() then
-            f:UnregisterEvent("ADDON_LOADED")
+function E:ADDON_LOADED(name)
+	if name == folder then
+        self:UnregisterEvent("ADDON_LOADED")
 
-            if next(PersonalResourcesDB) == nil then
-                PersonalResourcesDB = defaults
-            end
-
-            SlashCmdList["KPACKPLAYERRESOURCES"] = SlashCommandHandler
-            _G.SLASH_KPACKPLAYERRESOURCES1 = "/ps"
-            _G.SLASH_KPACKPLAYERRESOURCES2 = "/resources"
-
-            f:RegisterEvent("PLAYER_ENTERING_WORLD")
+        if next(PersonalResourcesDB) == nil then
+            PersonalResourcesDB = defaults
         end
-    elseif f[event] and type(f[event]) == "function" then
-        return f[event](self, ...)
-    end
+
+        SlashCmdList["KPACKPLAYERRESOURCES"] = SlashCommandHandler
+        _G.SLASH_KPACKPLAYERRESOURCES1 = "/ps"
+        _G.SLASH_KPACKPLAYERRESOURCES2 = "/resources"
+	end
 end
-f:SetScript("OnEvent", EventHandler)

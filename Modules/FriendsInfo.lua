@@ -1,10 +1,9 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
+local E = core:Events()
+local L = core.L
 
-local mod = addon.FriendsInfo or CreateFrame("Frame")
-addon.FriendsInfo = mod
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local mod = core.FriendsInfo or CreateFrame("Frame")
+core.FriendsInfo = mod
 
 FriendsInfoDB = {}
 
@@ -20,7 +19,7 @@ local realm
 -- module default print function.
 local function Print(msg)
     if msg then
-        addon:Print(msg, "FriendsInfo")
+        core:Print(msg, "FriendsInfo")
     end
 end
 
@@ -90,15 +89,7 @@ do
     end
 
     -- on player entering the world
-    function mod:PLAYER_ENTERING_WORLD()
+    function E:PLAYER_ENTERING_WORLD()
         FriendsInfo_Initialize()
-    end
-end
-
--- frame event handler.
-function mod:ADDON_LOADED(name)
-	self:UnregisterEvent("ADDON_LOADED")
-    if name == addonName then
-	    self:RegisterEvent("PLAYER_ENTERING_WORLD")
     end
 end

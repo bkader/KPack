@@ -1,10 +1,10 @@
 local addonName, addon = ...
-local L = addon.L
 
-local mod = addon.LMF or CreateFrame("Frame")
+local mod = addon.LMF or {}
 addon.LMF = mod
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+
+local E = addon:Events()
+local L = addon.L
 
 -- saved variables and default
 LootMessageFilterDB = 2
@@ -94,18 +94,16 @@ local function LMF_Initialize(self, event, msg)
     return false
 end
 
-function mod:ADDON_LOADED(name)
-    if name ~= addonName then
-        return
+function E:ADDON_LOADED(name)
+    if name == addonName then
+	    self:UnregisterEvent("ADDON_LOADED")
+	    LootMessageFilterDB = LootMessageFilterDB or default
+	    -- regsiter out slash commands
+	    SlashCmdList["KPACKLMF"] = SlashCommandHandler
+	    _G.SLASH_KPACKLMF1 = "/lmf"
     end
-    self:UnregisterEvent("ADDON_LOADED")
-    LootMessageFilterDB = LootMessageFilterDB or default
-    -- regsiter out slash commands
-    SlashCmdList["KPACKLMF"] = SlashCommandHandler
-    _G.SLASH_KPACKLMF1 = "/lmf"
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
 end
 
-function mod:PLAYER_ENTERING_WORLD()
+function E:PLAYER_ENTERING_WORLD()
     ChatFrame_AddMessageEventFilter("CHAT_MSG_LOOT", LMF_Initialize)
 end

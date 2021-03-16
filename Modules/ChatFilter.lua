@@ -1,13 +1,9 @@
-local addonName, addon = ...
-local L = addon.L
-local mod = addon.ChatFilter
-if not mod then
-    mod = CreateFrame("Frame")
-    addon.ChatFilter = mod
-end
+local folder, core = ...
+local mod = core.ChatFilter or {}
+core.ChatFilter = mod
 
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local E = core:Events()
+local L = core.L
 
 -- saved variables
 ChatFilterDB = {}
@@ -39,7 +35,7 @@ end
 -- print function
 local function Print(msg)
     if msg then
-        addon:Print(msg, L["Chat Filter"])
+        core:Print(msg, L["Chat Filter"])
     end
 end
 
@@ -177,26 +173,24 @@ do
     end
 end
 
-function mod:ADDON_LOADED(name)
-    if name ~= addonName then
-        return
+function E:ADDON_LOADED(name)
+    if name == folder then
+	    -- prepare our saved variables
+	    if next(ChatFilterDB) == nil then
+	        ChatFilterDB = defaults
+	    end
+
+	    -- register our slash commands handler
+	    SlashCmdList["KPACKCHATFILTER"] = SlashCommandHandler
+	    _G.SLASH_KPACKCHATFILTER1, _G.SLASH_KPACKCHATFILTER2 = "/chatfilter", "/cf"
+
+	    self:UnregisterEvent("ADDON_LOADED")
+	    self:RegisterEvent("PLAYER_ENTERING_WORLD")
     end
-    self:UnregisterEvent("ADDON_LOADED")
-
-    -- prepare our saved variables
-    if next(ChatFilterDB) == nil then
-        ChatFilterDB = defaults
-    end
-
-    -- register our slash commands handler
-    SlashCmdList["KPACKCHATFILTER"] = SlashCommandHandler
-    _G.SLASH_KPACKCHATFILTER1, _G.SLASH_KPACKCHATFILTER2 = "/chatfilter", "/cf"
-
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
 end
 
-function mod:PLAYER_ENTERING_WORLD()
-    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+function E:PLAYER_ENTERING_WORLD()
+	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
     ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL", ChatFilter_Filter)
     ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY", ChatFilter_Filter)
     ChatFrame_AddMessageEventFilter("CHAT_MSG_YELL", ChatFilter_Filter)

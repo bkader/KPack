@@ -1,10 +1,10 @@
-local addonName, addon = ...
-local L = addon.L
+local folder, core = ...
 
-local mod = addon.LookUp or CreateFrame("Frame")
-addon.LookUp = mod
-mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-mod:RegisterEvent("ADDON_LOADED")
+local mod = core.LookUp or {}
+core.LookUp = mod
+
+local E = core:Events()
+local L = core.L
 
 -- cache frequently use globals
 local GetSpellInfo, GetSpellLink = GetSpellInfo, GetSpellLink
@@ -15,7 +15,7 @@ local tonumber = tonumber
 -- module's print function
 local function Print(msg)
     if msg then
-        addon:Print(msg, "LookUp")
+        core:Print(msg, "LookUp")
     end
 end
 
@@ -116,8 +116,8 @@ do
     end
 end
 
-function mod:ADDON_LOADED(name)
-	if name ~= addonName then return end
+function E:ADDON_LOADED(name)
+	if name ~= folder then return end
 	self:UnregisterEvent("ADDON_LOADED")
     SlashCmdList["KPACKLOOKUP"] = SlashCommandHandler
     _G.SLASH_KPACKLOOKUP1, _G.SLASH_KPACKLOOKUP2 = "/lookup", "/lu"
