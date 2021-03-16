@@ -65,7 +65,7 @@ function mod:StartTimer(dur, t)
     if not started then
         PullnBreak_Announce(isBreak and L["{rt7} Break Canceled {rt7}"] or L["{rt7} Pull ABORTED {rt7}"])
 		DB.type = "pull"
-		DB.startTime = 0
+		DB.starttime = 0
 		ended = true
 		isBreak = nil
     end
@@ -89,7 +89,7 @@ function mod:StartTimer(dur, t)
                 local output = isBreak and L["{rt1} Break Ends Now {rt1}"] or L["{rt8} Pull Now! {rt8}"]
                 PullnBreak_Announce(output)
                 DB.type = "pull"
-                DB.startTime = 0
+                DB.starttime = 0
 
                 throttle = countdown
                 ended = true
