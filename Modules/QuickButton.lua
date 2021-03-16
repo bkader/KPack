@@ -177,7 +177,7 @@ function E:ADDON_LOADED(name)
     if type(KPackCharDB.QuickButton) ~= "table" or not next(KPackCharDB.QuickButton) then
         KPackCharDB.QuickButton = CopyTable(defaults)
     end
-    DB = defaults
+    DB = KPackCharDB.QuickButton
 
     unitClass = select(2, UnitClass("player"))
     if not classes[unitClass] or not LibQTip then
@@ -220,23 +220,11 @@ do
                 else
                     local isTank, isHealer, isDPS = UnitGroupRolesAssigned(unit)
                     if isTank then
-                        tooltip:SetCell(
-                            y,
-                            2,
-                            "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:20:20:0:0:64:64:0:19:22:41|t"
-                        )
+                        tooltip:SetCell(y, 2, "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:20:20:0:0:64:64:0:19:22:41|t")
                     elseif isHealer then
-                        tooltip:SetCell(
-                            y,
-                            2,
-                            "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:20:20:0:0:64:64:20:39:1:20|t"
-                        )
+                        tooltip:SetCell(y, 2, "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:20:20:0:0:64:64:20:39:1:20|t")
                     elseif isDPS then
-                        tooltip:SetCell(
-                            y,
-                            2,
-                            "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:20:20:0:0:64:64:20:39:22:41|t"
-                        )
+                        tooltip:SetCell(y, 2, "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES.blp:20:20:0:0:64:64:20:39:22:41|t")
                     else
                         tooltip:SetCell(y, 2, "")
                     end
@@ -244,18 +232,14 @@ do
 
                 local c = RAID_CLASS_COLORS[select(2, UnitClass(unit))]
                 tooltip:SetCell(y, 3, format("|cff%02x%02x%02x%s|r", c.r * 255, c.g * 255, c.b * 255, UnitName(unit)))
-                tooltip:SetLineScript(
-                    y,
-                    "OnMouseUp",
-                    function()
-                        unitId = (unit == "player" and unitClass == "HUNTER") and "pet" or unit
-                        assigned = UnitName(unitId)
-                        DB.assigned = assigned
-                        icon:SetAttribute("unit", unitId)
-                        tooltip:Hide()
-                        Print(L:F("%s will be placed on %s.", spellName, assigned))
-                    end
-                )
+                tooltip:SetLineScript(y, "OnMouseUp", function()
+                    unitId = (unit == "player" and unitClass == "HUNTER") and "pet" or unit
+                    assigned = UnitName(unitId)
+                    DB.assigned = assigned
+                    icon:SetAttribute("unit", unitId)
+                    tooltip:Hide()
+                    Print(L:F("%s will be placed on %s.", spellName, assigned))
+                end)
             end
 
             -- handles the tooltip menu
@@ -290,63 +274,39 @@ do
             end
         end
 
-        -- handles button OnDragStart event
-        local function Icon_OnDragStart(self)
-            if IsShiftKeyDown() then
-                self.moving = true
-                self:StartMoving()
-            end
-        end
-
-        -- handles button OnDragStop event
-        local function Icon_OnDragStop(self)
-            local point, _, rPoint, xOfs, yOfs = self:GetPoint()
-            DB.point = point
-            DB.rPoint = rPoint
-            DB.xOfs = xOfs
-            DB.yOfs = yOfs
-
-            self.moving = false
-            self:StopMovingOrSizing()
-        end
-
         -- creates the class button
         function QuickButton_CreateButton()
-            button =
-                button or CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate, ActionButtonTemplate")
-            button:SetFrameStrata("HIGH")
-            button.texture = _G[btnName .. "Icon"]
-            button.cooldown = _G[btnName .. "Cooldown"]
-            button.hotkey = _G[btnName .. "HotKey"]
-            button.texture:SetTexture(spellIcon)
-            -- button.texture:SetAllPoints(button)
-            button:SetScale(DB.scale or 1)
+            if not button then
+	            button = CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate, ActionButtonTemplate")
+	            button:SetPoint("CENTER")
+	            button:SetFrameStrata("HIGH")
+	            button.texture = _G[btnName .. "Icon"]
+	            button.cooldown = _G[btnName .. "Cooldown"]
+	            button.hotkey = _G[btnName .. "HotKey"]
+	            button.texture:SetTexture(spellIcon)
+	            button:SetScale(DB.scale or 1)
 
-            -- make the icon movable and clamp it to screen
-            button:SetMovable(true)
-            button:RegisterForClicks("AnyUp")
-            button:RegisterForDrag("LeftButton")
-            button:SetClampedToScreen(true)
-            button:SetScript("OnDragStart", Icon_OnDragStart)
-            button:SetScript("OnDragStop", Icon_OnDragStop)
+	            -- make the icon movable and clamp it to screen
+	            button:SetMovable(true)
+	            button:RegisterForClicks("AnyUp")
+	            button:RegisterForDrag("LeftButton")
+	            button:SetClampedToScreen(true)
+	            button:SetScript("OnDragStart", button.StartMoving)
+	            button:SetScript("OnDragStop", button.StopMovingOrSizing)
 
-            -- position the icon
-            button:SetPoint("CENTER", UIParent, "CENTER")
-            button:SetPoint(DB.point, UIParent, DB.rPoint, DB.xOfs, DB.yOfs)
+	            -- set button attributes
+	            button:SetAttribute("type1", "spell")
+	            button:SetAttribute("spell", spellName)
+	            button:SetAttribute("unit", unitId)
+	            button:SetAttribute("checkselfcast", true)
+	            button:SetAttribute("checkfocuscast", true)
 
-            -- set button attributes
-            button:SetAttribute("type1", "spell")
-            button:SetAttribute("spell", spellName)
-            button:SetAttribute("unit", unitId)
-            button:SetAttribute("checkselfcast", true)
-            button:SetAttribute("checkfocuscast", true)
+	            button.CreateTip = QuickButton_CreateTip
+	            button:SetAttribute("type2", "macro")
+	            button:SetAttribute("macrotext2", "/script QuickButtonFrame:CreateTip()")
 
-            button.CreateTip = QuickButton_CreateTip
-            button:SetAttribute("type2", "macro")
-            button:SetAttribute("macrotext2", "/script QuickButtonFrame:CreateTip()")
-
-            button.newTimer = 0
-            button:Show()
+	            button.newTimer = 0
+            end
         end
     end
 
