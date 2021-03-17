@@ -163,7 +163,6 @@ function GearScore_GetScore(Name, Target)
         local LevelTotal = 0
         local TitanGrip = 1
         local TempEquip = {}
-        local TempScore = 0
         local TempPVPScore = 0
 
         if (GetInventoryItemLink(Target, 16)) and (GetInventoryItemLink(Target, 17)) then
@@ -178,7 +177,7 @@ function GearScore_GetScore(Name, Target)
             if (ItemEquipLoc == "INVTYPE_2HWEAPON") then
                 TitanGrip = 0.5
             end
-            TempScore, ItemLevel = GearScore_GetItemScore(GetInventoryItemLink(Target, 17))
+            local TempScore, ItemLevel = GearScore_GetItemScore(GetInventoryItemLink(Target, 17))
             if (PlayerEnglishClass == "HUNTER") then
                 TempScore = TempScore * 0.3164
             end
@@ -192,11 +191,11 @@ function GearScore_GetScore(Name, Target)
                 local link = GetInventoryItemLink(Target, i)
                 GS_ItemLinkTable = {}
                 if (link) then
-                    local ItemName, ItemLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = GetItemInfo(ItemLink)
+                    local ItemName, ItemLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = GetItemInfo(link)
                     if (DB.Detail == 1) then
                         GS_ItemLinkTable[i] = ItemLink
                     end
-                    TempScore = GearScore_GetItemScore(ItemLink)
+                    local TempScore = GearScore_GetItemScore(ItemLink)
                     if (i == 16) and (PlayerEnglishClass == "HUNTER") then
                         TempScore = TempScore * 0.3164
                     end
