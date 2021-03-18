@@ -76,7 +76,7 @@ function Tokenize(str)
 end
 
 function KPack_UnitFrames_ApplySettings(settings)
-  settings = settings or DB
+    settings = settings or DB
     KPack_UnitFrames_SetFrameScale(settings.scale)
 
     if settings.player.moved == true then
@@ -92,9 +92,9 @@ end
 
 function KPack_UnitFrames_LoadDefaultSettings()
     if type(KPackCharDB.UnitFrames) ~= "table" or not next(KPackCharDB.UnitFrames) then
-    	KPackCharDB.UnitFrames = CopyTable(defaults)
-	end
-	DB = KPackCharDB.UnitFrames
+        KPackCharDB.UnitFrames = CopyTable(defaults)
+    end
+    DB = KPackCharDB.UnitFrames
 end
 
 function EnableUnitFramesImproved()
@@ -165,12 +165,12 @@ SlashCmdList["UNITFRAMESIMPROVED"] = function(msg)
         if scale and scale ~= DB.scale and (scale >= 0.5 and scale <= 3) then
             KPack_UnitFrames_SetFrameScale(scale)
         elseif scale then
-          Print(L["Scale has to be a number, recommended to be between 0.5 and 3"])
+            Print(L["Scale has to be a number, recommended to be between 0.5 and 3"])
         end
     elseif cmd == "reset" or cmd == "default" then
         StaticPopup_Show("LAYOUT_RESET")
     else
-      Print(L:F("Acceptable commands for: |caaf49141%s|r", "/uf"))
+        Print(L:F("Acceptable commands for: |caaf49141%s|r", "/uf"))
         local helpStr = "|cffffd700%s|r: %s"
         print(helpStr:format("scale |cff00ffffn|r", L["changes the unit frames scale."]))
         print(helpStr:format("reset", L["Resets module settings to default."]))
@@ -454,7 +454,7 @@ end
 function E:VARIABLES_LOADED()
     self:UnregisterEvent("VARIABLES_LOADED")
     KPack_UnitFrames_LoadDefaultSettings()
-	core.ufi = true
+    core.ufi = true
     KPack_UnitFrames_ApplySettings(KPackCharDB.UnitFrames)
 end
 
@@ -479,23 +479,23 @@ function E:PLAYER_REGEN_DISABLED()
 end
 
 function E:UNIT_ENTERED_VEHICLE(unit)
-  if unit == "player" then
-    PlayerFrame.state = "vehicle"
-    UnitFrame_SetUnit(PlayerFrame, "vehicle", PlayerFrameHealthBar, PlayerFrameManaBar)
-    UnitFrame_SetUnit(PetFrame, "player", PetFrameHealthBar, PetFrameManaBar)
-    PetFrame_Update(PetFrame)
-    PlayerFrame:Show()
-    PlayerFrame_Update()
-  end
+    if unit == "player" then
+        PlayerFrame.state = "vehicle"
+        UnitFrame_SetUnit(PlayerFrame, "vehicle", PlayerFrameHealthBar, PlayerFrameManaBar)
+        UnitFrame_SetUnit(PetFrame, "player", PetFrameHealthBar, PetFrameManaBar)
+        PetFrame_Update(PetFrame)
+        PlayerFrame:Show()
+        PlayerFrame_Update()
+    end
 end
 
 function E:UNIT_EXITED_VEHICLE(unit)
-  if unit == "player" then
-    PlayerFrame.state = "player"
-    UnitFrame_SetUnit(PlayerFrame, "player", PlayerFrameHealthBar, PlayerFrameManaBar)
-    UnitFrame_SetUnit(PetFrame, "pet", PetFrameHealthBar, PetFrameManaBar)
-    PetFrame_Update(PetFrame)
-    PlayerFrame_Update()
-    PlayerFrame:Show()
-  end
+    if unit == "player" then
+        PlayerFrame.state = "player"
+        UnitFrame_SetUnit(PlayerFrame, "player", PlayerFrameHealthBar, PlayerFrameManaBar)
+        UnitFrame_SetUnit(PetFrame, "pet", PetFrameHealthBar, PetFrameManaBar)
+        PetFrame_Update(PetFrame)
+        PlayerFrame_Update()
+        PlayerFrame:Show()
+    end
 end
