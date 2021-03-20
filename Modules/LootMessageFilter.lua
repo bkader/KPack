@@ -93,8 +93,8 @@ end
 function E:ADDON_LOADED(name)
     if name == addonName then
 	    self:UnregisterEvent("ADDON_LOADED")
-		if not KPack.LMF or type(KPack.LMF) ~= "number" then
-			KPack.LMF = 2
+		if not KPackDB.LMF or type(KPackDB.LMF) ~= "number" then
+			KPackDB.LMF = 2
 		end
 	    -- regsiter out slash commands
 	    SlashCmdList["KPACKLMF"] = SlashCommandHandler
