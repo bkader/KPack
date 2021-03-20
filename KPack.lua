@@ -259,7 +259,7 @@ do
 	    local collectgarbage = collectgarbage
 	    local UnitIsAFK = UnitIsAFK
 	    local InCombatLockdown = InCombatLockdown
-	    eventcount = 0
+	    local eventcount = 0
 
 	    local f = CreateFrame("Frame")
 	    f:SetScript("OnEvent", function(self, event, ...)
