@@ -484,7 +484,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
             end
         end
     end
-    core:RegisterCallback("PLAYER_LOGIN", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
         for _, name in ipairs({"TidyPlates", "KuiNameplates", "ElvUI"}) do
             if _G[name] then
@@ -516,7 +516,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         end
 
         -- on mod loaded.
-        core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+        core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
             if disabled then return end
 
             SetupDatabase()
@@ -530,7 +530,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         end)
     end
 
-    core:RegisterCallback("PLAYER_TARGET_CHANGED", function()
+    core:RegisterForEvent("PLAYER_TARGET_CHANGED", function()
         if not disabled and DB.enabled then
             targetExists = UnitExists("target")
         end

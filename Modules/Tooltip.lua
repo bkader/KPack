@@ -156,7 +156,7 @@ KPack:AddModule("Tooltip", function(folder, core, L)
 	        end
 	    end
 
-		core:RegisterCallback("PLAYER_LOGIN", function()
+		core:RegisterForEvent("PLAYER_LOGIN", function()
 			if _G.Aurora then
 				disabled = true
 				return
@@ -462,20 +462,20 @@ KPack:AddModule("Tooltip", function(folder, core, L)
 
 	        hooksecurefunc("SetItemRef", Tooltip_SetItemRef)
 	    end
-	    core:RegisterCallback("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
+	    core:RegisterForEvent("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
 	end
 
-	core:RegisterCallback("UPDATE_MOUSEOVER_UNIT", function()
+	core:RegisterForEvent("UPDATE_MOUSEOVER_UNIT", function()
 		if not disabled and DB and DB.unit and inCombat() then
 			GameTooltip:Hide()
 		end
 	end)
 
-	core:RegisterCallback("PLAYER_REGEN_ENABLED", function()
+	core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()
 		if not disabled then inCombat = true end
 	end)
 
-	core:RegisterCallback("PLAYER_REGEN_DISABLED", function()
+	core:RegisterForEvent("PLAYER_REGEN_DISABLED", function()
 		if not disabled then inCombat = nil end
 	end)
 end)

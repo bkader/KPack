@@ -683,7 +683,7 @@ KPack:AddModule("SnowfallKeyPress", function(addonName, addon)
 		end
 	end
 
-	addon:RegisterCallback("PLAYER_LOGIN", function()
+	addon:RegisterForEvent("PLAYER_LOGIN", function()
 		SetupDatabase()
 	    enableButton:SetChecked(DB.enable)
 

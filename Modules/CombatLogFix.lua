@@ -141,7 +141,7 @@ KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have exist
     _G.SLASH_KPACKLOGFIXER2 = "/fixer"
     _G.SLASH_KPACKLOGFIXER3 = "/logfix"
 
-    core:RegisterCallback("ADDON_LOADED", function(_, name)
+    core:RegisterForEvent("ADDON_LOADED", function(_, name)
         if name == folder then
             SetupDatabase()
             frame:SetScript("OnUpdate", DB.enabled and UpdateUIFrame or nil)
@@ -160,18 +160,18 @@ KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have exist
     end
 
     -- clear combat log on zone change.
-    core:RegisterCallback("PLAYER_ENTERING_WORLD", CLF_ZoneCheck)
-    core:RegisterCallback("ZONE_CHANGED_NEW_AREA", CLF_ZoneCheck)
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", CLF_ZoneCheck)
+    core:RegisterForEvent("ZONE_CHANGED_NEW_AREA", CLF_ZoneCheck)
 
     -- queued clear after combat ends
-    core:RegisterCallback("PLAYER_REGEN_ENABLED", function()
+    core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()
         SetupDatabase()
         if DB.enabled and DB.wait then
             CombatLogClearEntries()
         end
     end)
 
-    core:RegisterCallback("COMBAT_LOG_EVENT_UNFILTERED", function()
+    core:RegisterForEvent("COMBAT_LOG_EVENT_UNFILTERED", function()
         if DB.enabled then
             lastEvent = GetTime()
         end

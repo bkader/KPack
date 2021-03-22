@@ -88,12 +88,12 @@ KPack:AddModule("FriendsInfo", function(folder, core, L)
         hooksecurefunc(FriendsFrameFriendsScrollFrame, "buttonFunc", FriendsInfo_SetButton)
     end
 
-    core:RegisterCallback("PLAYER_LOGIN", function(_, name)
+    core:RegisterForEvent("PLAYER_LOGIN", function(_, name)
         KPackDB.FriendsInfo = KPackDB.FriendsInfo or {}
         DB = KPackDB.FriendsInfo
     end)
 
-    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
         FriendsInfo_Initialize()
     end)
 end)

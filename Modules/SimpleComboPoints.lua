@@ -189,7 +189,7 @@ KPack:AddModule("SimpleComboPoints", function(folder, core, L)
     -- //////////////////////////////////////////////////////////////
 
     -- after the player enters the world
-    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
         if disabled then
             return
         end
@@ -203,9 +203,9 @@ KPack:AddModule("SimpleComboPoints", function(folder, core, L)
     end)
 
     -- used to update combo points
-    core:RegisterCallback("UNIT_COMBO_POINTS", SCP_UpdatePoints)
-    core:RegisterCallback("PLAYER_REGEN_ENABLED", SCP_UpdatePoints)
-    core:RegisterCallback("PLAYER_TARGET_CHANGED", SCP_UpdatePoints)
+    core:RegisterForEvent("UNIT_COMBO_POINTS", SCP_UpdatePoints)
+    core:RegisterForEvent("PLAYER_REGEN_ENABLED", SCP_UpdatePoints)
+    core:RegisterForEvent("PLAYER_TARGET_CHANGED", SCP_UpdatePoints)
 
     -- used only for druids
     function UPDATE_SHAPESHIFT_FORM()
@@ -224,7 +224,7 @@ KPack:AddModule("SimpleComboPoints", function(folder, core, L)
         end
         SCP_UpdatePoints()
     end
-    core:RegisterCallback("UPDATE_SHAPESHIFT_FORM", UPDATE_SHAPESHIFT_FORM)
+    core:RegisterForEvent("UPDATE_SHAPESHIFT_FORM", UPDATE_SHAPESHIFT_FORM)
 
     -- //////////////////////////////////////////////////////////////
 
@@ -308,7 +308,7 @@ KPack:AddModule("SimpleComboPoints", function(folder, core, L)
         end
     end
 
-    core:RegisterCallback("PLAYER_LOGIN", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         if core.class ~= "ROGUE" and core.class ~= "DRUID" then
             disabled = true
             return

@@ -41,7 +41,7 @@ KPack:AddModule("SlashIn", function(_, core)
         end
     end
 
-    core:RegisterCallback("PLAYER_LOGIN", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         MacroEditBox_OnEvent = MacroEditBox:GetScript("OnEvent")
         SlashCmdList["KPACKSLASHIN"] = SlashCommandHandler
         SLASH_KPACKSLASHIN1 = "/in"

@@ -182,7 +182,7 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
         end
     end
 
-    core:RegisterCallback("PLAYER_LOGIN", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
         if DB.options.shown then
             UIErrorsFrame:Show()

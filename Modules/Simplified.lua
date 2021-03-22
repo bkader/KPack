@@ -211,7 +211,7 @@ KPack:AddModule("Simplified", function(folder, core, L)
 
     -- ///////////////////////////////////////////////////////
 
-    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
         -- leave battleground / arena
         SlashCmdList["KPACK_LEAVEBATTLEFIELD"] = S_LeaveBattlefield
         SLASH_KPACK_LEAVEBATTLEFIELD1 = "/lbg"

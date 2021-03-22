@@ -57,7 +57,7 @@ KPack:AddModule(
 	    end
 
 	    -- called when the player enters the world
-	    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+	    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
 			-- if we are using our custom nameplates and are
 			-- showing percentage, we skip target perecntage
 			if not core.NP or not core.NP.showHealthPercent then

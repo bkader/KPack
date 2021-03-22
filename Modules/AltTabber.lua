@@ -8,7 +8,7 @@ KPack:AddModule(
 	    local _GetCVar, _SetCVar = GetCVar, SetCVar
 	    local _PlaySoundFile = PlaySoundFile
 
-	    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+	    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
 	        if not StaticPopupDialogs["CONFIRM_BATTLEFIELD_ENTRY"].OnShow then
 	            StaticPopupDialogs["CONFIRM_BATTLEFIELD_ENTRY"].OnShow = function()
 	                _PlaySoundFile("Sound\\Spells\\PVPEnterQueue.wav")
@@ -34,26 +34,26 @@ KPack:AddModule(
 	        end
 	    end
 
-	    core:RegisterCallback("READY_CHECK", function()
+	    core:RegisterForEvent("READY_CHECK", function()
 	        AltTabber_PlaySound("Sound\\Interface\\levelup2.wav")
 	    end)
 
-	    core:RegisterCallback("LFG_PROPOSAL_SHOW", function()
+	    core:RegisterForEvent("LFG_PROPOSAL_SHOW", function()
 	        AltTabber_PlaySound("Sound\\Interface\\LFG_DungeonReady.wav")
 	    end)
 
-	    core:RegisterCallback("CHAT_MSG_RAID_WARNING", function()
+	    core:RegisterForEvent("CHAT_MSG_RAID_WARNING", function()
 	        AltTabber_PlaySound("Sound\\Interface\\RaidWarning.wav")
 	    end)
 
-	    core:RegisterCallback("PARTY_INVITE_REQUEST", function(_, name)
+	    core:RegisterForEvent("PARTY_INVITE_REQUEST", function(_, name)
 			if core.IgnoreMore and core.IgnoreMore:IsIgnored(name) then
 				return
 			end
 			AltTabber_PlaySound("Sound\\Interface\\iPlayerInviteA.wav")
 	    end)
 
-	    core:RegisterCallback("CHAT_MSG_WHISPER", function(_, _, name)
+	    core:RegisterForEvent("CHAT_MSG_WHISPER", function(_, _, name)
 			if core.IgnoreMore and core.IgnoreMore:IsIgnored(name) then
 				return
 			end

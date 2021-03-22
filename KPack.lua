@@ -1,10 +1,6 @@
 local folder, core = ...
 _G[folder] = core
 
--- main saved varialbes
-KPackDB = {}
-KPackCharDB = {}
-
 -------------------------------------------------------------------------------
 -- C_Timer mimic
 --
@@ -21,8 +17,7 @@ do
 
     local waitTable = {}
     local waitFrame = _G.KPackTimerFrame or CreateFrame("Frame", "KPackTimerFrame", UIParent)
-    waitFrame:SetScript("OnUpdate",
-    function(self, elapsed)
+    waitFrame:SetScript("OnUpdate", function(self, elapsed)
         local total = #waitTable
         for i = 1, total do
             local ticker = waitTable[i]
@@ -99,15 +94,267 @@ do
 end
 
 -------------------------------------------------------------------------------
+-- Panel Helper
+--
+
+do
+    local GameTooltip = GameTooltip
+    local function HideTooltip()
+        GameTooltip:Hide()
+    end
+    local function ShowTooltip(self)
+        if self.tiptext or self.tiphead then
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            if self.tiphead then
+                GameTooltip:AddLine(self.tiphead)
+            end
+            if self.tiptext then
+                GameTooltip:AddLine(self.tiphead, 1, 1, 1, 1, false)
+            end
+            GameTooltip:Show()
+        end
+    end
+
+    local function CreatePanel(self, reference, listname, title)
+        local frame = CreateFrame("Frame", reference, UIParent)
+        frame.name = listname
+        frame.Label = frame:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+        frame.Label:SetPoint("TOPLEFT", frame, "TOPLEFT", 16, -16)
+        frame.Label:SetHeight(15)
+        frame.Label:SetWidth(350)
+        frame.Label:SetJustifyH("LEFT")
+        frame.Label:SetJustifyV("TOP")
+        frame.Label:SetText(title or listname)
+        return frame
+    end
+
+    local function CreateHeading(self, parent, text, subtext)
+        local title = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+        title:SetPoint("TOPLEFT", 16, -16)
+        title:SetText(text)
+
+        local subtitle = parent:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        subtitle:SetHeight(32)
+        subtitle:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
+        subtitle:SetPoint("RIGHT", parent, -32, 0)
+        subtitle:SetNonSpaceWrap(true)
+        subtitle:SetJustifyH("LEFT")
+        subtitle:SetJustifyV("TOP")
+        subtitle:SetText(subtext)
+
+        return title, subtitle
+    end
+
+    local function CreateDescription(self, reference, parent, title, text)
+        local frame = CreateFrame("Frame", reference, parent)
+        frame:SetHeight(15)
+        frame:SetWidth(200)
+
+        frame.title = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+        frame.title:SetAllPoints()
+        frame.title:SetJustifyH("LEFT")
+        frame.title:SetText(title)
+
+        frame.text = frame:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
+        frame.text:SetPoint("TOPLEFT")
+        frame.text:SetPoint("BOTTOMRIGHT")
+        frame.text:SetJustifyH("LEFT")
+        frame.text:SetJustifyV("TOP")
+        frame.text:SetText(text)
+
+        return frame
+    end
+
+    local function CreateButton(self, parent, text, ...)
+        local btn = CreateFrame("Button", nil, parent, "KPackButtonTemplate")
+        if select("#", ...) > 0 then
+            btn:SetPoint(...)
+        end
+        btn:SetSize(80, 22)
+        btn:SetScript("OnEnter", ShowTooltip)
+        btn:SetScript("OnLeave", HideTooltip)
+        return btn
+    end
+
+    local function CreateSmallButton(self, parent, ...)
+        local btn = lib.new(parent, ...)
+        btn:SetHighlightFontObject(GameFontHighlightSmall)
+        btn:SetNormalFontObject(GameFontNormalSmall)
+        return btn
+    end
+
+    local function CreateCheckButton(self, parent, size, label, ...)
+        local check = CreateFrame("CheckButton", nil, parent)
+        check:SetWidth(size or 26)
+        check:SetHeight(size or 26)
+        if select(1, ...) then
+            check:SetPoint(...)
+        end
+        check:SetHitRectInsets(0, -100, 0, 0)
+        check:SetNormalTexture("Interface\\Buttons\\UI-CheckBox-Up")
+        check:SetPushedTexture("Interface\\Buttons\\UI-CheckBox-Down")
+        check:SetHighlightTexture("Interface\\Buttons\\UI-CheckBox-Highlight")
+        check:SetDisabledCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check-Disabled")
+        check:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check")
+
+        check:SetScript("OnEnter", ShowTooltip)
+        check:SetScript("OnLeave", HideTooltip)
+
+        local fs = check:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+        fs:SetPoint("LEFT", check, "RIGHT", 0, 1)
+        fs:SetText(label)
+        check.label = fs
+
+        return check
+    end
+
+    local CreateSlider, CreateBareSlider
+    do
+        local sliderBG = {
+            bgFile = "Interface\\Buttons\\UI-SliderBar-Background",
+            edgeFile = "Interface\\Buttons\\UI-SliderBar-Border",
+            edgeSize = 8,
+            tile = true,
+            tileSize = 8,
+            insets = {left = 3, right = 3, top = 6, bottom = 6}
+        }
+
+        function CreateSlider(self, parent, label, val, minval, maxval, step, ...)
+            local container = CreateFrame("Frame", nil, parent)
+            container:SetSize(144, 39)
+            if select(1, ...) then
+                container:SetPoint(...)
+            end
+
+            local slider = CreateFrame("Slider", nil, container)
+            slider:SetPoint("LEFT")
+            slider:SetPoint("RIGHT")
+            slider:SetHeight(17)
+            slider:SetHitRectInsets(0, 0, -10, -10)
+            slider:SetOrientation("HORIZONTAL")
+            slider:SetThumbTexture("Interface\\Buttons\\UI-SliderBar-Button-Horizontal") -- Dim: 32x32... can't find API to set this?
+            slider:SetBackdrop(sliderBG)
+            slider:SetValueStep(step or 0.1)
+            slider:SetValue(value or 0.5)
+
+            local text = slider:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+            text:SetPoint("BOTTOM", slider, "TOP")
+            text:SetText(label)
+            slider.label = text
+
+            local low = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+            low:SetPoint("TOPLEFT", slider, "BOTTOMLEFT", -4, 3)
+            low:SetText(minval)
+            slider.low = low
+
+            local high = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+            high:SetPoint("TOPRIGHT", slider, "BOTTOMRIGHT", 4, 3)
+            high:SetText(maxval)
+            slider.high = high
+
+            local value = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+            value:SetPoint("TOP", slider, "BOTTOM")
+            value:SetText(val or 0.5)
+            slider.value = value
+
+            if type(minval) == "string" then
+                slider:SetMinMaxValues(tonumber((minval:gsub("%%", ""))) / 100, tonumber((maxval:gsub("%%", ""))) / 100)
+            else
+                slider:SetMinMaxValues(minval, maxval)
+            end
+
+            slider:SetScript("OnEnter", ShowTooltip)
+            slider:SetScript("OnLeave", HideTooltip)
+
+            return slider, container
+        end
+
+        function CreateBareSlider(self, parent, ...)
+            local slider = CreateFrame("Slider", nil, parent)
+            slider:SetSize(144, 17)
+            if select(1, ...) then
+                slider:SetPoint(...)
+            end
+            slider:SetOrientation("HORIZONTAL")
+            slider:SetThumbTexture("Interface\\Buttons\\UI-SliderBar-Button-Horizontal")
+            slider:SetBackdrop(sliderBG)
+            slider:SetScript("OnEnter", ShowTooltip)
+            slider:SetScript("OnLeave", HideTooltip)
+            return slider
+        end
+    end
+
+    core.Utils = {}
+    core.Utils.CreatePanel = CreatePanel
+    core.Utils.CreateHeading = CreateHeading
+    core.Utils.CreateDescription = CreateDescription
+    core.Utils.CreateButton = CreateButton
+    core.Utils.CreateSmallButton = CreateSmallButton
+    core.Utils.CreateCheckButton = CreateCheckButton
+    core.Utils.CreateSlider = CreateSlider
+    core.Utils.CreateBareSlider = CreateBareSlider
+end
+
+-------------------------------------------------------------------------------
+
+-- main print function
+function core:Print(msg, pref)
+    if msg then
+        -- prepare the prefix:
+        if not pref then
+            pref = "|cff33ff99" .. folder .. "|r"
+        else
+            pref = "|cff33ff99" .. folder .. "|r - |caaf49141" .. pref .. "|r"
+        end
+        print(string.format("%s : %s", pref, tostring(msg)))
+    end
+end
+
+do
+    local function noFunc() end
+    do
+        function core:Kill(frame)
+            if frame and frame.SetScript then
+                frame:UnregisterAllEvents()
+                frame:SetScript("OnEvent", nil)
+                frame:SetScript("OnUpdate", nil)
+                frame:SetScript("OnHide", nil)
+                frame:Hide()
+                frame.SetScript = noFunc
+                frame.RegisterEvent = noFunc
+                frame.RegisterAllEvents = noFunc
+                frame.Show = noFunc
+            end
+        end
+    end
+end
+
+function core:RegisterForEvent(event, callback, ...)
+    if not self.frame then
+        self.frame = CreateFrame("Frame")
+        function self.frame:OnEvent(event, ...)
+            for callback, args in next, self.callbacks[event] do
+                callback(args, ...)
+            end
+        end
+        self.frame:SetScript("OnEvent", self.frame.OnEvent)
+    end
+    if not self.frame.callbacks then
+        self.frame.callbacks = {}
+    end
+    if not self.frame.callbacks[event] then
+        self.frame.callbacks[event] = {}
+    end
+    self.frame.callbacks[event][callback] = {...}
+    self.frame:RegisterEvent(event)
+end
+
+-------------------------------------------------------------------------------
 -- Core
 --
 
 do
     local L = core.L
-
-    local tostring = tostring
-
-    -- used to replace fonts
     do
         local nonLatin = {ruRU = true, koKR = true, zhCN = true, zhTW = true}
         if nonLatin[GetLocale()] then
@@ -115,8 +362,11 @@ do
         end
     end
 
-    local help = "|cffffd700%s|r: %s"
+    local tostring = tostring
 
+    local panel = core.Utils:CreatePanel("KPackInterfaceOptions", folder, "|cfff58cbaKader|r|caaf49141Pack|r")
+
+    local help = "|cffffd700%s|r: %s"
     local function SlashCommandHandler(cmd)
         cmd = cmd and cmd:lower()
         if cmd == "help" then
@@ -145,82 +395,43 @@ do
         elseif cmd == "about" or cmd == "info" then
             core:Print("This small addon was made with big passion by |cfff58cbaKader|r.\n If you have suggestions or you are facing issues with my addons, feel free to message me on the forums, Github, CurseForge or Discord:\n|cffffd700bkader#6361|r or |cff7289d9https://discord.gg/a8z5CyS3eW|r")
         else
-            InterfaceOptionsFrame_OpenToCategory(core.panel)
+            InterfaceOptionsFrame_OpenToCategory(panel)
         end
     end
 
-    -- main print function
-    function core:Print(msg, pref)
-        if msg then
-            -- prepare the prefix:
-            if not pref then
-                pref = "|cff33ff99" .. folder .. "|r"
-            else
-                pref = "|cff33ff99" .. folder .. "|r - |caaf49141" .. pref .. "|r"
-            end
-            print(string.format("%s : %s", pref, tostring(msg)))
-        end
-    end
+    core:RegisterForEvent("ADDON_LOADED", function(_, name)
+        if name == folder then
+			KPackDB = KPackDB or {}
+			KPackCharDB = KPackCharDB or {}
 
-    -- used to kill a frame
-    local function noFunc()
-    end
-    do
-        function core:Kill(frame)
-            if frame and frame.SetScript then
-                frame:UnregisterAllEvents()
-                frame:SetScript("OnEvent", nil)
-                frame:SetScript("OnUpdate", nil)
-                frame:SetScript("OnHide", nil)
-                frame:Hide()
-                frame.SetScript = noFunc
-                frame.RegisterEvent = noFunc
-                frame.RegisterAllEvents = noFunc
-                frame.Show = noFunc
-            end
-        end
-    end
+            SlashCmdList["KPACK"] = SlashCommandHandler
+            _G.SLASH_KPACK1 = "/kp"
+            _G.SLASH_KPACK2 = "/kpack"
 
-    function core:RegisterCallback(event, callback, ...)
-        if not self.frame then
-            self.frame = CreateFrame("Frame")
-            function self.frame:OnEvent(event, ...)
-                for callback, args in next, self.callbacks[event] do
-                    callback(args, ...)
+            core.name = select(1, UnitName("player"))
+            core.class = select(2, UnitClass("player"))
+            core.guid = UnitGUID("player")
+
+            core:Print(L["addon loaded. use |cffffd700/kp help|r for help."])
+
+            if core.moduleslist then
+                for i = 1, #core.moduleslist do
+                    core.moduleslist[i](folder, core, L)
                 end
+                core.moduleslist = nil
             end
-            self.frame:SetScript("OnEvent", self.frame.OnEvent)
         end
-        if not self.frame.callbacks then
-            self.frame.callbacks = {}
-        end
-        if not self.frame.callbacks[event] then
-            self.frame.callbacks[event] = {}
-        end
-        self.frame.callbacks[event][callback] = {...}
-        self.frame:RegisterEvent(event)
-    end
+    end)
 
-    local function SetupOptionsPanel(panel)
-        panel.title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-        panel.title:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -16)
-        panel.title:SetSize(350, 15)
-        panel.title:SetJustifyH("LEFT")
-        panel.title:SetJustifyV("TOP")
-        panel.title:SetText("|cfff58cbaKader|r|caaf49141Pack|r")
-
+    local function SetupInterfacePanel()
         local scrollFrame = CreateFrame("ScrollFrame", "$parentScrollFrame", panel, "UIPanelScrollFrameTemplate")
-        scrollFrame:SetSize(panel:GetWidth(), panel:GetHeight())
         scrollFrame:SetPoint("TOPLEFT", 10, -38)
-        scrollFrame:SetPoint("BOTTOMRIGHT", -30, 32)
-
-        local scrollBar = _G[scrollFrame:GetName() .. "ScrollBar"]
+        scrollFrame:SetPoint("BOTTOMRIGHT", -30, 36)
 
         local scrollChild = CreateFrame("Frame", "$parentScrollChild", scrollFrame)
-        scrollChild:SetHeight(#core.modules / 2)
-        scrollChild:SetWidth(scrollFrame:GetWidth())
-        scrollChild:SetAllPoints(scrollFrame)
         scrollFrame:SetScrollChild(scrollChild)
+        scrollChild:SetAllPoints(scrollFrame)
+        scrollChild:SetSize(scrollFrame:GetWidth(), scrollFrame:GetHeight() * 2)
 
         -- reload ui button
         local reload = CreateFrame("Button", nil, panel, "KPackButtonTemplate")
@@ -243,8 +454,7 @@ do
         -- list all modules.
         local buttons = {}
         for i, mod in ipairs(core.modules) do
-            local check = CreateFrame("CheckButton", "KPackModule" .. i, scrollChild, "ChatConfigCheckButtonTemplate")
-            _G["KPackModule" .. i .. "Text"]:SetText(mod.name)
+            local check = core.Utils:CreateCheckButton(scrollChild, nil, mod.name)
             if i == 1 then
                 check:SetPoint("TOPLEFT")
             elseif i % 2 == 0 then
@@ -294,30 +504,9 @@ do
         end)
     end
 
-    core:RegisterCallback("ADDON_LOADED", function(_, name)
-        if name == folder then
-            core:Print(L["addon loaded. use |cffffd700/kp help|r for help."])
-
-            SlashCmdList["KPACK"] = SlashCommandHandler
-            _G.SLASH_KPACK1 = "/kp"
-            _G.SLASH_KPACK2 = "/kpack"
-
-            core.name = select(1, UnitName("player"))
-            core.class = select(2, UnitClass("player"))
-            core.guid = UnitGUID("player")
-
-            core.panel = CreateFrame("Frame", "KPackInterfaceOptions", UIParent)
-            core.panel.name = folder
-            core.panel:SetScript("OnShow", function(self) SetupOptionsPanel(self) end)
-            InterfaceOptions_AddCategory(core.panel)
-
-            if core.moduleslist then
-                for i = 1, #core.moduleslist do
-                    core.moduleslist[i](folder, core, L)
-                end
-                core.moduleslist = nil
-            end
-        end
+    core:RegisterForEvent("PLAYER_LOGIN", function()
+        InterfaceOptions_AddCategory(panel)
+        panel:SetScript("OnShow", function(self) SetupInterfacePanel(self) end)
     end)
 
     do
@@ -328,7 +517,7 @@ do
         local eventcount = 0
 
         local f = CreateFrame("Frame")
-        f:SetScript("OnEvent", function(self, event, arg1)
+    f:SetScript("OnEvent", function(self, event, arg1)
             if (InCombatLockdown() and eventcount > 25000) or (not InCombatLockdown() and eventcount > 10000) or event == "PLAYER_ENTERING_WORLD" then
                 collectgarbage("collect")
                 eventcount = 0

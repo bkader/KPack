@@ -157,7 +157,7 @@ KPack:AddModule("Minimap", function(folder, core, L)
             DB = KPackDB.Minimap
         end
     end
-    core:RegisterCallback("PLAYER_LOGIN", SetupDatabase)
+    core:RegisterForEvent("PLAYER_LOGIN", SetupDatabase)
 
     do
         -- the dopdown menu frame
@@ -385,17 +385,17 @@ KPack:AddModule("Minimap", function(folder, core, L)
                 end
             end
         end
-        core:RegisterCallback("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
+        core:RegisterForEvent("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
     end
 
-    core:RegisterCallback("PLAYER_REGEN_ENABLED", function()
+    core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()
         inCombat = false
         if not disabled and DB.enabled and DB.combat and not MinimapCluster:IsShown() and not DB.hide then
             MinimapCluster:Show()
         end
     end)
 
-    core:RegisterCallback("PLAYER_REGEN_DISABLED", function()
+    core:RegisterForEvent("PLAYER_REGEN_DISABLED", function()
         inCombat = true
         if not disabled and DB.enabled and DB.combat and MinimapCluster:IsShown() then
             MinimapCluster:Hide()
@@ -407,7 +407,7 @@ KPack:AddModule("Minimap", function(folder, core, L)
 
     local pinger, timer
     local frame = CreateFrame("Frame")
-    core:RegisterCallback("MINIMAP_PING", function(_, unit, coordx, coordy)
+    core:RegisterForEvent("MINIMAP_PING", function(_, unit, coordx, coordy)
         if UnitName(unit) ~= core.name then
             -- create the pinger
             if not pinger then

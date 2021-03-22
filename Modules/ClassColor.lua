@@ -106,7 +106,7 @@ KPack:AddModule("ClassColor", "Class color guild list, friends list and who list
     local FRIENDS_LEVEL_TEMPLATE = FRIENDS_LEVEL_TEMPLATE:gsub("%%d", "%%s")
     FRIENDS_LEVEL_TEMPLATE = FRIENDS_LEVEL_TEMPLATE:gsub("%$d", "%$s") -- "%2$s %1$d-?? ??????"
 
-	core:RegisterCallback("PLAYER_LOGIN", function()
+	core:RegisterForEvent("PLAYER_LOGIN", function()
         hooksecurefunc(FriendsFrameFriendsScrollFrame, "buttonFunc", function(button, index, fristButton)
             local height, nameText, infoText, nameColor
             local playerArea = GetRealZoneText()

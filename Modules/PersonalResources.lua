@@ -52,7 +52,7 @@ KPack:AddModule("PersonalResources", function(folder, core, L)
             DB = KPackCharDB.PersonalResources
         end
     end
-    core:RegisterCallback("PLAYER_LOGIN", SetupDatabase)
+    core:RegisterForEvent("PLAYER_LOGIN", SetupDatabase)
 
     -- ///////////////////////////////////////////////////////
 
@@ -248,7 +248,7 @@ KPack:AddModule("PersonalResources", function(folder, core, L)
         end
         PersonalResources_Initialize(cmd)
     end
-    core:RegisterCallback("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
 
     -- slash commands handler
     local SlashCommandHandler

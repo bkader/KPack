@@ -161,10 +161,10 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(f
                 mod.frame = mod.frame or CombatTime_CreateFrame()
             end
         end
-        core:RegisterCallback("PLAYER_LOGIN", PLAYER_LOGIN)
+        core:RegisterForEvent("PLAYER_LOGIN", PLAYER_LOGIN)
     end
 
-    core:RegisterCallback("PLAYER_REGEN_ENABLED", function()
+    core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()
         if not mod.db.enabled or not mod.frame then
             return
         end
@@ -184,7 +184,7 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(f
         end
     end)
 
-    core:RegisterCallback("PLAYER_REGEN_DISABLED", function()
+    core:RegisterForEvent("PLAYER_REGEN_DISABLED", function()
         if not mod.db.enabled then
             return
         end

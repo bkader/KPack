@@ -218,7 +218,7 @@ KPack:AddModule(
 	        end
 	    end
 
-	    core:RegisterCallback("PLAYER_LOGIN", function()
+	    core:RegisterForEvent("PLAYER_LOGIN", function()
 	        if _G.AllStats then return end
 	        AllStats_CreateFrame()
 	        _G.CharacterAttributesFrame:Hide()

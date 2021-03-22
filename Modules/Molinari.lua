@@ -90,7 +90,7 @@ KPack:AddModule("Molinari", "Aids the player in processing various items through
         end
     end
 
-    core:RegisterCallback("PLAYER_LOGIN", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         if _G.Molinari then
             disabled = true
             return
@@ -146,25 +146,25 @@ KPack:AddModule("Molinari", "Aids the player in processing various items through
 		end
     end)
 
-    core:RegisterCallback("MODIFIER_STATE_CHANGED", function(_, key)
+    core:RegisterForEvent("MODIFIER_STATE_CHANGED", function(_, key)
         if not disabled and button and button:IsShown() and (key == "LALT" or key == "RALT") then
             Disperse(button)
         end
     end)
 
-    core:RegisterCallback("PLAYER_REGEN_ENABLED", function()
+    core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()
         if not disabled and button and button:IsShown() then
             Disperse(button)
         end
     end)
 
-    core:RegisterCallback("AUCTION_HOUSE_SHOW", function()
+    core:RegisterForEvent("AUCTION_HOUSE_SHOW", function()
         if not disabled and _G.AUCTIONATOR_ENABLE_ALT == 1 then
             auction = true
         end
     end)
 
-    core:RegisterCallback("AUCTION_HOUSE_CLOSED", function()
+    core:RegisterForEvent("AUCTION_HOUSE_CLOSED", function()
         if not disabled then
             auction = nil
         end

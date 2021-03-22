@@ -202,7 +202,7 @@ KPack:AddModule("BlizzBugsSuck", function(folder, core, L)
     --         end
     --     end
 
-    --     core:RegisterCallback("VARIABLES_LOADED", function()
+    --     core:RegisterForEvent("VARIABLES_LOADED", function()
     --         AlertFrame_FixAnchors = KPack_AlertFrame_FixAnchors
     --     end)
     -- end
@@ -333,7 +333,7 @@ KPack:AddModule("BlizzBugsSuck", function(folder, core, L)
             end)
         end
 
-        core:RegisterCallback("LFG_PROPOSAL_SHOW", function()
+        core:RegisterForEvent("LFG_PROPOSAL_SHOW", function()
             if LFDDungeonReadyDialog:IsShown() then
                 LFGBar_Update()
             end
@@ -352,7 +352,7 @@ KPack:AddModule("BlizzBugsSuck", function(folder, core, L)
 
     -- ///////////////////////////////////////////////////////
 
-    core:RegisterCallback("ADDON_LOADED", function(_, name)
+    core:RegisterForEvent("ADDON_LOADED", function(_, name)
         if name == folder then
             Fix_UIDropDownMenu()
             Fix_GermanLocale()

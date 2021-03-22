@@ -89,7 +89,7 @@ KPack:AddModule("EnhancedColourPicker", "Adds Copy and Paste Functions to the Co
         mod:UpdateEB(nil, nil, nil, self.opacity)
     end
 
-    core:RegisterCallback("PLAYER_LOGIN", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         ColorPickerFrame:HookScript("OnShow", ECP_OnShow)
         ColorPickerFrame:HookScript("OnColorSelect", ECP_OnColorSelect)
         OpacitySliderFrame:HookScript("OnValueChanged", ECP_Opacity_OnValueChanged)

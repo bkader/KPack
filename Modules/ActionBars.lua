@@ -516,7 +516,7 @@ KPack:AddModule(
 				DB = KPackDB.ActionBars
 			end
 		end
-	    addon:RegisterCallback("PLAYER_LOGIN", function()
+	    addon:RegisterForEvent("PLAYER_LOGIN", function()
 	        SetupDatabase()
 
 	        -- register slash commands
@@ -544,7 +544,7 @@ KPack:AddModule(
 	        ActionBars_DarkMode()
 		end
 
-		addon:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+		addon:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
 	        if not disabled then LoadSettings() end
 		end)
 	end

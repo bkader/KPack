@@ -541,7 +541,7 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
             core.GearScore = DB
         end
     end
-    core:RegisterCallback("PLAYER_LOGIN", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
 
         GameTooltip:HookScript("OnTooltipSetUnit", GearScore_HookSetUnit)
@@ -566,7 +566,7 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
         GameTooltip.SetInventoryItem = GearScore_OnEnter
     end)
 
-    core:RegisterCallback("PLAYER_EQUIPMENT_CHANGED", function()
+    core:RegisterForEvent("PLAYER_EQUIPMENT_CHANGED", function()
         SetupDatabase()
         local MyGearScore = GearScore_GetScore(UnitName("player"), "player")
         local Red, Blue, Green = GearScore_GetQuality(MyGearScore)
@@ -574,8 +574,8 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
         PersonalGearScore:SetTextColor(Red, Green, Blue, 1)
     end)
 
-    core:RegisterCallback("PLAYER_REGEN_ENABLED", function() inCombat = false end)
-    core:RegisterCallback("PLAYER_REGEN_DISABLED", function() inCombat = true end)
+    core:RegisterForEvent("PLAYER_REGEN_ENABLED", function() inCombat = false end)
+    core:RegisterForEvent("PLAYER_REGEN_DISABLED", function() inCombat = true end)
 
     SlashCmdList["KPACKGEARSCORE"] = GS_MANSET
     SLASH_KPACKGEARSCORE1 = "/gset"

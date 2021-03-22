@@ -454,30 +454,30 @@ KPack:AddModule(
 		end
 
 		-- Event listener to make sure we've loaded our settings and thta we apply them
-		core:RegisterCallback("VARIABLES_LOADED", function()
+		core:RegisterForEvent("VARIABLES_LOADED", function()
 		    KPack_UnitFrames_LoadDefaultSettings()
 		    core.ufi = true
 		    KPack_UnitFrames_ApplySettings(KPackCharDB.UnitFrames)
 		end)
 
 		-- Event listener to make sure we enable the addon at the right time
-		core:RegisterCallback("PLAYER_ENTERING_WORLD", KPack_UnitFrames_Enable)
+		core:RegisterForEvent("PLAYER_ENTERING_WORLD", KPack_UnitFrames_Enable)
 
-		core:RegisterCallback("PLAYER_REGEN_ENABLED", function()
+		core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()
 		    PlayerFrame:SetScript("OnMouseDown", KPack_UnitFrames_PlayerFrame_OnMouseDown)
 		    PlayerFrame:SetScript("OnMouseUp", KPack_UnitFrames_PlayerFrame_OnMouseUp)
 		    TargetFrame:SetScript("OnMouseDown", KPack_UnitFrames_TargetFrame_OnMouseDown)
 		    TargetFrame:SetScript("OnMouseUp", KPack_UnitFrames_TargetFrame_OnMouseUp)
 		end)
 
-		core:RegisterCallback("PLAYER_REGEN_DISABLED", function()
+		core:RegisterForEvent("PLAYER_REGEN_DISABLED", function()
 		    PlayerFrame:SetScript("OnMouseDown", nil)
 		    PlayerFrame:SetScript("OnMouseUp", nil)
 		    TargetFrame:SetScript("OnMouseDown", nil)
 		    TargetFrame:SetScript("OnMouseUp", nil)
 		end)
 
-		core:RegisterCallback("UNIT_ENTERED_VEHICLE", function(_, unit)
+		core:RegisterForEvent("UNIT_ENTERED_VEHICLE", function(_, unit)
 		    if unit == "player" then
 		        PlayerFrame.state = "vehicle"
 		        UnitFrame_SetUnit(PlayerFrame, "vehicle", PlayerFrameHealthBar, PlayerFrameManaBar)
@@ -488,7 +488,7 @@ KPack:AddModule(
 		    end
 		end)
 
-		core:RegisterCallback("UNIT_EXITED_VEHICLE", function(_, unit)
+		core:RegisterForEvent("UNIT_EXITED_VEHICLE", function(_, unit)
 		    if unit == "player" then
 		        PlayerFrame.state = "player"
 		        UnitFrame_SetUnit(PlayerFrame, "player", PlayerFrameHealthBar, PlayerFrameManaBar)

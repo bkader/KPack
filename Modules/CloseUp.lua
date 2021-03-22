@@ -231,7 +231,7 @@ KPack:AddModule("CloseUp", function(folder, core, L)
         CloseUp_NewButton("CloseUpUndressButton", DressUpFrame, "U", w, h, nil, L["Undress"], function() m:Undress() end):SetPoint("LEFT", tb, "RIGHT", -2, 0)
     end
 
-    core:RegisterCallback("ADDON_LOADED", function(_, name)
+    core:RegisterForEvent("ADDON_LOADED", function(_, name)
         if name == folder then
             SetupDatabase()
         elseif name == "Blizzard_AuctionUI" then
@@ -241,7 +241,7 @@ KPack:AddModule("CloseUp", function(folder, core, L)
         end
     end)
 
-    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
         SetupDatabase()
         mod:Apply("CharacterModelFrame")
         mod:Apply("TabardModel", nil, nil, nil, nil, "TabardCharacterModel")

@@ -524,7 +524,7 @@ KPack:AddModule("IgnoreMore", "Let you ignore more than 49 players, a list share
 	        ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", IgnoreMore_SystemFilter)
 	    end
 
-	    core:RegisterCallback("VARIABLES_LOADED", function()
+	    core:RegisterForEvent("VARIABLES_LOADED", function()
 	        -- set our default variables
 	        if type(KPackDB.IgnoreMore) ~= "table" or not next(KPackDB.IgnoreMore) then
 	            KPackDB.IgnoreMore = CopyTable(defaults)
@@ -555,7 +555,7 @@ KPack:AddModule("IgnoreMore", "Let you ignore more than 49 players, a list share
 	end
 
 	-- whether to accept or decline invites.
-	core:RegisterCallback("PARTY_INVITE_REQUEST", function(_, name)
+	core:RegisterForEvent("PARTY_INVITE_REQUEST", function(_, name)
 		if not DB.enabled then
 			return
 		elseif list and type(list[name]) == "table" then
@@ -566,7 +566,7 @@ KPack:AddModule("IgnoreMore", "Let you ignore more than 49 players, a list share
 	end)
 
 	-- cancel or accept duels.
-	core:RegisterCallback("DUEL_REQUESTED", function(_, name)
+	core:RegisterForEvent("DUEL_REQUESTED", function(_, name)
 		if not DB.enabled then
 			return
 		elseif list and type(list[name]) == "table" then
@@ -577,7 +577,7 @@ KPack:AddModule("IgnoreMore", "Let you ignore more than 49 players, a list share
 	end)
 
 	-- handles trade window show
-	core:RegisterCallback("TRADE_SHOW", function(_, ...)
+	core:RegisterForEvent("TRADE_SHOW", function(_, ...)
 		if not DB.enabled then
 			return
 		end

@@ -79,20 +79,20 @@ KPack:AddModule(
 	            end
 	        end
 
-	        core:RegisterCallback("PLAYER_LOGIN", function()
+	        core:RegisterForEvent("PLAYER_LOGIN", function()
 	            CreateButtonsText("Character")
 	            UpdateButtonsText("Character")
 	        end)
 
-	        core:RegisterCallback("PLAYER_EQUIPMENT_CHANGED", function()
+	        core:RegisterForEvent("PLAYER_EQUIPMENT_CHANGED", function()
 	            UpdateButtonsText("Character")
 	        end)
 
-	        core:RegisterCallback("PLAYER_TARGET_CHANGED", function()
+	        core:RegisterForEvent("PLAYER_TARGET_CHANGED", function()
 	            UpdateButtonsText("Inspect")
 	        end)
 
-	        core:RegisterCallback("ADDON_LOADED", function(_, name)
+	        core:RegisterForEvent("ADDON_LOADED", function(_, name)
 	            if name == "Blizzard_InspectUI" then
 	                CreateButtonsText("Inspect")
 	                InspectFrame:HookScript("OnShow", function(self)

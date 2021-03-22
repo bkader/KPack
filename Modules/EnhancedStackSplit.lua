@@ -890,13 +890,13 @@ KPack:AddModule("EnhancedStackSplit", function(folder, core, L)
             DB = KPackDB.StackSplit
         end
     end
-    core:RegisterCallback("PLAYER_LOGIN", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
         mod:CreateFrames()
         hooksecurefunc("OpenStackSplitFrame", mod.OpenStackSplitFrame)
     end)
 
-    core:RegisterCallback("ITEM_LOCK_CHANGED", function(_, ...)
+    core:RegisterForEvent("ITEM_LOCK_CHANGED", function(_, ...)
         SetupDatabase()
         mod:CheckItemLock(...)
     end)

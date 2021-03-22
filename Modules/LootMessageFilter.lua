@@ -91,9 +91,9 @@ KPack:AddModule("LootMessageFilter", function(folder, core, L)
             KPackDB.LMF = 2
         end
     end
-    core:RegisterCallback("PLAYER_LOGIN", SetupDatabase)
+    core:RegisterForEvent("PLAYER_LOGIN", SetupDatabase)
 
-    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
         SetupDatabase()
         ChatFrame_AddMessageEventFilter("CHAT_MSG_LOOT", LMF_Initialize)
     end)

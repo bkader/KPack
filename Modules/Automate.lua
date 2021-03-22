@@ -75,14 +75,14 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
             end
         end
 
-        core:RegisterCallback("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
+        core:RegisterForEvent("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
     end
 
     -- ///////////////////////////////////////////////////////
     -- Ignore Duels
     -- ///////////////////////////////////////////////////////
 
-    core:RegisterCallback("DUEL_REQUESTED", function()
+    core:RegisterForEvent("DUEL_REQUESTED", function()
         if DB.enabled and DB.duels then
             CancelDuel()
             StaticPopup_Hide("DUEL_REQUESTED")
@@ -107,8 +107,8 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
                 end
             end
         end
-        core:RegisterCallback("GOSSIP_SHOW", Automate_SkipGossip)
-        core:RegisterCallback("QUEST_GREETING", Automate_SkipGossip)
+        core:RegisterForEvent("GOSSIP_SHOW", Automate_SkipGossip)
+        core:RegisterForEvent("QUEST_GREETING", Automate_SkipGossip)
     end
 
     -- ///////////////////////////////////////////////////////
@@ -126,7 +126,7 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
             end
         end
     end
-    core:RegisterCallback("PLAYER_REGEN_ENABLED", PLAYER_REGEN_ENABLED)
+    core:RegisterForEvent("PLAYER_REGEN_ENABLED", PLAYER_REGEN_ENABLED)
 
     function PLAYER_REGEN_DISABLED()
         if DB.enabled and DB.nameplate then
@@ -134,7 +134,7 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
             _G.NAMEPLATES_ON = true
         end
     end
-    core:RegisterCallback("PLAYER_REGEN_DISABLED", PLAYER_REGEN_DISABLED)
+    core:RegisterForEvent("PLAYER_REGEN_DISABLED", PLAYER_REGEN_DISABLED)
 
     -- ///////////////////////////////////////////////////////
     -- Auto Repair, Auto Sell Junk and Stack Buying
@@ -190,7 +190,7 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
 		end
 
 
-        core:RegisterCallback("MERCHANT_SHOW", function()
+        core:RegisterForEvent("MERCHANT_SHOW", function()
             if DB.enabled then
                 Automate_Repair()
                 Automate_SellJunk()
@@ -280,7 +280,7 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
             end
         end
 
-        core:RegisterCallback("TRAINER_UPDATE", function()
+        core:RegisterForEvent("TRAINER_UPDATE", function()
             if not DB.enabled or not process then return end
 
             skillsLearned = skillsLearned + 1
@@ -322,7 +322,7 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
     -- Automatic Screenshot
     -- ///////////////////////////////////////////////////////
 
-    core:RegisterCallback("ACHIEVEMENT_EARNED", function()
+    core:RegisterForEvent("ACHIEVEMENT_EARNED", function()
         if DB.enabled and DB.screenshot then
             core.After(1, function() Screenshot() end)
         end
@@ -420,7 +420,7 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
         SLASH_KPACKAUTOMATE1 = "automate"
         SLASH_KPACKAUTOMATE2 = "/auto"
 
-        core:RegisterCallback("ADDON_LOADED", function(_, name)
+        core:RegisterForEvent("ADDON_LOADED", function(_, name)
             if name == folder then
 				SetupDatabase()
 

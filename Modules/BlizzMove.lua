@@ -199,7 +199,7 @@ KPack:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(fol
             end
         end
 
-        core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+        core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
             if type(KPackDB.BlizzMove) ~= "table" or not next(KPackDB.BlizzMove) then
                 KPackDB.BlizzMove = CopyTable(defaults)
             end
@@ -245,7 +245,7 @@ KPack:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(fol
                 end
             end)
 
-            core:RegisterCallback("ADDON_LOADED", function(_, name)
+            core:RegisterForEvent("ADDON_LOADED", function(_, name)
                 if name == "Blizzard_InspectUI" then
                     SetMoveHandler(InspectFrame)
                 elseif name == "Blizzard_GuildBankUI" then

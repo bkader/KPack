@@ -132,11 +132,11 @@ KPack:AddModule("AFK", "Shows a timer window whenever you go AFK.", function(_, 
         end
     end
 
-    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
         AfkFrame = AfkFrame or CreateWindow()
     end)
 
-    core:RegisterCallback("PLAYER_FLAGS_CHANGED", function(_, unit)
+    core:RegisterForEvent("PLAYER_FLAGS_CHANGED", function(_, unit)
         if unit ~= "player" then
             return
         elseif _UnitIsAFK(unit) then

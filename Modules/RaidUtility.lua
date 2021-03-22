@@ -181,7 +181,7 @@ KPack:AddModule("RaidUtility", function(folder, core, L)
         end)
         RaidUtilityPanel.convert = convert
     end
-    core:RegisterCallback("PLAYER_LOGIN", CreateRaidUtilityPanel)
+    core:RegisterForEvent("PLAYER_LOGIN", CreateRaidUtilityPanel)
 
     function mod:RaidUtilityToggle()
         if GetNumRaidMembers() == 0 and GetNumPartyMembers() > 0 and IsPartyLeader() then
@@ -209,10 +209,10 @@ KPack:AddModule("RaidUtility", function(folder, core, L)
             showButton:Hide()
         end
     end
-    core:RegisterCallback("PLAYER_ENTERING_WORLD", mod.RaidUtilityToggle)
-    core:RegisterCallback("RAID_ROSTER_UPDATE", mod.RaidUtilityToggle)
-    core:RegisterCallback("PARTY_MEMBERS_CHANGED", mod.RaidUtilityToggle)
-    core:RegisterCallback("PLAYER_REGEN_ENABLED", mod.RaidUtilityToggle)
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", mod.RaidUtilityToggle)
+    core:RegisterForEvent("RAID_ROSTER_UPDATE", mod.RaidUtilityToggle)
+    core:RegisterForEvent("PARTY_MEMBERS_CHANGED", mod.RaidUtilityToggle)
+    core:RegisterForEvent("PLAYER_REGEN_ENABLED", mod.RaidUtilityToggle)
 
     StaticPopupDialogs.DISBAND_RAID = {
         text = L["Are you sure you want to disband the group?"],

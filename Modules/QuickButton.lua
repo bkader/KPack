@@ -179,7 +179,7 @@ KPack:AddModule("QuickButton", function(folder, core, L)
     end
 
     -- frame events handler
-    core:RegisterCallback("PLAYER_LOGIN", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         unitClass = select(2, UnitClass("player"))
         if not classes[unitClass] or not LibQTip then
             disabled = true
@@ -458,8 +458,8 @@ KPack:AddModule("QuickButton", function(folder, core, L)
                 button:Hide()
             end
         end
-        core:RegisterCallback("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
-        core:RegisterCallback("SPELLS_CHANGED", PLAYER_ENTERING_WORLD)
+        core:RegisterForEvent("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
+        core:RegisterForEvent("SPELLS_CHANGED", PLAYER_ENTERING_WORLD)
 
         do
             local function init()
@@ -467,9 +467,9 @@ KPack:AddModule("QuickButton", function(folder, core, L)
                     QuickButton_Initialize()
                 end
             end
-            core:RegisterCallback("PLAYER_TALENT_UPDATE", init)
-            core:RegisterCallback("RAID_ROSTER_UPDATE", init)
-            core:RegisterCallback("PARTY_MEMBERS_CHANGED", init)
+            core:RegisterForEvent("PLAYER_TALENT_UPDATE", init)
+            core:RegisterForEvent("RAID_ROSTER_UPDATE", init)
+            core:RegisterForEvent("PARTY_MEMBERS_CHANGED", init)
         end
 
         function UPDATE_BINDINGS()
@@ -477,7 +477,7 @@ KPack:AddModule("QuickButton", function(folder, core, L)
                 button.hotkey:SetText(GetBindingKey("CLICK QuickButtonFrame:LeftButton") or "")
             end
         end
-        core:RegisterCallback("UPDATE_BINDINGS", UPDATE_BINDINGS)
+        core:RegisterForEvent("UPDATE_BINDINGS", UPDATE_BINDINGS)
     end
 
     -- keybindings

@@ -11,7 +11,7 @@ KPack:AddModule("IDs", function(folder, core)
         tooltip:Show()
     end
 
-    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
         hooksecurefunc(GameTooltip, "SetUnitBuff", function(self, ...)
             local id = select(11, UnitBuff(...))
             if id then

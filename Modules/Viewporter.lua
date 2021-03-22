@@ -107,13 +107,13 @@ KPack:AddModule("Viewporter", function(_, core, L)
 			self:Hide()
 	    end
 
-	    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+	    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
 			frame:SetScript("OnUpdate", DB.enabled and Viewporter_OnUpdate or nil)
 		end)
 	end
 
 	-- frame event handler
-	core:RegisterCallback("VARIABLES_LOADED", function()
+	core:RegisterForEvent("VARIABLES_LOADED", function()
         if type(KPackCharDB.Viewporter) ~= "table" or not next(KPackCharDB.Viewporter) then
             KPackCharDB.Viewporter = CopyTable(defaults)
         end

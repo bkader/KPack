@@ -177,7 +177,7 @@ KPack:AddModule(
 			end
 			DB = KPackDB.ChatFilter
 		end
-	    core:RegisterCallback("PLAYER_LOGIN", function(_, name)
+	    core:RegisterForEvent("PLAYER_LOGIN", function(_, name)
 			SetupDatabase()
 
 	        -- register our slash commands handler
@@ -185,7 +185,7 @@ KPack:AddModule(
 	        _G.SLASH_KPACKCHATFILTER1, _G.SLASH_KPACKCHATFILTER2 = "/chatfilter", "/cf"
 	    end)
 
-	    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+	    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
 			if not DB then SetupDatabase() end
 	        ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL", ChatFilter_Filter)
 	        ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY", ChatFilter_Filter)

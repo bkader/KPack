@@ -149,10 +149,10 @@ KPack:AddModule("PullnBreak", function(folder, core, L)
             DB = KPackCharDB.PullnBreak
         end
     end
-    core:RegisterCallback("PLAYER_LOGIN", SetupDatabase)
+    core:RegisterForEvent("PLAYER_LOGIN", SetupDatabase)
 
     -- used to resume after reload or relog
-    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
         SetupDatabase()
         local currtime = GetTime()
 

@@ -536,7 +536,7 @@ KPack:AddModule(
 	    _G.SLASH_KPACKCHATMODS1 = "/cm"
 	    _G.SLASH_KPACKCHATMODS2 = "/chatmods"
 
-		core:RegisterCallback("ADDON_LOADED", function(_, name)
+		core:RegisterForEvent("ADDON_LOADED", function(_, name)
 		    if name == folder then
 				SetupDatabase()
 			    if DB.enabled then
@@ -561,7 +561,7 @@ KPack:AddModule(
 		    ChatMods_EditBox()
 		end
 
-		core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+		core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
 			if not DB then SetupDatabase() end
 			if DB.enabled then ChatMods_Initialize() end
 		end)

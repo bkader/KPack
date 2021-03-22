@@ -596,18 +596,18 @@ KPack:AddModule("DeathRecap", function(folder, core, L)
         }
     end
 
-    core:RegisterCallback("PLAYER_LOGIN", CreateDeathRecapFrame)
+    core:RegisterForEvent("PLAYER_LOGIN", CreateDeathRecapFrame)
 
     function mod:HideDeathPopup()
         StaticPopup_Hide("DEATH")
     end
 
-    core:RegisterCallback("PLAYER_ENTERING_WORLD", mod.HideDeathPopup)
-    core:RegisterCallback("RESURRECT_REQUEST", mod.HideDeathPopup)
-    core:RegisterCallback("PLAYER_ALIVE", mod.HideDeathPopup)
-    core:RegisterCallback("RAISED_AS_GHOUL", mod.HideDeathPopup)
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", mod.HideDeathPopup)
+    core:RegisterForEvent("RESURRECT_REQUEST", mod.HideDeathPopup)
+    core:RegisterForEvent("PLAYER_ALIVE", mod.HideDeathPopup)
+    core:RegisterForEvent("RAISED_AS_GHOUL", mod.HideDeathPopup)
 
-    core:RegisterCallback("PLAYER_DEAD", function()
+    core:RegisterForEvent("PLAYER_DEAD", function()
         if StaticPopup_FindVisible("DEATH") then
             if AddDeath() then
                 lastDeathEvents = true
@@ -630,7 +630,7 @@ KPack:AddModule("DeathRecap", function(folder, core, L)
         SWING_DAMAGE = true
     }
 
-    core:RegisterCallback("COMBAT_LOG_EVENT_UNFILTERED", function(_, timestamp, event, _, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
+    core:RegisterForEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timestamp, event, _, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
         if (band(dstFlags, COMBATLOG_FILTER_ME) ~= COMBATLOG_FILTER_ME) or (band(srcFlags, COMBATLOG_FILTER_ME) == COMBATLOG_FILTER_ME) or (not validEvents[event]) then
             return
         end

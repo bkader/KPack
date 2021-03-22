@@ -134,7 +134,7 @@ KPack:AddModule("Combuctor", function(folder, core, L)
 			return sets, exclude
 		end
 
-		core:RegisterCallback("VARIABLES_LOADED", function()
+		core:RegisterForEvent("VARIABLES_LOADED", function()
 			if type(KPackCharDB.Combuctor) ~= "table" or not next(KPackCharDB.Combuctor) then
 				KPackCharDB.Combuctor = CopyTable(defaults)
 			end
@@ -154,7 +154,7 @@ KPack:AddModule("Combuctor", function(folder, core, L)
 		end)
 	end
 
-	core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+	core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
 		mod.frames = {
 			mod.Frame:New(L.InventoryTitle, DB.inventory, false, "inventory"),
 			mod.Frame:New(L.BankTitle, DB.bank, true, "bank")
@@ -198,16 +198,16 @@ KPack:AddModule("Combuctor", function(folder, core, L)
 			mod:Hide(BACKPACK_CONTAINER, true)
 		end)
 
-		core:RegisterCallback("MAIL_CLOSED", AutoHideInventory)
-		core:RegisterCallback("TRADE_CLOSED", AutoHideInventory)
-		core:RegisterCallback("TRADE_SKILL_CLOSE", AutoHideInventory)
-		core:RegisterCallback("AUCTION_HOUSE_CLOSED", AutoHideInventory)
-		core:RegisterCallback("AUCTION_HOUSE_CLOSED", AutoHideInventory)
+		core:RegisterForEvent("MAIL_CLOSED", AutoHideInventory)
+		core:RegisterForEvent("TRADE_CLOSED", AutoHideInventory)
+		core:RegisterForEvent("TRADE_SKILL_CLOSE", AutoHideInventory)
+		core:RegisterForEvent("AUCTION_HOUSE_CLOSED", AutoHideInventory)
+		core:RegisterForEvent("AUCTION_HOUSE_CLOSED", AutoHideInventory)
 
-		core:RegisterCallback("TRADE_SHOW", AutoShowInventory)
-		core:RegisterCallback("TRADE_SKILL_SHOW", AutoShowInventory)
-		core:RegisterCallback("AUCTION_HOUSE_SHOW", AutoShowInventory)
-		core:RegisterCallback("AUCTION_HOUSE_SHOW", AutoShowInventory)
+		core:RegisterForEvent("TRADE_SHOW", AutoShowInventory)
+		core:RegisterForEvent("TRADE_SKILL_SHOW", AutoShowInventory)
+		core:RegisterForEvent("AUCTION_HOUSE_SHOW", AutoShowInventory)
+		core:RegisterForEvent("AUCTION_HOUSE_SHOW", AutoShowInventory)
 	end)
 
 	---------------------------------------------------------------------------

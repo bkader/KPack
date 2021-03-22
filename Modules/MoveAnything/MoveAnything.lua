@@ -23,7 +23,7 @@ local MAPrint
 local echo, decho, dechoSub
 
 local DB
-core:RegisterCallback("VARIABLES_LOADED", function()
+core:RegisterForEvent("VARIABLES_LOADED", function()
 	if type(KPackDB.MoveAnything) ~= "table" or not next(KPackDB.MoveAnything) then
 		KPackDB.MoveAnything = {
 			CustomFrames = {},

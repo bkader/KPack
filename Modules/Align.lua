@@ -91,7 +91,7 @@ KPack:AddModule("Align", "A very simple alignment grid with no options.", functi
         end
     end
 
-    core:RegisterCallback("PLAYER_LOGIN", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         SlashCmdList["KPACKALIGN"] = SlashCommandHandler
         SLASH_KPACKALIGN1 = "/drawgrid"
         SLASH_KPACKALIGN2 = "/dg"

@@ -123,7 +123,7 @@ KPack:AddModule("ImprovedLootFrame", "Filters loot messages from other players i
         mid:SetPoint("BOTTOM", bottom, "TOP")
     end
 
-    core:RegisterCallback("PLAYER_LOGIN", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         hasAddon = IsAddOnLoaded("LovelyLoot")
         if hasAddon then return end
         ILF_Initialize()
