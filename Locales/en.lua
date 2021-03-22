@@ -97,6 +97,48 @@ L["mouseover right bars: %s"] = true
 L["BfA UI: %s"] = true
 
 -- //////////////////////////////////////////////////////
+-- Action Bar Saver:
+-- //////////////////////////////////////////////////////
+
+L["Unable to restore macros, you already have 18 global and 18 per character ones created."] = true
+L["Invalid spells passed, remember you must put quotes around both of them."] = true
+L["Auto macro restoration is now disabled!"] = true
+L["Auto macro restoration is now enabled!"] = true
+L["Checking item count is now disabled!"] = true
+L["Checking item count is now enabled!"] = true
+L["Auto restoring highest spell rank is now disabled!"] = true
+L["Auto restoring highest spell rank is now enabled!"] = true
+
+L['Unable to restore spell "%s" to slot #%d, it does not appear to have been learned yet.'] = true
+L['Unable to restore companion "%s" to slot #%d, it does not appear to exist yet.'] = true
+L['Unable to restore item "%s" to slot #%d, cannot be found in inventory.'] = true
+L["Unable to restore macro id #%d to slot #%d, it appears to have been deleted."] = true
+L["Saved profile %s!"] = true
+L['No profile with the name "%s" exists.'] = true
+L["Restored profile %s!"] = true
+L["Restored profile %s, failed to restore %d buttons type /abs errors for more information."] = true
+L['Cannot restore profile "%s", you can only restore profiles saved to your class.'] = true
+L['You cannot rename "%s" to "%s" they are the same profile names.'] = true
+L['No name specified to rename "%s" to.'] = true
+L['Cannot rename "%s" to "%s" a profile already exists for %s.'] = true
+L['No profile with the name "%s" exists.'] = true
+L['Renamed "%s" to "%s".'] = true
+L['Deleted saved profile "%s".'] = true
+L['Spells "%s" and "%s" are now linked.'] = true
+L["Errors found: %d"] = true
+
+L["Available profiles are:"] = true
+L["/abs save <profile> - Saves your current action bar setup under the given profile."] = true
+L["/abs restore <profile> - Changes your action bars to the passed profile."] = true
+L["/abs delete <profile> - Deletes the saved profile."] = true
+L["/abs rename <oldProfile> <newProfile> - Renames a saved profile from oldProfile to newProfile."] = true
+L['/abs link "<spell 1>" "<spell 2>" - Links a spell with another, INCLUDE QUOTES for example you can use "Shadowmeld" "War Stomp" so if War Stomp can\'t be found, it\'ll use Shadowmeld and vica versa.'] = true
+L["/abs count - Toggles checking if you have the item in your inventory before restoring it, use if you have disconnect issues when restoring."] = true
+L["/abs macro - Attempts to restore macros that have been deleted for a profile."] = true
+L["/abs rank - Toggles if ABS should restore the highest rank of the spell, or the one saved originally."] = true
+L["/abs list - Lists all saved profiles."] = true
+
+-- //////////////////////////////////////////////////////
 -- AFK module:
 -- //////////////////////////////////////////////////////
 
