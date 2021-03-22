@@ -148,7 +148,7 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 
     local function Print(msg)
         if msg then
-            core:Print(msg, "GeatScore")
+            core:Print(msg, "GearScore")
         end
     end
 
@@ -222,6 +222,7 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
             return floor(GearScore), floor(LevelTotal / ItemCount)
         end
     end
+	core.GetGearScore = GearScore_GetScore
 
     -------------------------------------------------------------------------------
 
