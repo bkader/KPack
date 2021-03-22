@@ -1,5 +1,5 @@
+assert(KPack, "KPack not found!")
 local folder, core = ...
-local E = core:Events()
 local L = core.L
 
 local tinsert = table.insert
@@ -22,9 +22,8 @@ local MADebug
 local MAPrint
 local echo, decho, dechoSub
 
-function E:ADDON_LOADED(name)
-	if name ~= folder then return end
-	self:UnregisterEvent("ADDON_LOADED")
+local DB
+core:RegisterCallback("VARIABLES_LOADED", function()
 	if type(KPackDB.MoveAnything) ~= "table" or not next(KPackDB.MoveAnything) then
 		KPackDB.MoveAnything = {
 			CustomFrames = {},
@@ -33,7 +32,7 @@ function E:ADDON_LOADED(name)
 		}
 	end
 	DB = KPackDB.MoveAnything
-end
+end)
 
 local function void()
 end
@@ -658,7 +657,7 @@ local MovAny = {
 	}
 core.MA = MovAny
 
-BINDING_HEADER_KPACKMOVEANYTHING = "|cff69ccf0K|r|caaf49141Pack|r MoveAnything"
+BINDING_HEADER_KPACKMOVEANYTHING = "|cfff58cbaK|r|caaf49141Pack|r MoveAnything"
 
 StaticPopupDialogs["MOVEANYTHING_RESET_CONFIRM"] = {
 	text = L["MoveAnything: Reset all frames in the current profile?"],

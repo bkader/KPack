@@ -28,12 +28,15 @@ L["addon loaded. use |cffffd700/kp help|r for help."] = true
 L["module loaded."] = true
 
 L["module enabled."] = true
-L["module disable."] = true
+L["module disabled."] = true
 
 L["enable the module."] = true
 L["disable the module."] = true
 L["show module status."] = true
 L["access module configuration"] = true
+
+L["Could not find module \"%s\""] = true
+L["Module \"%s\" already exists"] = true
 
 L["Please reload ui."] = true
 
@@ -191,6 +194,7 @@ L["filtered a message from |cff00ffff%s|r"] = true
 -- //////////////////////////////////////////////////////
 -- ChatMods
 -- //////////////////////////////////////////////////////
+
 L["editbox put in center"] = true
 L["editbox set to default position"] = true
 L["editbox position set to: |cff00ffff%s|r"] = true
@@ -227,11 +231,59 @@ L["Your items have been repaired for %dg %ds %dc."] = true
 L["You don't have enough money to repair items!"] = true
 
 -- //////////////////////////////////////////////////////
+-- CombatText
+-- //////////////////////////////////////////////////////
+
+L["No Name SpellID: %s"] = true
+L["unlocked."] = true
+L["already unlocked."] = true
+L["unlocked."] = true
+L["already locked."] = true
+L["Window positions unsaved, don't forget to reload UI."] = true
+L["test mode enabled."] = true
+L["test mode disabled."] = true
+L["%s: to move and resize frames."] = true
+L["%s: to lock frames."] = true
+L["%s: to toggle testmode (sample xCT output)."] = true
+
+-- //////////////////////////////////////////////////////
 -- CombatTime
 -- //////////////////////////////////////////////////////
 
 L["trigger the in-game stopwatch on combat"] = true
 L["using stopwatch: %s"] = true
+
+-- //////////////////////////////////////////////////////
+-- Combuctor
+-- //////////////////////////////////////////////////////
+
+L["%s: toggle inventory"] = true
+L["%s: toggle bank"] = true
+L["%s: access options panel"] = true
+
+L.ToggleInventory = "Toggle Inventory"
+L.ToggleBank = "Toggle Bank"
+
+L.InventoryTitle = "%s's Inventory"
+L.BankTitle = "%s's Bank"
+L.Inventory = "Inventory"
+L.Bank = "Bank"
+L.TotalOnRealm = "Total on %s"
+L.ClickToPurchase = "<Click> to purchase"
+L.Bags = "Bags"
+L.BagToggle = "<LeftClick> to toggle the bag display"
+L.InventoryToggle = "<RightClick> to toggle displaying the inventory frame"
+L.BankToggle = "<RightClick> to toggle displaying the bank frame"
+L.MoveTip = "<LeftDrag> to move"
+L.ResetPositionTip = "<Alt-RightClick> to make the frame act as an interface panel"
+L.Normal = "Normal"
+L.Equipment = "Equipment"
+L.Keys = "Keys"
+L.Trade = "Trade"
+L.Ammo = "Ammo"
+L.Shards = "Shards"
+L.SoulShard = "Soul Shard"
+L.Usable = "Usable"
 
 -- //////////////////////////////////////////////////////
 -- ErrorFilter
@@ -248,6 +300,7 @@ L["list of filtered errors."] = true
 L["clear the list of filtered errors."] = true
 L["add an error filter"] = true
 L["delete a filter by index"] = true
+L["Filter Enabled: %s - Frame Shown: %s"] = true
 
 -- //////////////////////////////////////////////////////
 -- FriendsInfo
@@ -269,6 +322,7 @@ L["Player Scores: %s"] = true
 L["Item Scores: %s"] = true
 L["Item Levels: %s"] = true
 L["Comparisons: %s"] = true
+L["Item Level"] = true
 
 -- //////////////////////////////////////////////////////
 -- IgnoreMore
@@ -380,6 +434,7 @@ L["changes nameplates width"] = true
 
 L["show personal resources"] = true
 L["hide personal resources"] = true
+L["toggle showing percentage of health and power"] = true
 L["toggle showing personal resources out of combat"] = true
 L["change personal resources scale"] = true
 L["change personal resources width"] = true

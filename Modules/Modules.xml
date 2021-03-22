@@ -18,6 +18,7 @@
 <Script file="CombatLogFix.lua" />
 <Script file="CombatText.lua" />
 <Script file="CombatTime.lua" />
+<Include file="Combuctor\Combuctor.xml" />
 <Script file="Cooldowns.lua" />
 <Script file="DeathRecap.lua" />
 <Script file="EnhancedColourPicker.lua" />

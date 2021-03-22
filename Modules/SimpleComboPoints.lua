@@ -1,354 +1,322 @@
-local folder, core = ...
+assert(KPack, "KPack not found!")
+KPack:AddModule("SimpleComboPoints", function(folder, core, L)
+    if core:IsDisabled("SimpleComboPoints") then return end
 
-local mod = core.SCP or {}
-core.SCP = mod
+    local mod = core.SCP or {}
+    core.SCP = mod
 
-local E = core:Events()
-local L = core.L
+    -- cache frequently used globals
+    local pairs = pairs
+    local CreateFrame = CreateFrame
+    local GetComboPoints = GetComboPoints
+    local IsAltKeyDown = IsAltKeyDown
+    local InCombatLockdown = InCombatLockdown
+    local ColorPickerFrame = ColorPickerFrame
 
--- cache frequently used globals
-local pairs = pairs
-local UnitClass, unitClass = UnitClass
-local CreateFrame = CreateFrame
-local GetComboPoints = GetComboPoints
-local IsAltKeyDown = IsAltKeyDown
-local InCombatLockdown = InCombatLockdown
-local ColorPickerFrame = ColorPickerFrame
+    -- some locales we need
+    local maxPoints, xPos, yPos = 5, 0, 0
+    local druidForm, shown = false, true
+    local pointsFrame = {}
 
--- some locales we need
-local maxPoints, xPos, yPos = 5, 0, 0
-local druidForm, shown = false, true
-local pointsFrame = {}
+    -- saved variables and default options
+    local DB, _
+    local defaults = {
+        enabled = true,
+        width = 22,
+        height = 22,
+        scale = 1,
+        spacing = 1,
+        anchor = "CENTER",
+        combat = false,
+        color = {
+            r = 0.9686274509803922,
+            g = 0.674509803921568,
+            b = 0.1450980392156863
+        },
+        xPos = xPos,
+        yPos = yPos
+    }
+    local disabled
 
--- saved variables and default options
-local DB
-local defaults = {
-    enabled = true,
-    width = 22,
-    height = 22,
-    scale = 1,
-    spacing = 1,
-    anchor = "CENTER",
-    combat = false,
-    color = {
-        r = 0.9686274509803922,
-        g = 0.674509803921568,
-        b = 0.1450980392156863
-    },
-    xPos = xPos,
-    yPos = yPos
-}
-local disabled
+    -- local functions
+    local SCP_InitializeFrames, SCP_RefreshDisplay
+    local SCP_UpdatePoints, SCP_UpdateFrames
+    local SCP_DestroyFrames
+    local SCP_ColorPickCallback
+    local UPDATE_SHAPESHIFT_FORM
 
--- local functions
-local SCP_InitializeFrames, SCP_RefreshDisplay
-local SCP_UpdatePoints, SCP_UpdateFrames
-local SCP_DestroyFrames
-local SCP_ColorPickCallback
-
--- module's print function
-local function Print(msg)
-    if msg then
-        core:Print(msg, "ComboPoints")
+    -- module's print function
+    local function Print(msg)
+        if msg then
+            core:Print(msg, "ComboPoints")
+        end
     end
-end
 
--- //////////////////////////////////////////////////////////////
+    local function SetupDatabase()
+        if not DB then
+            if type(KPackCharDB.SCP) ~= "table" or not next(KPackCharDB.SCP) then
+                KPackCharDB.SCP = CopyTable(defaults)
+            end
+            DB = KPackCharDB.SCP
+        end
+    end
 
--- initializes the frame
-function SCP_InitializeFrames()
-    for i = 1, maxPoints do
-        pointsFrame[i] = CreateFrame("Frame", "KPackSCPFrame" .. i, i == 1 and UIParent or pointsFrame[i - 1])
-        pointsFrame[i]:SetBackdrop(
-            {
+    -- //////////////////////////////////////////////////////////////
+
+    -- initializes the frame
+    function SCP_InitializeFrames()
+        for i = 1, maxPoints do
+            pointsFrame[i] = CreateFrame("Frame", "KPackSCPFrame" .. i, i == 1 and UIParent or pointsFrame[i - 1])
+            pointsFrame[i]:SetBackdrop({
                 bgFile = [[Interface\ChatFrame\ChatFrameBackground]],
-                edgeFile = [[Interface/Tooltips/UI-Tooltip-Border]],
+                edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
                 tile = true,
                 tileSize = 4,
                 edgeSize = 4,
                 insets = {left = 0.5, right = 0.5, top = 0.5, bottom = 0.5}
-            }
-        )
-    end
-    SCP_UpdateFrames()
-end
-
--- updates the combo points frames
-function SCP_UpdatePoints()
-    local power, i = GetComboPoints("player"), 1
-    local r, g, b = DB.color.r, DB.color.g, DB.color.b
-    while i <= power do
-        if pointsFrame[i] then
-            pointsFrame[i]:SetBackdropColor(r, g, b, 1)
+            })
         end
-        i = i + 1
+        SCP_UpdateFrames()
     end
-    while i <= maxPoints do
-        if pointsFrame[i] then
-            pointsFrame[i]:SetBackdropColor(r, g, b, 0.1)
+
+    -- updates the combo points frames
+    function SCP_UpdatePoints()
+        if disabled then
+            return
         end
-        i = i + 1
+        local power, i = GetComboPoints("player"), 1
+        local r, g, b = DB.color.r, DB.color.g, DB.color.b
+        while i <= power do
+            if pointsFrame[i] then
+                pointsFrame[i]:SetBackdropColor(r, g, b, 1)
+            end
+            i = i + 1
+        end
+        while i <= maxPoints do
+            if pointsFrame[i] then
+                pointsFrame[i]:SetBackdropColor(r, g, b, 0.1)
+            end
+            i = i + 1
+        end
+        if DB.combat then
+            SCP_RefreshDisplay()
+        end
     end
-    if DB.combat then
-        SCP_RefreshDisplay()
-    end
-end
 
--- updates the whole frame
-function SCP_UpdateFrames()
-    local width = DB.width or 22
-    local height = DB.height or 22
-    local r, g, b = DB.color.r, DB.color.g, DB.color.b
+    -- updates the whole frame
+    function SCP_UpdateFrames()
+        local width = DB.width or 22
+        local height = DB.height or 22
+        local r, g, b = DB.color.r, DB.color.g, DB.color.b
 
-    for i = 1, maxPoints do
-        if pointsFrame[i] then
-            pointsFrame[i]:SetSize(width, height)
-            pointsFrame[i]:SetBackdropColor(r, g, b, 0.1)
-            pointsFrame[i]:SetBackdropBorderColor(0, 0, 0, 1)
+        for i = 1, maxPoints do
+            if pointsFrame[i] then
+                pointsFrame[i]:SetSize(width, height)
+                pointsFrame[i]:SetBackdropColor(r, g, b, 0.1)
+                pointsFrame[i]:SetBackdropBorderColor(0, 0, 0, 1)
 
-            if i == 1 then
-                pointsFrame[i]:SetPoint(
-                    DB.anchor,
-                    UIParent,
-                    DB.anchor,
-                    DB.xPos,
-                    DB.yPos
-                )
-                pointsFrame[i]:SetScale(DB.scale)
+                if i == 1 then
+                    pointsFrame[i]:SetPoint(DB.anchor, UIParent, DB.anchor, DB.xPos, DB.yPos)
+                    pointsFrame[i]:SetScale(DB.scale)
 
-                pointsFrame[i]:SetMovable(true)
-                pointsFrame[i]:EnableMouse(true)
-                pointsFrame[i]:RegisterForDrag("LeftButton")
+                    pointsFrame[i]:SetMovable(true)
+                    pointsFrame[i]:EnableMouse(true)
+                    pointsFrame[i]:RegisterForDrag("LeftButton")
 
-                pointsFrame[i]:SetScript(
-                    "OnDragStart",
-                    function(self)
+                    pointsFrame[i]:SetScript("OnDragStart", function(self)
                         if IsAltKeyDown() then
                             self:StartMoving()
                         end
-                    end
-                )
-                pointsFrame[i]:SetScript(
-                    "OnDragStop",
-                    function(self)
+                    end)
+                    pointsFrame[i]:SetScript("OnDragStop", function(self)
                         self:StopMovingOrSizing()
-                        local anchor, _, _, x, y = self:GetPoint(1)
-                        DB.xPos = x
-                        DB.yPos = y
-                        DB.anchor = anchor
-                    end
-                )
-            else
-                pointsFrame[i]:SetPoint("RIGHT", width + 1 + (DB.spacing or 0), 0)
+                        DB.anchor, _, _, DB.xPos, DB.yPos = self:GetPoint(1)
+                    end)
+                else
+                    pointsFrame[i]:SetPoint("RIGHT", width + 1 + (DB.spacing or 0), 0)
+                end
+                pointsFrame[i]:Show()
             end
-            pointsFrame[i]:Show()
+        end
+        SCP_UpdatePoints()
+    end
+
+    -- simply refreshes the display of the frame
+    function SCP_RefreshDisplay()
+        if druidForm then return end
+
+        if not InCombatLockdown() and GetComboPoints("player") == 0 and DB.combat then
+            for i = 1, maxPoints do
+                pointsFrame[i]:Hide()
+            end
+            shown = false
+        elseif not shown then
+            for i = 1, maxPoints do
+                pointsFrame[i]:Show()
+            end
+            shown = true
         end
     end
-    SCP_UpdatePoints()
-end
 
--- simply refreshes the display of the frame
-function SCP_RefreshDisplay()
-    if druidForm then
-        return
-    end
-
-    if not InCombatLockdown() and GetComboPoints("player") == 0 and DB.combat then
+    -- destroys the frames.
+    function SCP_DestroyFrames()
         for i = 1, maxPoints do
-            pointsFrame[i]:Hide()
+            if pointsFrame[i] then
+                pointsFrame[i]:Hide()
+                pointsFrame[i] = nil
+            end
         end
-        shown = false
-    elseif not shown then
-        for i = 1, maxPoints do
-            pointsFrame[i]:Show()
-        end
-        shown = true
-    end
-end
-
--- destroys the frames.
-function SCP_DestroyFrames()
-    for i = 1, maxPoints do
-        if pointsFrame[i] then
-            pointsFrame[i]:Hide()
-            pointsFrame[i] = nil
-        end
-    end
-    pointsFrame = {}
-end
-
--- hooked to the ColorPickerFrame
-function SCP_ColorPickCallback(restore)
-    local r, g, b
-    if restore then
-        r, g, b = unpack(restore)
-    else
-        r, g, b = ColorPickerFrame:GetColorRGB()
+        pointsFrame = {}
     end
 
-    if r and g and b then
-        DB.color.r = r
-        DB.color.g = g
-        DB.color.b = b
-        SCP_UpdateFrames()
-    end
-end
-
--- //////////////////////////////////////////////////////////////
-
--- after the player enters the world
-function E:PLAYER_ENTERING_WORLD()
-    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    if disabled then return end
-
-    SCP_InitializeFrames()
-    SCP_UpdatePoints()
-    -- only for druids.
-    if unitClass == "DRUID" then
-        self:UPDATE_SHAPESHIFT_FORM()
-    end
-end
-
--- used to update combo points
-function E:UNIT_COMBO_POINTS()
-	if disabled then
-		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-		self:UnregisterEvent("PLAYER_TARGET_CHANGED")
-		self:UnregisterEvent("UNIT_COMBO_POINTS")
-	else
-		SCP_UpdatePoints()
-	end
-end
-E.PLAYER_REGEN_ENABLED = E.UNIT_COMBO_POINTS
-E.PLAYER_TARGET_CHANGED = E.UNIT_COMBO_POINTS
-
--- used only for druids
-function E:UPDATE_SHAPESHIFT_FORM()
-    if disabled or unitClass ~= "DRUID" then
-        self:UnregisterEvent("UPDATE_SHAPESHIFT_FORM")
-        return
-    end
-
-    if GetShapeshiftForm() == 3 then
-        for i = 1, maxPoints do
-            pointsFrame[i]:Show()
-        end
-        druidForm = false
-    else
-        for i = 1, maxPoints do
-            pointsFrame[i]:Hide()
-        end
-        druidForm = true
-    end
-    SCP_UpdatePoints()
-end
-
--- //////////////////////////////////////////////////////////////
-
--- slash commands handler
-local function SlashCommandHandler(txt)
-    local cmd, msg = txt:match("^(%S*)%s*(.-)$")
-    cmd, msg = cmd:lower(), msg:lower()
-
-    -- enable or disable the module
-    if cmd == "toggle" then
-        -- reset settings
-        DB.enabled = not DB.enabled
-        SCP_DestroyFrames()
-        if not DB.enabled then
-            SCP_UpdateFrames()
+    -- hooked to the ColorPickerFrame
+    function SCP_ColorPickCallback(restore)
+        local r, g, b
+        if restore then
+            r, g, b = unpack(restore)
         else
-            SCP_InitializeFrames()
+            r, g, b = ColorPickerFrame:GetColorRGB()
         end
-    elseif cmd == "reset" then
-        -- changing size
-        wipe(DB)
-        DB = defaults
 
-        SCP_DestroyFrames()
+        if r and g and b then
+            DB.color.r = r
+            DB.color.g = g
+            DB.color.b = b
+            SCP_UpdateFrames()
+        end
+    end
+
+    -- //////////////////////////////////////////////////////////////
+
+    -- after the player enters the world
+    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+        if disabled then
+            return
+        end
+        SetupDatabase()
         SCP_InitializeFrames()
-
-        Print(L["module's settings reset to default."])
-    elseif cmd == "width" or cmd == "height" and DB[cmd] ~= nil then
-        -- scaling
-        local num = tonumber(msg)
-        if num then
-            DB[cmd] = num
-            SCP_UpdateFrames()
-        else
-            Print(L["The " .. cmd .. " must be a valid number"])
+        SCP_UpdatePoints()
+        -- only for druids.
+        if core.class == "DRUID" then
+            UPDATE_SHAPESHIFT_FORM()
         end
-    elseif cmd == "scale" then
-        local scale = tonumber(msg)
-        if scale then
-            DB.scale = scale
-            SCP_UpdateFrames()
+    end)
+
+    -- used to update combo points
+    core:RegisterCallback("UNIT_COMBO_POINTS", SCP_UpdatePoints)
+    core:RegisterCallback("PLAYER_REGEN_ENABLED", SCP_UpdatePoints)
+    core:RegisterCallback("PLAYER_TARGET_CHANGED", SCP_UpdatePoints)
+
+    -- used only for druids
+    function UPDATE_SHAPESHIFT_FORM()
+        if disabled or core.class ~= "DRUID" then return end
+
+        if GetShapeshiftForm() == 3 then
+            for i = 1, maxPoints do
+                pointsFrame[i]:Show()
+            end
+            druidForm = false
         else
-            Print(L["Scale has to be a number, recommended to be between 0.5 and 3"])
+            for i = 1, maxPoints do
+                pointsFrame[i]:Hide()
+            end
+            druidForm = true
         end
-    elseif cmd == "spacing" then
-        -- changing color
-        local spacing = tonumber(msg)
-        if spacing then
-            DB.spacing = spacing
-            SCP_UpdateFrames()
+        SCP_UpdatePoints()
+    end
+    core:RegisterCallback("UPDATE_SHAPESHIFT_FORM", UPDATE_SHAPESHIFT_FORM)
+
+    -- //////////////////////////////////////////////////////////////
+
+    -- slash commands handler
+    local function SlashCommandHandler(txt)
+        local cmd, msg = txt:match("^(%S*)%s*(.-)$")
+        cmd, msg = cmd:lower(), msg:lower()
+
+        -- enable or disable the module
+        if cmd == "toggle" then
+            -- reset settings
+            DB.enabled = not DB.enabled
+            SCP_DestroyFrames()
+            if not DB.enabled then
+                SCP_UpdateFrames()
+            else
+                SCP_InitializeFrames()
+            end
+        elseif cmd == "reset" then
+            -- changing size
+            wipe(DB)
+            DB = defaults
+
+            SCP_DestroyFrames()
+            SCP_InitializeFrames()
+
+            Print(L["module's settings reset to default."])
+        elseif cmd == "width" or cmd == "height" and DB[cmd] ~= nil then
+            -- scaling
+            local num = tonumber(msg)
+            if num then
+                DB[cmd] = num
+                SCP_UpdateFrames()
+            else
+                Print(L["The " .. cmd .. " must be a valid number"])
+            end
+        elseif cmd == "scale" then
+            local scale = tonumber(msg)
+            if scale then
+                DB.scale = scale
+                SCP_UpdateFrames()
+            else
+                Print(L["Scale has to be a number, recommended to be between 0.5 and 3"])
+            end
+        elseif cmd == "spacing" then
+            -- changing color
+            local spacing = tonumber(msg)
+            if spacing then
+                DB.spacing = spacing
+                SCP_UpdateFrames()
+            else
+                Print(L["Spacing has to be a number, recommended to be between 0.5 and 3"])
+            end
+        elseif cmd == "color" or cmd == "colour" then
+            -- toggle in and out of combat
+            local r, g, b = DB.color.r, DB.color.g, DB.color.b
+            ColorPickerFrame:SetColorRGB(r, g, b)
+            ColorPickerFrame.previousValues = {r, g, b}
+            ColorPickerFrame.func = SCP_ColorPickCallback
+            ColorPickerFrame.opacityFunc = SCP_ColorPickCallback
+            ColorPickerFrame.cancelFunc = SCP_ColorPickCallback
+            ColorPickerFrame:Hide()
+            ColorPickerFrame:Show()
+        elseif cmd == "combat" or cmd == "nocombat" then
+            -- otherwise, show commands help
+            DB.combat = not DB.combat
+
+            local status = (DB.combat == false)
+            Print(L:F("Show out of combat: %s", (status and "|cff00ff00ON|r" or "|cffff0000OFF|r")))
+
+            SCP_RefreshDisplay()
         else
-            Print(L["Spacing has to be a number, recommended to be between 0.5 and 3"])
+            Print(L:F("Acceptable commands for: |caaf49141%s|r", "/scp"))
+            print("|cffffd700toggle|r", L["Enables or disables the module."])
+            print("|cffffd700width or height |cff00ffffn|r|r", L["Changes the points width or height."])
+            print("|cffffd700scale |cff00ffffn|r|r", L["Changes frame scale."])
+            print("|cffffd700spacing |cff00ffffn|r|r", L["Changes spacing between points."])
+            print("|cffffd700color|r", L["Changes points color."])
+            print("|cffffd700combat|r", L["Toggles showing combo points out of combat."])
+            print("|cffffd700reset|r", L["Resets module settings to default."])
         end
-    elseif cmd == "color" or cmd == "colour" then
-        -- toggle in and out of combat
-        local r, g, b = DB.color.r, DB.color.g, DB.color.b
-        ColorPickerFrame:SetColorRGB(r, g, b)
-        ColorPickerFrame.previousValues = {r, g, b}
-        ColorPickerFrame.func = SCP_ColorPickCallback
-        ColorPickerFrame.opacityFunc = SCP_ColorPickCallback
-        ColorPickerFrame.cancelFunc = SCP_ColorPickCallback
-        ColorPickerFrame:Hide()
-        ColorPickerFrame:Show()
-    elseif cmd == "combat" or cmd == "nocombat" then
-        -- otherwise, show commands help
-        DB.combat = not DB.combat
-
-        local status = (DB.combat == false)
-        Print(L:F("Show out of combat: %s", (status and "|cff00ff00ON|r" or "|cffff0000OFF|r")))
-
-        SCP_RefreshDisplay()
-    else
-        Print(L:F("Acceptable commands for: |caaf49141%s|r", "/scp"))
-        print("|cffffd700toggle|r", L["Enables or disables the module."])
-        print("|cffffd700width or height |cff00ffffn|r|r", L["Changes the points width or height."])
-        print("|cffffd700scale |cff00ffffn|r|r", L["Changes frame scale."])
-        print("|cffffd700spacing |cff00ffffn|r|r", L["Changes spacing between points."])
-        print("|cffffd700color|r", L["Changes points color."])
-        print("|cffffd700combat|r", L["Toggles showing combo points out of combat."])
-        print("|cffffd700reset|r", L["Resets module settings to default."])
-    end
-end
-
-function E:ADDON_LOADED(name)
-    if name ~= folder then return end
-    self:UnregisterEvent("ADDON_LOADED")
-
-    if type(KPackCharDB.SCP) ~= "table" or not next(KPackCharDB.SCP) then
-    	KPackCharDB.SCP = CopyTable(defaults)
-    end
-	DB = KPackCharDB.SCP
-
-    -- hold the unit class
-    unitClass = select(2, UnitClass("player"))
-
-    -- if the player isn't a rogue or druid, ignore
-    if unitClass ~= "ROGUE" and unitClass ~= "DRUID" then
-        disabled = true
-        return
     end
 
-    -- register our slash commands handler
-    SlashCmdList["KPACKSCP"] = SlashCommandHandler
-    SLASH_KPACKSCP1, SLASH_KPACKSCP2 = "/scp", "/simplecombopoints"
+    core:RegisterCallback("PLAYER_LOGIN", function()
+        if core.class ~= "ROGUE" and core.class ~= "DRUID" then
+            disabled = true
+            return
+        end
 
-    -- if the module is disabled, ignore
-    if not DB.enabled then
-        return
-    end
-end
+        SetupDatabase()
+
+        SlashCmdList["KPACKSCP"] = SlashCommandHandler
+        SLASH_KPACKSCP1, SLASH_KPACKSCP2 = "/scp", "/simplecombopoints"
+    end)
+end)

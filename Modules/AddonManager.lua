@@ -1,3 +1,4 @@
+assert(KPack, "KPack not found!")
 local addonName, addon = ...
 local L = addon.L
 
@@ -15,9 +16,7 @@ local AddonList
 local menuWasShown
 
 local function CreateAddonsList()
-    if AddonList then
-        return
-    end
+    if AddonList then return end
     AddonList = CreateFrame("frame", "AddonList", UIParent)
     tinsert(UISpecialFrames, "AddonList")
     AddonList:SetSize(385, 512)
@@ -156,10 +155,10 @@ local function CreateAddonsList()
                     end
                 end)
                 if enabled then
-					countOn = countOn + 1
+                    countOn = countOn + 1
                     CheckButton:SetChecked(true)
                 else
-					countOff = countOff + 1
+                    countOff = countOff + 1
                     _G[CheckButtonName .. "Text"]:SetTextColor(0.6, 0.6, 0.6)
                     CheckButton:SetChecked(false)
                 end
@@ -173,20 +172,20 @@ local function CreateAddonsList()
         info:SetText(L:F("|cffffffff%d|r AddOns: |cffffffff%d|r |cff00ff00Enabled|r, |cffffffff%d|r |cffff0000Disabled|r", countAll, countOn, countOff))
     end
 
-	AddonList:SetScript("OnShow", function(self)
-		PlaySound("igMainMenuOption")
-		UpdateAddonList()
-	end)
-	AddonList:SetScript("OnHide", function(self)
-		PlaySound("igMainMenuOptionCheckBoxOn")
-		self:ClearAllPoints()
-		self:SetPoint("CENTER", UIParent, 0, 24)
-		if menuWasShown then
-			ShowUIPanel(GameMenuFrame)
-			menuWasShown = nil
-		end
-	end)
-	AddonList:Hide()
+    AddonList:SetScript("OnShow", function(self)
+        PlaySound("igMainMenuOption")
+        UpdateAddonList()
+    end)
+    AddonList:SetScript("OnHide", function(self)
+        PlaySound("igMainMenuOptionCheckBoxOn")
+        self:ClearAllPoints()
+        self:SetPoint("CENTER", UIParent, 0, 24)
+        if menuWasShown then
+            ShowUIPanel(GameMenuFrame)
+            menuWasShown = nil
+        end
+    end)
+    AddonList:Hide()
 
     local ReloadButton = CreateFrame("Button", "ReloadButton", AddonList, "KPackButtonTemplate")
     ReloadButton:SetSize(105, 21)

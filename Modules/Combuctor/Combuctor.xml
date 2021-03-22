@@ -1,0 +1,555 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script file="Combuctor.lua" />
+
+    <!-- a button added to each frame, shows the character selection list
+    when clicked -->
+    <Button name="BagnonDBUIDropDownButton" topLevel="true" virtual="true">
+    	<Size><AbsDimension x="24" y="24" /></Size>
+        <Scripts>
+            <OnClick>BagnonDB:SetDropdownFrame(self:GetParent()) BagnonDB:ToggleDropdown(self,
+                0, 2)</OnClick>
+        </Scripts>
+        <NormalTexture file="Interface\ChatFrame\UI-ChatIcon-ScrollDown-Up" setAllPoints="true"
+        />
+        <PushedTexture file="Interface\ChatFrame\UI-ChatIcon-ScrollDown-Down"
+        setAllPoints="true" />
+        <HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"
+        setAllPoints="true" />
+    </Button>
+
+	<!--
+		Widget Templates
+	-->
+
+	<CheckButton name="CombuctorSideTabButtonTemplate" virtual="true" hidden="true">
+		<Size x="32" y="32"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentBorder" file="Interface\SpellBook\SpellBook-SkillLineTab">
+					<Size x="64" y="64"/>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="-3" y="11"/>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+				GameTooltip:SetText(self.tooltip);
+			</OnEnter>
+			<OnLeave function="GameTooltip_Hide"/>
+		</Scripts>
+		<NormalTexture/>
+		<HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+		<CheckedTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"/>
+	</CheckButton>
+
+	<Button name="CombuctorFrameTabButtonTemplate" inherits="CharacterFrameTabButtonTemplate" virtual="true">
+		<Scripts>
+			<OnLoad>
+				self:SetFrameLevel(self:GetFrameLevel() + 4);
+			</OnLoad>
+		</Scripts>
+	</Button>
+
+	<Button name="CombuctorIconButtonTemplate" virtual="true">
+		<Size x="64" y="64"/>
+
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset x="4" y="-4"/>
+			</Anchor>
+		</Anchors>
+
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("anyUp")
+				self.icon = _G[self:GetParent():GetName().."Icon"]
+				self.icon:ClearAllPoints()
+				self.icon:SetPoint("CENTER", self)
+			</OnLoad>
+			<OnEvent>
+				if(self:IsShown() and arg1 == "player") then
+					SetPortraitTexture(self.icon, arg1)
+				end
+			</OnEvent>
+			<OnShow>
+				SetPortraitTexture(self.icon, "player")
+				self:RegisterEvent("UNIT_PORTRAIT_UPDATE")
+			</OnShow>
+			<OnHide>
+				self:UnregisterEvent("UNIT_PORTRAIT_UPDATE")
+			</OnHide>
+			<OnMouseDown>
+				self.icon:SetWidth(56)
+				self.icon:SetHeight(56)
+				self.icon:SetTexCoord(0.075, 0.925, 0.075, 0.925)
+			</OnMouseDown>
+			<OnMouseUp>
+				self.icon:SetWidth(62)
+				self.icon:SetHeight(62)
+				self.icon:SetTexCoord(0, 1, 0, 1)
+			</OnMouseUp>
+			<OnClick>
+				if(button == "LeftButton") then
+					if BagnonDB then
+						BagnonDB:SetDropdownFrame(self:GetParent())
+						BagnonDB:ToggleDropdown(self, 20, 32)
+					end
+				end
+			</OnClick>
+			<OnEnter>
+				if BagnonDB then
+					self:GetParent():OnPortraitEnter(self)
+				end
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide()
+			</OnLeave>
+		</Scripts>
+
+		<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight">
+			<Size x="78" y="78"/>
+			<Anchors>
+				<Anchor point="CENTER"/>
+			</Anchors>
+		</HighlightTexture>
+	</Button>
+
+	<Button name="CombuctorBagToggleTemplate" virtual="true">
+		<Size x="32" y="32"/>
+
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentIcon" file="Interface\Buttons\Button-Backpack-Up">
+					<Size x="20" y="20"/>
+
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="7" y="-6"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+				</Texture>
+			</Layer>
+
+			<Layer level="OVERLAY">
+				<Texture name="$parentBorder" file="Interface\Minimap\MiniMap-TrackingBorder">
+					<Size x="54" y="54"/>
+
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("anyUp")
+				_G[self:GetName() .. "Border"]:SetDesaturated(true)
+				_G[self:GetName() .. "Border"]:SetAlpha(0.6)
+			</OnLoad>
+			<OnClick>
+				self:GetParent():OnBagToggleClick(self, button)
+			</OnClick>
+			<OnMouseDown>
+				_G[self:GetName() .. "Icon"]:SetTexCoord(0,1,0,1)
+			</OnMouseDown>
+			<OnMouseUp>
+				_G[self:GetName() .. "Icon"]:SetTexCoord(0.075,0.925,0.075,0.925)
+			</OnMouseUp>
+			<OnEnter>
+				self:GetParent():OnBagToggleEnter(self)
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide()
+			</OnLeave>
+		</Scripts>
+		<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
+	</Button>
+
+	<EditBox name="CombuctorSearchBoxTemplate" autoFocus="false" inherits="InputBoxTemplate" virtual="true">
+		<Size x="0" y="20"/>
+
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset x="84" y="-44"/>
+			</Anchor>
+			<Anchor point="TOPRIGHT">
+				<Offset x="-116" y="-44"/>
+			</Anchor>
+		</Anchors>
+
+		<Scripts>
+			<OnShow>
+				if self:GetText() == '' then
+					self:SetText(SEARCH)
+				end
+			</OnShow>
+			<OnEnterPressed>
+				self:ClearFocus()
+			</OnEnterPressed>
+			<OnEscapePressed>
+				self:SetText(SEARCH)
+				self:ClearFocus()
+				self:GetParent():SetFilter('name', nil, true)
+			</OnEscapePressed>
+			<OnTextChanged>
+				if self:HasFocus() then
+					local text = self:GetText()
+					if text == '' then
+						text = nil
+					end
+					self:GetParent():SetFilter('name', text and text:lower() or nil, true)
+				end
+			</OnTextChanged>
+			<OnEditFocusLost>
+				self:HighlightText(0, 0)
+				if self:GetText() == '' then
+					self:SetText(SEARCH)
+				end
+			</OnEditFocusLost>
+			<OnEditFocusGained>
+				self:HighlightText()
+				if self:GetText() == SEARCH then
+					self:SetText('')
+				end
+			</OnEditFocusGained>
+		</Scripts>
+	</EditBox>
+
+	<Button name="CombuctorResetButtonTemplate" virtual="true">
+		<Size x="39" y="39"/>
+
+		<Scripts>
+			<OnClick>
+				local parent = self:GetParent()
+				local searchBox = getglobal(parent:GetName() .. 'Search')
+				if searchBox:HasFocus() then
+					searchBox:SetText('')
+				else
+					searchBox:SetText(SEARCH)
+					self:GetParent():SetFilter('name', nil, true)
+				end
+			</OnClick>
+		</Scripts>
+
+		<NormalTexture file="Interface\Buttons\CancelButton-Up"/>
+		<PushedTexture file="Interface\Buttons\CancelButton-Down"/>
+		<HighlightTexture file="Interface\Buttons\CancelButton-Highlight" alphaMode="ADD"/>
+	</Button>
+
+	<Button name="CombuctorDragFrameTemplate" topLevel="true" virtual="true" text="TEXT">
+		<Size x="262" y="14"/>
+
+		<Anchors>
+			<Anchor point="TOP">
+				<Offset x="0" y="-16"/>
+			</Anchor>
+		</Anchors>
+
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks('anyUp')
+				self:RegisterForDrag('LeftButton')
+			</OnLoad>
+			<OnClick>
+				if IsAltKeyDown() then
+					if button == 'RightButton' then
+						self:GetParent():SavePosition(nil)
+					end
+				end
+			</OnClick>
+			<OnMouseDown>
+				self.isMoving = true
+				self:GetParent():StartMoving()
+			</OnMouseDown>
+			<OnMouseUp>
+				if self.isMoving then
+					self.isMoving = nil
+					self:GetParent():StopMovingOrSizing()
+					self:GetParent():SavePosition(self:GetParent():GetPoint())
+				end
+			</OnMouseUp>
+			<OnEnter>
+				self:GetParent():OnTitleEnter(self)
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide()
+			</OnLeave>
+		</Scripts>
+
+		<NormalFont style="GameFontNormal"/>
+		<HighlightFont style="GameFontHighlight"/>
+	</Button>
+
+
+	<!--
+		Frame Templates
+	-->
+
+	<Frame name="CombuctorInventoryTemplate" resizable="true" clampedToScreen="true" enableMouse="true" movable="true" topLevel="true" frameStrata="HIGH" parent="UIParent" hidden="true" virtual="true">
+		<Size x="384" y="512"/>
+
+		<HitRectInsets>
+			<AbsInset left="0" right="35" top="0" bottom="75"/>
+		</HitRectInsets>
+<!--
+		<Attributes>
+			<Attribute name="UIPanelLayout-defined" type="boolean" value="true"/>
+			<Attribute name="UIPanelLayout-enabled" type="boolean" value="true"/>
+			<Attribute name="UIPanelLayout-whileDead" type="boolean" value="true"/>
+			<Attribute name="UIPanelLayout-area" type="string" value="left"/>
+			<Attribute name="UIPanelLayout-pushable" type="number" value="1"/>
+		</Attributes>
+-->
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentIcon">
+					<Size x="62" y="62"/>
+				</Texture>
+			</Layer>
+
+			<Layer level="ARTWORK">
+				<Texture file="Interface\MerchantFrame\UI-Merchant-TopLeft" >
+					<Size x="128" y="128"/>
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+					</Anchors>
+					<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+				</Texture>
+
+				<!-- top left right-->
+				<Texture name="$parentTLRight" file="Interface\MerchantFrame\UI-Merchant-TopLeft" >
+					<Size x="128" y="128"/>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="128" y="0"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+				</Texture>
+
+				<!-- top left bottom -->
+				<Texture name="$parentTLBottom" file="Interface\MerchantFrame\UI-Merchant-TopLeft">
+					<Size x="128" y="128"/>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="0" y="-128"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+				</Texture>
+
+				<!-- top left bottom right -->
+				<Texture name="$parentTLBottomRight" file="Interface\MerchantFrame\UI-Merchant-TopLeft">
+					<Size x="128" y="128"/>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="128" y="-128"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.5" right="1" top="0.5" bottom="1"/>
+				</Texture>
+
+				<!-- top right -->
+				<Texture file="Interface\MerchantFrame\UI-Merchant-TopRight">
+					<Size x="64" y="128"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT"/>
+					</Anchors>
+					<TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+				</Texture>
+
+				<!-- top right left -->
+				<Texture name="$parentTRLeft" file="Interface\MerchantFrame\UI-Merchant-TopRight">
+					<Size x="64" y="128"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT">
+							<Offset x="-64" y="0"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+				</Texture>
+
+				<!-- top right bottom left -->
+				<Texture name="$parentTRBottomLeft" file="Interface\MerchantFrame\UI-Merchant-TopRight">
+					<Size x="64" y="128"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT">
+							<Offset x="-64" y="-128"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+				</Texture>
+
+				<!-- top right bottom -->
+				<Texture name="$parentTRBottom" file="Interface\MerchantFrame\UI-Merchant-TopRight">
+					<Size x="64" y="128"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT">
+							<Offset x="0" y="-128"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.5" right="1" top="0.5" bottom="1"/>
+				</Texture>
+
+
+				<!-- bottom left -->
+				<Texture file="Interface\MerchantFrame\UI-Merchant-BotLeft">
+					<Size x="128" y="128"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT"/>
+					</Anchors>
+					<TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+				</Texture>
+
+				<!-- bottom left top -->
+				<Texture name="$parentBLTop" file="Interface\MerchantFrame\UI-Merchant-BotLeft">
+					<Size x="128" y="128"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT">
+							<Offset x="0" y="128"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+				</Texture>
+
+				<!-- bottom left topright -->
+				<Texture name="$parentBLTopRight" file="Interface\MerchantFrame\UI-Merchant-BotLeft">
+					<Size x="128" y="128"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT">
+							<Offset x="128" y="128"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+				</Texture>
+
+				<!-- bottom left right -->
+				<Texture name="$parentBLRight" file="Interface\MerchantFrame\UI-Merchant-BotLeft">
+					<Size x="128" y="128"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT">
+							<Offset x="128" y="0"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.5" right="1" top="0.5" bottom="1"/>
+				</Texture>
+
+				<!-- bottom right -->
+				<Texture file="Interface\MerchantFrame\UI-Merchant-BotRight">
+					<Size x="64" y="128"/>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT"/>
+					</Anchors>
+					<TexCoords left="0.5" right="1" top="0.5" bottom="1"/>
+				</Texture>
+
+				<!-- bottom right left -->
+				<Texture name="$parentBRLeft" file="Interface\MerchantFrame\UI-Merchant-BotRight">
+					<Size x="64" y="128"/>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT">
+							<Offset x="-64" y="0"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+				</Texture>
+
+				<!-- bottom right topleft -->
+				<Texture name="$parentBRTopLeft" file="Interface\MerchantFrame\UI-Merchant-BotRight">
+					<Size x="64" y="128"/>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT">
+							<Offset x="-64" y="128"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+				</Texture>
+
+				<!-- bottom right  top -->
+				<Texture name="$parentBRTop" file="Interface\MerchantFrame\UI-Merchant-BotRight">
+					<Size x="64" y="128"/>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT">
+							<Offset x="0" y="128"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+				</Texture>
+			</Layer>
+		</Layers>
+
+		<Frames>
+	        <Button name="$parentCloseButton" inherits="UIPanelCloseButton">
+				<Anchors>
+					<Anchor point="TOPRIGHT">
+						<Offset x="-29" y="-8"/>
+					</Anchor>
+				</Anchors>
+	        </Button>
+
+			<Button name="$parentIconButton" inherits="CombuctorIconButtonTemplate"/>
+
+			<Button name="$parentTitle" inherits="CombuctorDragFrameTemplate"/>
+
+			<EditBox name="$parentSearch" inherits="CombuctorSearchBoxTemplate"/>
+
+			<Button name="$parentReset" inherits="CombuctorResetButtonTemplate">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentSearch" relativePoint="RIGHT">
+						<Offset x="-2" y="-2"/>
+					</Anchor>
+				</Anchors>
+			</Button>
+
+			<Button name="$parentBagToggle" inherits="CombuctorBagToggleTemplate">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentReset" relativePoint="RIGHT"/>
+				</Anchors>
+			</Button>
+
+			<Button name="$parentResize">
+				<Size x="16" y="16"/>
+
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT">
+						<Offset x="-40" y="66"/>
+					</Anchor>
+				</Anchors>
+
+				<Scripts>
+					<OnLoad>
+						self:SetFrameLevel(self:GetFrameLevel() + 4)
+						self:GetNormalTexture():SetVertexColor(1, 0.82, 0)
+					</OnLoad>
+					<OnMouseDown>
+						self:GetParent():StartSizing()
+					</OnMouseDown>
+					<OnMouseUp>
+						self:GetParent():StopMovingOrSizing()
+					</OnMouseUp>
+				</Scripts>
+
+				<NormalTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Up" setAllPoints="true"/>
+				<PushedTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Down" setAllPoints="true"/>
+				<HighlightTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Up" alphaMode="ADD" setAllPoints="true"/>
+			</Button>
+		</Frames>
+
+		<Scripts>
+			<OnLoad>
+				self:SetMinResize(self:GetWidth(), self:GetHeight())
+			</OnLoad>
+			<OnSizeChanged>
+				self:OnSizeChanged()
+			</OnSizeChanged>
+		</Scripts>
+	</Frame>
+</Ui>

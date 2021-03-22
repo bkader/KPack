@@ -1,47 +1,50 @@
-local folder, core = ...
-local E = core:Events()
+assert(KPack, "KPack not found!")
+KPack:AddModule("SlashIn", function(_, core)
+    if core:IsDisabled("SlashIn") then return end
 
--- cache frequently used globals
-local tonumber = tonumber
-local MacroEditBox = MacroEditBox
-local MacroEditBox_OnEvent
+    -- cache frequently used globals
+    local tonumber = tonumber
+    local MacroEditBox = MacroEditBox
+    local MacroEditBox_OnEvent
 
--- module's print function
-local function Print(msg)
-    if msg then
-        core:Print(msg, "SlashIn")
-    end
-end
-
-local SlashCommandHandler
-do
-    -- callback to use for Timer
-    local function OnCallback(cmd)
-        MacroEditBox_OnEvent(MacroEditBox, "EXECUTE_CHAT_LINE", cmd)
-    end
-
-    -- slash command handler
-    function SlashCommandHandler(msg)
-        local secs, cmd = msg:match("^([^%s]+)%s+(.*)$")
-        secs = tonumber(secs)
-        if not secs or #cmd == 0 then
-            Print("usage: /in <seconds> <command>")
-            print("example: /in 1.5 /say hi")
-        elseif cmd:find("cast") or cmd:find("use") then
-            Print("/use or /cast are blocked by Blizzard UI.")
-        else
-            core.After(tonumber(secs) - 0.5, function() OnCallback(cmd) end)
+    -- module's print function
+    local function Print(msg)
+        if msg then
+            core:Print(msg, "SlashIn")
         end
     end
-end
 
--- frame event handler
-function E:ADDON_LOADED(name)
-    if name == folder then
-        self:UnregisterEvent("ADDON_LOADED")
+    local SlashCommandHandler
+    do
+        -- callback to use for Timer
+        local function OnCallback(cmd)
+            MacroEditBox_OnEvent(MacroEditBox, "EXECUTE_CHAT_LINE", cmd)
+        end
+
+        -- slash command handler
+        function SlashCommandHandler(msg)
+            local secs, cmd = msg:match("^([^%s]+)%s+(.*)$")
+            secs = tonumber(secs)
+            if not secs or #cmd == 0 then
+                Print("usage: /in <seconds> <command>")
+                print("example: /in 1.5 /say hi")
+            elseif cmd:find("cast") or cmd:find("use") then
+                Print("/use or /cast are blocked by Blizzard UI.")
+            else
+                core.After(
+                    tonumber(secs) - 0.5,
+                    function()
+                        OnCallback(cmd)
+                    end
+                )
+            end
+        end
+    end
+
+    core:RegisterCallback("PLAYER_LOGIN", function()
         MacroEditBox_OnEvent = MacroEditBox:GetScript("OnEvent")
         SlashCmdList["KPACKSLASHIN"] = SlashCommandHandler
         SLASH_KPACKSLASHIN1 = "/in"
         SLASH_KPACKSLASHIN2 = "/slashin"
-    end
-end
+    end)
+end)

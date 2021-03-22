@@ -2,68 +2,8 @@ local folder, core = ...
 _G[folder] = core
 
 -- main saved varialbes
-KPackDB =  {}
-KPackCharDB =  {}
--------------------------------------------------------------------------------
--- Event handling system
---
-
-do
-    local F, events = CreateFrame("Frame"), {}
-
-    local pairs = pairs
-    local next = next
-    local strmatch = string.match
-
-    local function Raise(_, event, ...)
-        if events[event] then
-            for module in pairs(events[event]) do
-                module[event](module, ...)
-            end
-        end
-    end
-
-    local function RegisterEvent(module, event, func)
-        if func then
-            rawset(module, event, func)
-        end
-        events[event] = events[event] or {}
-        events[event][module] = true
-        if strmatch(event, "^[%u_]+$") then
-            F:RegisterEvent(event)
-        end
-        return module
-    end
-
-    local function UnregisterEvent(module, event)
-        if events[event] then
-            events[event][module] = nil
-            if not next(events[event]) and strmatch(event, "^[%u_]+$") then -- don't unregister unless the event table is empty
-                F:UnregisterEvent(event)
-            end
-        end
-        return module
-    end
-
-    local Module = {
-        __newindex = RegisterEvent,
-        __call = Raise,
-        __index = {
-            RegisterEvent = RegisterEvent,
-            UnregisterEvent = UnregisterEvent,
-            Raise = Raise
-        }
-    }
-
-    core.Events = setmetatable({}, { __call = function(eve)
-            local module = setmetatable({}, Module)
-            eve[#eve + 1] = module
-            return module
-        end
-    })
-
-    F:SetScript("OnEvent", Raise)
-end
+KPackDB = {}
+KPackCharDB = {}
 
 -------------------------------------------------------------------------------
 -- C_Timer mimic
@@ -81,7 +21,8 @@ do
 
     local waitTable = {}
     local waitFrame = _G.KPackTimerFrame or CreateFrame("Frame", "KPackTimerFrame", UIParent)
-    waitFrame:SetScript("OnUpdate", function(self, elapsed)
+    waitFrame:SetScript("OnUpdate",
+    function(self, elapsed)
         local total = #waitTable
         for i = 1, total do
             local ticker = waitTable[i]
@@ -162,7 +103,6 @@ end
 --
 
 do
-    local E = core:Events()
     local L = core.L
 
     local tostring = tostring
@@ -178,7 +118,8 @@ do
     local help = "|cffffd700%s|r: %s"
 
     local function SlashCommandHandler(cmd)
-        if cmd:lower() == "help" or cmd:lower() == "" then
+        cmd = cmd and cmd:lower()
+        if cmd == "help" then
             core:Print(L["Accessible module commands are:"])
             print(help:format("/abm", L:F("access |caaf49141%s|r module commands", "ActionBars")))
             print(help:format("/align", L:F("access |caaf49141%s|r module commands", "Align")))
@@ -201,8 +142,10 @@ do
             print(help:format("/tip", L:F("access |caaf49141%s|r module commands", "Tooltip")))
             print(help:format("/uf", L:F("access |caaf49141%s|r module commands", "UnitFrames")))
             print(help:format("/vp", L:F("access |caaf49141%s|r module commands", "Viewporter")))
+        elseif cmd == "about" or cmd == "info" then
+            core:Print("This small addon was made with big passion by |cfff58cbaKader|r.\n If you have suggestions or you are facing issues with my addons, feel free to message me on the forums, Github, CurseForge or Discord:\n|cffffd700bkader#6361|r or |cff7289d9https://discord.gg/a8z5CyS3eW|r")
         else
-            core:Print(L:F("Available command for |caaf49141%s|r is |cffffd700%s|r", "/kpack", "help"))
+            InterfaceOptionsFrame_OpenToCategory(core.panel)
         end
     end
 
@@ -238,10 +181,121 @@ do
         end
     end
 
-    -- Events
-    function E:ADDON_LOADED(name)
+    function core:RegisterCallback(event, callback, ...)
+        if not self.frame then
+            self.frame = CreateFrame("Frame")
+            function self.frame:OnEvent(event, ...)
+                for callback, args in next, self.callbacks[event] do
+                    callback(args, ...)
+                end
+            end
+            self.frame:SetScript("OnEvent", self.frame.OnEvent)
+        end
+        if not self.frame.callbacks then
+            self.frame.callbacks = {}
+        end
+        if not self.frame.callbacks[event] then
+            self.frame.callbacks[event] = {}
+        end
+        self.frame.callbacks[event][callback] = {...}
+        self.frame:RegisterEvent(event)
+    end
+
+    local function SetupOptionsPanel(panel)
+        panel.title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+        panel.title:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -16)
+        panel.title:SetSize(350, 15)
+        panel.title:SetJustifyH("LEFT")
+        panel.title:SetJustifyV("TOP")
+        panel.title:SetText("|cfff58cbaKader|r|caaf49141Pack|r")
+
+        local scrollFrame = CreateFrame("ScrollFrame", "$parentScrollFrame", panel, "UIPanelScrollFrameTemplate")
+        scrollFrame:SetSize(panel:GetWidth(), panel:GetHeight())
+        scrollFrame:SetPoint("TOPLEFT", 10, -38)
+        scrollFrame:SetPoint("BOTTOMRIGHT", -30, 32)
+
+        local scrollBar = _G[scrollFrame:GetName() .. "ScrollBar"]
+
+        local scrollChild = CreateFrame("Frame", "$parentScrollChild", scrollFrame)
+        scrollChild:SetHeight(#core.modules / 2)
+        scrollChild:SetWidth(scrollFrame:GetWidth())
+        scrollChild:SetAllPoints(scrollFrame)
+        scrollFrame:SetScrollChild(scrollChild)
+
+        -- reload ui button
+        local reload = CreateFrame("Button", nil, panel, "KPackButtonTemplate")
+        reload:SetWidth(100)
+        reload:SetPoint("BOTTOMRIGHT", -5, 5)
+        reload:SetText(L["Reload UI"])
+        reload:SetScript("OnClick", function(self) ReloadUI() end)
+
+        -- enable all
+        local enable = CreateFrame("Button", nil, panel, "KPackButtonTemplate")
+        enable:SetWidth(85)
+        enable:SetPoint("BOTTOMLEFT", 5, 5)
+        enable:SetText(L["Enable All"])
+
+        local disable = CreateFrame("Button", nil, panel, "KPackButtonTemplate")
+        disable:SetWidth(85)
+        disable:SetPoint("LEFT", enable, "RIGHT")
+        disable:SetText(L["Disable All"])
+
+        -- list all modules.
+        local buttons = {}
+        for i, mod in ipairs(core.modules) do
+            local check = CreateFrame("CheckButton", "KPackModule" .. i, scrollChild, "ChatConfigCheckButtonTemplate")
+            _G["KPackModule" .. i .. "Text"]:SetText(mod.name)
+            if i == 1 then
+                check:SetPoint("TOPLEFT")
+            elseif i % 2 == 0 then
+                check:SetPoint("LEFT", buttons[i - 1], "RIGHT", 175, 0)
+            else
+                check:SetPoint("TOPLEFT", buttons[i - 2], "BOTTOMLEFT")
+            end
+
+            check:SetChecked(not core:IsDisabled(mod.name))
+
+            check:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:AddLine(mod.name)
+                if mod.desc then
+                    GameTooltip:AddLine(mod.desc, 1, 1, 1, 1, false)
+                end
+                GameTooltip:Show()
+            end)
+            check:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
+            check:SetScript("OnClick", function(self)
+                if self:GetChecked() == 1 then
+                    KPackDB.disabled[mod.name] = true
+                else
+                    KPackDB.disabled[mod.name] = nil
+                end
+
+                reload:Enable()
+            end)
+
+            buttons[i] = check
+        end
+
+        enable:SetScript("OnClick", function(self)
+            KPackDB.disabled = {}
+            for _, check in ipairs(buttons) do
+                check:SetChecked(true)
+            end
+        end)
+
+        disable:SetScript("OnClick", function(self)
+            for _, check in ipairs(buttons) do
+                check:SetChecked(false)
+            end
+            for _, mod in ipairs(core.modules) do
+                KPackDB.disabled[mod.name] = true
+            end
+        end)
+    end
+
+    core:RegisterCallback("ADDON_LOADED", function(_, name)
         if name == folder then
-            self:UnregisterEvent("ADDON_LOADED")
             core:Print(L["addon loaded. use |cffffd700/kp help|r for help."])
 
             SlashCmdList["KPACK"] = SlashCommandHandler
@@ -251,22 +305,39 @@ do
             core.name = select(1, UnitName("player"))
             core.class = select(2, UnitClass("player"))
             core.guid = UnitGUID("player")
+
+            core.panel = CreateFrame("Frame", "KPackInterfaceOptions", UIParent)
+            core.panel.name = folder
+            core.panel:SetScript("OnShow", function(self) SetupOptionsPanel(self) end)
+            InterfaceOptions_AddCategory(core.panel)
+
+            if core.moduleslist then
+                for i = 1, #core.moduleslist do
+                    core.moduleslist[i](folder, core, L)
+                end
+                core.moduleslist = nil
+            end
         end
-    end
+    end)
 
-	do
-	    -- automatic garbage collection
-	    local collectgarbage = collectgarbage
-	    local UnitIsAFK = UnitIsAFK
-	    local InCombatLockdown = InCombatLockdown
-	    local eventcount = 0
+    do
+        -- automatic garbage collection
+        local collectgarbage = collectgarbage
+        local UnitIsAFK = UnitIsAFK
+        local InCombatLockdown = InCombatLockdown
+        local eventcount = 0
 
-	    local f = CreateFrame("Frame")
-	    f:SetScript("OnEvent", function(self, event, ...)
+        local f = CreateFrame("Frame")
+        f:SetScript("OnEvent", function(self, event, arg1)
             if (InCombatLockdown() and eventcount > 25000) or (not InCombatLockdown() and eventcount > 10000) or event == "PLAYER_ENTERING_WORLD" then
                 collectgarbage("collect")
                 eventcount = 0
                 self:UnregisterEvent(event)
+            elseif event == "PLAYER_REGEN_ENABLED" then
+                core.After(3, function()
+                    collectgarbage("collect")
+                    eventcount = 0
+                end)
             else
                 if arg1 ~= "player" then
                     return
@@ -277,9 +348,10 @@ do
             end
             eventcount = eventcount + 1
         end)
-	    f:RegisterEvent("PLAYER_FLAGS_CHANGED")
-	    f:RegisterEvent("PLAYER_ENTERING_WORLD")
-	end
+        f:RegisterEvent("PLAYER_ENTERING_WORLD")
+        f:RegisterEvent("PLAYER_FLAGS_CHANGED")
+        f:RegisterEvent("PLAYER_REGEN_ENABLED")
+    end
 
     -- Addon sync
     function core:Sync(prefix, msg)
@@ -292,4 +364,57 @@ do
             SendAddonMessage(prefix, msg, "PARTY")
         end
     end
+end
+
+-------------------------------------------------------------------------------
+-- Modules
+--
+
+function core:AddModule(name, desc, func)
+    if type(desc) == "function" then
+        func = desc
+        desc = nil
+    end
+
+    self.moduleslist = self.moduleslist or {}
+    self.moduleslist[#self.moduleslist + 1] = func
+
+    self.modules = self.modules or {}
+    self.modules[#self.modules + 1] = {name = name, desc = desc}
+end
+
+function core:IsDisabled(...)
+    KPackDB.disabled = KPackDB.disabled or {}
+    for i = 1, select("#", ...) do
+        local name = select(i, ...)
+        if KPackDB.disabled[name] == true then
+            name = nil
+            return true
+        end
+    end
+    return false
+end
+
+-------------------------------------------------------------------------------
+-- Classy-1.0 mimic
+--
+
+function core:NewClass(ftype, parent)
+    local class = CreateFrame(ftype)
+    class:Hide()
+    class.mt = {__index = class}
+
+    if parent then
+        class = setmetatable(class, {__index = parent})
+
+        class.super = function(self, method, ...)
+            return parent[method](self, ...)
+        end
+    end
+
+    class.Bind = function(self, obj)
+        return setmetatable(obj, self.mt)
+    end
+
+    return class
 end

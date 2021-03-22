@@ -1,12 +1,20 @@
 <Bindings>
 	<!-- BlizzMove -->
-	<Binding name="KPACKMOVEFRAME" header="KPACKBLIZZMOVE">KPack.BlizzMove:Toggle()</Binding>
+	<Binding name="KPACKMOVEFRAME" header="KPACKBLIZZMOVE">
+		if KPack.BlizzMove then KPack.BlizzMove:Toggle() end
+	</Binding>
 	<Binding name="CLICK QuickButtonFrame:LeftButton" header="KPACKQUICKBUTTON" />
 
 	<!-- Random Mount -->
-	<Binding name="KPACKRANDOMMOUNT_REG" header="KPACKRANDOMMOUNT">KPack.RandomMount:FindMount("")</Binding>
-	<Binding name="KPACKRANDOMMOUNT_RIDING">KPack.RandomMount:FindMount("riding")</Binding>
-	<Binding name="KPACKRANDOMMOUNT_FLYING">KPack.RandomMount:FindMount("flying")</Binding>
+	<Binding name="KPACKRANDOMMOUNT_REG" header="KPACKRANDOMMOUNT">
+		if KPack.RandomMount then KPack.RandomMount:FindMount("") end
+	</Binding>
+	<Binding name="KPACKRANDOMMOUNT_RIDING">
+		if KPack.RandomMount then KPack.RandomMount:FindMount("riding") end
+	</Binding>
+	<Binding name="KPACKRANDOMMOUNT_FLYING">
+		if KPack.RandomMount then KPack.RandomMount:FindMount("flying") end
+	</Binding>
 
 	<!-- MouseOver Raid Icons -->
 	<Binding name="KPACKAUTOMATE_1" header="KPACKAUTOMATE">SetRaidTarget("MOUSEOVER", 1)</Binding>
@@ -20,13 +28,40 @@
 	<Binding name="KPACKAUTOMATE_0">SetRaidTarget("MOUSEOVER", 0)</Binding>
 
 	<!-- MoveAnything -->
-	<Binding name="Toggle MA window" header="KPACKMOVEANYTHING">KPack.MA:ToggleOptionsMenu()</Binding>
-	<Binding name="Move frame - Safe">KPack.MA:SafeMoveFrameAtCursor()</Binding>
-	<Binding name="Hide frame - Safe">KPack.MA:SafeHideFrameAtCursor()</Binding>
-	<Binding name="Reset frame - Safe">KPack.MA:SafeResetFrameAtCursor()</Binding>
-	<Binding name="Move frame - Exact">KPack.MA:MoveFrameAtCursor()</Binding>
-	<Binding name="Hide frame - Exact">KPack.MA:HideFrameAtCursor()</Binding>
-	<Binding name="Reset frame - Exact">KPack.MA:ResetFrameAtCursor()</Binding>
-	<Binding name="Update positions">KPack.MA:SyncAllFrames()</Binding>
-	<Binding name="Show frame info">KPack.MA:DebugFrameAtCursor()</Binding>
+	<Binding name="Toggle MA window" header="KPACKMOVEANYTHING">
+		if KPack.MA then KPack.MA:ToggleOptionsMenu() end
+	</Binding>
+	<Binding name="Move frame - Safe">
+		if KPack.MA then KPack.MA:SafeMoveFrameAtCursor() end
+	</Binding>
+	<Binding name="Hide frame - Safe">
+		if KPack.MA then KPack.MA:SafeHideFrameAtCursor() end
+	</Binding>
+	<Binding name="Reset frame - Safe">
+		if KPack.MA then KPack.MA:SafeResetFrameAtCursor() end
+	</Binding>
+	<Binding name="Move frame - Exact">
+		if KPack.MA then KPack.MA:MoveFrameAtCursor() end
+	</Binding>
+	<Binding name="Hide frame - Exact">
+		if KPack.MA then KPack.MA:HideFrameAtCursor() end
+	</Binding>
+	<Binding name="Reset frame - Exact">
+		if KPack.MA then KPack.MA:ResetFrameAtCursor() end
+	</Binding>
+	<Binding name="Update positions">
+		if KPack.MA then KPack.MA:SyncAllFrames() end
+	</Binding>
+	<Binding name="Show frame info">
+		if KPack.MA then KPack.MA:DebugFrameAtCursor() end
+	</Binding>
+
+	<!-- Combuctor -->
+	<Binding name="COMBUCTOR_TOGGLE_INVENTORY" description="BINDING_NAME_COMBUCTOR_TOGGLE_INVENTORY" header="COMBUCTOR">
+		if KPack.Combuctor then Combuctor:Toggle(0) end
+	</Binding>
+	<Binding name="COMBUCTOR_TOGGLE_BANK" description="BINDING_NAME_COMBUCTOR_TOGGLE_BANK">
+		if KPack.Combuctor then Combuctor:Toggle(-1) end
+	</Binding>
+
 </Bindings>

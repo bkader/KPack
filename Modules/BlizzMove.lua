@@ -1,333 +1,316 @@
-local folder, core = ...
+assert(KPack, "KPack not found!")
+KPack:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(folder, core, L)
+    if core:IsDisabled("BlizzMove") or _G.BlizzMove then return end
 
-local mod = core.BlizzMove or {}
-core.BlizzMove = mod
+    local mod = core.BlizzMove or {}
+    core.BlizzMove = mod
 
-local E = core:Events()
-local L = core.L
+    local DB, _
+    local defaults = {
+        AchievementFrame = {save = true},
+        CalendarFrame = {save = true},
+        AuctionFrame = {save = true},
+        GuildBankFrame = {save = true}
+    }
+    local optionPanel
 
-local DB
-local defaults = {
-    AchievementFrame = {save = true},
-    CalendarFrame = {save = true},
-    AuctionFrame = {save = true},
-    GuildBankFrame = {save = true}
-}
-local optionPanel
+    -- cache frequetly used globals
+    local GetMouseFocus = GetMouseFocus
 
--- cache frequetly used globals
-local GetMouseFocus = GetMouseFocus
-
--- print function
-local function Print(msg)
-    if msg then
-        core:Print(msg, "BlizzMove")
+    -- print function
+    local function Print(msg)
+        if msg then
+            core:Print(msg, "BlizzMove")
+        end
     end
-end
 
-local SetMoveHandler
-do
+    local SetMoveHandler
     do
-        -- handlers the frame OnShow event
-        local function OnShow(self, ...)
-            local settings = DB[self:GetName()]
-            if settings and settings.point and settings.save and _G[settings.relativeTo] then
-                self:ClearAllPoints()
-                self:SetPoint(settings.point, settings.relativeTo, settings.relativePoint, settings.xOfs, settings.yOfs)
-                local scale = settings.scale
-                if scale then
-                    self:SetScale(scale)
-                end
-            end
-        end
-
-        -- handles frames rescaling
-        local function OnMouseWheel(self, ...)
-            if IsControlKeyDown() then
-                local frameToMove = self.frameToMove
-                local scale = frameToMove:GetScale() or 1
-                local arg1 = select(1, ...)
-                if arg1 == 1 then
-                    scale = scale + .1
-                    if scale > 1.5 then
-                        scale = 1.5
-                    end
-                else
-                    scale = scale - .1
-                    if scale < 0.5 then
-                        scale = 0.5
+        do
+            -- handlers the frame OnShow event
+            local function OnShow(self, ...)
+                local settings = DB[self:GetName()]
+                if settings and settings.point and settings.save then
+                    self:ClearAllPoints()
+                    self:SetPoint(
+                        settings.point,
+                        settings.relativeTo or UIParent,
+                        settings.relativePoint,
+                        settings.xOfs,
+                        settings.yOfs
+                    )
+                    local scale = settings.scale
+                    if scale then
+                        self:SetScale(scale)
                     end
                 end
-
-                frameToMove:SetScale(scale)
-                if self.settings then
-                    self.settings.scale = scale
-                end
             end
-        end
 
-        -- handles frames OnDragStart event
-        local function OnDragStart(self)
-            local frameToMove = self.frameToMove
-            local settings = frameToMove.settings
-            frameToMove:StartMoving()
-            frameToMove.isMoving = true
-        end
-
-        -- handles frames OnDragStop
-        local function OnDragStop(self)
-            local frameToMove = self.frameToMove
-            local settings = frameToMove.settings
-            frameToMove:StopMovingOrSizing()
-            frameToMove.isMoving = false
-            if not settings then
-                return
-            end
-            settings.point, settings.relativeTo, settings.relativePoint, settings.xOfs, settings.yOfs =
-                frameToMove:GetPoint()
-        end
-
-        -- handles frames OnMouseUp
-        local function OnMouseUp(self, ...)
-            local frameToMove = self.frameToMove
-            OnDragStop(self)
-
-            if IsControlKeyDown() then
-                local settings = frameToMove.settings
-                if settings then
-                    settings.save = not settings.save
-                    if settings.save then
-                        Print(L:F("%s will be saved.", frameToMove:GetName()))
+            -- handles frames rescaling
+            local function OnMouseWheel(self, ...)
+                if IsControlKeyDown() then
+                    local frameToMove = self.frameToMove
+                    local scale = frameToMove:GetScale() or 1
+                    local arg1 = select(1, ...)
+                    if arg1 == 1 then
+                        scale = scale + .1
+                        if scale > 1.5 then
+                            scale = 1.5
+                        end
                     else
-                        Print(L:F("%s will not be saved.", frameToMove:GetName()))
+                        scale = scale - .1
+                        if scale < 0.5 then
+                            scale = 0.5
+                        end
                     end
-                else
-                    Print(L:F("%s will be saved.", frameToMove:GetName()))
-                    DB[frameToMove:GetName()] = {}
-                    settings = DB[frameToMove:GetName()]
-                    settings.save = true
-                    settings.point, settings.relativeTo, settings.relativePoint, settings.xOfs, settings.yOfs =
-                        frameToMove:GetPoint()
-                    if settings.relativeTo then
-                        settings.relativeTo = settings.relativeTo:GetName()
+
+                    frameToMove:SetScale(scale)
+                    local settings = frameToMove.settings
+                    if settings then
+                        settings.scale = scale
                     end
-                    frameToMove.settings = settings
                 end
             end
+
+            -- handles frames OnDragStart event
+            local function OnDragStart(self)
+                local frameToMove = self.frameToMove
+                local settings = frameToMove.settings
+                frameToMove:StartMoving()
+                frameToMove.isMoving = true
+            end
+
+            -- handles frames OnDragStop
+            local function OnDragStop(self)
+                local frameToMove = self.frameToMove
+                local settings = frameToMove.settings
+                frameToMove:StopMovingOrSizing()
+                frameToMove.isMoving = false
+                if not settings then
+                    return
+                end
+                settings.point, settings.relativeTo, settings.relativePoint, settings.xOfs, settings.yOfs =
+                    frameToMove:GetPoint(1)
+                if settings.relativeTo then
+                    settings.relativeTo = settings.relativeTo:GetName()
+                end
+            end
+
+            -- handles frames OnMouseUp
+            local function OnMouseUp(self, ...)
+                local frameToMove = self.frameToMove
+                OnDragStop(self)
+
+                if IsControlKeyDown() then
+                    local settings = frameToMove.settings
+                    if settings then
+                        settings.save = not settings.save
+                        if settings.save then
+                            Print(L:F("%s will be saved.", frameToMove:GetName()))
+                        else
+                            Print(L:F("%s will not be saved.", frameToMove:GetName()))
+                        end
+                    else
+                        Print(L:F("%s will be saved.", frameToMove:GetName()))
+                        DB[frameToMove:GetName()] = {}
+                        settings = DB[frameToMove:GetName()]
+                        settings.save = true
+                        settings.point, settings.relativeTo, settings.relativePoint, settings.xOfs, settings.yOfs =
+                            frameToMove:GetPoint(1)
+                        if settings.relativeTo then
+                            settings.relativeTo = settings.relativeTo:GetName()
+                        end
+                        frameToMove.settings = settings
+                    end
+                end
+            end
+
+            -- sets frames move handlers.
+            function SetMoveHandler(frameToMove, handler)
+                if not frameToMove then
+                    return
+                end
+                handler = handler or frameToMove
+
+                local settings = DB[frameToMove:GetName()]
+                if not settings then
+                    settings = defaults[frameToMove:GetName()] or {}
+                    DB[frameToMove:GetName()] = settings
+                end
+
+                frameToMove.settings = settings
+                handler.frameToMove = frameToMove
+
+                if not frameToMove.EnableMouse then
+                    return
+                end
+
+                frameToMove:EnableMouse(true)
+                frameToMove:SetMovable(true)
+                handler:RegisterForDrag("RightButton")
+
+                handler:SetScript("OnDragStart", OnDragStart)
+                handler:SetScript("OnDragStop", OnDragStop)
+
+                frameToMove:HookScript("OnShow", OnShow)
+                handler:HookScript("OnMouseUp", OnMouseUp)
+                handler:EnableMouseWheel(true)
+                handler:HookScript("OnMouseWheel", OnMouseWheel)
+            end
         end
 
-        -- sets frames move handlers.
-        function SetMoveHandler(frameToMove, handler)
-            if not frameToMove then
-                return
-            end
-            handler = handler or frameToMove
-
-            local settings = DB[frameToMove:GetName()]
-            if not settings then
-                settings = defaults[frameToMove:GetName()] or {}
-                DB[frameToMove:GetName()] = settings
+        local CreateOptionPanel
+        do
+            -- resets all frames positions and scales
+            local function ResetDB()
+                for k, v in pairs(DB) do
+                    wipe(v)
+                    v.save = (defaults[k] and defaults[k].save == true) or false
+                end
             end
 
-            frameToMove.settings = settings
-            handler.frameToMove = frameToMove
+            -- creates the option panel
+            function CreateOptionPanel()
+                optionPanel = CreateFrame("Frame", "BlizzMovePanel", UIParent)
 
-            if not frameToMove.EnableMouse then
-                return
-            end
+                -- window title
+                local title = optionPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+                title:SetPoint("TOPLEFT", 16, -16)
+                title:SetText("BlizzMove")
 
-            frameToMove:EnableMouse(true)
-            frameToMove:SetMovable(true)
-            handler:RegisterForDrag("RightButton")
+                local subtitle = optionPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+                subtitle:SetHeight(35)
+                subtitle:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
+                subtitle:SetPoint("RIGHT", optionPanel, -32, 0)
+                subtitle:SetNonSpaceWrap(true)
+                subtitle:SetJustifyH("LEFT")
+                subtitle:SetJustifyV("TOP")
+                subtitle:SetText(L["Click the button below to reset all frames."])
 
-            handler:SetScript("OnDragStart", OnDragStart)
-            handler:SetScript("OnDragStop", OnDragStop)
+                local button = CreateFrame("Button", nil, optionPanel, "KPackButtonTemplate")
+                button:SetWidth(100)
+                button:SetHeight(30)
+                button:SetScript("OnClick", ResetDB)
+                button:SetText(RESET)
+                button:SetPoint("TOPLEFT", 20, -60)
 
-            --override frame position according to settings when shown
-            frameToMove:HookScript("OnShow", OnShow)
-
-            --hook OnMouseUp
-            handler:HookScript("OnMouseUp", OnMouseUp)
-
-            --hook Scroll for setting scale
-            handler:EnableMouseWheel(true)
-            handler:HookScript("OnMouseWheel", OnMouseWheel)
-        end
-    end
-
-    local CreateOptionPanel
-    do
-        -- resets all frames positions and scales
-        local function ResetDB()
-            for k, v in pairs(DB) do
-                wipe(v)
-                v.save = (defaults[k] and defaults[k].save == true) or false
+                optionPanel.name = "BlizzMove"
+                InterfaceOptions_AddCategory(optionPanel)
             end
         end
 
-        -- creates the option panel
-        function CreateOptionPanel()
-            optionPanel = CreateFrame("Frame", "BlizzMovePanel", UIParent)
-
-            -- window title
-            local title = optionPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-            title:SetPoint("TOPLEFT", 16, -16)
-            title:SetText("BlizzMove")
-
-            local subtitle = optionPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-            subtitle:SetHeight(35)
-            subtitle:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
-            subtitle:SetPoint("RIGHT", optionPanel, -32, 0)
-            subtitle:SetNonSpaceWrap(true)
-            subtitle:SetJustifyH("LEFT")
-            subtitle:SetJustifyV("TOP")
-            subtitle:SetText(L["Click the button below to reset all frames."])
-
-            local button = CreateFrame("Button", nil, optionPanel, "KPackButtonTemplate")
-            button:SetWidth(100)
-            button:SetHeight(30)
-            button:SetScript("OnClick", ResetDB)
-            button:SetText(RESET)
-            button:SetPoint("TOPLEFT", 20, -60)
-
-            optionPanel.name = "BlizzMove"
-            InterfaceOptions_AddCategory(optionPanel)
-        end
-    end
-
-	-- frame event handler
-	function E:PLAYER_ENTERING_WORLD(...)
-	    if _G.BlizzMove then
-	        return
-	    end
-
-	    if type(KPackDB.BlizzMove) ~= "table" or not next(KPackDB.BlizzMove) then
-	        KPackDB.BlizzMove = CopyTable(defaults)
-	    end
-	    DB = KPackDB.BlizzMove
-
-	    self:RegisterEvent("ADDON_LOADED")
-	    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-
-	    SetMoveHandler(CharacterFrame, PaperDollFrame)
-	    SetMoveHandler(CharacterFrame, TokenFrame)
-	    SetMoveHandler(CharacterFrame, SkillFrame)
-	    SetMoveHandler(CharacterFrame, ReputationFrame)
-	    SetMoveHandler(CharacterFrame, PetPaperDollFrameCompanionFrame)
-	    SetMoveHandler(SpellBookFrame)
-	    SetMoveHandler(QuestLogFrame)
-	    SetMoveHandler(FriendsFrame)
-
-	    if PVPParentFrame then
-	        SetMoveHandler(PVPParentFrame, PVPFrame)
-	    else
-	        SetMoveHandler(PVPFrame)
-	    end
-
-	    SetMoveHandler(_G.LFGParentFrame)
-	    SetMoveHandler(GameMenuFrame)
-	    SetMoveHandler(GossipFrame)
-	    SetMoveHandler(DressUpFrame)
-	    SetMoveHandler(QuestFrame)
-	    SetMoveHandler(MerchantFrame)
-	    SetMoveHandler(HelpFrame)
-	    SetMoveHandler(PlayerTalentFrame)
-	    SetMoveHandler(ClassTrainerFrame)
-	    SetMoveHandler(MailFrame)
-	    SetMoveHandler(BankFrame)
-	    SetMoveHandler(VideoOptionsFrame)
-	    SetMoveHandler(InterfaceOptionsFrame)
-	    SetMoveHandler(LootFrame)
-	    SetMoveHandler(LFDParentFrame)
-	    SetMoveHandler(LFRParentFrame)
-	    SetMoveHandler(TradeFrame)
-
-	    -- create option frame
-	    InterfaceOptionsFrame:HookScript("OnShow", function()
-            if not optionPanel then
-                CreateOptionPanel()
+        core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
+            if type(KPackDB.BlizzMove) ~= "table" or not next(KPackDB.BlizzMove) then
+                KPackDB.BlizzMove = CopyTable(defaults)
             end
-        end)
-	end
+            DB = KPackDB.BlizzMove
 
+            SetMoveHandler(CharacterFrame, PaperDollFrame)
+            SetMoveHandler(CharacterFrame, TokenFrame)
+            SetMoveHandler(CharacterFrame, SkillFrame)
+            SetMoveHandler(CharacterFrame, ReputationFrame)
+            SetMoveHandler(CharacterFrame, PetPaperDollFrameCompanionFrame)
+            SetMoveHandler(SpellBookFrame)
+            SetMoveHandler(QuestLogFrame)
+            SetMoveHandler(FriendsFrame)
 
-    function E:ADDON_LOADED(name)
-        if name == "Blizzard_InspectUI" then
-            -- GuildBankFrame
-            SetMoveHandler(InspectFrame)
-        elseif name == "Blizzard_GuildBankUI" then
-            -- TradeSkillFrame
-            SetMoveHandler(GuildBankFrame)
-        elseif name == "Blizzard_TradeSkillUI" then
-            -- ItemSocketingFrame
-            SetMoveHandler(TradeSkillFrame)
-        elseif name == "Blizzard_ItemSocketingUI" then
-            -- BarberShopFrame
-            SetMoveHandler(ItemSocketingFrame)
-        elseif name == "Blizzard_BarbershopUI" then
-            -- GlyphFrame
-            SetMoveHandler(BarberShopFrame)
-        elseif name == "Blizzard_GlyphUI" then
-            -- MacroFrame
-            SetMoveHandler(SpellBookFrame, GlyphFrame)
-        elseif name == "Blizzard_MacroUI" then
-            -- AchievementFrame
-            SetMoveHandler(MacroFrame)
-        elseif name == "Blizzard_AchievementUI" then
-            -- PlayerTalentFrame
-            SetMoveHandler(AchievementFrame, AchievementFrameHeader)
-        elseif name == "Blizzard_TalentUI" then
-            -- CalendarFrame
+            if PVPParentFrame then
+                SetMoveHandler(PVPParentFrame, PVPFrame)
+            else
+                SetMoveHandler(PVPFrame)
+            end
+
+            SetMoveHandler(_G.LFGParentFrame)
+            SetMoveHandler(GameMenuFrame)
+            SetMoveHandler(GossipFrame)
+            SetMoveHandler(DressUpFrame)
+            SetMoveHandler(QuestFrame)
+            SetMoveHandler(MerchantFrame)
+            SetMoveHandler(HelpFrame)
             SetMoveHandler(PlayerTalentFrame)
-        elseif name == "Blizzard_Calendar" then
-            -- ClassTrainerFrame
-            SetMoveHandler(CalendarFrame)
-        elseif name == "Blizzard_TrainerUI" then
-            -- KeyBindingFrame
             SetMoveHandler(ClassTrainerFrame)
-        elseif name == "Blizzard_BindingUI" then
-            -- AuctionFrame
-            SetMoveHandler(KeyBindingFrame)
-        elseif name == "Blizzard_AuctionUI" then
-            SetMoveHandler(AuctionFrame)
+            SetMoveHandler(MailFrame)
+            SetMoveHandler(BankFrame)
+            SetMoveHandler(VideoOptionsFrame)
+            SetMoveHandler(InterfaceOptionsFrame)
+            SetMoveHandler(LootFrame)
+            SetMoveHandler(LFDParentFrame)
+            SetMoveHandler(LFRParentFrame)
+            SetMoveHandler(TradeFrame)
+
+            -- create option frame
+            InterfaceOptionsFrame:HookScript("OnShow", function()
+                if not optionPanel then
+                    CreateOptionPanel()
+                end
+            end)
+
+            core:RegisterCallback("ADDON_LOADED", function(_, name)
+                if name == "Blizzard_InspectUI" then
+                    SetMoveHandler(InspectFrame)
+                elseif name == "Blizzard_GuildBankUI" then
+                    SetMoveHandler(GuildBankFrame)
+                elseif name == "Blizzard_TradeSkillUI" then
+                    SetMoveHandler(TradeSkillFrame)
+                elseif name == "Blizzard_ItemSocketingUI" then
+                    SetMoveHandler(ItemSocketingFrame)
+                elseif name == "Blizzard_BarbershopUI" then
+                    SetMoveHandler(BarberShopFrame)
+                elseif name == "Blizzard_GlyphUI" then
+                    SetMoveHandler(SpellBookFrame, GlyphFrame)
+                elseif name == "Blizzard_MacroUI" then
+                    SetMoveHandler(MacroFrame)
+                elseif name == "Blizzard_AchievementUI" then
+                    SetMoveHandler(AchievementFrame, AchievementFrameHeader)
+                elseif name == "Blizzard_TalentUI" then
+                    SetMoveHandler(PlayerTalentFrame)
+                elseif name == "Blizzard_Calendar" then
+                    SetMoveHandler(CalendarFrame)
+                elseif name == "Blizzard_TrainerUI" then
+                    SetMoveHandler(ClassTrainerFrame)
+                elseif name == "Blizzard_BindingUI" then
+                    SetMoveHandler(KeyBindingFrame)
+                elseif name == "Blizzard_AuctionUI" then
+                    SetMoveHandler(AuctionFrame)
+                end
+            end)
+        end)
+    end
+
+    -- toggles frames lock/unlock statuses
+    function mod:Toggle(handler)
+        handler = handler or GetMouseFocus()
+        if not handler then
+            return
         end
-        self:UnregisterEvent("ADDON_LOADED")
-    end
-end
 
--- toggles frames lock/unlock statuses
-function mod:Toggle(handler)
-    handler = handler or GetMouseFocus()
-    if not handler then
-        return
-    end
+        -- we're not moving the whole thing are we?!
+        if handler:GetName() == "WorldFrame" then
+            return
+        end
 
-    -- we're not moving the whole thing are we?!
-    if handler:GetName() == "WorldFrame" then
-        return
-    end
+        local lastParent, frameToMove, i = handler, handler, 0
 
-    local lastParent, frameToMove, i = handler, handler, 0
+        while lastParent and lastParent ~= UIParent and i < 100 do
+            frameToMove = lastParent
+            lastParent = lastParent:GetParent()
+            i = i + 1
+        end
 
-    while lastParent and lastParent ~= UIParent and i < 100 do
-        frameToMove = lastParent
-        lastParent = lastParent:GetParent()
-        i = i + 1
-    end
-
-    if handler and frameToMove then
-        if handler:GetScript("OnDragStart") then
-            handler:SetScript("OnDragStart", nil)
-            Print(L:F("%s locked.", frameToMove:GetName()))
+        if handler and frameToMove then
+            if handler:GetScript("OnDragStart") then
+                handler:SetScript("OnDragStart", nil)
+                Print(L:F("%s locked.", frameToMove:GetName()))
+            else
+                Print(L:F("%s will move with handler %s", frameToMove:GetName(), handler:GetName()))
+                SetMoveHandler(frameToMove, handler)
+            end
         else
-            Print(L:F("%s will move with handler %s", frameToMove:GetName(), handler:GetName()))
-            SetMoveHandler(frameToMove, handler)
+            Print(L["Error parent not found!"])
         end
-    else
-        Print(L["Error parent not found!"])
     end
-end
 
--- add to keybidings frame
-_G.BINDING_HEADER_KPACKBLIZZMOVE = "BlizzMove"
-_G.BINDING_NAME_KPACKMOVEFRAME = L["Move/Lock a Frame"]
+    -- add to keybidings frame
+    _G.BINDING_HEADER_KPACKBLIZZMOVE = "BlizzMove"
+    _G.BINDING_NAME_KPACKMOVEFRAME = L["Move/Lock a Frame"]
+end)

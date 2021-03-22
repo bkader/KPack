@@ -1,35 +1,31 @@
-local folder, core = ...
+assert(KPack, "KPack not found!")
+KPack:AddModule("FriendsInfo", function(folder, core, L)
+    if core:IsDisabled("FriendsInfo") then return end
 
-local mod = core.FriendsInfo or CreateFrame("Frame")
-core.FriendsInfo = mod
+    local DB
 
-local E = core:Events()
-local L = core.L
-local DB
+    -- cache frequently used globals
+    local BNGetFriendInfo, GetFriendInfo = BNGetFriendInfo, GetFriendInfo
+    local FriendsFrame_GetLastOnline = FriendsFrame_GetLastOnline
+    local GetRealmName = GetRealmName
+    local format, time, type = string.format, time, type
 
--- cache frequently used globals
-local BNGetFriendInfo, GetFriendInfo = BNGetFriendInfo, GetFriendInfo
-local FriendsFrame_GetLastOnline = FriendsFrame_GetLastOnline
-local GetRealmName = GetRealmName
-local format, time, type = string.format, time, type
+    -- needed locals
+    local realm
 
--- needed locals
-local realm
-
--- module default print function.
-local function Print(msg)
-    if msg then
-        core:Print(msg, "FriendsInfo")
+    -- module default print function.
+    local function Print(msg)
+        if msg then
+            core:Print(msg, "FriendsInfo")
+        end
     end
-end
 
-do
     -- this function is hooked to default FriendsFrame scroll frame
     local function FriendsInfo_SetButton(button, index, firstButton)
         local noteColor = "|cfffde05c"
 
         if button.buttonType == FRIENDS_BUTTON_TYPE_BNET then
-            local presenceID, givenName, surname, toonName, toonID, client, isOnline, lastOnline, isAFK, isDND, messageText, noteText, isFriend, unknown = BNGetFriendInfo(button.id)
+            local _, _, _, _, _, _, _, _, _, _, _, noteText, _, _ = BNGetFriendInfo(button.id)
             if noteText then
                 button.info:SetText(button.info:GetText() .. " " .. noteColor .. "(" .. noteText .. ")")
             end
@@ -39,13 +35,15 @@ do
             return
         end
 
-        local name, level, class, area, connected, status, note = GetFriendInfo(button.id)
+        local name, level, class, area, connected, _, note = GetFriendInfo(button.id)
         if not name then
             return
         end
 
         local n
-        if note then n = noteColor .. "(" .. note .. ")" end
+        if note then
+            n = noteColor .. "(" .. note .. ")"
+        end
 
         -- add the friend to database
         DB[realm] = DB[realm] or {}
@@ -59,7 +57,9 @@ do
             DB[realm][name].area = area
             DB[realm][name].lastSeen = format("%i", time())
 
-            if n then button.info:SetText(button.info:GetText() .. " " .. n) end
+            if n then
+                button.info:SetText(button.info:GetText() .. " " .. n)
+            end
         else
             level = DB[realm][name].level
             class = DB[realm][name].class
@@ -88,17 +88,12 @@ do
         hooksecurefunc(FriendsFrameFriendsScrollFrame, "buttonFunc", FriendsInfo_SetButton)
     end
 
-    -- on player entering the world
-    function E:ADDON_LOADED(name)
-        if name ~= folder then return end
-        self:UnregisterEvent("ADDON_LOADED")
+    core:RegisterCallback("PLAYER_LOGIN", function(_, name)
         KPackDB.FriendsInfo = KPackDB.FriendsInfo or {}
         DB = KPackDB.FriendsInfo
-    end
+    end)
 
-    -- on player entering the world
-    function E:PLAYER_ENTERING_WORLD()
-        self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    core:RegisterCallback("PLAYER_ENTERING_WORLD", function()
         FriendsInfo_Initialize()
-    end
-end
+    end)
+end)

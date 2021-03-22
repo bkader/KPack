@@ -1,44 +1,40 @@
-local folder, core = ...
-local mod = core.Math or {}
-core.Math = mod
-local E = core:Events()
+assert(KPack, "KPack not found!")
+KPack:AddModule("Math", function(folder, core)
+    if core:IsDisabled("Math") then return end
 
--- cache frequently used globals
-local find, gsub = string.find, string.gsub
-local previous
+    -- cache frequently used globals
+    local find, gsub = string.find, string.gsub
+    local previous
 
--- main function that does calculation
-function KPack_Math(eq)
-    if not find(eq, "^[()*/+%^-0123456789. ]+$") then
-        return
+    -- main function that does calculation
+    function KPack_Math(eq)
+        if not find(eq, "^[()*/+%^-0123456789. ]+$") then
+            return
+        end
+
+        local expr = eq
+        eq = gsub(eq, " ", "")
+        if find(eq, "[()]%^") or find(eq, "%^[()]") then
+            return
+        end
+
+        eq = gsub(eq, "([%d%.]+)^([%d%.]+)", "(ldexp(%1,%2-1))")
+        eq = gsub(eq, "(%d)%(", "%1*(")
+        eq = gsub(eq, "%)([%d%.])", ")*%1")
+        eq = gsub(eq, "%)%(", ")*(")
+
+        local _, _, first = find(eq, "^([*/+-])")
+        if first and previous then
+            eq = previous .. " " .. eq
+        elseif first then
+            return
+        end
+
+        RunScript('print("' .. expr .. ' = "..' .. eq .. ")")
+        RunScript("previous = " .. eq)
     end
 
-    local expr = eq
-    eq = gsub(eq, " ", "")
-    if find(eq, "[()]%^") or find(eq, "%^[()]") then
-        return
-    end
-
-    eq = gsub(eq, "([%d%.]+)^([%d%.]+)", "(ldexp(%1,%2-1))")
-    eq = gsub(eq, "(%d)%(", "%1*(")
-    eq = gsub(eq, "%)([%d%.])", ")*%1")
-    eq = gsub(eq, "%)%(", ")*(")
-
-    local _, _, first = find(eq, "^([*/+-])")
-    if first and previous then
-        eq = previous .. " " .. eq
-    elseif first then
-        return
-    end
-
-    RunScript('print("' .. expr .. ' = "..' .. eq .. ")")
-    RunScript("previous = " .. eq)
-end
-
-function E:ADDON_LOADED(name)
-	if name ~= folder then return end
-	self:UnregisterEvent("ADDON_LOADED")
-	SlashCmdList["KPACKMATH"] = KPack_Math
-	_G.SLASH_KPACKMATH1 = "/math"
-	_G.SLASH_KPACKMATH2 = "/calc"
-end
+    SlashCmdList["KPACKMATH"] = KPack_Math
+    _G.SLASH_KPACKMATH1 = "/math"
+    _G.SLASH_KPACKMATH2 = "/calc"
+end)
