@@ -76,6 +76,21 @@ KPack:AddModule("Nameplates", function(folder, core, L)
             overlayRegion:GetTexture() == [[Interface\Tooltips\Nameplate-Border]])
     end
 
+	-- returns the nameplate reaction
+	local function NameplateReaction(r, g, b, a)
+	    if r < 0.01 and b < 0.01 and g > 0.99 then
+	        return "FRIENDLY", "NPC"
+	    elseif r < 0.01 and b > 0.99 and g < 0.01 then
+	        return "FRIENDLY", "PLAYER"
+	    elseif r > 0.99 and b < 0.01 and g > 0.99 then
+	        return "NEUTRAL", "NPC"
+	    elseif r > 0.99 and b < 0.01 and g < 0.01 then
+	        return "HOSTILE", "NPC"
+	    else
+	        return "HOSTILE", "PLAYER"
+	    end
+	end
+
     -- format the text of the health
     local Nameplate_FormatHealthText
     do
