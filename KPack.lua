@@ -177,7 +177,7 @@ do
     end
 
     local function CreateSmallButton(self, parent, ...)
-        local btn = lib.new(parent, ...)
+        local btn = CreateButton(self, parent, ...)
         btn:SetHighlightFontObject(GameFontHighlightSmall)
         btn:SetNormalFontObject(GameFontNormalSmall)
         return btn
@@ -429,9 +429,9 @@ do
         scrollFrame:SetPoint("BOTTOMRIGHT", -30, 36)
 
         local scrollChild = CreateFrame("Frame", "$parentScrollChild", scrollFrame)
-        scrollFrame:SetScrollChild(scrollChild)
         scrollChild:SetAllPoints(scrollFrame)
-        scrollChild:SetSize(scrollFrame:GetWidth(), scrollFrame:GetHeight() * 2)
+        scrollChild:SetSize(412, (#core.modules/2)*26)
+        scrollFrame:SetScrollChild(scrollChild)
 
         -- reload ui button
         local reload = CreateFrame("Button", nil, panel, "KPackButtonTemplate")
