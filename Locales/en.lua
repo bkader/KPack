@@ -533,11 +533,11 @@ L["toggle showing personal resources out of combat"] = true
 L["change personal resources scale"] = true
 L["change personal resources width"] = true
 L["change personal resources height"] = true
-L["Hide out of combat"] = true
+L["Show out of combat"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- SimpleComboPoints
--- //////////////////////////////////////////////////////
+--
 
 L["The width must be a valid number"] = true
 L["The height must be a valid number"] = true
@@ -549,18 +549,19 @@ L["Changes frame scale."] = true
 L["Changes spacing between points."] = true
 L["Changes points color."] = true
 L["Toggles showing combo points out of combat."] = true
+L["Hide out of combat"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- Simplified
--- //////////////////////////////////////////////////////
+--
 
 L["Combat logging is currently %s."] = true
 L["Combat logging is now %s."] = true
 L["Change Specilization"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- Tooltip
--- //////////////////////////////////////////////////////
+--
 
 L["toggles unit tooltip in combat"] = true
 L["toggles bar spells tooltip in combat"] = true
@@ -579,9 +580,9 @@ L["enhanced tooltips: %s"] = true
 L["tooltip moved to top middle of the screen."] = true
 L["tooltip moved to default position."] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- PullnBreak
--- //////////////////////////////////////////////////////
+--
 
 L["Pull in %s"] = true
 L["{rt8} Pull Now! {rt8}"] = true
@@ -592,34 +593,34 @@ L["Break ends in %s"] = true
 L["{rt1} Break Ends Now {rt1}"] = true
 L["{rt7} Break Canceled {rt7}"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- QuickButton
--- //////////////////////////////////////////////////////
+--
 
 L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."] = true
 L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = true
 L["button scale set to |cff00ffff%s|r"] = true
 L["Scales the button."] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- Raid Utility
--- //////////////////////////////////////////////////////
+--
 
 L["Disband Group"] = true
 L["Raid Menu"] = true
 L["Are you sure you want to disband the group?"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- UnitFrames
--- //////////////////////////////////////////////////////
+--
 
 L["changes the unit frames scale."] = true
 L["toggle using class icons instead of portraits"] = true
 L["To move the player and target, hold SHIFT and ALT while dragging them around."] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- Viewporter
--- //////////////////////////////////////////////////////
+--
 
 L["changes thew viewport on the selected side."] = true
 L["Toggles viewporter status."] = true

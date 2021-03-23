@@ -1,6 +1,6 @@
 # KPack - Lots-In-One AddOn Collection!
 
-Currently, this pack contains 53 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 56 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -249,3 +249,7 @@ Provides buttons for several uses in groups or raids. You can disband the group,
 ## 53. Raid Target Icons:
 
 If you don't know an addon called _SimpleRaidTargetIcons_, it's an addon that opens a ring menu above units, allowing you to set icons. You can double click or CTLR+Click to open the menu. More settings can be found inside the file.
+
+## 54. Combuctor
+## 55. ActionBarSaver
+## 56. RaidBrowser
