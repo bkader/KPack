@@ -76,20 +76,20 @@ KPack:AddModule("Nameplates", function(folder, core, L)
             overlayRegion:GetTexture() == [[Interface\Tooltips\Nameplate-Border]])
     end
 
-	-- returns the nameplate reaction
-	local function NameplateReaction(r, g, b, a)
-	    if r < 0.01 and b < 0.01 and g > 0.99 then
-	        return "FRIENDLY", "NPC"
-	    elseif r < 0.01 and b > 0.99 and g < 0.01 then
-	        return "FRIENDLY", "PLAYER"
-	    elseif r > 0.99 and b < 0.01 and g > 0.99 then
-	        return "NEUTRAL", "NPC"
-	    elseif r > 0.99 and b < 0.01 and g < 0.01 then
-	        return "HOSTILE", "NPC"
-	    else
-	        return "HOSTILE", "PLAYER"
-	    end
-	end
+    -- returns the nameplate reaction
+    local function NameplateReaction(r, g, b, a)
+        if r < 0.01 and b < 0.01 and g > 0.99 then
+            return "FRIENDLY", "NPC"
+        elseif r < 0.01 and b > 0.99 and g < 0.01 then
+            return "FRIENDLY", "PLAYER"
+        elseif r > 0.99 and b < 0.01 and g > 0.99 then
+            return "NEUTRAL", "NPC"
+        elseif r > 0.99 and b < 0.01 and g < 0.01 then
+            return "HOSTILE", "NPC"
+        else
+            return "HOSTILE", "PLAYER"
+        end
+    end
 
     -- format the text of the health
     local Nameplate_FormatHealthText
@@ -487,15 +487,13 @@ KPack:AddModule("Nameplates", function(folder, core, L)
 
     local function SetupDatabase()
         if not DB then
-            if type(KPackDB.Nameplates) ~= "table" or not next(KPackDB.Nameplates) then
-                KPackDB.Nameplates = CopyTable(defaults)
+            if type(core.db.Nameplates) ~= "table" or not next(core.db.Nameplates) then
+                core.db.Nameplates = CopyTable(defaults)
             end
-            DB = KPackDB.Nameplates
+            DB = core.db.Nameplates
 
             for k, v in pairs(DB) do
-                if config[k] == nil then
-                    config[k] = v
-                end
+                config[k] = v
             end
         end
     end
@@ -511,6 +509,92 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         -- you can manually override things here
         config.hpTextFont = {config.font, config.fontSize, config.fontOutline}
         config.hpPercentFont = {config.font, config.fontSize, config.fontOutline}
+
+		local function _disabled() return not DB.enabled end
+        core.options.args.options.args.nameplates = {
+            type = "group",
+            name = L["Nameplates"],
+            get = function(i)
+                return DB[i[#i]]
+            end,
+            set = function(i, val)
+                DB[i[#i]] = val
+                config[i[#i]] = val
+            end,
+            args = {
+                enabled = {
+                    type = "toggle",
+                    name = "enabled",
+                    order = 1
+                },
+                showHealthText = {
+                    type = "toggle",
+                    name = "showHealthText",
+                    order = 2,
+                    disabled = disabled
+                },
+                shortenNumbers = {
+                    type = "toggle",
+                    name = "shortenNumbers",
+                    order = 3,
+                    disabled = disabled
+                },
+                showHealthPercent = {
+                    type = "toggle",
+                    name = "showHealthPercent",
+                    order = 4,
+					disabled = disabled
+                },
+                barWidth = {
+                    type = "range",
+                    name = L["Width"],
+                    order = 5,
+                    min = 80,
+                    max = 250,
+                    step = 1,
+					disabled = disabled
+                },
+                barHeight = {
+                    type = "range",
+                    name = L["Height"],
+                    order = 6,
+                    min = 5,
+                    max = 30,
+                    step = 1,
+					disabled = disabled
+                },
+                fontSize = {
+                    type = "range",
+                    name = L["Font Size"],
+                    order = 7,
+                    min = 6,
+                    max = 30,
+                    step = 1,
+					disabled = disabled
+                },
+				sep = {
+					type = "description",
+					name = " ",
+					order = 7.1
+				},
+	            reset = {
+	                type = "execute",
+	                name = RESET,
+	                order = 9,
+	                width = "full",
+	                confirm = function()
+	                    return L:F("Are you sure you want to reset %s to default?", "Nameplates")
+	                end,
+	                func = function()
+						wipe(DB)
+						DB = defaults
+						for k, v in pairs(DB) do config[k] = v end
+						Print(L["module's settings reset to default."])
+	                end,
+					disabled = disabled
+	            }
+            }
+        }
     end)
 
     do
@@ -532,7 +616,9 @@ KPack:AddModule("Nameplates", function(folder, core, L)
 
         -- on mod loaded.
         core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
-            if disabled then return end
+            if disabled then
+                return
+            end
 
             SetupDatabase()
             if DB.enabled and not disabled then

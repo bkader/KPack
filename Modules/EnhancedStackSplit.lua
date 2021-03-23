@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("EnhancedStackSplit", function(folder, core, L)
+KPack:AddModule("EnhancedStackSplit", "Enhances the StackSplitFrame with numbered Buttons.", function(folder, core, L)
     if core:IsDisabled("EnhancedStackSplit") then return end
 
     local mod = core.EnhStackSplit or {}
@@ -884,10 +884,10 @@ KPack:AddModule("EnhancedStackSplit", function(folder, core, L)
 
     local function SetupDatabase()
         if not DB then
-            if type(KPackDB.StackSplit) ~= "table" or not next(KPackDB.StackSplit) then
-                KPackDB.StackSplit = CopyTable(defaults)
+            if type(core.db.StackSplit) ~= "table" or not next(core.db.StackSplit) then
+                core.db.StackSplit = CopyTable(defaults)
             end
-            DB = KPackDB.StackSplit
+            DB = core.db.StackSplit
         end
     end
     core:RegisterForEvent("PLAYER_LOGIN", function()

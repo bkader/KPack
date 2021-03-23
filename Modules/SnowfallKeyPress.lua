@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("SnowfallKeyPress", function(addonName, addon)
-	if addon:IsDisabled("SnowfallKeyPress") then return end
+KPack:AddModule("SnowfallKeyPress", function(_, core, L)
+	if core:IsDisabled("SnowfallKeyPress") then return end
 
 	-------------------------------------------------------------------------------
 	-- Module declaration
@@ -675,15 +675,15 @@ KPack:AddModule("SnowfallKeyPress", function(addonName, addon)
 
 	function SetupDatabase()
 		if not DB then
-		    if type(KPackDB.SnowfallKeyPress) ~= "table" or not next(KPackDB.SnowfallKeyPress) then
-		        KPackDB.SnowfallKeyPress = {keys = {}, enable = true}
+		    if type(core.db.SnowfallKeyPress) ~= "table" or not next(core.db.SnowfallKeyPress) then
+		        core.db.SnowfallKeyPress = {keys = {}, enable = true}
 		    end
-		    DB = KPackDB.SnowfallKeyPress
+		    DB = core.db.SnowfallKeyPress
 		    keysConfig = DB.keys
 		end
 	end
 
-	addon:RegisterForEvent("PLAYER_LOGIN", function()
+	core:RegisterForEvent("PLAYER_LOGIN", function()
 		SetupDatabase()
 	    enableButton:SetChecked(DB.enable)
 

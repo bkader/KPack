@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("Tooltip", function(folder, core, L)
+KPack:AddModule("Tooltip", function(_, core, L)
 	if core:IsDisabled("Tooltip") then return end
 
 	-- saved variables & defaults
@@ -40,10 +40,10 @@ KPack:AddModule("Tooltip", function(folder, core, L)
 
 	local function SetupDatabase()
 		if not DB then
-			if type(KPackCharDB.Tooltip) ~= "table" or not next(KPackCharDB.Tooltip) then
-				KPackCharDB.Tooltip = CopyTable(defaults)
+			if type(core.char.Tooltip) ~= "table" or not next(core.char.Tooltip) then
+				core.char.Tooltip = CopyTable(defaults)
 			end
-			DB = KPackCharDB.Tooltip
+			DB = core.char.Tooltip
 		end
 	end
 

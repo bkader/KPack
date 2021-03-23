@@ -159,51 +159,11 @@ KPack:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(fol
             end
         end
 
-        local CreateOptionPanel
-        do
-            -- resets all frames positions and scales
-            local function ResetDB()
-                for k, v in pairs(DB) do
-                    wipe(v)
-                    v.save = (defaults[k] and defaults[k].save == true) or false
-                end
-            end
-
-            -- creates the option panel
-            function CreateOptionPanel()
-                optionPanel = CreateFrame("Frame", "BlizzMovePanel", UIParent)
-
-                -- window title
-                local title = optionPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-                title:SetPoint("TOPLEFT", 16, -16)
-                title:SetText("BlizzMove")
-
-                local subtitle = optionPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-                subtitle:SetHeight(35)
-                subtitle:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
-                subtitle:SetPoint("RIGHT", optionPanel, -32, 0)
-                subtitle:SetNonSpaceWrap(true)
-                subtitle:SetJustifyH("LEFT")
-                subtitle:SetJustifyV("TOP")
-                subtitle:SetText(L["Click the button below to reset all frames."])
-
-                local button = CreateFrame("Button", nil, optionPanel, "KPackButtonTemplate")
-                button:SetWidth(100)
-                button:SetHeight(30)
-                button:SetScript("OnClick", ResetDB)
-                button:SetText(RESET)
-                button:SetPoint("TOPLEFT", 20, -60)
-
-                optionPanel.name = "BlizzMove"
-                InterfaceOptions_AddCategory(optionPanel)
-            end
-        end
-
         core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
-            if type(KPackDB.BlizzMove) ~= "table" or not next(KPackDB.BlizzMove) then
-                KPackDB.BlizzMove = CopyTable(defaults)
+            if type(core.db.BlizzMove) ~= "table" or not next(core.db.BlizzMove) then
+                core.db.BlizzMove = CopyTable(defaults)
             end
-            DB = KPackDB.BlizzMove
+            DB = core.db.BlizzMove
 
             SetMoveHandler(CharacterFrame, PaperDollFrame)
             SetMoveHandler(CharacterFrame, TokenFrame)
@@ -239,41 +199,58 @@ KPack:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(fol
             SetMoveHandler(TradeFrame)
 
             -- create option frame
-            InterfaceOptionsFrame:HookScript("OnShow", function()
-                if not optionPanel then
-                    CreateOptionPanel()
-                end
-            end)
+            core.options.args.options.args.BlizzMove = {
+                type = "group",
+                name = "BlizzMove",
+                width = "full",
+                args = {
+                    reset = {
+                        type = "execute",
+                        name = RESET,
+                        desc = L["Click the button below to reset all frames."],
+                        width = "full",
+                        func = function()
+                            for k, v in pairs(DB) do
+                                wipe(v)
+                                v.save = (defaults[k] and defaults[k].save == true) or false
+                            end
+                        end
+                    }
+                }
+            }
 
-            core:RegisterForEvent("ADDON_LOADED", function(_, name)
-                if name == "Blizzard_InspectUI" then
-                    SetMoveHandler(InspectFrame)
-                elseif name == "Blizzard_GuildBankUI" then
-                    SetMoveHandler(GuildBankFrame)
-                elseif name == "Blizzard_TradeSkillUI" then
-                    SetMoveHandler(TradeSkillFrame)
-                elseif name == "Blizzard_ItemSocketingUI" then
-                    SetMoveHandler(ItemSocketingFrame)
-                elseif name == "Blizzard_BarbershopUI" then
-                    SetMoveHandler(BarberShopFrame)
-                elseif name == "Blizzard_GlyphUI" then
-                    SetMoveHandler(SpellBookFrame, GlyphFrame)
-                elseif name == "Blizzard_MacroUI" then
-                    SetMoveHandler(MacroFrame)
-                elseif name == "Blizzard_AchievementUI" then
-                    SetMoveHandler(AchievementFrame, AchievementFrameHeader)
-                elseif name == "Blizzard_TalentUI" then
-                    SetMoveHandler(PlayerTalentFrame)
-                elseif name == "Blizzard_Calendar" then
-                    SetMoveHandler(CalendarFrame)
-                elseif name == "Blizzard_TrainerUI" then
-                    SetMoveHandler(ClassTrainerFrame)
-                elseif name == "Blizzard_BindingUI" then
-                    SetMoveHandler(KeyBindingFrame)
-                elseif name == "Blizzard_AuctionUI" then
-                    SetMoveHandler(AuctionFrame)
+            core:RegisterForEvent(
+                "ADDON_LOADED",
+                function(_, name)
+                    if name == "Blizzard_InspectUI" then
+                        SetMoveHandler(InspectFrame)
+                    elseif name == "Blizzard_GuildBankUI" then
+                        SetMoveHandler(GuildBankFrame)
+                    elseif name == "Blizzard_TradeSkillUI" then
+                        SetMoveHandler(TradeSkillFrame)
+                    elseif name == "Blizzard_ItemSocketingUI" then
+                        SetMoveHandler(ItemSocketingFrame)
+                    elseif name == "Blizzard_BarbershopUI" then
+                        SetMoveHandler(BarberShopFrame)
+                    elseif name == "Blizzard_GlyphUI" then
+                        SetMoveHandler(SpellBookFrame, GlyphFrame)
+                    elseif name == "Blizzard_MacroUI" then
+                        SetMoveHandler(MacroFrame)
+                    elseif name == "Blizzard_AchievementUI" then
+                        SetMoveHandler(AchievementFrame, AchievementFrameHeader)
+                    elseif name == "Blizzard_TalentUI" then
+                        SetMoveHandler(PlayerTalentFrame)
+                    elseif name == "Blizzard_Calendar" then
+                        SetMoveHandler(CalendarFrame)
+                    elseif name == "Blizzard_TrainerUI" then
+                        SetMoveHandler(ClassTrainerFrame)
+                    elseif name == "Blizzard_BindingUI" then
+                        SetMoveHandler(KeyBindingFrame)
+                    elseif name == "Blizzard_AuctionUI" then
+                        SetMoveHandler(AuctionFrame)
+                    end
                 end
-            end)
+            )
         end)
     end
 

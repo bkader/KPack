@@ -2,6 +2,11 @@
 ..\FrameXML\UI.xsd">
 <Script file="LibStub\LibStub.lua" />
 <Script file="CallbackHandler-1.0\CallbackHandler-1.0.lua" />
+<Script file="AceHook-3.0\AceHook-3.0.lua" />
+<Include file="AceGUI-3.0\AceGUI-3.0.xml"/>
+<Include file="AceConfig-3.0\AceConfig-3.0.xml"/>
+<Script file="LibSharedMedia-3.0\LibSharedMedia-3.0.lua"/>
+<Include file="AceGUI-3.0-SharedMediaWidgets\widget.xml"/>
 <Script file="LibInternalCooldowns\LibInternalCooldowns.lua" />
 <Script file="LibQTip-1.0\LibQTip-1.0.lua" />
 <Include file="libTab-1.0\libTab-1.0.xml" />

@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("IgnoreMore", "Let you ignore more than 49 players, a list shared between all characters of the same account.", function(folder, core, L)
+KPack:AddModule("IgnoreMore", "Let you ignore more than 49 players, a list shared between all characters of the same account.", function(_, core, L)
 	if core:IsDisabled("IgnoreMore") then return end
 
 	local mod = core.IgnoreMore or {}
@@ -526,10 +526,10 @@ KPack:AddModule("IgnoreMore", "Let you ignore more than 49 players, a list share
 
 	    core:RegisterForEvent("VARIABLES_LOADED", function()
 	        -- set our default variables
-	        if type(KPackDB.IgnoreMore) ~= "table" or not next(KPackDB.IgnoreMore) then
-	            KPackDB.IgnoreMore = CopyTable(defaults)
+	        if type(core.db.IgnoreMore) ~= "table" or not next(core.db.IgnoreMore) then
+	            core.db.IgnoreMore = CopyTable(defaults)
 	        end
-	        DB = KPackDB.IgnoreMore
+	        DB = core.db.IgnoreMore
 
 	        realm = realm or IgnoreMore_GetRealm()
 	        DB.list[realm] = DB.list[realm] or {}

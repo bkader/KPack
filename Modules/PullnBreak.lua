@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("PullnBreak", function(folder, core, L)
+KPack:AddModule("PullnBreak", function(_, core, L)
     if core:IsDisabled("PullnBreak") then return end
 
     local mod = core.PullnBreak or {}
@@ -143,10 +143,10 @@ KPack:AddModule("PullnBreak", function(folder, core, L)
 
     local function SetupDatabase()
         if not DB then
-            if type(KPackCharDB.PullnBreak) ~= "table" or not next(KPackCharDB.PullnBreak) then
-                KPackCharDB.PullnBreak = CopyTable(defaults)
+            if type(core.char.PullnBreak) ~= "table" or not next(core.char.PullnBreak) then
+                core.char.PullnBreak = CopyTable(defaults)
             end
-            DB = KPackCharDB.PullnBreak
+            DB = core.char.PullnBreak
         end
     end
     core:RegisterForEvent("PLAYER_LOGIN", SetupDatabase)

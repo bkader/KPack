@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("FriendsInfo", function(folder, core, L)
+KPack:AddModule("FriendsInfo", "Adds info to the friends list.", function(_, core, L)
     if core:IsDisabled("FriendsInfo") then return end
 
     local DB
@@ -89,8 +89,8 @@ KPack:AddModule("FriendsInfo", function(folder, core, L)
     end
 
     core:RegisterForEvent("PLAYER_LOGIN", function(_, name)
-        KPackDB.FriendsInfo = KPackDB.FriendsInfo or {}
-        DB = KPackDB.FriendsInfo
+        core.db.FriendsInfo = core.db.FriendsInfo or {}
+        DB = core.db.FriendsInfo
     end)
 
     core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()

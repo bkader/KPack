@@ -20,11 +20,14 @@ end
 
 addon.L = L
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- General:
--- //////////////////////////////////////////////////////
+--
 
 L["addon loaded. use |cffffd700/kp help|r for help."] = true
+L["Enable"] = true
+L["Type |cffffd700/%s|r in chat for more."] = true
+
 L["module loaded."] = true
 
 L["module enabled."] = true
@@ -65,9 +68,9 @@ L["More from |caaf49141%s|r:"] = true
 L["Current list of commands:"] = true
 L["|cffffd700%s|r: %s"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- AddOn Manager:
--- //////////////////////////////////////////////////////
+--
 
 L["Reload UI"] = true
 L["Enable all"] = true
@@ -75,10 +78,21 @@ L["Disable all"] = true
 L["|cffff4400Dependencies: |r"] = true
 L["|cffffffff%d|r AddOns: |cffffffff%d|r |cff00ff00Enabled|r, |cffffffff%d|r |cffff0000Disabled|r"] = true
 
--- //////////////////////////////////////////////////////
--- Action Bars module:
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
+-- BlizzMove
+--
 
+L["Click the button below to reset all frames."] = true
+L["Move/Lock a Frame"] = true
+L["%s will be saved."] = true
+L["%s will not be saved."] = true
+L["%s will move with handler %s"] = true
+
+-------------------------------------------------------------------------------
+-- ActionBars
+--
+
+L["Allows you to tweak your action bars in the limit of the allowed."] = true
 L["move right action bars on top of middle ones."] = true
 L["move right action bars to their default location."] = true
 L["scales the action bars. n between 0 and 1."] = true
@@ -96,10 +110,11 @@ L["range detection: %s"] = true
 L["mouseover right bars: %s"] = true
 L["BfA UI: %s"] = true
 
--- //////////////////////////////////////////////////////
--- Action Bar Saver:
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
+-- ActionBarSaver
+--
 
+L["Allows you to setup different profiles for your action bars."] = true
 L["Unable to restore macros, you already have 18 global and 18 per character ones created."] = true
 L["Invalid spells passed, remember you must put quotes around both of them."] = true
 L["Auto macro restoration is now disabled!"] = true
@@ -138,82 +153,61 @@ L["/abs macro - Attempts to restore macros that have been deleted for a profile.
 L["/abs rank - Toggles if ABS should restore the highest rank of the spell, or the one saved originally."] = true
 L["/abs list - Lists all saved profiles."] = true
 
--- //////////////////////////////////////////////////////
--- AFK module:
--- //////////////////////////////////////////////////////
+L["Toggles checking if you have the item in your inventory before restoring it, use if you have disconnect issues when restoring."] = true
+L["Attempts to restore macros that have been deleted for a profile."] = true
+L["Toggles if ABS should restore the highest rank of the spell, or the one saved originally."] = true
+
+-------------------------------------------------------------------------------
+-- AFK
+--
 
 L["You are AFK!"] = true
 L["I am Back"] = true
 
--- //////////////////////////////////////////////////////
--- Armory Linl
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
+-- Align
+--
 
-L["Armory Link"] = true
-L["Warmane Armory Link"] = true
-L["Couldn't find realm!"] = true
+L["A very simple alignment grid with no options."] = true
 
--- //////////////////////////////////////////////////////
--- AutoMate
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
+-- AllStats
 
-L["ignore all duels"] = true
-L["skip quests gossip"] = true
-L["automatically sell junks"] = true
-L["show nameplates only in combat"] = true
-L["show the minimap only in combat"] = true
-L["equiment repair using guild gold or own gold"] = true
-L["automatic ui scale"] = true
-L["automatic max camera zoom out"] = true
-L["automatic screenshot on achievement"] = true
+L["Moves the functionality of the stat dropdowns to a panel on the right side of the paperdoll, so that you can see all of your stats at once."] = true
 
-L["ignore duels: %s"] = true
-L["skip gossip: %s"] = true
-L["sell junk: %s"] = true
-L["auto repair: %s"] = true
-L["auto nameplates: %s"] = true
-L["auto hide minimap: %s"] = true
-L["auto ui scale: %s"] = true
-L["auto max camera: %s"] = true
-L["auto screenshot on achievement: %s"] = true
+-------------------------------------------------------------------------------
+-- AltTabber
+--
 
--- More
+L["Tick the sounds you want AltTabber to play:"] = true
+
+-------------------------------------------------------------------------------
+-- Automate
+--
+
+L["Automates some of the more tedious tasks in WoW."] = true
+L["Repair equipment"] = true
+L["Sell Junk"] = true
+L["Shows nameplates only in combat."] = true
+L["Cancel Duels"] = true
+L["Skip Quest Gossip"] = true
+L["Max Camera Distance"] = true
+L["Achievement Screenshot"] = true
+L["Automatic UI Scale"] = true
+L["You have successfully sold %d grey items."] = true
+L["Repair cost covered by Guild Bank: %dg %ds %dc."] = true
+L["Your items have been repaired for %dg %ds %dc."] = true
+L["You don't have enough money to repair items!"] = true
 L["|cffffd700Alt-Click|r to buy a stack of item from merchant."] = true
-L["A proper ReadyCheck sound."] = true
 L["You can keybind raid icons on MouseOver. Check keybindings."] = true
-L["MouseOver and Mark"] = true
 L["Remove Icon"] = true
 
--- //////////////////////////////////////////////////////
--- BlizzMove
--- //////////////////////////////////////////////////////
-
-L["Click the button below to reset all frames."] = true
-L["Move/Lock a Frame"] = true
-L["%s will be saved."] = true
-L["%s will not be saved."] = true
-L["%s will move with handler %s"] = true
-
--- //////////////////////////////////////////////////////
--- Death Recap
--- //////////////////////////////////////////////////////
-
-L["Death Recap"] = true
-L["Death Recap unavailable."] = true
-L["%s %s"] = true
-L["%s by %s"] = true
-L["(%d Overkill)"] = true
-L["(%d Absorbed)"] = true
-L["(%d Resisted)"] = true
-L["(%d Blocked)"] = true
-L["%s sec before death at %s%% health."] = true
-L["Killing blow at %s%% health."] = true
-
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- Chat Filter
--- //////////////////////////////////////////////////////
+--
 
 L["Chat Filter"] = true
+L["Filters out words or completely removes sentences from the chat when a blacklisted word has been found in the sentence."] = true
 L["filter is now %s"] = true
 L["Input is not a number"] = true
 L["filter keywords are:"] = true
@@ -233,9 +227,9 @@ L["View the last |cff00ffffn|r filtered messages (up to 20)"] = true
 L["Resets settings to default"] = true
 L["filtered a message from |cff00ffff%s|r"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- ChatMods
--- //////////////////////////////////////////////////////
+--
 
 L["editbox put in center"] = true
 L["editbox set to default position"] = true
@@ -243,18 +237,21 @@ L["editbox position set to: |cff00ffff%s|r"] = true
 L["put the editbox in the middle of the screen."] = true
 L["put the editbox on top of the chat frame."] = true
 L["put the editbox at the bottom of the chat frame."] = true
+L["Adds several tweaks to chat windows, such us removing buttons, mousewheel scroll, copy chat and clickable links."] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- Close Up
--- //////////////////////////////////////////////////////
+--
 
 L["Undress"] = true
 L["Cannot dress NPC models."] = true
+L["Allows you to zoom, reposition, and rotate the UI's builtin models so that you may get a better view."] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- CombatLogFix
--- //////////////////////////////////////////////////////
+--
 
+L["Fixes the combat log break bugs that have existed since 2.4."] = true
 L["Show set options"] = true
 L["Zone Clearing"] = true
 L["Auto Clearing"] = true
@@ -272,9 +269,9 @@ L["Repair cost covered by Guild Bank: %dg %ds %dc."] = true
 L["Your items have been repaired for %dg %ds %dc."] = true
 L["You don't have enough money to repair items!"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- CombatText
--- //////////////////////////////////////////////////////
+--
 
 L["No Name SpellID: %s"] = true
 L["unlocked."] = true
@@ -288,16 +285,16 @@ L["%s: to move and resize frames."] = true
 L["%s: to lock frames."] = true
 L["%s: to toggle testmode (sample xCT output)."] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- CombatTime
--- //////////////////////////////////////////////////////
+--
 
 L["trigger the in-game stopwatch on combat"] = true
 L["using stopwatch: %s"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- Combuctor
--- //////////////////////////////////////////////////////
+--
 
 L["%s: toggle inventory"] = true
 L["%s: toggle bank"] = true
@@ -327,9 +324,31 @@ L.Shards = "Shards"
 L.SoulShard = "Soul Shard"
 L.Usable = "Usable"
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
+-- Death Recap
+--
+
+L["Death Recap"] = true
+L["Death Recap unavailable."] = true
+L["%s %s"] = true
+L["%s by %s"] = true
+L["(%d Overkill)"] = true
+L["(%d Absorbed)"] = true
+L["(%d Resisted)"] = true
+L["(%d Blocked)"] = true
+L["%s sec before death at %s%% health."] = true
+L["Killing blow at %s%% health."] = true
+
+-------------------------------------------------------------------------------
+-- EnhancedColourPicker & EnhancedStackSplit
+--
+
+L["Adds Copy and Paste Functions to the ColorPicker."] = true
+L["Enhances the StackSplitFrame with numbered Buttons."] = true
+
+-------------------------------------------------------------------------------
 -- ErrorFilter
--- //////////////////////////////////////////////////////
+--
 
 L["database cleared."] = true
 L["filter database:"] = true
@@ -344,21 +363,22 @@ L["add an error filter"] = true
 L["delete a filter by index"] = true
 L["Filter Enabled: %s - Frame Shown: %s"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- FriendsInfo
--- //////////////////////////////////////////////////////
+--
 
+L["Adds info to the friends list."] = true
 L["Last seen %s ago"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- GearScoreLite:
--- //////////////////////////////////////////////////////
+--
 
 L["Toggles display of scores on players."] = true
 L["Toggles display of scores for items."] = true
-L["Toggles iLevel information."] = true
 L["Resets GearScore's Options back to Default."] = true
 L["Toggles display of comparative info between you and your target's GearScore."] = true
+L["Toggles iLevel information."] = true
 
 L["Player Scores: %s"] = true
 L["Item Scores: %s"] = true
@@ -366,9 +386,19 @@ L["Item Levels: %s"] = true
 L["Comparisons: %s"] = true
 L["Item Level"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
+-- IDs
+--
+
+L["Adds IDs to the ingame tooltips."] = true
+L["Spell ID"] = true
+L["Item ID"] = true
+L["Quest ID"] = true
+L["Achievement ID"] = true
+
+-------------------------------------------------------------------------------
 -- IgnoreMore
--- //////////////////////////////////////////////////////
+--
 
 L["%s does not look like a valid player name."] = true
 L["Reason for ignoring this player:"] = true
@@ -379,9 +409,9 @@ L["|cff00ffff%s|r successfully removed from the ignore list"] = true
 L["could not find a player named %|cff00ffff%s|r on the ignore list"] = true
 L["invalid player name"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- LookUp
--- //////////////////////////////////////////////////////
+--
 L["Searching for items containing |cffffd700%s|r"] = true
 L["Searching for spells containing |cffffd700%s|r"] = true
 L["Search completed, |cffffd700%d|r items matched."] = true
@@ -393,16 +423,27 @@ L["|cffffd700Spell|r : %s [%d]"] = true
 L["Searches for item link in local cache."] = true
 L["Searches for spell link."] = true
 
--- //////////////////////////////////////////////////////
--- LootMessageFilter
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
+-- LootMessageFilter & ImprovedLootFrame
+--
 
+L["A slash command that allows you to search items and spells."] = true
+L["Filters loot messages from other players in your group, based on item quality."] = true
 L["Minimum item rarity for loot filter set to %s"] = true
 L["Check the filter status."] = true
 
--- //////////////////////////////////////////////////////
+L["Condenses all loot onto one page when using the Blizzard default loot frame."] = true
+
+-------------------------------------------------------------------------------
+-- Lynstats
+--
+
+L["Total"] = true
+L["Total incl. Blizzard"] = true
+
+-------------------------------------------------------------------------------
 -- Minimap
--- //////////////////////////////////////////////////////
+--
 
 L["Calendar"] = true
 L["show minimap"] = true
@@ -418,9 +459,14 @@ L["unlocks the minimap"] = true
 L["minimap unlocked. Hold SHIFT+ALT to move it."] = true
 L["Once unlocked, the minimap can be moved by holding both SHIFT and ALT buttons."] = true
 
--- //////////////////////////////////////////////////////
+L["Scale"] = true
+L["Lock Minimap"] = true
+L["Hide Minimap"] = true
+L["Hide in combat"] = true
+
+-------------------------------------------------------------------------------
 -- MoveAnything
--- //////////////////////////////////////////////////////
+--
 
 L["Reset %s? Press again to confirm"] = true
 L["Resetting %s"] = true
@@ -459,21 +505,27 @@ L.MASyncHelp = "Synchronizes all frames modified by MoveAnything"
 L.MACloseHelp = "Closes this dialog. Ctrl-Shift-Alt click reloads the interface"
 L.MAResetHelp = "Resets all frames"
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- Nameplates
--- //////////////////////////////////////////////////////
+--
 
+L["Nameplates"] = true
 L["changes nameplates font size"] = true
 L["toggles health text"] = true
 L["shortens health text"] = true
 L["toggles health percentage"] = true
 L["changes nameplates height"] = true
 L["changes nameplates width"] = true
+L["Width"] = true
+L["Height"] = true
+L["Font Size"] = true
 
--- //////////////////////////////////////////////////////
+-------------------------------------------------------------------------------
 -- Personal Resources
--- //////////////////////////////////////////////////////
+--
 
+L['Mimics the retail feature named "Personal Resource Display".'] = true
+L["Show Percentage"] = true
 L["show personal resources"] = true
 L["hide personal resources"] = true
 L["toggle showing percentage of health and power"] = true
@@ -481,6 +533,7 @@ L["toggle showing personal resources out of combat"] = true
 L["change personal resources scale"] = true
 L["change personal resources width"] = true
 L["change personal resources height"] = true
+L["Hide out of combat"] = true
 
 -- //////////////////////////////////////////////////////
 -- SimpleComboPoints

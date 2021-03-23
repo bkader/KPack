@@ -1,9 +1,9 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", function(folder, core, L)
-    if core:IsDisabled("AutoMate") then return end
+KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", function(folder, core, L)
+    if core:IsDisabled("Automate") then return end
 
-    local mod = core.AutoMate or {}
-    core.AutoMate = mod
+    local mod = core.Automate or {}
+    core.Automate = mod
 
     local DB
     local defaults = {
@@ -27,7 +27,7 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
     -- module's print function
     local function Print(msg)
         if msg then
-            core:Print(msg, "AutoMate")
+            core:Print(msg, "Automate")
         end
     end
 
@@ -38,15 +38,17 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
         end
     end
 
-	local function SetupDatabase()
-		if DB then return end
+    local function SetupDatabase()
+        if DB then
+            return
+        end
 
-		if type(KPackDB.Automate) ~= "table" or not next(KPackDB.Automate) then
-			KPackDB.Automate = CopyTable(defaults)
-		end
+        if type(core.db.Automate) ~= "table" or not next(core.db.Automate) then
+            core.db.Automate = CopyTable(defaults)
+        end
 
-		DB = KPackDB.Automate
-	end
+        DB = core.db.Automate
+    end
 
     do
         -- automatic ui scale
@@ -58,24 +60,107 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
                     SetCVar("useUiScale", 1)
                     SetCVar("uiScale", 768 / string.match(({GetScreenResolutions()})[GetCurrentResolution()], "%d+x(%d+)"))
                 end)
+				SetCVar("screenshotQuality", SCREENSHOT_QUALITY)
             end
-
-            -- Max camera distance, screenshots quality.
-            SetCVar("cameraDistanceMax", 50)
-            SetCVar("cameraDistanceMaxFactor", 3.4)
-            SetCVar("screenshotQuality", SCREENSHOT_QUALITY)
-            SaveView(5)
         end
 
         function PLAYER_ENTERING_WORLD()
-            if not DB then SetupDatabase() end
+            if not DB then
+                SetupDatabase()
+            end
             if DB.enabled then
                 Automate_UIScale()
                 mod:AdjustCamera()
             end
         end
 
-        core:RegisterForEvent("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
+        local function disabled()
+            return not DB.enabled
+        end
+        local options = {
+            type = "group",
+            name = "Automate",
+            get = function(i) return DB[i[#i]] end,
+            set = function(i, val) DB[i[#i]] = val end,
+            args = {
+                enabled = {
+                    type = "toggle",
+                    name = L["Enable"],
+                    order = 1
+                },
+                repair = {
+                    type = "toggle",
+                    name = L["Repair equipment"],
+                    order = 2,
+                    disabled = disabled
+                },
+                junk = {
+                    type = "toggle",
+                    name = L["Sell Junk"],
+                    order = 3,
+                    disabled = disabled
+                },
+                nameplate = {
+                    type = "toggle",
+                    name = L["Nameplates"],
+                    desc = L["Shows nameplates only in combat."],
+                    order = 4,
+                    disabled = disabled
+                },
+                duels = {
+                    type = "toggle",
+                    name = L["Cancel Duels"],
+                    order = 5,
+                    disabled = disabled
+                },
+                gossip = {
+                    type = "toggle",
+                    name = L["Skip Quest Gossip"],
+                    order = 6,
+                    disabled = disabled
+                },
+                camera = {
+                    type = "toggle",
+                    name = L["Max Camera Distance"],
+                    order = 7,
+                    disabled = disabled
+                },
+                screenshot = {
+                    type = "toggle",
+                    name = L["Achievement Screenshot"],
+                    order = 8,
+                    disabled = disabled
+                },
+                uiscale = {
+                    type = "toggle",
+                    name = L["Automatic UI Scale"],
+                    order = 9,
+                    disabled = disabled
+                },
+                more = {
+                    type = "header",
+                    name = OTHER,
+                    order = 10
+                },
+                tip1 = {
+                    type = "description",
+                    name = L["|cffffd700Alt-Click|r to buy a stack of item from merchant."],
+                    order = 11,
+                    width = "full"
+                },
+                tip2 = {
+                    type = "description",
+                    name = L["You can keybind raid icons on MouseOver. Check keybindings."],
+                    order = 12,
+                    width = "full"
+                }
+            }
+        }
+
+        core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
+            core.options.args.options.args.Automate = options
+            PLAYER_ENTERING_WORLD()
+        end)
     end
 
     -- ///////////////////////////////////////////////////////
@@ -163,32 +248,31 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
             end
         end
 
-		-- handles auto repair
-		local function Automate_Repair()
-		    if DB.repair and CanMerchantRepair() == 1 then
-		        local cost, needed = GetRepairAllCost()
-		        if needed then
-		            local guildWithdraw = GetGuildBankWithdrawMoney()
-		            local useGuild = CanGuildBankRepair() and (guildWithdraw > cost or guildWithdraw == -1)
-		            if useGuild then
-		                RepairAllItems(1)
-		                local vCopper = cost % 100
-		                local vSilver = floor((cost % 10000) / 100)
-		                local vGold = floor(cost / 100000)
-		                PrintSys(L:F("Repair cost covered by Guild Bank: %dg %ds %dc.", tostring(vGold), tostring(vSilver), tostring(vCopper)))
-		            elseif cost < GetMoney() then
-		                RepairAllItems()
-		                local vCopper = cost % 100
-		                local vSilver = floor((cost % 10000) / 100)
-		                local vGold = floor(cost / 100000)
-		                PrintSys(L:F("Your items have been repaired for %dg %ds %dc.", tostring(vGold), tostring(vSilver), tostring(vCopper)))
-		            else
-		                PrintSys(L["You don't have enough money to repair items!"])
-		            end
-		        end
-		    end
-		end
-
+        -- handles auto repair
+        local function Automate_Repair()
+            if DB.repair and CanMerchantRepair() == 1 then
+                local cost, needed = GetRepairAllCost()
+                if needed then
+                    local guildWithdraw = GetGuildBankWithdrawMoney()
+                    local useGuild = CanGuildBankRepair() and (guildWithdraw > cost or guildWithdraw == -1)
+                    if useGuild then
+                        RepairAllItems(1)
+                        local vCopper = cost % 100
+                        local vSilver = floor((cost % 10000) / 100)
+                        local vGold = floor(cost / 100000)
+                        PrintSys(L:F("Repair cost covered by Guild Bank: %dg %ds %dc.", tostring(vGold), tostring(vSilver), tostring(vCopper)))
+                    elseif cost < GetMoney() then
+                        RepairAllItems()
+                        local vCopper = cost % 100
+                        local vSilver = floor((cost % 10000) / 100)
+                        local vGold = floor(cost / 100000)
+                        PrintSys(L:F("Your items have been repaired for %dg %ds %dc.", tostring(vGold), tostring(vSilver), tostring(vCopper)))
+                    else
+                        PrintSys(L["You don't have enough money to repair items!"])
+                    end
+                end
+            end
+        end
 
         core:RegisterForEvent("MERCHANT_SHOW", function()
             if DB.enabled then
@@ -218,6 +302,7 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
     function mod:AdjustCamera()
         if DB.camera and not InCombatLockdown() then
             SetCVar("cameraDistanceMaxFactor", "2.6")
+            SetCVar("cameraDistanceMax", 50)
             MoveViewOutStart(50000)
         end
     end
@@ -294,7 +379,9 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
         end)
 
         function mod:TrainButtonCreate()
-            if button then return end
+            if button then
+                return
+            end
             button = CreateFrame("Button", "KPackTrainAllButton", ClassTrainerFrame, "KPackButtonTemplate")
             button:SetSize(80, 18)
             button:SetFormattedText("%s %s", TRAIN, ALL)
@@ -303,9 +390,7 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
         end
 
         function mod:TrainButtonUpdate()
-            if locked then
-                return
-            end
+            if locked then return end
 
             for i = 1, GetNumTrainerServices() do
                 if select(3, GetTrainerServiceInfo(i)) == "available" then
@@ -330,112 +415,19 @@ KPack:AddModule("AutoMate", "Automates some of the more tedious tasks in WoW.", 
 
     -- ///////////////////////////////////////////////////////
 
-    do
-        local commands = {
-            toggle = L["toggle module status"],
-            duels = L["ignore all duels"],
-            gossip = L["skip quests gossip"],
-            junk = L["automatically sell junks"],
-            nameplate = L["show nameplates only in combat"],
-            repair = L["equiment repair using guild gold or own gold"],
-            uiscale = L["automatic ui scale"],
-            camera = L["automatic max camera zoom out"],
-            screenshot = L["automatic screenshot on achievement"]
-        }
-
-        local more = {
-            L["|cffffd700Alt-Click|r to buy a stack of item from merchant."],
-            L["You can keybind raid icons on MouseOver. Check keybindings."]
-        }
-
-        local function SlashCommandHandler(cmd)
-            if not cmd then
-                return
-            end
-            cmd = cmd:lower()
-
-            local msg, status
-
-            if cmd == "toggle" then
-                DB.enabled = not DB.enabled
-                msg = "module status: %s"
-                status = (DB.enabled == true)
-            elseif cmd == "duel" or cmd == "duels" then
-                DB.duels = not DB.duels
-                msg = "ignore duels: %s"
-                status = (DB.duels == true)
-            elseif cmd == "gossip" then
-                DB.gossip = not DB.gossip
-                msg = "skip gossip: %s"
-                status = (DB.gossip == true)
-            elseif cmd == "grey" or cmd == "junk" then
-                DB.junk = not DB.junk
-                msg = "sell junk: %s"
-                status = (DB.junk == true)
-            elseif cmd == "repair" then
-                DB.repair = not DB.repair
-                msg = "auto repair: %s"
-                status = (DB.repair == true)
-            elseif cmd == "nameplate" or cmd == "nameplates" then
-                DB.nameplate = not DB.nameplate
-                msg = "auto nameplates: %s"
-                status = (DB.nameplate == true)
-                if status then
-                    PLAYER_REGEN_ENABLED()
-                else
-                    PLAYER_REGEN_DISABLED()
-                end
-            elseif cmd == "ui" or cmd == "uiscale" then
-                DB.uiscale = not DB.uiscale
-                msg = "auto ui scale: %s"
-                status = (DB.uiscale == true)
-            elseif cmd == "camera" then
-                DB.camera = not DB.camera
-                msg = "auto max camera: %s"
-                status = (DB.camera == true)
-            elseif cmd == "ss" or cmd == "screenshot" then
-                DB.screenshot = not DB.screenshot
-                msg = "auto screenshot on achievement: %s"
-                status = (DB.screenshot == true)
-            end
-
-            if msg then
-                Print(L:F(msg, status and L["|cff00ff00ON|r"] or L["|cffff0000OFF|r"]))
-                PLAYER_ENTERING_WORLD()
-                return
-            end
-
-            Print(L:F("Acceptable commands for: |caaf49141%s|r", "/auto"))
-            for k, v in pairs(commands) do
-                print("|cffffd700" .. k .. "|r", v)
-            end
-
-            print(L:F("More from |caaf49141%s|r:", "AutoMate"))
-            for _, m in ipairs(more) do
-                print("-", m)
+    core:RegisterForEvent("ADDON_LOADED", function(_, name)
+        if name == folder then
+            SetupDatabase()
+        elseif name == "Blizzard_TrainerUI" then
+            SetupDatabase()
+            if DB.enabled then
+                mod:TrainButtonCreate()
+                hooksecurefunc("ClassTrainerFrame_Update", mod.TrainButtonUpdate)
             end
         end
-
-        SlashCmdList["KPACKAUTOMATE"] = SlashCommandHandler
-        SLASH_KPACKAUTOMATE1 = "automate"
-        SLASH_KPACKAUTOMATE2 = "/auto"
-
-        core:RegisterForEvent("ADDON_LOADED", function(_, name)
-            if name == folder then
-				SetupDatabase()
-
-            elseif name == "Blizzard_TrainerUI" then
-				SetupDatabase()
-				if DB.enabled then
-					mod:TrainButtonCreate()
-					hooksecurefunc("ClassTrainerFrame_Update", mod.TrainButtonUpdate)
-				end
-            end
-        end)
-    end
-
+    end)
 end)
-BINDING_HEADER_KPACKAUTOMATE = "|cfff58cbaK|r|caaf49141Pack|r AutoMate"
+BINDING_HEADER_KPACKAUTOMATE = "|cfff58cbaK|r|caaf49141Pack|r Automate"
 BINDING_NAME_KPACKAUTOMATE_1 = "MouseOver: " .. RAID_TARGET_1
 BINDING_NAME_KPACKAUTOMATE_2 = "MouseOver: " .. RAID_TARGET_2
 BINDING_NAME_KPACKAUTOMATE_3 = "MouseOver: " .. RAID_TARGET_3

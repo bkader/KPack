@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(folder, core, L)
+KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(__, core, L)
     if core:IsDisabled("CombatTime") then return end
 
     local mod = core.CombatTime or {}
@@ -24,10 +24,10 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(f
     local function SetupDatabase()
         if not mod.db then
             -- disabled by default
-            if type(KPackDB.CombatTime) ~= "table" or not next(KPackDB.CombatTime) then
-                KPackDB.CombatTime = CopyTable(defaults)
+            if type(core.db.CombatTime) ~= "table" or not next(core.db.CombatTime) then
+                core.db.CombatTime = CopyTable(defaults)
             end
-            mod.db = KPackDB.CombatTime
+            mod.db = core.db.CombatTime
         end
     end
 
@@ -124,9 +124,9 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(f
         end
 
         exec.reset = function()
-            wipe(KPackDB.CombatTime)
-            KPackDB.CombatTime = CopyTable(defaults)
-            DB = KPackDB.CombatTime
+            wipe(core.db.CombatTime)
+            core.db.CombatTime = CopyTable(defaults)
+            mod.db = core.db.CombatTime
             Print(L["module's settings reset to default."])
             if mod.frame then
                 mod.frame:Hide()
@@ -161,7 +161,37 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(f
                 mod.frame = mod.frame or CombatTime_CreateFrame()
             end
         end
-        core:RegisterForEvent("PLAYER_LOGIN", PLAYER_LOGIN)
+
+        local options = {
+            type = "group",
+            name = L["Combat Time"],
+            get = function(i)
+                return mod.db[i[#i]]
+            end,
+            set = function(i, val)
+                mod.db[i[#i]] = val
+            end,
+            args = {
+                enabled = {
+                    type = "toggle",
+                    name = L["Enable"],
+                    order = 1
+                },
+                stopwatch = {
+                    type = "toggle",
+                    name = STOPWATCH_TITLE,
+                    desc = L["trigger the in-game stopwatch on combat"],
+                    order = 2,
+                    disabled = function()
+                        return not mod.db.enabled
+                    end
+                }
+            }
+        }
+        core:RegisterForEvent("PLAYER_LOGIN", function()
+            PLAYER_LOGIN()
+            core.options.args.options.args.CombatTime = options
+        end)
     end
 
     core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()

@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("ImprovedLootFrame", "Filters loot messages from other players in your group, based on item quality.", function(folder, core)
+KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when using the Blizzard default loot frame.", function(folder, core)
     if core:IsDisabled("ImprovedLootFrame") then return end
 
     local mod = core.ILF or {}

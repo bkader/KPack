@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("CloseUp", function(folder, core, L)
+KPack:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's builtin models so that you may get a better view.", function(folder, core, L)
     if core:IsDisabled("CloseUp") then return end
 
     local mod = core.CloseUp or {}
@@ -23,11 +23,11 @@ KPack:AddModule("CloseUp", function(folder, core, L)
     end
 
     local function SetupDatabase()
-        if DB == nil then
-            if KPackDB.CloseUp == nil then
-                KPackDB.CloseUp = true
+        if not DB then
+            if core.db.CloseUp == nil then
+                core.db.CloseUp = true
             end
-            DB = KPackDB.CloseUp
+            DB = core.db.CloseUp
         end
     end
 

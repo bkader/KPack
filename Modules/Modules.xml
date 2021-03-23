@@ -42,6 +42,7 @@
 <Script file="PersonalResources.lua" />
 <Script file="PullnBreak.lua" />
 <Script file="QuickButton.lua" />
+<Script file="RaidBrowser.lua" />
 <Script file="RaidTabs.lua" />
 <Script file="RaidTargetIcons.lua" />
 <Script file="RaidUtility.lua" />

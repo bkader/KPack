@@ -94,10 +94,10 @@ KPack:AddModule("QuickButton", function(folder, core, L)
 
     local function SetupDatabase()
         if not DB then
-            if type(KPackCharDB.QuickButton) ~= "table" or not next(KPackCharDB.QuickButton) then
-                KPackCharDB.QuickButton = CopyTable(defaults)
+            if type(core.char.QuickButton) ~= "table" or not next(core.char.QuickButton) then
+                core.char.QuickButton = CopyTable(defaults)
             end
-            DB = KPackCharDB.QuickButton
+            DB = core.char.QuickButton
         end
     end
 

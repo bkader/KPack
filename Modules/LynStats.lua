@@ -1,10 +1,11 @@
 --[[ Credits:  lynstats ]]
 assert(KPack, "KPack not found!")
-KPack:AddModule("LynStats", function(_, addon)
+KPack:AddModule("LynStats", function(_, addon, L)
     if addon:IsDisabled("LynStats") then return end
 
     -- CONFIG
     ---------------------------------------------
+    local movable = true
     local addonList = 25
     local font = [[Interface\AddOns\KPack\Media\Fonts\HOOGE.TTF]]
     local fontSize = 12
@@ -125,7 +126,6 @@ KPack:AddModule("LynStats", function(_, addon)
     end
 
     StatsFrame:EnableMouse(true)
-    StatsFrame:SetScript("OnMouseDown", function() clearGarbage() end)
 
     local function getFPS()
         return "|c00ffffff" .. floor(GetFramerate()) .. "|r fps"
@@ -163,7 +163,7 @@ KPack:AddModule("LynStats", function(_, addon)
         GameTooltip:SetOwner(self, tooltipAnchor)
         local blizz = collectgarbage("count")
         local addons = {}
-        local enry, memory
+        local entry, memory
         local total = 0
         local nr = 0
         UpdateAddOnMemoryUsage()
@@ -177,22 +177,45 @@ KPack:AddModule("LynStats", function(_, addon)
             end
         end
         tsort(addons, addonCompare)
-        for _, entry in pairs(addons) do
+        for _, e in pairs(addons) do
             if nr < addonList then
-                GameTooltip:AddDoubleLine(entry.name, memFormat(entry.memory), 1, 1, 1, RGBGradient(entry.memory / 800))
+                GameTooltip:AddDoubleLine(e.name, memFormat(e.memory), 1, 1, 1, RGBGradient(e.memory / 800))
                 nr = nr + 1
             end
         end
         GameTooltip:AddLine("---------------------------------------", color.r, color.g, color.b)
-        GameTooltip:AddDoubleLine("Total", memFormat(total), 1, 1, 1, RGBGradient(total / (1024 * 10)))
-        GameTooltip:AddDoubleLine("Total incl. Blizzard", memFormat(blizz), 1, 1, 1, RGBGradient(blizz / (1024 * 10)))
+        GameTooltip:AddDoubleLine(L["Total"], memFormat(total), 1, 1, 1, RGBGradient(total / (1024 * 10)))
+        GameTooltip:AddDoubleLine(L["Total incl. Blizzard"], memFormat(blizz), 1, 1, 1, RGBGradient(blizz / (1024 * 10)))
         GameTooltip:Show()
     end
 
     StatsFrame:SetScript("OnEnter", function() addonTooltip(StatsFrame) end)
     StatsFrame:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
-    StatsFrame:SetPoint(unpack(position))
+    if movable then
+        StatsFrame:ClearAllPoints()
+        StatsFrame:SetPoint(unpack(position))
+        StatsFrame:SetMovable(true)
+        StatsFrame:SetClampedToScreen(true)
+        StatsFrame:SetUserPlaced(true)
+        StatsFrame:SetScript("OnMouseDown", function(self)
+            if IsAltKeyDown() then
+                self.moving = true
+                self:StartMoving()
+                return
+            end
+        end)
+        StatsFrame:SetScript("OnMouseUp", function(self)
+            if self.moving then
+                self.moving = nil
+                self:StopMovingOrSizing()
+                return
+            end
+            clearGarbage()
+        end)
+    else
+        StatsFrame:SetPoint(unpack(position))
+    end
     StatsFrame:SetWidth(50)
     StatsFrame:SetHeight(fontSize)
 
@@ -224,6 +247,8 @@ KPack:AddModule("LynStats", function(_, addon)
         end
     end
 
-    StatsFrame:SetScript("OnEvent", function(self, event) self:SetScript("OnUpdate", update) end)
+    StatsFrame:SetScript("OnEvent", function(self, event)
+        self:SetScript("OnUpdate", update)
+    end)
     StatsFrame:RegisterEvent("PLAYER_LOGIN")
 end)

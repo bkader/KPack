@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("SimpleComboPoints", function(folder, core, L)
+KPack:AddModule("SimpleComboPoints", function(_, core, L)
     if core:IsDisabled("SimpleComboPoints") then return end
 
     local mod = core.SCP or {}
@@ -26,8 +26,8 @@ KPack:AddModule("SimpleComboPoints", function(folder, core, L)
         height = 22,
         scale = 1,
         spacing = 1,
-        anchor = "CENTER",
         combat = false,
+        anchor = "CENTER",
         color = {
             r = 0.9686274509803922,
             g = 0.674509803921568,
@@ -54,10 +54,10 @@ KPack:AddModule("SimpleComboPoints", function(folder, core, L)
 
     local function SetupDatabase()
         if not DB then
-            if type(KPackCharDB.SCP) ~= "table" or not next(KPackCharDB.SCP) then
-                KPackCharDB.SCP = CopyTable(defaults)
+            if type(core.char.SCP) ~= "table" or not next(core.char.SCP) then
+                core.char.SCP = CopyTable(defaults)
             end
-            DB = KPackCharDB.SCP
+            DB = core.char.SCP
         end
     end
 
@@ -143,7 +143,9 @@ KPack:AddModule("SimpleComboPoints", function(folder, core, L)
 
     -- simply refreshes the display of the frame
     function SCP_RefreshDisplay()
-        if druidForm then return end
+        if druidForm then
+            return
+        end
 
         if not InCombatLockdown() and GetComboPoints("player") == 0 and DB.combat then
             for i = 1, maxPoints do
@@ -190,9 +192,7 @@ KPack:AddModule("SimpleComboPoints", function(folder, core, L)
 
     -- after the player enters the world
     core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
-        if disabled then
-            return
-        end
+        if disabled then return end
         SetupDatabase()
         SCP_InitializeFrames()
         SCP_UpdatePoints()
@@ -209,7 +209,9 @@ KPack:AddModule("SimpleComboPoints", function(folder, core, L)
 
     -- used only for druids
     function UPDATE_SHAPESHIFT_FORM()
-        if disabled or core.class ~= "DRUID" then return end
+        if disabled or core.class ~= "DRUID" then
+            return
+        end
 
         if GetShapeshiftForm() == 3 then
             for i = 1, maxPoints do
@@ -318,5 +320,100 @@ KPack:AddModule("SimpleComboPoints", function(folder, core, L)
 
         SlashCmdList["KPACKSCP"] = SlashCommandHandler
         SLASH_KPACKSCP1, SLASH_KPACKSCP2 = "/scp", "/simplecombopoints"
+
+        local function _disabled()
+            return not DB.enabled
+        end
+
+        core.options.args.options.args.scp = {
+            type = "group",
+            name = "Simple Combo Points",
+            get = function(i)
+                return DB[i[#i]]
+            end,
+            set = function(i, val)
+                DB[i[#i]] = val
+                SCP_DestroyFrames()
+                SCP_InitializeFrames()
+            end,
+            args = {
+                enabled = {
+                    type = "toggle",
+                    name = L["Enable"],
+                    order = 1
+                },
+                combat = {
+                    type = "toggle",
+                    name = L["Hide out of combat"],
+                    order = 2
+                },
+                width = {
+                    type = "range",
+                    name = L["Width"],
+                    order = 3,
+                    min = 10,
+                    max = 50,
+                    step = 0.1,
+                    bigStep = 1
+                },
+                height = {
+                    type = "range",
+                    name = L["Height"],
+                    order = 4,
+                    min = 10,
+                    max = 50,
+                    step = 0.1,
+                    bigStep = 1
+                },
+                scale = {
+                    type = "range",
+                    name = L["Scale"],
+                    order = 5,
+                    min = 0.5,
+                    max = 3,
+                    step = 0.01,
+                    bigStep = 0.1
+                },
+                spacing = {
+                    type = "range",
+                    name = L["Spacing"],
+                    order = 6,
+                    min = 0,
+                    max = 50,
+                    step = 0.1,
+                    bigStep = 1
+                },
+                color = {
+                    type = "color",
+                    name = L["Color"],
+                    hasAlpha = false,
+                    order = 7,
+                    get = function()
+                        return DB.color.r, DB.color.g, DB.color.b
+                    end,
+                    set = function(i, r, g, b)
+                        DB.color.r, DB.color.g, DB.color.b = r, g, b
+                        SCP_DestroyFrames()
+                        SCP_InitializeFrames()
+                    end
+                },
+                reset = {
+                    type = "execute",
+                    name = RESET,
+                    order = 9,
+                    width = "full",
+                    confirm = function()
+                        return L:F("Are you sure you want to reset %s to default?", "SimpleComboPoints")
+                    end,
+                    func = function()
+                        wipe(DB)
+                        DB = defaults
+                        Print(L["module's settings reset to default."])
+                        SCP_DestroyFrames()
+                        SCP_InitializeFrames()
+                    end
+                }
+            }
+        }
     end)
 end)

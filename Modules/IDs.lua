@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("IDs", function(folder, core)
+KPack:AddModule("IDs", "Adds IDs to the ingame tooltips.", function(_, core, L)
     if core:IsDisabled("IDs") then return end
 
     local strsub = string.sub
@@ -14,22 +14,20 @@ KPack:AddModule("IDs", function(folder, core)
     core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
         hooksecurefunc(GameTooltip, "SetUnitBuff", function(self, ...)
             local id = select(11, UnitBuff(...))
-            if id then
-                addLine("Spell ID", id)
-            end
+            if id then addLine(self, L["Spell ID"], id) end
         end)
 
         hooksecurefunc(GameTooltip, "SetUnitDebuff", function(self, ...)
             local id = select(11, UnitDebuff(...))
             if id then
-                addLine(self, "Spell ID", id)
+                addLine(self, L["Spell ID"], id)
             end
         end)
 
         hooksecurefunc(GameTooltip, "SetUnitAura", function(self, ...)
             local id = select(11, UnitAura(...))
             if id then
-                addLine(self, "Spell ID", id)
+                addLine(self, L["Spell ID"], id)
             end
         end)
 
@@ -42,7 +40,7 @@ KPack:AddModule("IDs", function(folder, core)
                     id = id:sub(1, pos)
                 end
                 if id then
-                    addLine(ItemRefTooltip, "Spell ID", id)
+                    addLine(ItemRefTooltip, L["Spell ID"], id)
                 end
             elseif strfind(link, "^achievement:") then
                 local pos = strfind(link, ":") + 1
@@ -50,7 +48,7 @@ KPack:AddModule("IDs", function(folder, core)
                 if pos and endpos then
                     local id = strsub(link, pos, endpos)
                     if id then
-                        addLine(ItemRefTooltip, "Achievement ID", id)
+                        addLine(ItemRefTooltip, L["Achievement ID"], id)
                     end
                 end
             elseif strfind(link, "^quest:") then
@@ -59,7 +57,7 @@ KPack:AddModule("IDs", function(folder, core)
                 if pos and endpos then
                     local id = strsub(link, pos, endpos)
                     if id then
-                        addLine(ItemRefTooltip, "Quest ID", id)
+                        addLine(ItemRefTooltip, L["Quest ID"], id)
                     end
                 end
             elseif strfind(link, "^item:") then
@@ -68,7 +66,7 @@ KPack:AddModule("IDs", function(folder, core)
                 if pos and endpos then
                     local id = strsub(link, pos, endpos)
                     if id then
-                        addLine(ItemRefTooltip, "Item ID", id)
+                        addLine(ItemRefTooltip, L["Item ID"], id)
                     end
                 end
             end
@@ -77,7 +75,7 @@ KPack:AddModule("IDs", function(folder, core)
         GameTooltip:HookScript("OnTooltipSetSpell", function(self)
             local id = select(3, self:GetSpell())
             if id then
-                addLine(self, "Spell ID", id)
+                addLine(self, L["Spell ID"], id)
             end
         end)
 
@@ -85,7 +83,7 @@ KPack:AddModule("IDs", function(folder, core)
             local _, itemlink = self:GetItem()
             if itemlink then
                 local _, itemid = strsplit(":", strmatch(itemlink, "item[%-?%d:]+"))
-                addLine(self, "Item ID", itemid)
+                addLine(self, L["Item ID"], itemid)
             end
         end)
     end)

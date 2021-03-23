@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("Combuctor", function(folder, core, L)
+KPack:AddModule("Combuctor", function(_, core, L)
 	if core:IsDisabled("Combuctor") then return end
 
 	local modname = "Combuctor"

@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have existed since 2.4.", function(folder, core, L)
+KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have existed since 2.4.", function(_, core, L)
     if core:IsDisabled("CombatLogFix") then return end
 
     local mod = core.CLF or {}
@@ -37,16 +37,16 @@ KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have exist
 
     local function SetupDatabase()
         if DB == nil then
-            if type(KPackDB.CLF) ~= "table" or not next(KPackDB.CLF) then
-                KPackDB.CLF = CopyTable(defaults)
+            if type(core.db.CLF) ~= "table" or not next(core.db.CLF) then
+                core.db.CLF = CopyTable(defaults)
             end
-            DB = KPackDB.CLF
+            DB = core.db.CLF
         end
     end
 
     local function CombatLogReportEntries()
         if DB.enabled and DB.report and (not throttleBreak or throttleBreak < GetTime()) then
-            Print(L:F("%d filtered/%d events found. Cleared combat log, as it broke.", CombatLogGetNumEntries(), CombatLogGetNumEntries(true)))
+            Print(L:F("%d filtered/%d events found. Cleared combat log, as it broke.", CombatLogGetNumEntries(), CombatLogGetNumEntries(true) ))
             throttleBreak = GetTime() + 60 -- every 60sec so we don't spam.
         end
     end
@@ -141,11 +141,55 @@ KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have exist
     _G.SLASH_KPACKLOGFIXER2 = "/fixer"
     _G.SLASH_KPACKLOGFIXER3 = "/logfix"
 
-    core:RegisterForEvent("ADDON_LOADED", function(_, name)
-        if name == folder then
-            SetupDatabase()
-            frame:SetScript("OnUpdate", DB.enabled and UpdateUIFrame or nil)
-        end
+    local function disabled()
+        return not DB.enabled
+    end
+    local options = {
+        type = "group",
+        name = "CombatLogFix",
+        get = function(i)
+            return DB[i[#i]]
+        end,
+        set = function(i, val)
+            DB[i[#i]] = val
+        end,
+        args = {
+            enabled = {
+                type = "toggle",
+                name = L["Enable"],
+                order = 1
+            },
+            auto = {
+                type = "toggle",
+                name = L["Auto Clearing"],
+                order = 2,
+                disabled = disabled
+            },
+            zone = {
+                type = "toggle",
+                name = L["Zone Clearing"],
+                order = 3,
+                disabled = disabled
+            },
+            wait = {
+                type = "toggle",
+                name = L["Queued Clearing"],
+                order = 4,
+                disabled = disabled
+            },
+            report = {
+                type = "toggle",
+                name = L["Message Report"],
+                order = 5,
+                disabled = disabled
+            }
+        }
+    }
+
+    core:RegisterForEvent("PLAYER_LOGIN", function()
+        SetupDatabase()
+        frame:SetScript("OnUpdate", DB.enabled and UpdateUIFrame or nil)
+        core.options.args.options.args.CLF = options
     end)
 
     local function CLF_ZoneCheck()

@@ -44,33 +44,35 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
     local MAX_CHAR_MACROS = 18
     local MAX_GLOBAL_MACROS = 36
 
-	local CompressText
-	local UncompressText
-	local FindMacro
-	local RestoreMacros
-	local RestoreAction
+    local CompressText
+    local UncompressText
+    local FindMacro
+    local RestoreMacros
+    local RestoreAction
 
     local DB
     local function LoadDatabase()
-        if DB then return end
+        if DB then
+            return
+        end
 
         local defaults = {
             macro = false,
-            checkCount = false,
-            restoreRank = true,
+            count = false,
+            rank = true,
             spellSubs = {},
             sets = {}
         }
 
-        if type(KPackDB.ABS) ~= "table" or not next(KPackDB.ABS) then
-            KPackDB.ABS = CopyTable(defaults)
+        if type(core.db.ABS) ~= "table" or not next(core.db.ABS) then
+            core.db.ABS = CopyTable(defaults)
         end
 
         for class in pairs(RAID_CLASS_COLORS) do
-            KPackDB.ABS.sets[class] = KPackDB.ABS.sets[class] or {}
+            core.db.ABS.sets[class] = core.db.ABS.sets[class] or {}
         end
 
-        DB = KPackDB.ABS
+        DB = core.db.ABS
     end
 
     local function Print(msg)
@@ -132,7 +134,13 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
                     end
 
                     macroName = UncompressText(macroName)
-                    CreateMacro(macroName == "" and " " or macroName, iconCache[macroIcon] or 1, UncompressText(macroData), nil, perCharacter)
+                    CreateMacro(
+                        macroName == "" and " " or macroName,
+                        iconCache[macroIcon] or 1,
+                        UncompressText(macroData),
+                        nil,
+                        perCharacter
+                    )
                 end
             end
         end
@@ -146,7 +154,7 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
     function RestoreAction(i, atype, actionID, binding, ...)
         if atype == "spell" then
             local spellName, spellRank = ...
-            if (DB.restoreRank or spellRank == "") and spellCache[spellName] then
+            if (DB.rank or spellRank == "") and spellCache[spellName] then
                 PickupSpell(spellCache[spellName], BOOKTYPE_SPELL)
             elseif spellRank ~= "" and spellCache[spellName .. spellRank] then
                 PickupSpell(spellCache[spellName .. spellRank], BOOKTYPE_SPELL)
@@ -297,10 +305,10 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
 
     ---------------------------------------------------------------------------
 
-	core:RegisterForEvent("VARIABLES_LOADED", function()
-		LoadDatabase()
-		myclass = core.class
-	end)
+    core:RegisterForEvent("VARIABLES_LOADED", function()
+        LoadDatabase()
+        myclass = core.class
+    end)
 
     do
         local exec = {}
@@ -399,14 +407,14 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
                 end
 
                 if #sets > 0 then
-					if not first then
-						Print(L["Available profiles are:"])
-						first = true
-					end
+                    if not first then
+                        Print(L["Available profiles are:"])
+                        first = true
+                    end
                     print(strformat("|caaf49141%s|r: %s", class or "???", tconcat(sets, ", ")))
                 end
             end
-			first = nil
+            first = nil
         end
 
         exec.macro = function()
@@ -420,21 +428,21 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
         end
 
         exec.count = function()
-            if DB.checkCount then
-                DB.checkCount = false
+            if DB.count then
+                DB.count = false
                 Print(L["Checking item count is now disabled!"])
             else
-                DB.checkCount = true
+                DB.count = true
                 Print(L["Checking item count is now enabled!"])
             end
         end
 
         exec.rank = function()
-            if DB.restoreRank then
-                DB.restoreRank = false
+            if DB.rank then
+                DB.rank = false
                 Print(L["Auto restoring highest spell rank is now disabled!"])
             else
-                DB.restoreRank = true
+                DB.rank = true
                 Print(L["Auto restoring highest spell rank is now enabled!"])
             end
         end
@@ -461,12 +469,44 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
             end
         end
 
+        local options = {
+            type = "group",
+            name = "ActionBarSaver",
+            get = function(i)
+                return DB[i[#i]]
+            end,
+            set = function(i, val)
+                DB[i[#i]] = val
+            end,
+            args = {
+                count = {
+                    type = "toggle",
+                    name = L["Count"],
+                    desc = L["Toggles checking if you have the item in your inventory before restoring it, use if you have disconnect issues when restoring."],
+                    order = 1
+                },
+                macro = {
+                    type = "toggle",
+                    name = MACROS,
+                    desc = L["Attempts to restore macros that have been deleted for a profile."],
+                    order = 2
+                },
+                rank = {
+                    type = "toggle",
+                    name = RANK,
+                    desc = L["Toggles if ABS should restore the highest rank of the spell, or the one saved originally."],
+                    order = 3
+                }
+            }
+        }
+
         core:RegisterForEvent("PLAYER_LOGIN", function()
             if _G.ABS then return end
             LoadDatabase()
             SLASH_KPACKABS1 = "/abs"
             SLASH_KPACKABS2 = "/actionbarsaver"
             SlashCmdList.KPACKABS = SlashCommandHandler
+            core.options.args.options.args.actionbarsaver = options
         end)
     end
 end)

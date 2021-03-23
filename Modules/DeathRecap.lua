@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("DeathRecap", function(folder, core, L)
-    if core:IsDisabled("DeathRecap") then return end
+KPack:AddModule("Death Recap", function(folder, core, L)
+    if core:IsDisabled("Death Recap") then return end
 
     local mod = core.DeathRecap or {}
     core.DeathRecap = mod

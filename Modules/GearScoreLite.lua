@@ -18,7 +18,6 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
     local GearScore_GetItemScore
     local GearScore_GetQuality
     local GearScore_HookSetUnit
-    local GearScore_SetDetails
     local GearScore_HookSetItem
     local GearScore_HookRefItem
     local GearScore_HookCompareItem
@@ -63,12 +62,10 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
     }
 
     local defaults = {
-        ["Player"] = 1,
-        ["Item"] = 1,
-        ["Show"] = 1,
-        ["Compare"] = -1,
-        ["Level"] = -1,
-        ["Average"] = -1
+        ["Player"] = true,
+        ["Item"] = true,
+        ["Compare"] = true,
+        ["Level"] = false,
     }
 
     local itemRarity = {
@@ -143,9 +140,6 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
         [5] = {"/gs compare", "Toggles display of comparative info between you and your target's GearScore."}
     }
 
-    local showSwitch = {[0] = 2, [1] = 3, [2] = 0, [3] = 1}
-    local itemSwitch = {[0] = 3, [1] = 2, [2] = 1, [3] = 0}
-
     local function Print(msg)
         if msg then
             core:Print(msg, "GearScore")
@@ -188,12 +182,8 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
             for i = 1, 18 do
                 if (i ~= 4) and (i ~= 17) then
                     local link = GetInventoryItemLink(Target, i)
-                    GS_ItemLinkTable = {}
                     if (link) then
                         local ItemName, ItmLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = GetItemInfo(link)
-                        if (DB.Detail == 1) then
-                            GS_ItemLinkTable[i] = ItmLink
-                        end
                         local TempScore = GearScore_GetItemScore(ItmLink)
                         if (i == 16) and (PlayerEnglishClass == "HUNTER") then
                             TempScore = TempScore * 0.3164
@@ -350,14 +340,14 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
             NotifyInspect("mouseover")
             MouseOverGearScore, MouseOverAverage = GearScore_GetScore(Name, "mouseover")
         end
-        if MouseOverGearScore and MouseOverGearScore > 0 and DB.Player == 1 then
+        if MouseOverGearScore and MouseOverGearScore > 0 and DB.Player then
             local Red, Blue, Green = GearScore_GetQuality(MouseOverGearScore)
-            if DB.Level == 1 then
+            if DB.Level then
                 GameTooltip:AddDoubleLine("GearScore: " .. MouseOverGearScore, "iLvl: " .. MouseOverAverage .. "", Red, Green, Blue, Red, Green, Blue)
             else
                 GameTooltip:AddLine("GearScore: " .. MouseOverGearScore, Red, Green, Blue)
             end
-            if DB.Compare == 1 then
+            if DB.Compare then
                 local MyGearScore = GearScore_GetScore(UnitName("player"), "player")
                 local TheirGearScore = MouseOverGearScore
                 if MyGearScore > TheirGearScore then
@@ -370,28 +360,6 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
             end
         end
     end
-
-    function GearScore_SetDetails(tooltip, Name)
-        if not UnitName("mouseover") or UnitName("mouseover") ~= Name then
-            return
-        end
-        for i = 1, 18 do
-            if not (i == 4) then
-                local ItemName, ItemLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = GetItemInfo(GS_ItemLinkTable[i])
-                if ItemLink then
-                    local GearScore, itemLevel, _, Red, Green, Blue = GearScore_GetItemScore(ItemLink)
-                    if (GearScore) and (i ~= 4) then
-                        local Add = ""
-                        if DB.Level == 1 then
-                            Add = " iLvl: " .. tostring(itemLevel)
-                        end
-                        tooltip:AddDoubleLine("[" .. ItemName .. "]", tostring(GearScore) .. Add, itemRarity[ItemRarity].Red, itemRarity[ItemRarity].Green, itemRarity[ItemRarity].Blue, Red, Green, Blue)
-                    end
-                end
-            end
-        end
-    end
-    -------------------------------------------------------------------------------
 
     -------------------------------------------------------------------------------
     function GearScore_HookSetItem()
@@ -420,8 +388,8 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
         end
         local ItemScore, ItemLevel, EquipLoc, Red, Green, Blue, PVPScore, ItemEquipLoc, enchantPercent = GearScore_GetItemScore(ItemLink)
         if (ItemScore >= 0) then
-            if (DB.Item == 1) then
-                if (ItemLevel) and (DB.Level == 1) then
+            if DB.Item then
+                if (ItemLevel) and DB.Level then
                     Tooltip:AddDoubleLine("GearScore: " .. ItemScore, "iLvl: " .. ItemLevel, Red, Blue, Green, Red, Blue, Green)
                     if (PlayerEnglishClass == "HUNTER") then
                         if (ItemEquipLoc == "INVTYPE_RANGEDRIGHT") or (ItemEquipLoc == "INVTYPE_RANGED") then
@@ -454,7 +422,7 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
                 end
             end
         else
-            if (DB.Level == 1) and (ItemLevel) then
+            if DB.Level and (ItemLevel) then
                 Tooltip:AddLine("iLevel " .. ItemLevel)
             end
         end
@@ -486,31 +454,23 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
             for _, tbl in ipairs(commandList) do
                 print(unpack(tbl))
             end
-        elseif cmd == "show" then
-            DB.Player = showSwitch[DB.Player]
-            if DB.Player == 1 or DB.Player == 2 then
-                Print(L:F("Player Scores: %s", L["|cff00ff00ON|r"]))
-            else
-                Print(L:F("Player Scores: %s", L["|cffff0000OFF|r"]))
-            end
-            return
-        elseif cmd == "player" then
-            DB.Player = showSwitch[DB.Player]
-            if DB.Player == 1 or DB.Player == 2 then
+        elseif cmd == "show" or cmd == "player" then
+            DB.Player = not DB.Player
+            if DB.Player then
                 Print(L:F("Player Scores: %s", L["|cff00ff00ON|r"]))
             else
                 Print(L:F("Player Scores: %s", L["|cffff0000OFF|r"]))
             end
         elseif cmd == "item" then
-            DB.Item = itemSwitch[DB.Item]
-            if (DB.Item == 1) or (DB.Item == 3) then
+            DB.Item = not DB.Item
+            if DB.Item then
                 Print(L:F("Item Scores: %s", L["|cff00ff00ON|r"]))
             else
                 Print(L:F("Item Scores: %s", L["|cffff0000OFF|r"]))
             end
         elseif cmd == "level" then
-            DB.Level = DB.Level * -1
-            if DB.Level == 1 then
+            DB.Level = not DB.Level
+            if DB.Level then
                 Print(L:F("Item Levels: %s", L["|cff00ff00ON|r"]))
             else
                 Print(L:F("Item Levels: %s", L["|cffff0000OFF|r"]))
@@ -520,8 +480,8 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
             end
             return
         elseif cmd == "compare" then
-            DB.Compare = DB.Compare * -1
-            if DB.Compare == 1 then
+            DB.Compare = not DB.Compare
+            if DB.Compare then
                 Print(L:F("Comparisons: %s", L["|cff00ff00ON|r"]))
             else
                 Print(L:F("Comparisons: %s", L["|cffff0000OFF|r"]))
@@ -535,15 +495,54 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 
     local function SetupDatabase()
         if not DB then
-            if type(KPackDB.GearScore) ~= "table" or not next(KPackDB.GearScore) then
-                KPackDB.GearScore = CopyTable(defaults)
+            if type(core.db.GearScore) ~= "table" or not next(core.db.GearScore) then
+                core.db.GearScore = CopyTable(defaults)
             end
-            DB = KPackDB.GearScore
+            DB = core.db.GearScore
             core.GearScore = DB
         end
     end
-    core:RegisterForEvent("PLAYER_LOGIN", function()
+
+	local options = {
+	    type = "group",
+	    name = "GearScoreLite",
+	    get = function(i)
+	        return DB[i[#i]]
+	    end,
+	    set = function(i, val)
+	        DB[i[#i]] = val
+	    end,
+	    args = {
+	        Player = {
+	            type = "toggle",
+	            name = PLAYER,
+	            desc = L["Toggles display of scores on players."],
+	            order = 1
+	        },
+	        Item = {
+	            type = "toggle",
+	            name = ITEMS,
+	            desc = L["Toggles display of scores for items."],
+	            order = 2
+	        },
+	        Compare = {
+	            type = "toggle",
+	            name = L["Compare"],
+	            desc = L["Toggles display of comparative info between you and your target's GearScore."],
+	            order = 4
+	        },
+	        Level = {
+	            type = "toggle",
+	            name = L["Item Level"],
+	            desc = L["Toggles iLevel information."],
+	            order = 5
+	        }
+	    }
+	}
+
+	core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
+        core.options.args.options.args.gearscore = options
 
         GameTooltip:HookScript("OnTooltipSetUnit", GearScore_HookSetUnit)
         GameTooltip:HookScript("OnTooltipSetItem", GearScore_HookSetItem)

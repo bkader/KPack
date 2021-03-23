@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("Minimap", function(folder, core, L)
+KPack:AddModule("Minimap", function(_, core, L)
     if core:IsDisabled("Minimap") then return end
 
     local DB, SetupDatabase
@@ -151,13 +151,75 @@ KPack:AddModule("Minimap", function(folder, core, L)
 
     function SetupDatabase()
         if not DB then
-            if type(KPackDB.Minimap) ~= "table" or not next(KPackDB.Minimap) then
-                KPackDB.Minimap = CopyTable(defaults)
+            if type(core.db.Minimap) ~= "table" or not next(core.db.Minimap) then
+                core.db.Minimap = CopyTable(defaults)
             end
-            DB = KPackDB.Minimap
+            DB = core.db.Minimap
         end
     end
-    core:RegisterForEvent("PLAYER_LOGIN", SetupDatabase)
+
+    core:RegisterForEvent("PLAYER_LOGIN", function()
+        SetupDatabase()
+
+        core.options.args.options.args.minimap = {
+            type = "group",
+            name = MINIMAP_LABEL,
+            get = function(i)
+                return DB[i[#i]]
+            end,
+            set = function(i, val)
+                DB[i[#i]] = val
+                PLAYER_ENTERING_WORLD()
+            end,
+            args = {
+                enabled = {
+                    type = "toggle",
+                    name = L["Enable"],
+                    order = 1
+                },
+                locked = {
+                    type = "toggle",
+                    name = L["Lock Minimap"],
+                    order = 2
+                },
+                hide = {
+                    type = "toggle",
+                    name = L["Hide Minimap"],
+                    order = 3
+                },
+                combat = {
+                    type = "toggle",
+                    name = L["Hide in combat"],
+                    order = 4
+                },
+                scale = {
+                    type = "range",
+                    name = L["Scale"],
+                    order = 5,
+                    width = "full",
+                    min = 0.5,
+                    max = 3,
+                    step = 0.01,
+                    bigStep = 0.1
+                },
+                reset = {
+                    type = "execute",
+                    name = RESET,
+                    order = 9,
+                    width = "full",
+                    confirm = function()
+                        return L:F("Are you sure you want to reset %s to default?", MINIMAP_LABEL)
+                    end,
+                    func = function()
+                        wipe(DB)
+                        DB = defaults
+                        Print(L["module's settings reset to default."])
+                        PLAYER_ENTERING_WORLD()
+                    end
+                }
+            }
+        }
+    end)
 
     do
         -- the dopdown menu frame
@@ -349,9 +411,9 @@ KPack:AddModule("Minimap", function(folder, core, L)
             MinimapBorder:SetTexture(nil)
             Minimap:SetFrameLevel(2)
             Minimap:SetFrameStrata("BACKGROUND")
-            Minimap:SetMaskTexture([=[Interface\ChatFrame\ChatFrameBackground]=])
+            Minimap:SetMaskTexture([[Interface\ChatFrame\ChatFrameBackground]])
             Minimap:SetBackdrop({
-                bgFile = [=[Interface\ChatFrame\ChatFrameBackground]=],
+                bgFile = [[Interface\ChatFrame\ChatFrameBackground]],
                 insets = {top = -2, bottom = -2, left = -2, right = -2}
             })
             Minimap:SetBackdropColor(0, 0, 0, 1)
@@ -424,7 +486,7 @@ KPack:AddModule("Minimap", function(folder, core, L)
                 UIFrameFlash(frame, 0.2, 2.8, 5, false, 0, 5)
                 timer = time()
             end
-            end
+        end
     end)
 
     local taint = CreateFrame("Frame")

@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("PersonalResources", function(folder, core, L)
-    if core:IsDisabled("PersonalResources") then return end
+KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal Resource Display".', function(folder, core, L)
+    if core:IsDisabled("Personal Resources") then return end
 
     -- cache frequently used glboals
     local CreateFrame = CreateFrame
@@ -12,14 +12,14 @@ KPack:AddModule("PersonalResources", function(folder, core, L)
     local DB
     local defaults = {
         enabled = true,
-        xOfs = 0,
-        yOfs = -120,
-        anchor = "CENTER",
         combat = false,
+        percent = false,
         width = 180,
         height = 32,
         scale = 1,
-        percent = false
+        xOfs = 0,
+        yOfs = -120,
+        anchor = "CENTER"
     }
     local PLAYER_ENTERING_WORLD
 
@@ -28,7 +28,7 @@ KPack:AddModule("PersonalResources", function(folder, core, L)
     -- module print function
     local function Print(msg)
         if msg then
-            core:Print(msg, "PersonalResources")
+            core:Print(msg, "Personal Resources")
         end
     end
 
@@ -46,13 +46,99 @@ KPack:AddModule("PersonalResources", function(folder, core, L)
     -- sets up the database
     local function SetupDatabase()
         if not DB then
-            if type(KPackCharDB.PersonalResources) ~= "table" or not next(KPackCharDB.PersonalResources) then
-                KPackCharDB.PersonalResources = CopyTable(defaults)
+            if type(core.char.PersonalResources) ~= "table" or not next(core.char.PersonalResources) then
+                core.char.PersonalResources = CopyTable(defaults)
             end
-            DB = KPackCharDB.PersonalResources
+            DB = core.char.PersonalResources
         end
     end
-    core:RegisterForEvent("PLAYER_LOGIN", SetupDatabase)
+
+    local function disabled()
+        return not DB.enabled
+    end
+    core:RegisterForEvent("PLAYER_LOGIN", function()
+        SetupDatabase()
+        core.options.args.options.args.presources = {
+            type = "group",
+            name = "Personal Resources",
+            get = function(i)
+                return DB[i[#i]]
+            end,
+            set = function(i, val)
+                DB[i[#i]] = val
+                PLAYER_ENTERING_WORLD(true)
+            end,
+            args = {
+                enabled = {
+                    type = "toggle",
+                    name = L["Enable"],
+                    order = 1
+                },
+                combat = {
+                    type = "toggle",
+                    name = L["Show out of combat"],
+                    order = 2,
+                    disabled = disabled
+                },
+                percent = {
+                    type = "toggle",
+                    name = L["Show percentage"],
+                    order = 3,
+                    disabled = disabled
+                },
+                width = {
+                    type = "range",
+                    name = L["Width"],
+                    order = 4,
+                    min = 50,
+                    max = 300,
+                    step = 0.1,
+                    bigStep = 1,
+                    disabled = disabled
+                },
+                height = {
+                    type = "range",
+                    name = L["Height"],
+                    order = 5,
+                    min = 10,
+                    max = 80,
+                    step = 0.1,
+                    bigStep = 1,
+                    disabled = disabled
+                },
+                scale = {
+                    type = "range",
+                    name = L["Scale"],
+                    order = 6,
+                    min = 0.5,
+                    max = 3,
+                    step = 0.01,
+                    bigStep = 0.1,
+                    disabled = disabled
+                },
+                sep = {
+                    type = "description",
+                    name = " ",
+                    order = 7
+                },
+                reset = {
+                    type = "execute",
+                    name = RESET,
+                    order = 9,
+                    width = "full",
+                    confirm = function()
+                        return L:F("Are you sure you want to reset %s to default?", "Automate")
+                    end,
+                    func = function()
+                        wipe(DB)
+                        DB = defaults
+                        Print(L["module's settings reset to default."])
+                        PLAYER_ENTERING_WORLD()
+                    end
+                }
+            }
+        }
+    end)
 
     -- ///////////////////////////////////////////////////////
 
@@ -68,6 +154,7 @@ KPack:AddModule("PersonalResources", function(folder, core, L)
             local bar = CreateFrame("StatusBar", nil, parent)
             bar:SetPoint("CENTER", 0, -120)
             bar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+            bar:SetHitRectInsets(2, 2, 2, 2)
             bar:GetStatusBarTexture():SetHorizTile(false)
             bar:GetStatusBarTexture():SetVertTile(false)
             bar:SetMinMaxValues(0, 100)
@@ -83,22 +170,40 @@ KPack:AddModule("PersonalResources", function(folder, core, L)
             return bar
         end
 
+        local function PersonalResources_CreateBorder(bar)
+            local border = CreateFrame("Frame", nil, bar)
+            border:SetBackdrop({
+                    bgFile = "Interface\\Tooltips\\UI-StatusBar-Border",
+                    tile = false,
+                    tileSize = bar:GetWidth(),
+                    edgeSize = bar:GetHeight(),
+                    insets = {left = 0, right = 0, top = 0, bottom = 0}
+                }
+            )
+            border:SetHeight(bar:GetHeight() + 5)
+            border:SetWidth(bar:GetWidth() + 5)
+            border:SetPoint("CENTER", 0, 0)
+            return border
+        end
+
         -- handles OnDragStart event
         local function Frame_OnDragStart(self)
             if IsAltKeyDown() or IsShiftKeyDown() then
-                self:StartMoving()
                 self.moving = true
+                self:StartMoving()
             end
         end
 
         -- handles OnDragStop event
         local function Frame_OnDragStop(self)
-            self:StopMovingOrSizing()
-            self.moving = false
-            local anchor, _, _, x, y = self:GetPoint(1)
-            DB.anchor = anchor
-            DB.xOfs = x
-            DB.yOfs = y
+            if self.moving then
+	            self.moving = false
+	            self:StopMovingOrSizing()
+	            local anchor, _, _, x, y = self:GetPoint(1)
+	            DB.anchor = anchor
+	            DB.xOfs = x
+	            DB.yOfs = y
+            end
         end
 
         -- frame event handler
@@ -202,6 +307,7 @@ KPack:AddModule("PersonalResources", function(folder, core, L)
             frame.health:SetPoint("RIGHT", -2, 0)
             frame.health:SetHeight(height * 0.53)
             frame.health:SetStatusBarColor(0, 0.65, 0)
+            frame.health.border = PersonalResources_CreateBorder(frame.health)
 
             -- power bar
             frame.power = PersonalResources_CreateBar(frame)
@@ -209,15 +315,9 @@ KPack:AddModule("PersonalResources", function(folder, core, L)
             frame.power:SetPoint("RIGHT", -2, 0)
             frame.power:SetHeight(height * 0.40)
             frame.power:SetStatusBarColor(nil)
+            frame.power.border = PersonalResources_CreateBorder(frame.power)
             ShowHide(frame, DB.enabled and DB.combat)
             frame:SetScale(scale)
-
-            -- background & border
-            frame:SetBackdrop({
-                bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-                insets = {left = 2, right = 2, top = 2, bottom = 2}
-            })
-            frame:SetBackdropColor(0, 0, 0, .65)
 
             -- make the frame movable
             frame:EnableMouse(true)

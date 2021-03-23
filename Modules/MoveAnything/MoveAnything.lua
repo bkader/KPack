@@ -24,14 +24,14 @@ local echo, decho, dechoSub
 
 local DB
 core:RegisterForEvent("VARIABLES_LOADED", function()
-	if type(KPackDB.MoveAnything) ~= "table" or not next(KPackDB.MoveAnything) then
-		KPackDB.MoveAnything = {
+	if type(core.db.MoveAnything) ~= "table" or not next(core.db.MoveAnything) then
+		core.db.MoveAnything = {
 			CustomFrames = {},
 			CharacterSettings = {},
 			UseCharacterSettings = false
 		}
 	end
-	DB = KPackDB.MoveAnything
+	DB = core.db.MoveAnything
 end)
 
 local function void()

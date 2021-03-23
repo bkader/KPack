@@ -72,9 +72,9 @@ KPack:AddModule("Viewporter", function(_, core, L)
 	        frame:Show()
 	        Print(L["|cffff0000disabled|r"])
 	    elseif cmd == "reset" or cmd == "default" then
-	        wipe(KPackCharDB.Viewporter)
-	        KPackCharDB.Viewporter = CopyTable(defaults)
-	        DB = KPackCharDB.Viewporter
+	        wipe(core.char.Viewporter)
+	        core.char.Viewporter = CopyTable(defaults)
+	        DB = core.char.Viewporter
 	        initialized = nil
 	        frame:Show()
 	        Print(L["module's settings reset to default."])
@@ -114,10 +114,10 @@ KPack:AddModule("Viewporter", function(_, core, L)
 
 	-- frame event handler
 	core:RegisterForEvent("VARIABLES_LOADED", function()
-        if type(KPackCharDB.Viewporter) ~= "table" or not next(KPackCharDB.Viewporter) then
-            KPackCharDB.Viewporter = CopyTable(defaults)
+        if type(core.char.Viewporter) ~= "table" or not next(core.char.Viewporter) then
+            core.char.Viewporter = CopyTable(defaults)
         end
-        DB = KPackCharDB.Viewporter
+        DB = core.char.Viewporter
 
         SlashCmdList["KPACKVIEWPORTER"] = SlashCommandHandler
         SLASH_KPACKVIEWPORTER1 = "/vp"

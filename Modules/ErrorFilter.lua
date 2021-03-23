@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the blizzard UIErrorsFrame.", function(folder, core, L)
+KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the blizzard UIErrorsFrame.", function(_, core, L)
     if core:IsDisabled("ErrorFilter") then return end
 
     local mod = core.ErrorFilter or {}
@@ -163,8 +163,8 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
 
     local function SetupDatabase()
         if not DB then
-            KPackDB.ErrorFilter = KPackDB.ErrorFilter or {}
-            DB = KPackDB.ErrorFilter
+            core.db.ErrorFilter = core.db.ErrorFilter or {}
+            DB = core.db.ErrorFilter
 
             DB.options = DB.options or {}
             for k, v in pairs(options) do

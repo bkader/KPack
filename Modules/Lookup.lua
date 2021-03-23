@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("LookUp", function(folder, core, L)
+KPack:AddModule("LookUp", "A slash command that allows you to search items and spells.", function(folder, core, L)
     if core:IsDisabled("LookUp") then return end
 
     -- cache frequently use globals
