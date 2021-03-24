@@ -1342,6 +1342,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                             group:ClearAllPoints()
                             group:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 100, -50 - (35 * i-1))
                             group.Scale = 2
+                            DB.Groups[i].Scale = 2
                             TellMeWhen:Group_Update(i)
 
                             if locked then
