@@ -1,6 +1,6 @@
 # KPack - Lots-In-One AddOn Collection!
 
-Currently, this pack contains 56 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 57 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -251,5 +251,17 @@ Provides buttons for several uses in groups or raids. You can disband the group,
 If you don't know an addon called _SimpleRaidTargetIcons_, it's an addon that opens a ring menu above units, allowing you to set icons. You can double click or CTLR+Click to open the menu. More settings can be found inside the file.
 
 ## 54. Combuctor
+
+Combuctor is a bag replacement addon (_module for KPack_) designed to help the player find items as quickly and as easily as possible, while still feeling part of the default interface. 
+
 ## 55. ActionBarSaver
+
+Allows you to setup different profiles for your action bars. Mainly this is for hybrid classes that want to be able to respec without spending 10-20 minutes setting their action bars up.
+
 ## 56. RaidBrowser
+
+This module replaces the unused (in 3.3.5a) LFR tab in the social menu with a working raid finder.
+
+## 57. Castbars
+
+Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars, including both the Player/Vehicle Castbar, the Pet Castbar and the Mirror Timerbars.

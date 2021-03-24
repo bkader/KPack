@@ -203,6 +203,70 @@ L["You can keybind raid icons on MouseOver. Check keybindings."] = true
 L["Remove Icon"] = true
 
 -------------------------------------------------------------------------------
+-- Castbars
+--
+
+L["Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars."] = true
+L["|cFFFFFFFFDrag with mouse.\n|cFFCCCCCCUse arrow keys while dragging to fine tune position."] = true
+
+L["Configuration Mode"] = true
+L["Toggle configuration mode to allow moving bars and setting appearance options."] = true
+L["Mirror Timers"] = true
+
+L["Set the width of the %s"] = true
+L["Set the height of the %s"] = true
+
+L["Texture"] = true
+L["Select texture to use for the %s"] = true
+
+L["Bar Color"] = true
+L["Set color of the %s"] = true
+
+L["Font"] = true
+L["Select font to use for the %s"] = true
+L["Set the font size of the %s"] = true
+
+L["Font Outline"] = true
+L["Toggles outline on the font of the %s"] = true
+
+L["Border"] = true
+L["Select border to use for the %s"] = true
+
+L["Border Color"] = true
+L["Set color of the border of the %s"] = true
+L["Toggles display of the %s"] = true
+
+L["Show Icon"] = true
+L["Toggles display of the icon at the left side of the bar"] = true
+
+L["Show Shield"] = true
+L["Toggles display of the shield around the bar when the spell cannot be interrupted."] = true
+
+L["Show Latency"] = true
+L["Toggles the latency indicator, which shows the latency at the time of spell cast as a red bar at the end of the Castbar."] = true
+
+L["Show Spell Target"] = true
+L["Toggles display of the target of the spell being cast."] = true
+
+L["Show Total Cast Time"] = true
+L["Toggles display of the total cast time."] = true
+
+L["Total Cast Time Decimals"] = true
+L["Set the number of decimal places for the total cast time."] = true
+
+L["Show Pushback"] = true
+L["Toggles display of the pushback time when spell casting is delayed."] = true
+
+L["Show Global Cooldown Spark"] = true
+L["Toggles display of the global cooldown spark."] = true
+
+L["Text Alignment"] = true
+L["Set the alignment of the Castbar text"] = true
+
+L["Left"] = true
+L["Center"] = true
+
+-------------------------------------------------------------------------------
 -- Chat Filter
 --
 
