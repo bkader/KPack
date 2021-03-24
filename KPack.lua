@@ -1,7 +1,9 @@
 local folder, core = ...
 _G[folder] = core
-
 local L = core.L
+
+core.ACD = LibStub("AceConfigDialog-3.0")
+core.LSM = LibStub("LibSharedMedia-3.0")
 
 -------------------------------------------------------------------------------
 -- C_Timer mimic
@@ -260,9 +262,19 @@ do
         elseif cmd == "about" or cmd == "info" then
             core:Print("This small addon was made with big passion by |cfff58cbaKader|r.\n If you have suggestions or you are facing issues with my addons, feel free to message me on the forums, Github, CurseForge or Discord:\n|cffffd700bkader#6361|r or |cff7289d9https://discord.gg/a8z5CyS3eW|r")
         else
-            InterfaceOptionsFrame_OpenToCategory(folder)
+			core:OpenConfig()
         end
     end
+
+	function core:OpenConfig(mod)
+	    self.ACD:SetDefaultSize(folder, 600, 600)
+	    if mod then
+	        self.ACD.Open(folder)
+	        self.ACD:SelectGroup(folder, mod)
+	    else
+	        self.ACD:Open(folder)
+	    end
+	end
 
     core:RegisterForEvent("ADDON_LOADED", function(_, name)
         if name == folder then
@@ -273,7 +285,7 @@ do
             core.char = KPackCharDB
 
             LibStub("AceConfig-3.0"):RegisterOptionsTable(folder, core.options)
-            core.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(folder, folder)
+            core.optionsFrame = core.ACD:AddToBlizOptions(folder, folder)
 
             SlashCmdList["KPACK"] = SlashCommandHandler
             _G.SLASH_KPACK1 = "/kp"
@@ -282,6 +294,8 @@ do
             core.name = select(1, UnitName("player"))
             core.class = select(2, UnitClass("player"))
             core.guid = UnitGUID("player")
+
+			core.LSM:Register("font", "Hooge", [[Interface\Addons\KPack\Media\Fonts\HOOGE.ttf]])
 
             core:Print(L["addon loaded. use |cffffd700/kp help|r for help."])
 
