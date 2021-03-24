@@ -291,6 +291,7 @@ do
 
             core.name = select(1, UnitName("player"))
             core.class = select(2, UnitClass("player"))
+            core.race = select(2, UnitRace("player"))
             core.guid = UnitGUID("player")
 
 			core.LSM:Register("font", "Hooge", [[Interface\Addons\KPack\Media\Fonts\HOOGE.ttf]])

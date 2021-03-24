@@ -3,3 +3,4 @@ _dev
 luacheck.exe
 Makefile
 *.zip
+Modules/ClassTimer.lua
