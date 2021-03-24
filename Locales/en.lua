@@ -624,6 +624,62 @@ L["Combat logging is now %s."] = true
 L["Change Specilization"] = true
 
 -------------------------------------------------------------------------------
+-- TellMeWhen
+--
+
+L["Resize"] = true
+L["Click and drag to change size."] = true
+L["Choose spell/item/buff/etc."] = true
+L["Enter the Name or Id of the Spell, Ability, Item, Buff, Debuff you want this icon to monitor. You can add multiple Buffs/Debuffs by seperating them with ;"] = true
+L["Icon type"] = true
+L["Cooldown"] = true
+L["Buff/Debuff"] = true
+L["Reactive spell or ability"] = true
+L["Temporary weapon enchant"] = true
+L["Totem/non-MoG Ghoul"] = true
+L["Cooldown type"] = true
+L["Spell or ability"] = true
+L["Item"] = true
+L["Buff or Debuff"] = true
+L["Buff"] = true
+L["Debuff"] = true
+L["Show icon when"] = true
+L["Unusable"] = true
+L["Show when buff/debuff"] = true
+L["Present"] = true
+L["Absent"] = true
+L["Always"] = true
+L["Weapon slot to monitor"] = true
+L["Unit to watch"] = true
+L["Target of Target"] = true
+L["Focus Target"] = true
+L["Pet Target"] = true
+L["Only show if cast by self"] = true
+L["Show timer"] = true
+L["More options"] = true
+L["Clear settings"] = true
+L["These options allow you to change the number, arrangement, and behavior of reminder icons."] = true
+L["Right click for icon options. More options in Blizzard interface options menu. Type /tellmewhen to lock and enable addon."] = true
+L["Are you sure you want to reset all groups?"] = true
+L["Groups have been reset!"] = true
+L["Lock"] = true
+L["Unlock"] = true
+L['Icons work when locked. When unlocked, you can move/size icon groups and right click individual icons for more settings. You can also type "/tellmewhen" or "/tmw" to lock/unlock.'] = true
+L["Show and enable this group of icons."] = true
+L["Primary Spec"] = true
+L["Check to show this group of icons while in primary spec."] = true
+L["Secondary Spec"] = true
+L["Check to show this group of icons while in secondary spec."] = true
+L["Only in combat"] = true
+L["Check to only show this group of icons while in combat."] = true
+L["Columns"] = true
+L["Set the number of icon columns in this group."] = true
+L["Rows"] = true
+L["Set the number of icon rows in this group."] = true
+L["Spacing"] = true
+L["Group %d position successfully reset."] = true
+
+-------------------------------------------------------------------------------
 -- Tooltip
 --
 

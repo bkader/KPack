@@ -53,6 +53,7 @@
 <Script file="SlashIn.lua" />
 <Script file="SnowfallKeyPress.lua" />
 <Script file="TargetPercent.lua" />
+<Script file="TellMeWhen.lua" />
 <Script file="Tooltip.lua" />
 <Script file="TradeTabs.lua" />
 <Script file="UnitFrames.lua" />
