@@ -55,6 +55,7 @@ L["Available command for |caaf49141%s|r is |cffffd700%s|r"] = true
 L["access |caaf49141%s|r module commands"] = true
 L["to use the |caaf49141%s|r module"] = true
 L["Enables or disables the module."] = true
+L["Are you sure you want to reset %s to default?"] = true
 L["Resets module settings to default."] = true
 L["module's settings reset to default."] = true
 

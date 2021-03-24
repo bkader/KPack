@@ -43,20 +43,6 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
         return spark
     end})
 
-    Castbars.backup = {
-        Width = 205,
-        Height = 13,
-        Texture = "Castbars",
-        BarColor = {0.3, 0.3, 0.8},
-        Border = "Blizzard Tooltip",
-        BorderColor = {0.0, 0.0, 0.0, 0.8},
-        Font = "Friz Quadrata TT",
-        FontSize = 10,
-        FontOutline = true,
-        TextAlignment = "CENTER",
-        Position = nil
-    }
-
     local function Castbars_SpellToTicks(spellName, actualDuration)
         local baseTickDuration = Castbars.BaseTickDuration[spellName]
         if baseTickDuration then
@@ -83,9 +69,9 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
     end
 
     local function Castbars_FrameMediaRestore(frame)
-        local barTexture = Castbars.LSM:Fetch("statusbar", Castbars.db[frame.configName]["Texture"] or Castbars.backup.Texture)
-        local borderTexture = Castbars.LSM:Fetch("border", Castbars.db[frame.configName]["Border"] or Castbars.backup.Border)
-        local font = Castbars.LSM:Fetch("font", Castbars.db[frame.configName]["Font"] or Castbars.backup.Font)
+        local barTexture = Castbars.LSM:Fetch("statusbar", Castbars.db[frame.configName]["Texture"])
+        local borderTexture = Castbars.LSM:Fetch("border", Castbars.db[frame.configName]["Border"])
+        local font = Castbars.LSM:Fetch("font", Castbars.db[frame.configName]["Font"])
         if barTexture then
             frame.statusBar:SetStatusBarTexture(barTexture)
             if frame.latency then
@@ -93,17 +79,17 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
             end
         end
         if borderTexture then
-            local edgeSize = ((Castbars.db[frame.configName]["Height"] or Castbars.backup.Height) - 2) / 1.5
+            local edgeSize = ((Castbars.db[frame.configName]["Height"]) - 2) / 1.5
             frame.borderWidth = (edgeSize + 2 / 1.5) / 2
             if edgeSize > 16 then
                 edgeSize = 16
                 frame.borderWidth = edgeSize / 2
             end
             frame.backdrop:SetBackdrop({edgeFile = borderTexture, edgeSize = edgeSize})
-            frame.backdrop:SetBackdropBorderColor(unpack(Castbars.db[frame.configName]["BorderColor"] or Castbars.backup.BorderColor))
+            frame.backdrop:SetBackdropBorderColor(unpack(Castbars.db[frame.configName]["BorderColor"]))
         end
         if font then
-            local textSize = Castbars.db[frame.configName]["FontSize"] or Castbars.backup.FontSize
+            local textSize = Castbars.db[frame.configName]["FontSize"]
             local outline = Castbars.db[frame.configName]["FontOutline"] and "OUTLINE" or nil
             frame.text:SetFont(font, textSize, outline)
             if frame.timer then
@@ -153,7 +139,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
         if frame.shield and frame.shield:IsShown() or frame.outOfRange then
             frame.statusBar:SetStatusBarColor(0.6, 0.6, 0.6)
         else
-            local r, g, b = unpack(Castbars.db[frame.configName]["BarColor"] or Castbars.backup.BarColor)
+            local r, g, b = unpack(Castbars.db[frame.configName]["BarColor"])
             frame.statusBar:SetStatusBarColor(r, g, b)
             frame.shade:SetTexture(r * 0.1, g * 0.1, b * 0.1, 0.5)
         end
@@ -263,7 +249,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
             end
         end
 
-        frame.text:SetJustifyH(Castbars.db[frame.configName]["TextAlignment"] or Castbars.backup.TextAlignment)
+        frame.text:SetJustifyH(Castbars.db[frame.configName]["TextAlignment"])
 
         frame:SetWidth(Castbars.db[frame.configName]["Width"])
         frame:SetHeight(Castbars.db[frame.configName]["Height"])
@@ -543,7 +529,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
                     order = 10,
                     min = 100, max = 600, step = 1,
                     get = function()
-                        return Castbars.db[frameConfigName]["Width"] or Castbars.backup.Width
+                        return Castbars.db[frameConfigName]["Width"]
                     end,
                     set = function(info, value)
                         Castbars.db[frameConfigName]["Width"] = value
@@ -557,7 +543,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
                     order = 11,
                     min = 10, max = 100, step = 1,
                     get = function()
-                        return Castbars.db[frameConfigName]["Height"] or Castbars.backup.Height
+                        return Castbars.db[frameConfigName]["Height"]
                     end,
                     set = function(info, value)
                         Castbars.db[frameConfigName]["Height"] = value
@@ -572,7 +558,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
                     order = 12,
                     values = AceGUIWidgetLSMlists.statusbar,
                     get = function()
-                        return Castbars.db[frameConfigName]["Texture"] or Castbars.backup.Texture
+                        return Castbars.db[frameConfigName]["Texture"]
                     end,
                     set = function(info, value)
                         Castbars.db[frameConfigName]["Texture"] = value
@@ -585,7 +571,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
                     desc = L:F("Set color of the %s", friendlyName),
                     order = 13,
                     get = function(info)
-                        return unpack(Castbars.db[frameConfigName]["BarColor"] or Castbars.backup.BarColor)
+                        return unpack(Castbars.db[frameConfigName]["BarColor"])
                     end,
                     set = function(info, r, g, b)
                         Castbars.db[frameConfigName]["BarColor"] = {r, g, b}
@@ -599,7 +585,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
                     order = 15,
                     values = AceGUIWidgetLSMlists.font,
                     get = function()
-                        return Castbars.db[frameConfigName]["Font"] or Castbars.backup.Font
+                        return Castbars.db[frameConfigName]["Font"]
                     end,
                     set = function(info, value)
                         Castbars.db[frameConfigName]["Font"] = value
@@ -610,10 +596,10 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
                     type = "range",
                     name = L["Font Size"],
                     desc = L:F("Set the font size of the %s", friendlyName),
-                    order = 16,
+                    order = 17,
                     min = 6, max = 30, step = 1,
                     get = function()
-                        return Castbars.db[frameConfigName]["FontSize"] or Castbars.backup.FontSize
+                        return Castbars.db[frameConfigName]["FontSize"]
                     end,
                     set = function(info, value)
                         Castbars.db[frameConfigName]["FontSize"] = value
@@ -624,9 +610,9 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
                     type = "toggle",
                     name = L["Font Outline"],
                     desc = L:F("Toggles outline on the font of the %s", friendlyName),
-                    order = 17,
+                    order = 18,
                     get = function()
-                        return Castbars.db[frameConfigName]["FontOutline"] or Castbars.backup.FontOutline
+                        return Castbars.db[frameConfigName]["FontOutline"]
                     end,
                     set = function()
                         Castbars.db[frameConfigName]["FontOutline"] = not Castbars.db[frameConfigName]["FontOutline"]
@@ -638,10 +624,10 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
                     name = L["Border"],
                     desc = L:F("Select border to use for the %s", friendlyName),
                     dialogControl = "LSM30_Border",
-                    order = 20,
+                    order = 19,
                     values = AceGUIWidgetLSMlists.border,
                     get = function()
-                        return Castbars.db[frameConfigName]["Border"] or Castbars.backup.Border
+                        return Castbars.db[frameConfigName]["Border"]
                     end,
                     set = function(info, value)
                         Castbars.db[frameConfigName]["Border"] = value
@@ -653,9 +639,9 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
                     name = L["Border Color"],
                     desc = L:F("Set color of the border of the %s", friendlyName),
                     hasAlpha = true,
-                    order = 19,
+                    order = 20,
                     get = function(info)
-                        return unpack(Castbars.db[frameConfigName]["BorderColor"] or Castbars.backup.BorderColor)
+                        return unpack(Castbars.db[frameConfigName]["BorderColor"])
                     end,
                     set = function(info, r, g, b, a)
                         Castbars.db[frameConfigName]["BorderColor"] = {r, g, b, a}
@@ -809,7 +795,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
                 order = 16,
                 values = {LEFT = L["Left"], CENTER = L["Center"]},
                 get = function()
-                    return Castbars.db[frameConfigName]["TextAlignment"] or Castbars.backup.TextAlignment
+                    return Castbars.db[frameConfigName]["TextAlignment"]
                 end,
                 set = function(info, value)
                     Castbars.db[frameConfigName]["TextAlignment"] = value
@@ -819,6 +805,98 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
         end
         return options
     end
+
+	local function Castbars_SetupDatabase()
+	    if type(core.db.Castbars) ~= "table" or not next(core.db.Castbars) then
+	        core.db.Castbars = {
+	            CastingBarFrame = {
+	                Show = true,
+	                ShowIcon = true,
+	                ShowLatency = true,
+	                ShowSpellTarget = true,
+	                ShowTotalCastTime = true,
+	                TotalCastTimeDecimals = 1,
+	                ShowPushback = true,
+	                ShowCooldownSpark = true,
+	                Width = 250,
+	                Height = 24,
+	                Texture = "Castbars",
+	                BarColor = {0.3, 0.3, 0.8},
+	                Font = "Friz Quadrata TT",
+	                FontSize = 10,
+	                TextAlignment = "CENTER",
+	                FontOutline = true,
+	                BorderColor = {0.0, 0.0, 0.0, 0.8},
+	                Border = "Blizzard Tooltip",
+	                Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = -145}
+	            },
+	            PetCastingBarFrame = {
+	                Show = true,
+	                ShowIcon = true,
+	                ShowTotalCastTime = true,
+	                Width = 150,
+	                Height = 12,
+	                Texture = "Castbars",
+	                BarColor = {0.3, 0.3, 0.8},
+	                Font = "Friz Quadrata TT",
+	                FontSize = 9,
+	                TextAlignment = "CENTER",
+	                FontOutline = true,
+	                BorderColor = {0.0, 0.0, 0.0, 0.8},
+	                Border = "None",
+	                Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = -175}
+	            },
+	            TargetCastingBarFrame = {
+	                Show = true,
+	                ShowIcon = true,
+	                ShowShield = true,
+	                ShowTotalCastTime = true,
+	                Width = 205,
+	                Height = 12,
+	                Texture = "Castbars",
+	                BarColor = {0.3, 0.3, 0.8},
+	                Font = "Friz Quadrata TT",
+	                FontSize = 10,
+	                TextAlignment = "CENTER",
+	                FontOutline = true,
+	                BorderColor = {0.0, 0.0, 0.0, 0.8},
+	                Border = "None",
+	                Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = 180}
+	            },
+	            FocusCastingBarFrame = {
+	                Show = false,
+	                ShowIcon = true,
+	                ShowShield = true,
+	                ShowTotalCastTime = true,
+	                Width = 205,
+	                Height = 12,
+	                Texture = "Castbars",
+	                BarColor = {0.3, 0.3, 0.8},
+	                Font = "Friz Quadrata TT",
+	                FontSize = 10,
+	                TextAlignment = "CENTER",
+	                FontOutline = true,
+	                BorderColor = {0.0, 0.0, 0.0, 0.8},
+	                Border = "None",
+	                Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = 200}
+	            },
+	            MirrorTimer = {
+	                Width = 205,
+	                Height = 13,
+	                Texture = "Castbars",
+	                BarColor = {0.3, 0.3, 0.8},
+	                Font = "Friz Quadrata TT",
+	                FontSize = 10,
+	                TextAlignment = "CENTER",
+	                FontOutline = true,
+	                Border = "Blizzard Tooltip",
+	                BorderColor = {0.0, 0.0, 0.0, 0.8},
+	                Position = {point = "TOP", relpoint = "TOP", x = 0, y = -130}
+	            }
+	        }
+	    end
+	    Castbars.db = core.db.Castbars
+	end
 
     local function Castbars_GetOptionsTable()
         local options = {
@@ -833,12 +911,23 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
                     get = function() return Castbars.ConfigMode end,
                     set = function() Castbars:Toggle() end
                 },
+				reset = {
+					type = "execute",
+					name = RESET,
+					order = 2,
+					confirm = function() return L:F("Are you sure you want to reset %s to default?", "Castbars") end,
+					func = function()
+						core.db.Castbars = nil
+						Castbars_SetupDatabase()
+						Castbars_FrameLayoutRestoreAll()
+					end
+				},
                 player = Castbars_GetOptionsTableForBar("CastingBarFrame", PLAYER, 2, true, false, true, true, true, true, true, true, true, true),
                 pet = Castbars_GetOptionsTableForBar("PetCastingBarFrame", PET, 3, true, false, true, true, false, false, true, false, false, false),
                 target = Castbars_GetOptionsTableForBar("TargetCastingBarFrame", TARGET, 4, true, true, true, true, false, false, true, false, false, false),
                 focus = Castbars_GetOptionsTableForBar("FocusCastingBarFrame", FOCUS, 5, true, true, true, true, false, false, true, false, false, false),
                 mirror = Castbars_GetOptionsTableForBar("MirrorTimer", L["Mirror Timers"], 6)
-            }
+            },
         }
         return options
     end
@@ -861,52 +950,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
     end
 
     core:RegisterForEvent("VARIABLES_LOADED", function()
-        if type(core.db.Castbars) ~= "table" or not next(core.db.Castbars) then
-            core.db.Castbars = {
-                CastingBarFrame = {
-                    Show = true,
-                    ShowLatency = true,
-                    ShowIcon = true,
-                    ShowSpellTarget = true,
-                    ShowTotalCastTime = true,
-                    TotalCastTimeDecimals = 1,
-                    ShowPushback = true,
-                    ShowCooldownSpark = true,
-                    Width = 250,
-                    Height = 24,
-                    Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = -145}
-                },
-                PetCastingBarFrame = {
-                    Show = true,
-                    ShowIcon = true,
-                    Width = 150,
-                    Height = 12,
-                    FontSize = 9,
-                    Border = "None",
-                    Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = -175}
-                },
-                TargetCastingBarFrame = {
-                    Show = true,
-                    ShowIcon = true,
-                    ShowShield = true,
-                    Height = 12,
-                    Border = "None",
-                    Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = 180}
-                },
-                FocusCastingBarFrame = {
-                    Show = false,
-                    ShowIcon = true,
-                    ShowShield = true,
-                    Height = 12,
-                    Border = "None",
-                    Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = 200}
-                },
-                MirrorTimer = {
-                    Position = {point = "TOP", relpoint = "TOP", x = 0, y = -130}
-                }
-            }
-        end
-        Castbars.db = core.db.Castbars
+        Castbars_SetupDatabase()
         core.options.args.Castbars = Castbars_GetOptionsTable()
 
         UIPARENT_MANAGED_FRAME_POSITIONS["CastingBarFrame"] = nil
