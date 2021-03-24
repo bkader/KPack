@@ -235,13 +235,11 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 
         function ActionBars_Range()
             if DB.range == true and not mod:IsHooked("ActionButton_OnEvent") then
-                mod:Hook("ActionButton_OnEvent", true)
-                mod:Hook("ActionButton_UpdateUsable", true)
-                mod:Hook("ActionButton_OnUpdate", true)
-            elseif not DB.range then
-                mod:Unhook("ActionButton_OnEvent")
-                mod:Unhook("ActionButton_UpdateUsable")
-                mod:Unhook("ActionButton_OnUpdate")
+                mod:SecureHook("ActionButton_OnEvent")
+                mod:SecureHook("ActionButton_UpdateUsable")
+                mod:SecureHook("ActionButton_OnUpdate")
+            elseif not DB.range and mod:IsHooked("ActionButton_OnEvent") then
+                mod:UnhookAll()
             end
         end
     end
@@ -399,7 +397,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
         end
     end
 
-    core:RegisterForEvent("PLAYER_LOGIN", function()
+	core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
 
         -- if we are using an action bars addon, better skip.
@@ -410,6 +408,10 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
             end
         end
 
+        SLASH_KPACKABM1 = "/abm"
+        SlashCmdList.KPACKABM = function()
+            return core:OpenConfig("ActionBars")
+        end
         core.options.args.options.args.ActionBars = options
     end)
 
