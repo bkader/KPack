@@ -169,7 +169,7 @@ do
             modules = {
                 type = "group",
                 name = L["Modules"],
-                order = 1,
+                order = 99999,
                 width = "full",
                 get = function(i)
                     return KPackDB.disabled[i[#i]]
