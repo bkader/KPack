@@ -1,6 +1,6 @@
-# KPack - Lots-In-One AddOn Collection!
+# KPack - Lots-In-One AddOn Collection! (58)
 
-Currently, this pack contains 57 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 58 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -265,3 +265,7 @@ This module replaces the unused (in 3.3.5a) LFR tab in the social menu with a wo
 ## 57. Castbars
 
 Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars, including both the Player/Vehicle Castbar, the Pet Castbar and the Mirror Timerbars.
+
+## 58. TellMeWhen
+
+Provides visual, auditory, and textual notifications about cooldowns, buffs, and pretty much every other element of combat. 
