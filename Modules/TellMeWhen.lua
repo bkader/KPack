@@ -552,7 +552,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         end
     end
 
-    local function TellMeWhen_Group_OnEvent(self, event)
+    local function KTellMeWhen_Group_OnEvent(self, event)
         if event == "PLAYER_REGEN_DISABLED" then
             self:Show()
         elseif event == "PLAYER_REGEN_ENABLED" then
@@ -809,22 +809,22 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             local groupID = currentIcon.groupID
             local iconID = currentIcon.iconID
             DB.Groups[groupID].Icons[iconID].Name = text
-            _G["TellMeWhen_Group" .. groupID .. "_Icon" .. iconID].learnedTexture = nil
-            TellMeWhen:Icon_Update(_G["TellMeWhen_Group" .. groupID .. "_Icon" .. iconID], groupID, iconID)
+            _G["KTellMeWhen_Group" .. groupID .. "_Icon" .. iconID].learnedTexture = nil
+            TellMeWhen:Icon_Update(_G["KTellMeWhen_Group" .. groupID .. "_Icon" .. iconID], groupID, iconID)
         end
 
         function TellMeWhen:IconMenu_ToggleSetting()
             local groupID = currentIcon.groupID
             local iconID = currentIcon.iconID
             DB.Groups[groupID].Icons[iconID][this.value] = this.checked
-            TellMeWhen:Icon_Update(_G["TellMeWhen_Group" .. groupID .. "_Icon" .. iconID], groupID, iconID)
+            TellMeWhen:Icon_Update(_G["KTellMeWhen_Group" .. groupID .. "_Icon" .. iconID], groupID, iconID)
         end
 
         function TellMeWhen:IconMenu_ChooseSetting()
             local groupID = currentIcon.groupID
             local iconID = currentIcon.iconID
             DB.Groups[groupID].Icons[iconID][UIDROPDOWNMENU_MENU_VALUE] = this.value
-            TellMeWhen:Icon_Update(_G["TellMeWhen_Group" .. groupID .. "_Icon" .. iconID], groupID, iconID)
+            TellMeWhen:Icon_Update(_G["KTellMeWhen_Group" .. groupID .. "_Icon" .. iconID], groupID, iconID)
             if UIDROPDOWNMENU_MENU_VALUE == "Type" then
                 CloseDropDownMenus()
             end
@@ -834,7 +834,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             local groupID = currentIcon.groupID
             local iconID = currentIcon.iconID
             DB.Groups[groupID].Icons[iconID] = CopyTable(iconDefaults)
-            TellMeWhen:Icon_Update(_G["TellMeWhen_Group" .. groupID .. "_Icon" .. iconID], groupID, iconID)
+            TellMeWhen:Icon_Update(_G["KTellMeWhen_Group" .. groupID .. "_Icon" .. iconID], groupID, iconID)
             CloseDropDownMenus()
         end
     end
@@ -845,7 +845,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
 
     function TellMeWhen:Group_Update(groupID)
         local currentSpec = TellMeWhen:GetActiveTalentGroup()
-        local groupName = "TellMeWhen_Group" .. groupID
+        local groupName = "KTellMeWhen_Group" .. groupID
         local group = _G[groupName]
         local resizeButton = group.resize
 
@@ -905,7 +905,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         if onlyInCombat and genabled and locked then
             group:RegisterEvent("PLAYER_REGEN_ENABLED")
             group:RegisterEvent("PLAYER_REGEN_DISABLED")
-            group:SetScript("OnEvent", TellMeWhen_Group_OnEvent)
+            group:SetScript("OnEvent", KTellMeWhen_Group_OnEvent)
             group:Hide()
         else
             group:UnregisterEvent("PLAYER_REGEN_ENABLED")
@@ -1160,7 +1160,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         end
         core.char.TMW = CopyTable(defaults)
         for i = 1, maxGroups do
-            local group = _G["TellMeWhen_Group" .. i]
+            local group = _G["KTellMeWhen_Group" .. i]
             group:ClearAllPoints()
             group:SetPoint("TOPLEFT", "UIParent", "TOPLEFT", 100, -50 - (35 * i))
         end
@@ -1191,7 +1191,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
 
         local pos = {"TOPLEFT", 100, -50}
         for i = 1, maxGroups do
-            local g = TellMeWhen_CreateGroup("TellMeWhen_Group" .. i, UIParent, unpack(pos))
+            local g = TellMeWhen_CreateGroup("KTellMeWhen_Group" .. i, UIParent, unpack(pos))
             pos[3] = pos[3] - 35
             g:SetID(i)
         end
@@ -1340,7 +1340,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                                 DB.Locked = false
                                 TellMeWhen:Group_Update(i)
                             end
-                            local group = _G["TellMeWhen_Group" .. i]
+                            local group = _G["KTellMeWhen_Group" .. i]
                             group:ClearAllPoints()
                             group:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 100, -50 - (35 * i-1))
                             group.Scale = 2
