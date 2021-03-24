@@ -1333,8 +1333,6 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                         func = function()
                             local locked
 
-                            print("here", i)
-
                             if DB.Locked then
                                 locked = true
                                 DB.Locked = false
