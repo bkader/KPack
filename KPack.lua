@@ -225,7 +225,7 @@ end
 do
     do
         local nonLatin = {ruRU = true, koKR = true, zhCN = true, zhTW = true}
-        if nonLatin[GetLocale()] then
+        if nonLatin[core.locale] then
             core.nonLatin = true
         end
     end

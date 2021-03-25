@@ -1,4 +1,4 @@
-local _, addon = ...
+local _, core = ...
 
 local setmetatable = setmetatable
 local tostring, format = tostring, string.format
@@ -18,7 +18,8 @@ function L:F(line, ...)
     return format(line, ...)
 end
 
-addon.L = L
+core.L = L
+core.locale = GetLocale()
 
 -------------------------------------------------------------------------------
 -- General:
