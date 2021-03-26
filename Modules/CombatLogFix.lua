@@ -36,7 +36,7 @@ KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have exist
     end
 
     local function SetupDatabase()
-        if DB == nil then
+        if not DB then
             if type(core.db.CLF) ~= "table" or not next(core.db.CLF) then
                 core.db.CLF = CopyTable(defaults)
             end
@@ -45,6 +45,7 @@ KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have exist
     end
 
     local function CombatLogReportEntries()
+		SetupDatabase()
         if DB.enabled and DB.report and (not throttleBreak or throttleBreak < GetTime()) then
             Print(L:F("%d filtered/%d events found. Cleared combat log, as it broke.", CombatLogGetNumEntries(), CombatLogGetNumEntries(true) ))
             throttleBreak = GetTime() + 60 -- every 60sec so we don't spam.
