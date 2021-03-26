@@ -329,7 +329,7 @@ KPack:AddModule("Tooltip", function(_, core, L)
 
 	                if UnitIsPVP(unit) then
 	                    for i = 2, GameTooltip:NumLines() do
-	                        if _G["GameTooltipTextLeft" .. i] and _G["GameTooltipTextLeft" .. i]:GetText():find(PVP) then
+	                        if _G["GameTooltipTextLeft" .. i] and _G["GameTooltipTextLeft" .. i].GetText and _G["GameTooltipTextLeft" .. i]:GetText():find(PVP) then
 	                            _G["GameTooltipTextLeft" .. i]:SetText(nil)
 	                            break
 	                        end
