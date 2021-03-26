@@ -1193,13 +1193,13 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
 
         local pos = {"TOPLEFT", 100, -50}
         for i = 1, maxGroups do
-            local g = TellMeWhen_CreateGroup(
-            	"KTellMeWhen_Group" .. i,
-            	UIParent,
-            	DB.Groups[i].point or pos[1],
-            	DB.Groups[i].x or pos[2],
-            	DB.Groups[i].y or pos[3]
-            )
+			local g = TellMeWhen_CreateGroup(
+				"KTellMeWhen_Group" .. i,
+				UIParent,
+				DB.Groups[i].point or pos[1],
+				DB.Groups[i].x or pos[2],
+				DB.Groups[i].y or pos[3]
+			)
             pos[3] = pos[3] - 35
             g:SetID(i)
         end
