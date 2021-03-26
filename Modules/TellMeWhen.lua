@@ -21,7 +21,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
 
     local maxGroups, maxRows = 8, 7
     local updateInterval = 0.25
-    local activeSpec
+    local activeSpec, _
     local highlightColor = HIGHLIGHT_FONT_COLOR
     local normalColor = NORMAL_FONT_COLOR
 
@@ -168,6 +168,8 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         end)
         icon:SetScript("OnDragStop", function(self)
             self:GetParent():StopMovingOrSizing()
+            local group = DB.Groups[self:GetParent():GetID()]
+            group.point, _, _, group.x, group.y = self:GetParent():GetPoint(1)
         end)
         icon:SetScript("OnMouseDown", function(self, button)
             TellMeWhen:Icon_OnMouseDown(self, button)
@@ -1191,7 +1193,13 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
 
         local pos = {"TOPLEFT", 100, -50}
         for i = 1, maxGroups do
-            local g = TellMeWhen_CreateGroup("KTellMeWhen_Group" .. i, UIParent, unpack(pos))
+            local g = TellMeWhen_CreateGroup(
+            	"KTellMeWhen_Group" .. i,
+            	UIParent,
+            	DB.Groups[i].point or pos[1],
+            	DB.Groups[i].x or pos[2],
+            	DB.Groups[i].y or pos[3]
+            )
             pos[3] = pos[3] - 35
             g:SetID(i)
         end
