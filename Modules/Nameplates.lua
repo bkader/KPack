@@ -676,6 +676,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                     values = {
                         [""] = L["None"],
                         ["OUTLINE"] = L["Outline"],
+                        ["THINOUTLINE"] = L["Thin outline"],
                         ["THICKOUTLINE"] = L["Thick outline"],
                         ["MONOCHROME"] = L["Monochrome"],
                         ["OUTLINEMONOCHROME"] = L["Outlined monochrome"]
@@ -701,6 +702,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                             config[k] = v
                         end
                         Print(L["module's settings reset to default."])
+                        ReloadUI()
                     end,
                     disabled = disabled
                 }

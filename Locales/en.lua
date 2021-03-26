@@ -589,6 +589,7 @@ L["Shorten Health Text"] = true
 L["shortens health text"] = true
 L["Show Health Percent"] = true
 L["Show Health Text"] = true
+L["Thin outline"] = true
 L["Thick outline"] = true
 L["toggles health percentage"] = true
 L["toggles health text"] = true
