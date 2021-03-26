@@ -30,9 +30,10 @@ L["Enable"] = true
 L["Type |cffffd700/%s|r in chat for more."] = true
 
 L["module loaded."] = true
-
 L["module enabled."] = true
 L["module disabled."] = true
+
+L["Some settings require UI to be reloaded."] = true
 
 L["enable the module."] = true
 L["disable the module."] = true
@@ -577,14 +578,21 @@ L.MAResetHelp = "Resets all frames"
 
 L["Nameplates"] = true
 L["changes nameplates font size"] = true
-L["toggles health text"] = true
-L["shortens health text"] = true
-L["toggles health percentage"] = true
 L["changes nameplates height"] = true
 L["changes nameplates width"] = true
-L["Width"] = true
-L["Height"] = true
 L["Font Size"] = true
+L["Height"] = true
+L["Monochrome"] = true
+L["Outline"] = true
+L["Outlined monochrome"] = true
+L["Shorten Health Text"] = true
+L["shortens health text"] = true
+L["Show Health Percent"] = true
+L["Show Health Text"] = true
+L["Thick outline"] = true
+L["toggles health percentage"] = true
+L["toggles health text"] = true
+L["Width"] = true
 
 -------------------------------------------------------------------------------
 -- Personal Resources

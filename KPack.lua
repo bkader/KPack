@@ -294,7 +294,9 @@ do
             core.race = select(2, UnitRace("player"))
             core.guid = UnitGUID("player")
 
+			core.LSM:Register("statusbar", "KPack", [[Interface\Addons\KPack\Media\Textures\statusbar]])
 			core.LSM:Register("font", "Hooge", [[Interface\Addons\KPack\Media\Fonts\HOOGE.ttf]])
+			core.LSM:Register("font", "Yanone", [[Interface\Addons\KPack\Media\Fonts\yanone.ttf]])
 
             core:Print(L["addon loaded. use |cffffd700/kp help|r for help."])
 

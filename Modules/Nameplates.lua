@@ -2,13 +2,18 @@ assert(KPack, "KPack not found!")
 KPack:AddModule("Nameplates", function(folder, core, L)
     if core:IsDisabled("Nameplates") then return end
 
+    local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
+
     -- SavedVariables
-    local DB
+    local DB, changed
     local defaults = {
         enabled = true,
+        barTexture = "KPack",
         barWidth = 120,
         barHeight = 12,
+        font = "Yanone",
         fontSize = 11,
+        fontOutline = "THINOUTLINE",
         showHealthText = false,
         shortenNumbers = true,
         showHealthPercent = false
@@ -18,16 +23,9 @@ KPack:AddModule("Nameplates", function(folder, core, L)
     -- ::::::::::::::::::::::::: START of Configuration ::::::::::::::::::::::::: --
 
     local config = {
-        -- bar config
-        barTexture = [[Interface\Addons\KPack\Media\Textures\statusbar]],
         glowTexture = [[Interface\AddOns\KPack\Media\Textures\glowTex]],
-        -- font config
-        font = [[Interface\Addons\KPack\Media\Fonts\yanone.ttf]], -- path to the font used for all texts
-        fontOutline = "THINOUTLINE", -- the font outline
-        -- positions of health text and percent (both enabled)
         hpTextPos = {"LEFT", 3, 1},
         hpPercentPos = {"RIGHT", -3, 1},
-        -- positions of health text and percent if one of them is enabled
         hpTextLonePos = {"CENTER", 0, 1},
         hpPercentLonePos = {"CENTER", 0, 1}
     }
@@ -133,10 +131,73 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         end
     end
 
+    local Nameplate_CheckForChange
+    do
+        local function ShowHide(f, cond)
+            if not f or not f.Show then
+                return
+            elseif cond and not f:IsShown() then
+                f:Show()
+            elseif not cond and f:IsShown() then
+                f:Hide()
+            end
+        end
+
+        function Nameplate_CheckForChange(self)
+            if changed then
+                if changed == "barWidth" then
+                    self.healthBar:SetWidth(config.barWidth)
+                elseif changed == "barHeight" then
+                    self.healthBar:SetHeight(config.barHeight)
+                elseif changed == "barTexture" then
+                    local barTexture = LSM:Fetch("statusbar", config.barTexture)
+                    self.healthBar:SetStatusBarTexture(barTexture)
+                    self.castBar:SetStatusBarTexture(barTexture)
+                elseif changed == "font" or changed == "fontSize" or changed == "fontOutline" then
+                    local font = LSM:Fetch("font", config.font)
+                    self.name:SetFont(font, config.fontSize, config.fontOutline)
+                    self.level:SetFont(font, config.fontSize, config.fontOutline)
+                    self.castBar.time:SetFont(font, config.fontSize, config.fontOutline)
+
+                    config.hpTextFont = {font, config.fontSize, config.fontOutline}
+                    config.hpPercentFont = {font, config.fontSize, config.fontOutline}
+                    self.hpText:SetFont(unpack(config.hpTextFont))
+                    self.hpPercent:SetFont(unpack(config.hpTextFont))
+                elseif changed == "showHealthText" or changed == "showHealthPercent" then
+                    local adjust
+                    if changed == "showHealthText" then
+                        ShowHide(self.hpText, config.showHealthText)
+                        adjust = true
+                    elseif changed == "showHealthPercent" then
+                        ShowHide(self.hpPercent, config.showHealthPercent)
+                        adjust = true
+                    end
+
+                    if adjust then
+                        if config.showHealthText and config.showHealthPercent then
+                            self.hpText:ClearAllPoints()
+                            self.hpPercent:ClearAllPoints()
+                            self.hpText:SetPoint(unpack(config.hpTextPos))
+                            self.hpPercent:SetPoint(unpack(config.hpPercentPos))
+                        else
+                            self.hpText:ClearAllPoints()
+                            self.hpPercent:ClearAllPoints()
+                            self.hpText:SetPoint(unpack(config.hpTextLonePos))
+                            self.hpPercent:SetPoint(unpack(config.hpPercentLonePos))
+                        end
+                    end
+                end
+
+                changed = nil
+            end
+        end
+    end
+
     -- nameplate OnUpdate
     local function Nameplate_OnUpdate(self, elapsed)
         self.elapsed = (self.elapsed or 0) + elapsed
         if self.elapsed >= 0.01 then
+            Nameplate_CheckForChange(self)
             self:FormatHealthText()
 
             if targetExists and self:GetAlpha() == 1 then
@@ -247,9 +308,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
 
     -- creates the frame
     local function Nameplate_Create(frame)
-        if frame.done then
-            return
-        end
+        if frame.done then return end
         frame.done = true
 
         local healthBar, castBar = frame:GetChildren()
@@ -261,20 +320,20 @@ KPack:AddModule("Nameplates", function(folder, core, L)
 
         local name = frame:CreateFontString()
         name:SetPoint("BOTTOM", healthBar, "TOP", 0, 1)
-        name:SetFont(config.font, config.fontSize, config.fontOutline)
+        name:SetFont(LSM:Fetch("font", config.font), config.fontSize, config.fontOutline)
         name:SetTextColor(0.84, 0.75, 0.65)
         name:SetShadowOffset(1.25, -1.25)
         name:SetJustifyH("LEFT")
         name:SetJustifyV("BOTTOM")
         frame.name = name
 
-        levelTextRegion:SetFont(config.font, config.fontSize, config.fontOutline)
+        levelTextRegion:SetFont(LSM:Fetch("font", config.font), config.fontSize, config.fontOutline)
         levelTextRegion:SetShadowOffset(1.25, -1.25)
         levelTextRegion:SetJustifyH("RIGHT")
         levelTextRegion:SetJustifyV("BOTTOM")
         frame.level = levelTextRegion
 
-        healthBar:SetStatusBarTexture(config.barTexture)
+        healthBar:SetStatusBarTexture(LSM:Fetch("statusbar", config.barTexture))
         healthBar.hpBackground = healthBar:CreateTexture(nil, "BORDER")
         healthBar.hpBackground:SetAllPoints(healthBar)
         healthBar.hpBackground:SetTexture(config.barTexture)
@@ -329,7 +388,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         castBar.castbarOverlay = castbarOverlay
         castBar.healthBar = healthBar
         castBar.shieldedRegion = shieldedRegion
-        castBar:SetStatusBarTexture(config.barTexture)
+        castBar:SetStatusBarTexture(LSM:Fetch("statusbar", config.barTexture))
 
         castBar:HookScript("OnShow", CastBar_OnShow)
         castBar:HookScript("OnSizeChanged", CastBar_OnSizeChanged)
@@ -340,7 +399,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
 
         castBar.time = castBar:CreateFontString(nil, "ARTWORK")
         castBar.time:SetPoint("RIGHT", castBar, "LEFT", -2, 1)
-        castBar.time:SetFont(config.font, config.fontSize, config.fontOutline)
+        castBar.time:SetFont(LSM:Fetch("font", config.font), config.fontSize, config.fontOutline)
         castBar.time:SetTextColor(0.84, 0.75, 0.65)
         castBar.time:SetShadowOffset(1.25, -1.25)
 
@@ -464,13 +523,20 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         end
         commands.barWidth = commands.width
 
+        commands.config = function()
+            core:OpenConfig("Nameplates")
+        end
+        commands.options = commands.config
+
         function SlashCommandHandler(msg)
             local cmd, rest = strsplit(" ", msg, 2)
             cmd = cmd:lower()
 
             if _type(commands[cmd]) == "function" then
                 commands[cmd](rest)
-                ReloadUI()
+                if cmd ~= "config" and cmd ~= "options" then
+                    ReloadUI()
+                end
             else
                 Print(L:F("Acceptable commands for: |caaf49141%s|r", "/np"))
                 print(_format(help, "enable", L["enable module"]))
@@ -497,6 +563,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
             end
         end
     end
+
     core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
         for _, name in ipairs({"TidyPlates", "KuiNameplates", "ElvUI"}) do
@@ -507,11 +574,13 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         end
 
         -- you can manually override things here
-        config.hpTextFont = {config.font, config.fontSize, config.fontOutline}
-        config.hpPercentFont = {config.font, config.fontSize, config.fontOutline}
+        config.hpTextFont = {LSM:Fetch("font", config.font), config.fontSize, config.fontOutline}
+        config.hpPercentFont = {LSM:Fetch("font", config.font), config.fontSize, config.fontOutline}
 
-		local function _disabled() return not DB.enabled end
-        core.options.args.options.args.nameplates = {
+        local function _disabled()
+            return not DB.enabled
+        end
+        core.options.args.options.args.Nameplates = {
             type = "group",
             name = L["Nameplates"],
             get = function(i)
@@ -520,8 +589,20 @@ KPack:AddModule("Nameplates", function(folder, core, L)
             set = function(i, val)
                 DB[i[#i]] = val
                 config[i[#i]] = val
+                changed = i[#i]
             end,
             args = {
+                header = {
+                    type = "header",
+                    name = L["Nameplates"],
+                    order = 0
+                },
+                desc = {
+                    type = "description",
+                    name = L["Some settings require UI to be reloaded."],
+                    order = 0.1,
+                    width = "full"
+                },
                 enabled = {
                     type = "toggle",
                     name = "enabled",
@@ -529,21 +610,21 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                 },
                 showHealthText = {
                     type = "toggle",
-                    name = "showHealthText",
+                    name = L["Show Health Text"],
                     order = 2,
                     disabled = disabled
                 },
                 shortenNumbers = {
                     type = "toggle",
-                    name = "shortenNumbers",
+                    name = L["Shorten Health Text"],
                     order = 3,
                     disabled = disabled
                 },
                 showHealthPercent = {
                     type = "toggle",
-                    name = "showHealthPercent",
+                    name = L["Show Health Percent"],
                     order = 4,
-					disabled = disabled
+                    disabled = disabled
                 },
                 barWidth = {
                     type = "range",
@@ -552,7 +633,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                     min = 80,
                     max = 250,
                     step = 1,
-					disabled = disabled
+                    disabled = disabled
                 },
                 barHeight = {
                     type = "range",
@@ -561,38 +642,68 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                     min = 5,
                     max = 30,
                     step = 1,
-					disabled = disabled
+                    disabled = disabled
+                },
+                barTexture = {
+                    type = "select",
+                    name = L["Texture"],
+                    dialogControl = "LSM30_Statusbar",
+                    order = 7,
+                    values = AceGUIWidgetLSMlists.statusbar,
+                    disabled = disabled
+                },
+                font = {
+                    type = "select",
+                    name = L["Font"],
+                    dialogControl = "LSM30_Font",
+                    order = 8,
+                    values = AceGUIWidgetLSMlists.font,
+                    disabled = disabled
                 },
                 fontSize = {
                     type = "range",
                     name = L["Font Size"],
-                    order = 7,
+                    order = 9,
                     min = 6,
                     max = 30,
                     step = 1,
-					disabled = disabled
+                    disabled = disabled
                 },
-				sep = {
-					type = "description",
-					name = " ",
-					order = 7.1
-				},
-	            reset = {
-	                type = "execute",
-	                name = RESET,
-	                order = 9,
-	                width = "full",
-	                confirm = function()
-	                    return L:F("Are you sure you want to reset %s to default?", "Nameplates")
-	                end,
-	                func = function()
-						wipe(DB)
-						DB = defaults
-						for k, v in pairs(DB) do config[k] = v end
-						Print(L["module's settings reset to default."])
-	                end,
-					disabled = disabled
-	            }
+                fontOutline = {
+                    type = "select",
+                    name = L["Font Outline"],
+                    order = 9.1,
+                    values = {
+                        [""] = L["None"],
+                        ["OUTLINE"] = L["Outline"],
+                        ["THICKOUTLINE"] = L["Thick outline"],
+                        ["MONOCHROME"] = L["Monochrome"],
+                        ["OUTLINEMONOCHROME"] = L["Outlined monochrome"]
+                    }
+                },
+                sep = {
+                    type = "description",
+                    name = " ",
+                    order = 9.9
+                },
+                reset = {
+                    type = "execute",
+                    name = RESET,
+                    order = 10,
+                    width = "full",
+                    confirm = function()
+                        return L:F("Are you sure you want to reset %s to default?", "Nameplates")
+                    end,
+                    func = function()
+                        wipe(DB)
+                        DB = defaults
+                        for k, v in pairs(DB) do
+                            config[k] = v
+                        end
+                        Print(L["module's settings reset to default."])
+                    end,
+                    disabled = disabled
+                }
             }
         }
     end)
@@ -616,9 +727,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
 
         -- on mod loaded.
         core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
-            if disabled then
-                return
-            end
+            if disabled then return end
 
             SetupDatabase()
             if DB.enabled and not disabled then
