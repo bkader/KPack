@@ -138,7 +138,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         t:SetSize(30, 30)
         icon.highlight = t
 
-        t = icon:CreateFontString("$parentCount", "NumberFontNormalSmall")
+        t = icon:CreateFontString("$parentCount", "ARTWORK", "NumberFontNormalSmall")
         t:SetPoint("BOTTOMRIGHT", -2, 2)
         t:SetJustifyH("RIGHT")
         icon.countText = t
