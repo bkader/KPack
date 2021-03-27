@@ -219,6 +219,11 @@ KPack:AddModule("Minimap", function(_, core, L)
                 }
             }
         }
+
+		if _G.SexyMap or _G.MinimapBar or not DB.enabled then
+			disabled = true
+			return
+		end
     end)
 
     do
@@ -373,10 +378,8 @@ KPack:AddModule("Minimap", function(_, core, L)
 
         -- called once the user enter the world
         function PLAYER_ENTERING_WORLD()
-            if _G.SexyMap or _G.MinimapBar or not DB.enabled then
-                disabled = true
-                return
-            end
+			if disabled then return end
+
             -- fix the stupid buff with MoveAnything Condolidate buffs
             if not (_G.MOVANY or _G.MovAny or core.MA) then
                 ConsolidatedBuffs:SetParent(UIParent)
