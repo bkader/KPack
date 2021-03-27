@@ -5,7 +5,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
     local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
 
     -- SavedVariables
-    local DB, changed
+    local DB, CharDB, changed, disabled
     local defaults = {
         enabled = true,
         barTexture = "KPack",
@@ -16,11 +16,12 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         fontOutline = "THINOUTLINE",
         showHealthText = false,
         shortenNumbers = true,
-        showHealthPercent = false,
+        showHealthPercent = false
+    }
+    local defaultsChar = {
         tankMode = false,
         tankColor = {0.2, 0.9, 0.1, 1}
     }
-    local disabled
 
     -- ::::::::::::::::::::::::: START of Configuration ::::::::::::::::::::::::: --
 
@@ -634,6 +635,16 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                 config[k] = v
             end
         end
+        if not CharDB then
+            if type(core.char.Nameplates) ~= "table" or not next(core.char.Nameplates) then
+                core.char.Nameplates = CopyTable(defaultsChar)
+            end
+            CharDB = core.char.Nameplates
+
+            for k, v in pairs(CharDB) do
+                config[k] = v
+            end
+        end
     end
 
     core:RegisterForEvent("PLAYER_LOGIN", function()
@@ -760,7 +771,13 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                     type = "toggle",
                     name = L["Enable"],
                     order = 12,
-                    disabled = _disabled
+                    disabled = _disabled,
+                    get = function()
+                        return CharDB.tankMode
+                    end,
+                    set = function(_, val)
+                        CharDB.tankMode = val
+                    end
                 },
                 tankColor = {
                     type = "color",
@@ -769,10 +786,10 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                     order = 13,
                     disabled = _disabled,
                     get = function()
-                        return unpack(DB.tankColor or config.tankColor)
+                        return unpack(CharDB.tankColor or config.tankColor)
                     end,
                     set = function(_, r, g, b, a)
-                        DB.tankColor = {r, g, b, a}
+                        CharDB.tankColor = {r, g, b, a}
                     end
                 },
                 sep = {
