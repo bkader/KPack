@@ -161,6 +161,7 @@ KPack:AddModule("Minimap", function(_, core, L)
     core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
 
+		local function _disabled() return not DB.enabled end
         core.options.args.options.args.minimap = {
             type = "group",
             name = MINIMAP_LABEL,
@@ -180,22 +181,26 @@ KPack:AddModule("Minimap", function(_, core, L)
                 locked = {
                     type = "toggle",
                     name = L["Lock Minimap"],
-                    order = 2
+                    order = 2,
+                    disabled = _disabled
                 },
                 hide = {
                     type = "toggle",
                     name = L["Hide Minimap"],
-                    order = 3
+                    order = 3,
+                    disabled = _disabled
                 },
                 combat = {
                     type = "toggle",
                     name = L["Hide in combat"],
-                    order = 4
+                    order = 4,
+                    disabled = _disabled
                 },
                 scale = {
                     type = "range",
                     name = L["Scale"],
                     order = 5,
+                    disabled = _disabled,
                     width = "full",
                     min = 0.5,
                     max = 3,
@@ -206,6 +211,7 @@ KPack:AddModule("Minimap", function(_, core, L)
                     type = "execute",
                     name = RESET,
                     order = 9,
+                    disabled = _disabled,
                     width = "full",
                     confirm = function()
                         return L:F("Are you sure you want to reset %s to default?", MINIMAP_LABEL)
