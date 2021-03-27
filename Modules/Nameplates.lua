@@ -664,15 +664,10 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                 changed = i[#i]
             end,
             args = {
-                header = {
-                    type = "header",
-                    name = L["Nameplates"],
-                    order = 0
-                },
                 desc = {
                     type = "description",
                     name = L["Some settings require UI to be reloaded."],
-                    order = 0.1,
+                    order = 0,
                     width = "full"
                 },
                 enabled = {
