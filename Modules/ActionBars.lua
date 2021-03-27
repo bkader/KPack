@@ -320,6 +320,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
                 type = "toggle",
                 name = L["Hide Gryphons"],
                 order = 1,
+				disabled = function() return disabled end,
                 set = function(_, val)
                     DB.art = val
                     ActionBars_Gryphons()
@@ -329,6 +330,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
                 type = "toggle",
                 name = L["Range Detection"],
                 desc = L["Turns your buttons red if your target is out of range."],
+				disabled = function() return disabled end,
                 order = 2
             },
             dark = {
@@ -340,6 +342,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
                 type = "toggle",
                 name = L["Hover Mode"],
                 desc = L["Shows your right action bars on hover."],
+				disabled = function() return disabled end,
                 order = 4
             },
             scale = {
@@ -347,6 +350,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
                 name = L["Scale"],
                 desc = L["Changes action bars scale"],
                 order = 7,
+				disabled = function() return disabled end,
                 width = "full",
                 min = 0.5,
                 max = 3,
@@ -358,6 +362,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
                 name = L["Hotkeys"],
                 desc = L["Changes the opacity of action bar hotkeys."],
                 order = 8,
+				disabled = function() return disabled end,
                 width = "full",
                 min = 0,
                 max = 1,
@@ -368,6 +373,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
                 type = "execute",
                 name = RESET,
                 order = 9,
+				disabled = function() return disabled end,
                 width = "full",
                 confirm = function()
                     return L:F("Are you sure you want to reset %s to default?", "Automate")
@@ -396,10 +402,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 
         -- if we are using an action bars addon, better skip.
         for _, n in _ipairs({"Dominos", "Bartender4", "MiniMainBar", "ElvUI", "KActionBars"}) do
-            if _G[n] then
-                disabled = true
-                return
-            end
+            if _G[n] then disabled = true end
         end
 
         SLASH_KPACKABM1 = "/abm"
@@ -411,17 +414,15 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 
     function LoadSettings()
         SetupDatabase()
-        ActionBars_Gryphons()
-        ActionBars_Range()
+        if not disabled then
+	        ActionBars_Gryphons()
+	        ActionBars_Range()
+	        ActionBars_MouseOver()
+	        ActionBars_ScaleBars()
+	        ActionBars_Hotkeys()
+        end
         ActionBars_DarkMode()
-        ActionBars_MouseOver()
-        ActionBars_ScaleBars()
-        ActionBars_Hotkeys()
     end
 
-    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
-        if not disabled then
-            LoadSettings()
-        end
-    end)
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", LoadSettings)
 end)
