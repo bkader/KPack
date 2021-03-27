@@ -39,7 +39,7 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 	local IsControlKeyDown = IsControlKeyDown
 	local IsAltKeyDown = IsAltKeyDown
 
-	local keysConfig
+	local keysConfig = {}
 	local updateBindings
 
 	--------------------------------------------------------------------------------
