@@ -3660,10 +3660,7 @@ KPack:AddModule("Combuctor", function(_, core, L)
 				return b
 			end
 
-			do
-				local name, desc = select(2, GetAddOnInfo("Combuctor"))
-				mod.Options = Panel:New("CombuctorOptions", name, desc)
-			end
+			mod.Options = Panel:New("CombuctorOptions", "Combuctor")
 		end
 
 		-------------------------------------------------------------------------------
