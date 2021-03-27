@@ -16,7 +16,9 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         fontOutline = "THINOUTLINE",
         showHealthText = false,
         shortenNumbers = true,
-        showHealthPercent = false
+        showHealthPercent = false,
+        tankMode = false,
+        tankColor = {0.2, 0.9, 0.1, 1}
     }
     local disabled
 
@@ -24,10 +26,13 @@ KPack:AddModule("Nameplates", function(folder, core, L)
 
     local config = {
         glowTexture = [[Interface\AddOns\KPack\Media\Textures\glowTex]],
+        solidTexture = [[Interface\Buttons\WHITE8X8]],
         hpTextPos = {"LEFT", 3, 1},
         hpPercentPos = {"RIGHT", -3, 1},
         hpTextLonePos = {"CENTER", 0, 1},
-        hpPercentLonePos = {"CENTER", 0, 1}
+        hpPercentLonePos = {"CENTER", 0, 1},
+        tankMode = false,
+        tankColor = {0.2, 0.9, 0.1, 1}
     }
 
     -- Non-Latin Font Bypass
@@ -131,6 +136,66 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         end
     end
 
+    -- handles casting time update
+    local function CastBar_UpdateTime(self, curval)
+        local minval, maxval = self:GetMinMaxValues()
+        if self.channeling then
+            self.time:SetFormattedText("%.1f", curval)
+        else
+            self.time:SetFormattedText("%.1f", maxval - curval)
+        end
+    end
+
+    -- simply fixes the casting bar
+    local function CastBar_Fix(self)
+        self.castbarOverlay:Hide()
+
+        self:SetHeight(5)
+        self:ClearAllPoints()
+        self:SetPoint("TOP", self.healthBar, "BOTTOM", 0, -4)
+    end
+
+    -- colorize the casting bar
+    local function CastBar_Colorize(self, shielded)
+        if shielded then
+            self:SetStatusBarColor(0.8, 0.05, 0)
+        end
+    end
+
+    local function CastBar_OnSizeChanged(self)
+        self.needFix = true
+    end
+
+    local function CastBar_OnValueChanged(self, curval)
+        CastBar_UpdateTime(self, curval)
+        if self.needFix then
+            CastBar_Fix(self)
+            self.needFix = nil
+        end
+    end
+
+    local function CastBar_OnShow(self)
+        self.channeling = UnitChannelInfo("target")
+        CastBar_Fix(self)
+        CastBar_Colorize(self, self.shieldedRegion:IsShown())
+    end
+
+    -- handles colorizing the casting bar
+    local function CastBar_OnEvent(self, event, unit)
+        if unit == "target" then
+            if self:IsShown() then
+                CastBar_Colorize(self, event == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
+            end
+        end
+    end
+
+    local function Health_OnValueChanged(oldbar, val)
+        local plate = oldbar:GetParent()
+        local minval, maxval = oldbar:GetMinMaxValues()
+        plate.healthBar:SetMinMaxValues(minval, maxval)
+        plate.healthBar:SetValue(val or oldbar:GetValue())
+    end
+
     local Nameplate_CheckForChange
     do
         local function ShowHide(f, cond)
@@ -193,11 +258,51 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         end
     end
 
+    local function Nameplate_SetHealthColor(self)
+        if self.hasThreat then
+            self.healthBar.reset = true
+            self.healthBar:SetStatusBarColor(unpack(config.tankColor))
+            return
+        end
+
+        local r, g, b = self.oldHealth:GetStatusBarColor()
+        if self.healthBar.reset or r ~= self.healthBar.r or g ~= self.healthBar.g or b ~= self.healthBar.b then
+            self.healthBar.r, self.healthBar.g, self.healthBar.b = r, g, b
+            self.healthBar.reset = nil
+
+            self.healthBar:SetStatusBarColor(r, g, b)
+        end
+    end
+
+    local function Nameplate_UpdateCritical(self)
+        if self.glow:IsVisible() then
+            self.glow.wasVisible = true
+
+            if config.tankMode then
+                local r, g, b = self.glow:GetVertexColor()
+                self.hasThreat = (g + b) < 0.1
+
+                if self.hasThreat then
+                    Nameplate_SetHealthColor(self)
+                end
+            end
+        elseif self.glow.wasVisible then
+            self.glow.wasVisible = nil
+
+            if self.hasThreat then
+                self.hasThreat = nil
+                Nameplate_SetHealthColor(self)
+            end
+        end
+    end
+
     -- nameplate OnUpdate
     local function Nameplate_OnUpdate(self, elapsed)
         self.elapsed = (self.elapsed or 0) + elapsed
         if self.elapsed >= 0.01 then
-            Nameplate_CheckForChange(self)
+            self:CheckForChange()
+            self:UpdateCritical()
+            self:SetHealthColor()
             self:FormatHealthText()
 
             if targetExists and self:GetAlpha() == 1 then
@@ -247,59 +352,8 @@ KPack:AddModule("Nameplates", function(folder, core, L)
             self.level:SetText(level .. (elite and "+" or ""))
         end
         self.level:Show()
-    end
-
-    -- handles casting time update
-    local function CastBar_UpdateTime(self, curval)
-        local minval, maxval = self:GetMinMaxValues()
-        if self.channeling then
-            self.time:SetFormattedText("%.1f", curval)
-        else
-            self.time:SetFormattedText("%.1f", maxval - curval)
-        end
-    end
-
-    -- simply fixes the casting bar
-    local function CastBar_Fix(self)
-        self.castbarOverlay:Hide()
-
-        self:SetHeight(5)
-        self:ClearAllPoints()
-        self:SetPoint("TOP", self.healthBar, "BOTTOM", 0, -4)
-    end
-
-    -- colorize the casting bar
-    local function CastBar_Colorize(self, shielded)
-        if shielded then
-            self:SetStatusBarColor(0.8, 0.05, 0)
-        end
-    end
-
-    local function CastBar_OnSizeChanged(self)
-        self.needFix = true
-    end
-
-    local function CastBar_OnValueChanged(self, curval)
-        CastBar_UpdateTime(self, curval)
-        if self.needFix then
-            CastBar_Fix(self)
-            self.needFix = nil
-        end
-    end
-
-    local function CastBar_OnShow(self)
-        self.channeling = UnitChannelInfo("target")
-        CastBar_Fix(self)
-        CastBar_Colorize(self, self.shieldedRegion:IsShown())
-    end
-
-    -- handles colorizing the casting bar
-    local function CastBar_OnEvent(self, event, unit)
-        if unit == "target" then
-            if self:IsShown() then
-                CastBar_Colorize(self, event == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
-            end
-        end
+        Nameplate_UpdateCritical(self)
+        Health_OnValueChanged(self.oldHealth, self.oldHealth:GetValue())
     end
 
     local function Nameplate_OnHide(self)
@@ -308,11 +362,20 @@ KPack:AddModule("Nameplates", function(folder, core, L)
 
     -- creates the frame
     local function Nameplate_Create(frame)
-        if frame.done then return end
+        if frame.done then
+            return
+        end
         frame.done = true
 
-        local healthBar, castBar = frame:GetChildren()
-        frame.healthBar, frame.castBar = healthBar, castBar
+        local health, castBar = frame:GetChildren()
+        frame.castBar = castBar
+
+        frame.oldHealth = health
+        frame.oldHealth:Hide()
+
+        local healthBar = CreateFrame("StatusBar", nil, frame)
+        frame.healthBar = healthBar
+        frame.oldHealth:SetScript("OnValueChanged", Health_OnValueChanged)
 
         local glowRegion, overlayRegion, castbarOverlay, shieldedRegion, spellIconRegion, highlightRegion, nameTextRegion, levelTextRegion, bossIconRegion, raidIconRegion, stateIconRegion = frame:GetRegions()
         frame.oldname = nameTextRegion
@@ -430,12 +493,17 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         frame.elite = stateIconRegion
         frame.boss = bossIconRegion
 
-        glowRegion:SetTexCoord(0, 0, 0, 0)
-        overlayRegion:SetTexCoord(0, 0, 0, 0)
-        shieldedRegion:SetTexCoord(0, 0, 0, 0)
-        castbarOverlay:SetTexCoord(0, 0, 0, 0)
-        stateIconRegion:SetTexCoord(0, 0, 0, 0)
-        bossIconRegion:SetTexCoord(0, 0, 0, 0)
+        bossIconRegion:SetTexture(nil)
+        castbarOverlay:SetTexture(nil)
+        glowRegion:SetTexture(nil)
+        overlayRegion:SetTexture(nil)
+        shieldedRegion:SetTexture(nil)
+        stateIconRegion:SetTexture(nil)
+
+        frame.bg = frame:CreateTexture(nil, "BACKGROUND")
+        frame.bg:SetTexture(config.solidTexture)
+        frame.bg:SetVertexColor(0, 0, 0, 0.85)
+        frame.bg:SetAllPoints(healthBar)
 
         local right = frame:CreateTexture(nil, "BACKGROUND")
         right:SetTexture([[Interface\Addons\Nameplates\arrow]])
@@ -454,6 +522,10 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         frame:SetScript("OnShow", Nameplate_OnShow)
         frame:SetScript("OnHide", Nameplate_OnHide)
         Nameplate_OnShow(frame)
+
+        frame.CheckForChange = Nameplate_CheckForChange
+        frame.SetHealthColor = Nameplate_SetHealthColor
+        frame.UpdateCritical = Nameplate_UpdateCritical
 
         frame:SetScript("OnUpdate", Nameplate_OnUpdate)
     end
@@ -605,26 +677,26 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                 },
                 enabled = {
                     type = "toggle",
-                    name = "enabled",
+                    name = L["Enable"],
                     order = 1
                 },
                 showHealthText = {
                     type = "toggle",
                     name = L["Show Health Text"],
                     order = 2,
-                    disabled = disabled
+                    disabled = _disabled
                 },
                 shortenNumbers = {
                     type = "toggle",
                     name = L["Shorten Health Text"],
                     order = 3,
-                    disabled = disabled
+                    disabled = _disabled
                 },
                 showHealthPercent = {
                     type = "toggle",
                     name = L["Show Health Percent"],
                     order = 4,
-                    disabled = disabled
+                    disabled = _disabled
                 },
                 barWidth = {
                     type = "range",
@@ -633,7 +705,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                     min = 80,
                     max = 250,
                     step = 1,
-                    disabled = disabled
+                    disabled = _disabled
                 },
                 barHeight = {
                     type = "range",
@@ -642,7 +714,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                     min = 5,
                     max = 30,
                     step = 1,
-                    disabled = disabled
+                    disabled = _disabled
                 },
                 barTexture = {
                     type = "select",
@@ -650,7 +722,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                     dialogControl = "LSM30_Statusbar",
                     order = 7,
                     values = AceGUIWidgetLSMlists.statusbar,
-                    disabled = disabled
+                    disabled = _disabled
                 },
                 font = {
                     type = "select",
@@ -658,7 +730,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                     dialogControl = "LSM30_Font",
                     order = 8,
                     values = AceGUIWidgetLSMlists.font,
-                    disabled = disabled
+                    disabled = _disabled
                 },
                 fontSize = {
                     type = "range",
@@ -667,12 +739,13 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                     min = 6,
                     max = 30,
                     step = 1,
-                    disabled = disabled
+                    disabled = _disabled
                 },
                 fontOutline = {
                     type = "select",
                     name = L["Font Outline"],
-                    order = 9.1,
+                    order = 10,
+                    disabled = _disabled,
                     values = {
                         [""] = L["None"],
                         ["OUTLINE"] = L["Outline"],
@@ -682,16 +755,42 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                         ["OUTLINEMONOCHROME"] = L["Outlined monochrome"]
                     }
                 },
+                tankhead = {
+                    type = "header",
+                    name = L["Tank Mode"],
+                    order = 11,
+                    disabled = _disabled
+                },
+                tankMode = {
+                    type = "toggle",
+                    name = L["Enable"],
+                    order = 12,
+                    disabled = _disabled
+                },
+                tankColor = {
+                    type = "color",
+                    name = L["Bar Color"],
+                    desc = L["Bar color when you have threat."],
+                    order = 13,
+                    disabled = _disabled,
+                    get = function()
+                        return unpack(DB.tankColor or config.tankColor)
+                    end,
+                    set = function(_, r, g, b, a)
+                        DB.tankColor = {r, g, b, a}
+                    end
+                },
                 sep = {
                     type = "description",
                     name = " ",
-                    order = 9.9
+                    order = 14
                 },
                 reset = {
                     type = "execute",
                     name = RESET,
-                    order = 10,
+                    order = 15,
                     width = "full",
+                    disabled = _disabled,
                     confirm = function()
                         return L:F("Are you sure you want to reset %s to default?", "Nameplates")
                     end,
@@ -703,8 +802,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                         end
                         Print(L["module's settings reset to default."])
                         ReloadUI()
-                    end,
-                    disabled = disabled
+                    end
                 }
             }
         }

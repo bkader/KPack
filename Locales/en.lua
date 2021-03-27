@@ -594,6 +594,8 @@ L["Thick outline"] = true
 L["toggles health percentage"] = true
 L["toggles health text"] = true
 L["Width"] = true
+L["Tank Mode"] = true
+L["Bar color when you have threat."] = true
 
 -------------------------------------------------------------------------------
 -- Personal Resources
