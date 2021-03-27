@@ -12,6 +12,8 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
     local CreateFrame = CreateFrame
     local GetNumLootItems = GetNumLootItems
     local select, pairs = select, pairs
+    local format = string.format
+    local random = math.random
 
     -- module print function
     local function Print(msg)
@@ -19,9 +21,139 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
             core:Print(msg, "ImprovedLootFrame")
         end
     end
-     -- ///////////////////////////////////////////////////////
+    -- ///////////////////////////////////////////////////////
     -- replace default functions
     -- ///////////////////////////////////////////////////////
+
+    local RAID_CLASS_COLORS = RAID_CLASS_COLORS
+    local hexColors = {}
+    for k, v in pairs(RAID_CLASS_COLORS) do
+        hexColors[k] = format("|cff%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
+    end
+    hexColors.UNKNOWN = format("|cff%02x%02x%02x", 0.6 * 255, 0.6 * 255, 0.6 * 255)
+
+    if CUSTOM_CLASS_COLORS then
+        local function update()
+            for k, v in pairs(CUSTOM_CLASS_COLORS) do
+                hexColors[k] = ("|cff%02x%02x%02x"):format(v.r * 255, v.g * 255, v.b * 255)
+            end
+        end
+        CUSTOM_CLASS_COLORS:RegisterCallback(update)
+        update()
+    end
+
+    local unknownColor = {r = 0.6, g = 0.6, b = 0.6}
+    local classesInRaid = {}
+    local randoms = {}
+
+    local function CandidateUnitClass(unit)
+        local class, filename = UnitClass(unit)
+        if class then
+            return class, filename
+        end
+        return UNKNOWN, "UNKNOWN"
+    end
+
+    local function ILF_InitializeMenu()
+        local candidate, color
+        local info = UIDropDownMenu_CreateInfo()
+
+        if UIDROPDOWNMENU_MENU_LEVEL == 2 then
+            for i = 1, 40 do
+                candidate = GetMasterLootCandidate(i)
+                if candidate then
+                    local class = select(2, CandidateUnitClass(candidate))
+                    if class == UIDROPDOWNMENU_MENU_VALUE then
+                        wipe(info)
+                        info.text = candidate
+                        info.colorCode = hexColors[class] or hexColors.UNKNOWN
+                        info.textHeight = 12
+                        info.value = i
+                        info.func = GroupLootDropDown_GiveLoot
+                        UIDropDownMenu_AddButton(info, UIDROPDOWNMENU_MENU_LEVEL)
+                    end
+                end
+            end
+            return
+        end
+
+        wipe(info)
+        info.isTitle = true
+        info.text = GIVE_LOOT
+        info.textHeight = 12
+        info.notCheckable = true
+        UIDropDownMenu_AddButton(info, UIDROPDOWNMENU_MENU_LEVEL)
+
+        if GetNumRaidMembers() > 0 then
+            for k, v in pairs(classesInRaid) do
+                classesInRaid[k] = nil
+            end
+
+            for i = 1, 40 do
+                candidate = GetMasterLootCandidate(i)
+                if candidate then
+                    local cname, class = CandidateUnitClass(candidate)
+                    classesInRaid[class] = cname
+                end
+            end
+
+            for k, v in pairs(classesInRaid) do
+                wipe(info)
+                info.text = v
+                info.colorCode = hexColors[k] or hexColors.UNKOWN
+                info.textHeight = 12
+                info.hasArrow = true
+                info.notCheckable = true
+                info.value = k
+                UIDropDownMenu_AddButton(info)
+            end
+        else
+            for i = 1, MAX_PARTY_MEMBERS + 1, 1 do
+                candidate = GetMasterLootCandidate(i)
+                if candidate then
+                    wipe(info)
+                    info.text = candidate
+                    info.colorCode = hexColors[select(2, CandidateUnitClass(candidate))] or hexColors.UNKOWN
+                    info.textHeight = 12
+                    info.value = i
+                    info.notCheckable = true
+                    info.func = GroupLootDropDown_GiveLoot
+                    UIDropDownMenu_AddButton(info)
+                end
+            end
+        end
+
+        for k, v in pairs(randoms) do
+            randoms[k] = nil
+        end
+        for i = 1, 40 do
+            candidate = GetMasterLootCandidate(i)
+            if candidate then
+                tinsert(randoms, i)
+            end
+        end
+        if #randoms > 0 then
+            info.colorCode = "|cffffffff"
+            info.textHeight = 12
+            info.value = randoms[random(1, #randoms)]
+            info.notCheckable = 1
+            info.text = "Random"
+            info.func = GroupLootDropDown_GiveLoot
+            UIDropDownMenu_AddButton(info)
+        end
+        for i = 1, 40 do
+            candidate = GetMasterLootCandidate(i)
+            if candidate and candidate == playerName then
+                info.colorCode = hexColors[select(2, CandidateUnitClass(candidate))] or hexColors["UNKOWN"]
+                info.textHeight = 12
+                info.value = i
+                info.notCheckable = 1
+                info.text = "Self"
+                info.func = GroupLootDropDown_GiveLoot
+                UIDropDownMenu_AddButton(info)
+            end
+        end
+    end
 
     -- replacing LootFrame_Show
     local ILF_LootFrame_Show
@@ -129,5 +261,6 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
         ILF_Initialize()
         _G.LootFrame_Show = ILF_LootFrame_Show
         _G.LootButton_OnClick = ILF_LootButton_OnClick
+        UIDropDownMenu_Initialize(GroupLootDropDown, ILF_InitializeMenu)
     end)
 end)
