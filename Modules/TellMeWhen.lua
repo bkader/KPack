@@ -1298,7 +1298,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                         name = L["Scale"],
                         order = 5,
                         min = 0.5,
-                        max = 20,
+                        max = 8,
                         step = 0.01,
                         bigStep = 0.1
                     },
