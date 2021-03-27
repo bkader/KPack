@@ -1,6 +1,6 @@
-# KPack - Lots-In-One AddOn Collection! (58)
+# KPack - Lots-In-One AddOn Collection! (57)
 
-Currently, this pack contains 58 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 57 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -190,82 +190,78 @@ This module needs a bit for work. It is an extra button that can be moved around
 
 Simple module that adds tabs to raid brower, BG or RDF windows, allowing you to switch between them.
 
-## 39. Random Mount:
-
-Gives you an option to keybind the mount/dismount button, riding or flying mounts and it will does what it says: mounts you up or dismounts you. A good module if you don't want to free some buttons on your action bars.
-
-## 40. SimpleComboPoints:
+## 39. SimpleComboPoints:
 
 Highly customizable combo point module for rogues and druids.
 
-## 41. Simplified:
+## 40. Simplified:
 
 Adds lots of slash commands, shortcut to lots of other functions.
 
-## 42. SnowfallKeyPress:
+## 41. SnowfallKeyPress:
 
 Added as a module as well. It allows you to cast your spells on key down instead of on key up.
 
-## 43. SlashIn:
+## 42. SlashIn:
 
 It can be useful in certain situation. It delays macros, that's all. It doesn't work for protected function such `use`, `cast`, `target` ... etc. Example: `/in 5 /y Hello There`: in 5sec it yells Hello.
 
-## 44. SpellIDs:
+## 43. SpellIDs:
 
 Adds spells and items IDs to tooltips.
 
-## 45. Tooltip Module:
+## 44. Tooltip Module:
 
 Enhanced the tooltip and allows your to scale it, hide it in combat, move it to top center of the screen ... etc
 
-## 46. TradeTabs:
+## 45. TradeTabs:
 
 Just like **RaidTabs**, this adds tabs for your profession windows. When you open any profession window, you will see tabs to its right, allows you to switch to another profession window quickly. Bonus: Fire camp.
 
-## 47. UnitFrames:
+## 46. UnitFrames:
 
 Enhanced default UnitFrames, movable, resizable ..etc.
 
-## 48. TargetPercent:
+## 47. TargetPercent:
 
 Show your target and focus health percentage above their unit frames. If you enable percentage display on Nameplates module, the target's percentage will be hidden.
 
-## 49. Viewporter:
+## 48. Viewporter:
 
 Just like its name says, it changes your game's viewport, allowing you to put stuff outside of it.
 
-## 50. Molinari:
+## 49. Molinari:
 
 Molinari was made to aid the player in processing various items throughout the game. As an example: when you'd want to mill herbs, you would normally cast Milling and then click the item in your bags. With Molinari, you simply hold down the Alt key and click the item directly.
 
-## 51. Death Recap
+## 50. Death Recap
 
 Adds a button to the death dialog that shows you the last 5 events prior to your death, with extra details.
 
-## 52. Raid Utility:
+## 51. Raid Utility:
 
 Provides buttons for several uses in groups or raids. You can disband the group, set the main tank and off tank, do a ready check, convert the group to raid and toggle raid frame.
 
-## 53. Raid Target Icons:
+## 52. Raid Target Icons:
 
 If you don't know an addon called _SimpleRaidTargetIcons_, it's an addon that opens a ring menu above units, allowing you to set icons. You can double click or CTLR+Click to open the menu. More settings can be found inside the file.
 
-## 54. Combuctor
+## 53. Combuctor
 
 Combuctor is a bag replacement addon (_module for KPack_) designed to help the player find items as quickly and as easily as possible, while still feeling part of the default interface. 
 
-## 55. ActionBarSaver
+## 54. ActionBarSaver
 
 Allows you to setup different profiles for your action bars. Mainly this is for hybrid classes that want to be able to respec without spending 10-20 minutes setting their action bars up.
 
-## 56. RaidBrowser
+## 55. RaidBrowser
 
 This module replaces the unused (in 3.3.5a) LFR tab in the social menu with a working raid finder.
 
-## 57. Castbars
+## 56. Castbars
 
 Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars, including both the Player/Vehicle Castbar, the Pet Castbar and the Mirror Timerbars.
 
-## 58. TellMeWhen
+## 57. TellMeWhen
 
 Provides visual, auditory, and textual notifications about cooldowns, buffs, and pretty much every other element of combat. 
