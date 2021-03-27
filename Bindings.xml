@@ -5,17 +5,6 @@
 	</Binding>
 	<Binding name="CLICK QuickButtonFrame:LeftButton" header="KPACKQUICKBUTTON" />
 
-	<!-- Random Mount -->
-	<Binding name="KPACKRANDOMMOUNT_REG" header="KPACKRANDOMMOUNT">
-		if KPack.RandomMount then KPack.RandomMount:FindMount("") end
-	</Binding>
-	<Binding name="KPACKRANDOMMOUNT_RIDING">
-		if KPack.RandomMount then KPack.RandomMount:FindMount("riding") end
-	</Binding>
-	<Binding name="KPACKRANDOMMOUNT_FLYING">
-		if KPack.RandomMount then KPack.RandomMount:FindMount("flying") end
-	</Binding>
-
 	<!-- MouseOver Raid Icons -->
 	<Binding name="KPACKAUTOMATE_1" header="KPACKAUTOMATE">SetRaidTarget("MOUSEOVER", 1)</Binding>
 	<Binding name="KPACKAUTOMATE_2">SetRaidTarget("MOUSEOVER", 2)</Binding>
@@ -26,6 +15,7 @@
 	<Binding name="KPACKAUTOMATE_7">SetRaidTarget("MOUSEOVER", 7)</Binding>
 	<Binding name="KPACKAUTOMATE_8">SetRaidTarget("MOUSEOVER", 8)</Binding>
 	<Binding name="KPACKAUTOMATE_0">SetRaidTarget("MOUSEOVER", 0)</Binding>
+	<Binding name="KPACKAUTOMATEMOUNT">if KPack.Mount then KPack.Mount() end</Binding>
 
 	<!-- MoveAnything -->
 	<Binding name="Toggle MA window" header="KPACKMOVEANYTHING">

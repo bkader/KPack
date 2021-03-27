@@ -47,7 +47,6 @@
 <Script file="RaidTabs.lua" />
 <Script file="RaidTargetIcons.lua" />
 <Script file="RaidUtility.lua" />
-<Script file="RandomMount.lua" />
 <Script file="SimpleComboPoints.lua" />
 <Script file="Simplified.lua" />
 <Script file="SlashIn.lua" />

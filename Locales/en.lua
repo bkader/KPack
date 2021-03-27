@@ -204,6 +204,11 @@ L["You don't have enough money to repair items!"] = true
 L["|cffffd700Alt-Click|r to buy a stack of item from merchant."] = true
 L["You can keybind raid icons on MouseOver. Check keybindings."] = true
 L["Remove Icon"] = true
+-- auto mounts
+L["Enter the name or link the ground and flying mounts to be used using the provided keybinding."] = true
+L["Ground Mount"] = true
+L["Flying Mount"] = true
+L["Auto Mount/Dismount"] = true
 
 -------------------------------------------------------------------------------
 -- Castbars

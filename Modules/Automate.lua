@@ -5,8 +5,8 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
     local mod = core.Automate or {}
     core.Automate = mod
 
-    local DB
-    local defaults = {
+    local DB, CharDB
+    local defaultsDB = {
         enabled = true,
         duels = false,
         gossip = false,
@@ -16,6 +16,10 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
         uiscale = false,
         camera = true,
         screenshot = false
+    }
+    local defaultsChar = {
+        flyingmount = "",
+        groundmount = ""
     }
 
     local PLAYER_ENTERING_WORLD
@@ -39,15 +43,19 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
     end
 
     local function SetupDatabase()
-        if DB then
-            return
+        if not DB then
+            if type(core.db.Automate) ~= "table" or not next(core.db.Automate) then
+                core.db.Automate = CopyTable(defaultsDB)
+            end
+            DB = core.db.Automate
         end
 
-        if type(core.db.Automate) ~= "table" or not next(core.db.Automate) then
-            core.db.Automate = CopyTable(defaults)
+        if not CharDB then
+            if type(core.char.Automate) ~= "table" or not next(core.char.Automate) then
+                core.char.Automate = CopyTable(defaultsChar)
+            end
+            CharDB = core.char.Automate
         end
-
-        DB = core.db.Automate
     end
 
     do
@@ -60,14 +68,12 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
                     SetCVar("useUiScale", 1)
                     SetCVar("uiScale", 768 / string.match(({GetScreenResolutions()})[GetCurrentResolution()], "%d+x(%d+)"))
                 end)
-				SetCVar("screenshotQuality", SCREENSHOT_QUALITY)
+                SetCVar("screenshotQuality", SCREENSHOT_QUALITY)
             end
         end
 
         function PLAYER_ENTERING_WORLD()
-            if not DB then
-                SetupDatabase()
-            end
+            SetupDatabase()
             if DB.enabled then
                 Automate_UIScale()
                 mod:AdjustCamera()
@@ -137,30 +143,75 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
                     order = 9,
                     disabled = disabled
                 },
+                mounts = {
+                    type = "header",
+                    name = MOUNTS,
+                    order = 10
+                },
+                mountstip = {
+                    type = "description",
+                    name = L["Enter the name or link the ground and flying mounts to be used using the provided keybinding."],
+                    order = 10.1,
+                    width = "full"
+                },
+                groundmount = {
+                    type = "input",
+                    name = L["Ground Mount"],
+                    order = 11,
+                    disabled = disabled,
+                    get = function(i) return CharDB[i[#i]] end,
+                    set = function(i, val)
+                        local name = tostring(val)
+                        if name:find("spell:") then
+                            local spellid = name:match("spell:(%d+)")
+                            if spellid then
+                                name = GetSpellInfo(spellid)
+                            end
+                        end
+                        CharDB.groundmount = name or ""
+                    end
+                },
+                flyingmount = {
+                    type = "input",
+                    name = L["Flying Mount"],
+                    order = 12,
+                    disabled = disabled,
+                    get = function(i) return CharDB[i[#i]] end,
+                    set = function(i, val)
+                        local name = tostring(val)
+                        if name:find("spell:") then
+                            local spellid = name:match("spell:(%d+)")
+                            if spellid then
+                                name = GetSpellInfo(spellid)
+                            end
+                        end
+                        CharDB.flyingmount = name or ""
+                    end
+                },
                 more = {
                     type = "header",
                     name = OTHER,
-                    order = 10
+                    order = 13
                 },
                 tip1 = {
                     type = "description",
                     name = L["|cffffd700Alt-Click|r to buy a stack of item from merchant."],
-                    order = 11,
+                    order = 14,
                     width = "full"
                 },
                 tip2 = {
                     type = "description",
                     name = L["You can keybind raid icons on MouseOver. Check keybindings."],
-                    order = 12,
+                    order = 15,
                     width = "full"
                 }
             }
         }
 
-        core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
+        core:RegisterForEvent("PLAYER_LOGIN", function()
             core.options.args.options.args.Automate = options
-            PLAYER_ENTERING_WORLD()
         end)
+        core:RegisterForEvent("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
     end
 
     -- ///////////////////////////////////////////////////////
@@ -379,9 +430,7 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
         end)
 
         function mod:TrainButtonCreate()
-            if button then
-                return
-            end
+            if button then return end
             button = CreateFrame("Button", "KPackTrainAllButton", ClassTrainerFrame, "KPackButtonTemplate")
             button:SetSize(80, 18)
             button:SetFormattedText("%s %s", TRAIN, ALL)
@@ -390,7 +439,9 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
         end
 
         function mod:TrainButtonUpdate()
-            if locked then return end
+            if locked then
+                return
+            end
 
             for i = 1, GetNumTrainerServices() do
                 if select(3, GetTrainerServiceInfo(i)) == "available" then
@@ -401,6 +452,73 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
 
             button:Disable()
         end
+    end
+
+    -- ///////////////////////////////////////////////////////
+    -- Auto Mount Up
+    -- ///////////////////////////////////////////////////////
+
+    do
+        local IsMounted = IsMounted
+        local CanExitVehicle = CanExitVehicle
+        local VehicleExit = VehicleExit
+        local IsFlyableArea = IsFlyableArea
+        local IsControlKeyDown = IsControlKeyDown
+        local GetNumCompanions = GetNumCompanions
+        local GetCompanionInfo = GetCompanionInfo
+        local CallCompanion = CallCompanion
+
+        local function Automate_MountUp(ground, flying)
+            if not DB.enabled then
+                return
+            end
+            ground = ground or DB.groundmount
+            flying = flying or DB.flyingmount
+            if not flying or flying == "" then
+                flying = ground
+            end
+            if not ground or ground == "" then
+                return
+            end
+
+            local num = GetNumCompanions("MOUNT")
+            if not num or IsMounted() then
+                Dismount()
+                return
+            end
+
+            if CanExitVehicle() then
+                VehicleExit()
+                return
+            end
+
+            local flyablex, nofly
+
+            if IsUsableSpell(59569) ~= true then
+                nofly = true
+            end
+
+            flyablex = IsFlyableArea()
+            if not nofly and IsFlyableArea() then
+                flyablex = true
+            end
+
+            if IsControlKeyDown() then
+                flyablex = not flyablex
+            end
+
+            for i = 1, num, 1 do
+                local _, info = GetCompanionInfo("MOUNT", i)
+                if flying and info == flying and flyablex then
+                    CallCompanion("MOUNT", i)
+                    return
+                elseif ground and info == ground and not flyablex then
+                    CallCompanion("MOUNT", i)
+                    return
+                end
+            end
+        end
+        core.Mount = Automate_MountUp
     end
 
     -- ///////////////////////////////////////////////////////
@@ -437,3 +555,4 @@ BINDING_NAME_KPACKAUTOMATE_6 = "MouseOver: " .. RAID_TARGET_6
 BINDING_NAME_KPACKAUTOMATE_7 = "MouseOver: " .. RAID_TARGET_7
 BINDING_NAME_KPACKAUTOMATE_8 = "MouseOver: " .. RAID_TARGET_8
 BINDING_NAME_KPACKAUTOMATE_0 = KPack.L["Remove Icon"]
+BINDING_NAME_KPACKAUTOMATEMOUNT = KPack.L["Auto Mount/Dismount"]
