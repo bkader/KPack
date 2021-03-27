@@ -274,6 +274,12 @@ L["Set the alignment of the Castbar text"] = true
 L["Left"] = true
 L["Center"] = true
 
+L["Mirror Timer %d"] = true
+L["Player/Vehicle Castbar"] = true
+L["Pet Castbar"] = true
+L["Target Castbar"] = true
+L["Focus Castbar"] = true
+
 -------------------------------------------------------------------------------
 -- Chat Filter
 --

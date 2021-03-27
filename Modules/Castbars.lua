@@ -37,7 +37,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
         local spark = CastingBarFrame:CreateTexture(nil, "ARTWORK")
         tick[i] = spark
         spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-        spark:SetVertexColor(1, 1, 1, 0.75)
+        spark:SetVertexColor(1, 1, 1, 0.5)
         spark:SetBlendMode("ADD")
         spark:SetWidth(10)
         return spark
@@ -272,7 +272,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
             frameType = "Mirror"
             frame.statusBar = _G[frameName .. "StatusBar"]
             frame.configName = "MirrorTimer"
-            frame.friendlyName = "Mirror Timer " .. index
+            frame.friendlyName = L:F("Mirror Timer %d", index)
             if index == 1 then
                 frame.dragable = true
             end
@@ -280,7 +280,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
             frameType = "Castbar"
             frame.statusBar = frame
             frame.configName = frameName
-            frame.friendlyName = "Player/Vehicle Castbar"
+            frame.friendlyName = L["Player/Vehicle Castbar"]
             frame.dragable = true
             frame.icon = _G[frameName .. "Icon"]
             frame.shield = _G[frameName .. "BorderShield"]
@@ -288,7 +288,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
             frameType = "Castbar"
             frame.statusBar = frame
             frame.configName = UnitIsPossessed("pet") and "CastingBarFrame" or "PetCastingBarFrame"
-            frame.friendlyName = "Pet Castbar"
+            frame.friendlyName = L["Pet Castbar"]
             frame.dragable = true
             frame.icon = _G[frameName .. "Icon"]
             frame.shield = _G[frameName .. "BorderShield"]
@@ -296,7 +296,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
             frameType = "Castbar"
             frame.statusBar = frame
             frame.configName = frameName
-            frame.friendlyName = "Target Castbar"
+            frame.friendlyName = L["Target Castbar"]
             frame.dragable = true
             frame.icon = _G[frameName .. "Icon"]
             frame.shield = _G[frameName .. "BorderShield"]
@@ -821,7 +821,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 	                Width = 250,
 	                Height = 24,
 	                Texture = "Castbars",
-	                BarColor = {0.3, 0.3, 0.8},
+	                BarColor = {1.0, 0.49, 0},
 	                Font = "Friz Quadrata TT",
 	                FontSize = 10,
 	                TextAlignment = "CENTER",
@@ -837,7 +837,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 	                Width = 150,
 	                Height = 12,
 	                Texture = "Castbars",
-	                BarColor = {0.3, 0.3, 0.8},
+	                BarColor = {1.0, 0.49, 0},
 	                Font = "Friz Quadrata TT",
 	                FontSize = 9,
 	                TextAlignment = "CENTER",
@@ -854,7 +854,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 	                Width = 205,
 	                Height = 12,
 	                Texture = "Castbars",
-	                BarColor = {0.3, 0.3, 0.8},
+	                BarColor = {1.0, 0.49, 0},
 	                Font = "Friz Quadrata TT",
 	                FontSize = 10,
 	                TextAlignment = "CENTER",
@@ -871,7 +871,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 	                Width = 205,
 	                Height = 12,
 	                Texture = "Castbars",
-	                BarColor = {0.3, 0.3, 0.8},
+	                BarColor = {1.0, 0.49, 0},
 	                Font = "Friz Quadrata TT",
 	                FontSize = 10,
 	                TextAlignment = "CENTER",
@@ -884,7 +884,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 	                Width = 205,
 	                Height = 13,
 	                Texture = "Castbars",
-	                BarColor = {0.3, 0.3, 0.8},
+	                BarColor = {1.0, 0.49, 0},
 	                Font = "Friz Quadrata TT",
 	                FontSize = 10,
 	                TextAlignment = "CENTER",
@@ -922,10 +922,10 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 						Castbars_FrameLayoutRestoreAll()
 					end
 				},
-                player = Castbars_GetOptionsTableForBar("CastingBarFrame", PLAYER, 2, true, false, true, true, true, true, true, true, true, true),
-                pet = Castbars_GetOptionsTableForBar("PetCastingBarFrame", PET, 3, true, false, true, true, false, false, true, false, false, false),
-                target = Castbars_GetOptionsTableForBar("TargetCastingBarFrame", TARGET, 4, true, true, true, true, false, false, true, false, false, false),
-                focus = Castbars_GetOptionsTableForBar("FocusCastingBarFrame", FOCUS, 5, true, true, true, true, false, false, true, false, false, false),
+                player = Castbars_GetOptionsTableForBar("CastingBarFrame", L["Player/Vehicle Castbar"], 2, true, false, true, true, true, true, true, true, true, true),
+                pet = Castbars_GetOptionsTableForBar("PetCastingBarFrame", L["Pet Castbar"], 3, true, false, true, true, false, false, true, false, false, false),
+                target = Castbars_GetOptionsTableForBar("TargetCastingBarFrame", L["Target Castbar"], 4, true, true, true, true, false, false, true, false, false, false),
+                focus = Castbars_GetOptionsTableForBar("FocusCastingBarFrame", L["Focus Castbar"], 5, true, true, true, true, false, false, true, false, false, false),
                 mirror = Castbars_GetOptionsTableForBar("MirrorTimer", L["Mirror Timers"], 6)
             },
         }
