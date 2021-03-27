@@ -472,8 +472,8 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
             if not DB.enabled then
                 return
             end
-            ground = ground or DB.groundmount
-            flying = flying or DB.flyingmount
+            ground = ground or CharDB.groundmount
+            flying = flying or CharDB.flyingmount
             if not flying or flying == "" then
                 flying = ground
             end
