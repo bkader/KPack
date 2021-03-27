@@ -154,16 +154,10 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
                 StanceBarLeft,
                 StanceBarMiddle,
                 StanceBarRight,
-                -- ArenaFrames
-                -- ActionBarUpButton:GetNormalTexture(),
-                -- ActionBarUpButton:GetPushedTexture(),
-                -- ActionBarUpButton:GetHighlightTexture(),
-                -- ActionBarDownButton:GetNormalTexture(),
-                -- ActionBarDownButton:GetPushedTexture(),
-                -- ActionBarDownButton:GetHighlightTexture(),
                 ShapeshiftBarLeft,
                 ShapeshiftBarMiddle,
                 ShapeshiftBarRight,
+                -- ArenaFrames
                 ArenaEnemyFrame1Texture,
                 ArenaEnemyFrame2Texture,
                 ArenaEnemyFrame3Texture,
