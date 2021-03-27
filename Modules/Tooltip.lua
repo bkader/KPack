@@ -287,6 +287,12 @@ KPack:AddModule("Tooltip", function(_, core, L)
 	        -- hooked to OnTooltipSetUnit to add our enhancement
 	        function Tooltip_OnTooltipSetUnit(self)
 	            local unit = select(2, self:GetUnit())
+				if not unit then
+					local mfocus = GetMouseFocus()
+					if mfocus and mfocus.unit then
+						unit = mfocus.unit
+					end
+				end
 	            if unit then
 	                local unitClassification = types[UnitClassification(unit)] or " "
 	                local diffColor = GetQuestDifficultyColor(UnitLevel(unit))
