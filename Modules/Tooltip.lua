@@ -288,10 +288,10 @@ KPack:AddModule("Tooltip", function(_, core, L)
 	        function Tooltip_OnTooltipSetUnit(self)
 	            local unit = select(2, self:GetUnit())
 				if not unit then
-					local mfocus = GetMouseFocus()
-					if mfocus and mfocus.unit then
-						unit = mfocus.unit
-					end
+				    local mfocus = GetMouseFocus()
+				    if mfocus and mfocus.unit then
+				        unit = mfocus.unit
+				    end
 				end
 	            if unit then
 	                local unitClassification = types[UnitClassification(unit)] or " "
