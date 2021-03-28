@@ -238,13 +238,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             buffNames = {buffName}
         end
         for i, name in ipairs(buffNames) do
-            if tonumber(name) ~= nil then
-                if convertIDs == "item" then
-                    buffNames[i] = GetItemInfo(name)
-                else
-                    buffNames[i] = GetSpellInfo(name)
-                end
-            end
+            buffNames[i] = name
         end
 
         return buffNames
@@ -362,9 +356,11 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             end
 
             for i, iName in ipairs(icon.Name) do
-                local buffName, _, iconTexture, count, _, duration, expirationTime, unitCaster =
-                    UnitAura(icon.Unit, iName, nil, filter)
-                if buffName then
+	            local auraId = tonumber(iName)
+	            iName = auraId and GetSpellInfo(auraId) or iName
+
+	            local buffName, _, iconTexture, count, _, duration, expirationTime, _, _, _, spellId = UnitAura(icon.Unit, iName, nil, filter)
+	            if buffName and ((auraId and auraId == spellId) or not auraId) then
                     if icon.texture:GetTexture() ~= iconTexture then
                         icon.texture:SetTexture(iconTexture)
                         icon.learnedTexture = true
