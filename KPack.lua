@@ -232,8 +232,6 @@ do
 
     local tostring = tostring
 
-    -- local panel = core.Utils:CreatePanel("KPackInterfaceOptions", folder, "|cfff58cbaKader|r|caaf49141Pack|r")
-
     local help = "|cffffd700%s|r: %s"
     local function SlashCommandHandler(cmd)
         cmd = cmd and cmd:lower()
