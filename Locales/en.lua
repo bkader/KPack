@@ -342,11 +342,6 @@ L["Toggles clearing combat log when it breaks."] = true
 L["Toggles not clearing until you drop combat."] = true
 L["Toggles reporting how many messages were found when it broke."] = true
 
-L["You have successfully sold %d grey items."] = true
-L["Repair cost covered by Guild Bank: %dg %ds %dc."] = true
-L["Your items have been repaired for %dg %ds %dc."] = true
-L["You don't have enough money to repair items!"] = true
-
 -------------------------------------------------------------------------------
 -- CombatText
 --
