@@ -284,7 +284,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                 self.hasThreat = (g + b) < 0.1
 
                 if self.hasThreat then
-                    Nameplate_SetHealthColor(self)
+                    self:SetHealthColor()
                 end
             end
         elseif self.glow.wasVisible then
@@ -292,7 +292,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
 
             if self.hasThreat then
                 self.hasThreat = nil
-                Nameplate_SetHealthColor(self)
+                self:SetHealthColor()
             end
         end
     end
