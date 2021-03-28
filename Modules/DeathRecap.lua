@@ -58,40 +58,6 @@ KPack:AddModule("Death Recap", function(folder, core, L)
     local CreateDeathRecapFrame
     local KPackDeathRecapFrame
 
-    -- we have to override the default function to keep our dialog open.
-    _G.StaticPopup_OnClick = function(self, index)
-        if not self:IsShown() then
-            return
-        end
-        local which = self.which
-        local info = StaticPopupDialogs[which]
-        if not info then
-            return nil
-        end
-
-        local hide = true
-        if index == 1 then
-            local OnAccept = info.OnAccept
-            if OnAccept then
-                hide = not OnAccept(self, self.data, self.data2)
-            end
-        elseif index == 3 then
-            local OnAlt = info.OnAlt
-            if OnAlt then
-                OnAlt(self, self.data, "clicked")
-            end
-        else
-            local OnCancel = info.OnCancel
-            if OnCancel then
-                hide = not OnCancel(self, self.data, "clicked")
-            end
-        end
-
-        if hide and (which == self.which) and (index ~= 3 or not info.noCloseOnAlt) then
-            self:Hide()
-        end
-    end
-
     function AddEvent(timestamp, event, srcName, spellId, spellName, environmentalType, amount, overkill, school, resisted, blocked, absorbed)
         if index > 0 and eventList[index].timestamp + 10 <= timestamp then
             index = 0
@@ -149,6 +115,7 @@ KPack:AddModule("Death Recap", function(folder, core, L)
             EraseEvents()
             return true
         end
+        return false
     end
 
     function GetDeathEvents(recapID)
@@ -475,7 +442,7 @@ KPack:AddModule("Death Recap", function(folder, core, L)
         KPackDeathRecapFrame.CloseButton:SetScript("OnClick", function(self) KPackDeathRecapFrame:Hide() end)
 
         -- replace blizzard default
-        StaticPopupDialogs["DEATH"] = {
+        StaticPopupDialogs["KDEATH"] = {
             text = DEATH_RELEASE_TIMER,
             button1 = DEATH_RELEASE,
             button2 = USE_SOULSTONE,
@@ -540,7 +507,12 @@ KPack:AddModule("Death Recap", function(folder, core, L)
                     end
                 end
             end,
-            OnAlt = function()
+            OnAlt = function(self)
+                core.After(0.01, function()
+					if not StaticPopup_FindVisible("KDEATH") then
+						StaticPopup_Show("KDEATH", GetReleaseTimeRemaining(), SECONDS)
+					end
+                end)
                 OpenRecap(select(2, HasEvents()))
             end,
             OnUpdate = function(self, elapsed)
@@ -590,8 +562,6 @@ KPack:AddModule("Death Recap", function(folder, core, L)
             whileDead = 1,
             interruptCinematic = 1,
             notClosableByLogout = 1,
-            hideOnEscape = 0,
-            noCloseOnAlt = 1,
             cancels = "RECOVER_CORPSE"
         }
     end
@@ -599,7 +569,7 @@ KPack:AddModule("Death Recap", function(folder, core, L)
     core:RegisterForEvent("PLAYER_LOGIN", CreateDeathRecapFrame)
 
     function mod:HideDeathPopup()
-        StaticPopup_Hide("DEATH")
+        StaticPopup_Hide("KDEATH")
     end
 
     core:RegisterForEvent("PLAYER_ENTERING_WORLD", mod.HideDeathPopup)
@@ -609,14 +579,9 @@ KPack:AddModule("Death Recap", function(folder, core, L)
 
     core:RegisterForEvent("PLAYER_DEAD", function()
         if StaticPopup_FindVisible("DEATH") then
-            if AddDeath() then
-                lastDeathEvents = true
-            else
-                lastDeathEvents = false
-            end
-
+            lastDeathEvents = (AddDeath() == true)
             StaticPopup_Hide("DEATH")
-            StaticPopup_Show("DEATH", GetReleaseTimeRemaining(), SECONDS)
+            StaticPopup_Show("KDEATH", GetReleaseTimeRemaining(), SECONDS)
         end
     end)
 
@@ -631,25 +596,26 @@ KPack:AddModule("Death Recap", function(folder, core, L)
     }
 
     core:RegisterForEvent("COMBAT_LOG_EVENT_UNFILTERED", function(_, timestamp, event, _, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
-        if (band(dstFlags, COMBATLOG_FILTER_ME) ~= COMBATLOG_FILTER_ME) or (band(srcFlags, COMBATLOG_FILTER_ME) == COMBATLOG_FILTER_ME) or (not validEvents[event]) then
-            return
+            if (band(dstFlags, COMBATLOG_FILTER_ME) ~= COMBATLOG_FILTER_ME) or (band(srcFlags, COMBATLOG_FILTER_ME) == COMBATLOG_FILTER_ME) or (not validEvents[event]) then
+                return
+            end
+
+            local subVal = strsub(event, 1, 5)
+            local environmentalType, spellId, spellName, amount, overkill, school, resisted, blocked, absorbed
+
+            if event == "SWING_DAMAGE" then
+                amount, overkill, school, resisted, blocked, absorbed = ...
+            elseif subVal == "SPELL" then
+                spellId, spellName, _, amount, overkill, school, resisted, blocked, absorbed = ...
+            elseif event == "ENVIRONMENTAL_DAMAGE" then
+                environmentalType, amount, overkill, school, resisted, blocked, absorbed = ...
+            end
+
+            if not tonumber(amount) then
+                return
+            end
+
+            AddEvent(timestamp, event, srcName, spellId, spellName, environmentalType, amount, overkill, school, resisted, blocked, absorbed)
         end
-
-        local subVal = strsub(event, 1, 5)
-        local environmentalType, spellId, spellName, amount, overkill, school, resisted, blocked, absorbed
-
-        if event == "SWING_DAMAGE" then
-            amount, overkill, school, resisted, blocked, absorbed = ...
-        elseif subVal == "SPELL" then
-            spellId, spellName, _, amount, overkill, school, resisted, blocked, absorbed = ...
-        elseif event == "ENVIRONMENTAL_DAMAGE" then
-            environmentalType, amount, overkill, school, resisted, blocked, absorbed = ...
-        end
-
-        if not tonumber(amount) then
-            return
-        end
-
-        AddEvent(timestamp, event, srcName, spellId, spellName, environmentalType, amount, overkill, school, resisted, blocked, absorbed)
-    end)
+    )
 end)
