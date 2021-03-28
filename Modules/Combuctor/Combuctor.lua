@@ -135,10 +135,10 @@ KPack:AddModule("Combuctor", function(_, core, L)
 		end
 
 		core:RegisterForEvent("VARIABLES_LOADED", function()
-			if type(KPackCharDB.Combuctor) ~= "table" or not next(KPackCharDB.Combuctor) then
-				KPackCharDB.Combuctor = CopyTable(defaults)
+			if type(core.char.Combuctor) ~= "table" or not next(core.char.Combuctor) then
+				core.char.Combuctor = CopyTable(defaults)
 			end
-			DB = KPackCharDB.Combuctor
+			DB = core.char.Combuctor
 
 			if not DB.inventory.sets or not DB.inventory.exclude then
 				DB.inventory.sets, DB.inventory.exclude = DefaultInventorySets(core.class)
@@ -3634,8 +3634,7 @@ KPack:AddModule("Combuctor", function(_, core, L)
 			end
 
 			function Panel:NewCheckButton(name)
-				local b =
-					CreateFrame("CheckButton", self:GetName() .. name, self, "InterfaceOptionsCheckButtonTemplate")
+				local b = CreateFrame("CheckButton", self:GetName() .. name, self, "InterfaceOptionsCheckButtonTemplate")
 				_G[b:GetName() .. "Text"]:SetText(name)
 
 				return b
@@ -3891,14 +3890,11 @@ KPack:AddModule("Combuctor", function(_, core, L)
 			local function AddFrameSelector(self)
 				local dd = self:NewDropdown("Frame")
 
-				dd:SetScript(
-					"OnShow",
-					function(self)
-						UIDropDownMenu_SetWidth(self, 110)
-						UIDropDownMenu_Initialize(self, self.Initialize)
-						UIDropDownMenu_SetSelectedValue(self, key)
-					end
-				)
+				dd:SetScript("OnShow", function(self)
+					UIDropDownMenu_SetWidth(self, 110)
+					UIDropDownMenu_Initialize(self, self.Initialize)
+					UIDropDownMenu_SetSelectedValue(self, key)
+				end)
 
 				local function Key_OnClick(self)
 					key = self.value

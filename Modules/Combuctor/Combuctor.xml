@@ -299,15 +299,6 @@
 		<HitRectInsets>
 			<AbsInset left="0" right="35" top="0" bottom="75"/>
 		</HitRectInsets>
-<!--
-		<Attributes>
-			<Attribute name="UIPanelLayout-defined" type="boolean" value="true"/>
-			<Attribute name="UIPanelLayout-enabled" type="boolean" value="true"/>
-			<Attribute name="UIPanelLayout-whileDead" type="boolean" value="true"/>
-			<Attribute name="UIPanelLayout-area" type="string" value="left"/>
-			<Attribute name="UIPanelLayout-pushable" type="number" value="1"/>
-		</Attributes>
--->
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture name="$parentIcon">
