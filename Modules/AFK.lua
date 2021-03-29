@@ -145,11 +145,13 @@ KPack:AddModule("AFK", "Shows a timer window whenever you go AFK.", function(_, 
             View_MoveCamera(cameraSpeed)
             AfkFrame:SetScript("OnUpdate", Window_OnUpdate)
         else
-            AfkFrame:Hide()
             AFK = false
             total = 0
             View_StopCamera()
-            AfkFrame:SetScript("OnUpdate", nil)
+			if AfkFrame then
+				AfkFrame:Hide()
+				AfkFrame:SetScript("OnUpdate", nil)
+			end
         end
     end)
 end)
