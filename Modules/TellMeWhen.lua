@@ -40,7 +40,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
     }
 
     local groupDefaults = {
-        Enabled = true,
+        Enabled = false,
         Scale = 2.0,
         Rows = 1,
         Columns = 4,
@@ -1173,6 +1173,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             group:SetPoint("TOPLEFT", "UIParent", "TOPLEFT", 100, -50 - (35 * i))
         end
         DB = core.char.TMW
+		DB.Groups[1].Enabled = true
         TellMeWhen:Update()
         core:Print(L["Groups have been reset!"], "TellMeWhen")
     end
@@ -1194,6 +1195,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             end
 
             core.char.TMW = CopyTable(defaults)
+			core.char.TMW.Groups[1].Enabled = true
         end
         DB = core.char.TMW
 
