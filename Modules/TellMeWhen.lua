@@ -5,11 +5,12 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
     local TellMeWhen = {}
     core.TellMeWhen = TellMeWhen
 
-    local GetSpellCooldown = GetSpellCooldown
     local GetItemCooldown = GetItemCooldown
+    local GetSpellCooldown = GetSpellCooldown
+    local GetSpellInfo = GetSpellInfo
+    local GetSpellTexture = GetSpellTexture
     local IsSpellInRange = IsSpellInRange
     local IsUsableSpell = IsUsableSpell
-    local GetSpellInfo = GetSpellInfo
     local UnitAura = UnitAura
 
     local LiCD = LibStub("LibInternalCooldowns", true)
@@ -17,6 +18,18 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         GetItemCooldown = function(...)
             return LiCD:GetItemCooldown(...)
         end
+    end
+
+    local function TMW_IsSpellInRange(spellId, unit)
+        local spellName = tonumber(spellId) and GetSpellInfo(spellId) or spellId
+        return IsSpellInRange(spellName, unit)
+    end
+
+    local function TMW_GetSpellTexture(spellName)
+        if tonumber(spellName) then
+            return select(3, GetSpellInfo(spellName))
+        end
+        return GetSpellTexture(spellName)
     end
 
     local maxGroups, maxRows = 8, 7
@@ -282,7 +295,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             self.updateTimer = updateInterval
             local name = self.Name[1] or ""
             local _, timeLeft, _ = GetSpellCooldown(name)
-            local inrange = IsSpellInRange(name, self.Unit)
+            local inrange = TMW_IsSpellInRange(name, self.Unit)
             if LiCD and LiCD.talentsRev[name] then
                 name = LiCD.talentsRev[name]
                 timeLeft = 0
@@ -356,21 +369,21 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             end
 
             for i, iName in ipairs(icon.Name) do
-	            local buffName, iconTexture, count, duration, expirationTime
-	            local auraId = tonumber(iName)
-	            if auraId then
-	                for i = 1, 32 do
-	                    local name, _, tex, stack, _, dur, expirers, _, _, _, spellId = UnitAura(icon.Unit, i, nil, filter)
-	                    if name and spellId and spellId == auraId then
-	                        buffName, iconTexture, count, duration, expirationTime = name, tex, stack, dur, expirers
-	                        break
-	                    end
-	                end
-	            else
-	                buffName, _, iconTexture, count, _, duration, expirationTime = UnitAura(icon.Unit, iName, nil, filter)
-	            end
+                local buffName, iconTexture, count, duration, expirationTime
+                local auraId = tonumber(iName)
+                if auraId then
+                    for i = 1, 32 do
+                        local name, _, tex, stack, _, dur, expirers, _, _, _, spellId = UnitAura(icon.Unit, i, nil, filter)
+                        if name and spellId and spellId == auraId then
+                            buffName, iconTexture, count, duration, expirationTime = name, tex, stack, dur, expirers
+                            break
+                        end
+                    end
+                else
+                    buffName, _, iconTexture, count, _, duration, expirationTime = UnitAura(icon.Unit, iName, nil, filter)
+                end
 
-	            if buffName then
+                if buffName then
                     if icon.texture:GetTexture() ~= iconTexture then
                         icon.texture:SetTexture(iconTexture)
                         icon.learnedTexture = true
@@ -428,7 +441,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         local name = icon.Name[1] or ""
         local usable, nomana = IsUsableSpell(name)
         local _, timeLeft, _ = GetSpellCooldown(name)
-        local inrange = IsSpellInRange(name, icon.Unit)
+        local inrange = TMW_IsSpellInRange(name, icon.Unit)
         if (inrange == nil) then
             inrange = 1
         end
@@ -481,12 +494,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         self.updateTimer = self.updateTimer - elapsed
         if self.updateTimer <= 0 then
             self.updateTimer = updateInterval
-            local hasMainHandEnchant,
-                mainHandExpiration,
-                mainHandCharges,
-                hasOffHandEnchant,
-                offHandExpiration,
-                offHandCharges = GetWeaponEnchantInfo()
+            local hasMainHandEnchant, mainHandExpiration, mainHandCharges, hasOffHandEnchant, offHandExpiration, offHandCharges = GetWeaponEnchantInfo()
             if self.WpnEnchantType == "mainhand" and hasMainHandEnchant then
                 self:SetAlpha(self.presentAlpha)
                 if mainHandCharges > 1 then
@@ -683,13 +691,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         function TellMeWhen:Icon_OnEnter(this, motion)
             GameTooltip_SetDefaultAnchor(GameTooltip, this)
             GameTooltip:AddLine("TellMeWhen", highlightColor.r, highlightColor.g, highlightColor.b, 1)
-            GameTooltip:AddLine(
-                L["Right click for icon options. More options in Blizzard interface options menu. Type /tellmewhen to lock and enable addon."],
-                normalColor.r,
-                normalColor.g,
-                normalColor.b,
-                1
-            )
+            GameTooltip:AddLine(L["Right click for icon options. More options in Blizzard interface options menu. Type /tellmewhen to lock and enable addon."], normalColor.r, normalColor.g, normalColor.b, 1)
             GameTooltip:Show()
         end
 
@@ -756,10 +758,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             UIDropDownMenu_AddButton(info)
 
             -- additional options
-            if
-                iconType == "cooldown" or iconType == "buff" or iconType == "reactive" or iconType == "wpnenchant" or
-                    iconType == "totem"
-             then
+            if iconType == "cooldown" or iconType == "buff" or iconType == "reactive" or iconType == "wpnenchant" or iconType == "totem" then
                 info = UIDropDownMenu_CreateInfo()
                 info.disabled = true
                 UIDropDownMenu_AddButton(info)
@@ -994,7 +993,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                         spell = LiCD.talentsRev[icon.Name[1]]
                     end
                     if GetSpellCooldown(spell or "") then
-                        icon.texture:SetTexture(GetSpellTexture(spell) or select(3, GetSpellInfo(spell)))
+                        icon.texture:SetTexture(TMW_GetSpellTexture(spell) or select(3, GetSpellInfo(spell)))
                         icon:SetScript("OnUpdate", TellMeWhen_Icon_SpellCooldown_OnUpdate)
                         if icon.ShowTimer then
                             icon:RegisterEvent("ACTIONBAR_UPDATE_USABLE")
@@ -1036,15 +1035,15 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
 
                 if not icon.Name[1] then
                     icon.texture:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
-                elseif GetSpellTexture(icon.Name[1] or "") then
-                    icon.texture:SetTexture(GetSpellTexture(icon.Name[1]))
+                elseif TMW_GetSpellTexture(icon.Name[1] or "") then
+                    icon.texture:SetTexture(TMW_GetSpellTexture(icon.Name[1]))
                 elseif (not icon.learnedTexture) then
                     icon.texture:SetTexture("Interface\\Icons\\INV_Misc_PocketWatch_01")
                 end
                 icon.Cooldown:SetReverse(true)
             elseif iconType == "reactive" then
-                if GetSpellTexture(icon.Name[1] or "") then
-                    icon.texture:SetTexture(GetSpellTexture(icon.Name[1]))
+                if TMW_GetSpellTexture(icon.Name[1] or "") then
+                    icon.texture:SetTexture(TMW_GetSpellTexture(icon.Name[1]))
                     icon:RegisterEvent("ACTIONBAR_UPDATE_USABLE")
                     icon:RegisterEvent("ACTIONBAR_UPDATE_COOLDOWN")
                     icon:SetScript("OnEvent", TellMeWhen_Icon_Reactive_OnEvent)
@@ -1079,8 +1078,8 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                 if not icon.Name[1] then
                     icon.texture:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
                     icon.learnedTexture = false
-                elseif GetSpellTexture(icon.Name[1] or "") then
-                    icon.texture:SetTexture(GetSpellTexture(icon.Name[1]))
+                elseif TMW_GetSpellTexture(icon.Name[1] or "") then
+                    icon.texture:SetTexture(TMW_GetSpellTexture(icon.Name[1]))
                 elseif not icon.learnedTexture then
                     icon.texture:SetTexture("Interface\\Icons\\INV_Misc_PocketWatch_01")
                 end
@@ -1173,7 +1172,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             group:SetPoint("TOPLEFT", "UIParent", "TOPLEFT", 100, -50 - (35 * i))
         end
         DB = core.char.TMW
-		DB.Groups[1].Enabled = true
+        DB.Groups[1].Enabled = true
         TellMeWhen:Update()
         core:Print(L["Groups have been reset!"], "TellMeWhen")
     end
@@ -1195,19 +1194,13 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             end
 
             core.char.TMW = CopyTable(defaults)
-			core.char.TMW.Groups[1].Enabled = true
+            core.char.TMW.Groups[1].Enabled = true
         end
         DB = core.char.TMW
 
         local pos = {"TOPLEFT", 100, -50}
         for i = 1, maxGroups do
-			local g = TellMeWhen_CreateGroup(
-				"KTellMeWhen_Group" .. i,
-				UIParent,
-				DB.Groups[i].point or pos[1],
-				DB.Groups[i].x or pos[2],
-				DB.Groups[i].y or pos[3]
-			)
+            local g = TellMeWhen_CreateGroup("KTellMeWhen_Group" .. i, UIParent, DB.Groups[i].point or pos[1], DB.Groups[i].x or pos[2], DB.Groups[i].y or pos[3])
             pos[3] = pos[3] - 35
             g:SetID(i)
         end
@@ -1223,9 +1216,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         args = {
             desc1 = {
                 type = "description",
-                name = L[
-                    "These options allow you to change the number, arrangement, and behavior of reminder icons."
-                ],
+                name = L["These options allow you to change the number, arrangement, and behavior of reminder icons."],
                 order = 0,
                 width = "full"
             },
@@ -1234,9 +1225,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                 name = function()
                     return DB.Locked and L["Unlock"] or L["Lock"]
                 end,
-                desc = L[
-                    'Icons work when locked. When unlocked, you can move/size icon groups and right click individual icons for more settings. You can also type "/tellmewhen" or "/tmw" to lock/unlock.'
-                ],
+                desc = L['Icons work when locked. When unlocked, you can move/size icon groups and right click individual icons for more settings. You can also type "/tellmewhen" or "/tmw" to lock/unlock.'],
                 order = 0.1,
                 func = function()
                     TellMeWhen:LockToggle()
@@ -1356,7 +1345,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                             end
                             local group = _G["KTellMeWhen_Group" .. i]
                             group:ClearAllPoints()
-                            group:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 100, -50 - (35 * i-1))
+                            group:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 100, -50 - (35 * i - 1))
                             group.Scale = 2
                             DB.Groups[i].Scale = 2
                             TellMeWhen:Group_Update(i)
