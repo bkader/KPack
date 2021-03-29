@@ -16,10 +16,12 @@ KPack:AddModule("IDs", "Adds IDs to the ingame tooltips.", function(_, core, L)
     end
 
     core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
-        IDs:HookScript(GameTooltip, "OnTooltipSetSpell", function(self)
-            local id = select(3, self:GetSpell())
-            if id then addLine(self, L["Spell ID"], id) end
-        end)
+        if not IDs:IsHooked(GameTooltip, "OnTooltipSetSpell") then
+	        IDs:HookScript(GameTooltip, "OnTooltipSetSpell", function(self)
+	            local id = select(3, self:GetSpell())
+	            if id then addLine(self, L["Spell ID"], id) end
+	        end)
+        end
 
         IDs:HookScript(GameTooltip, "OnTooltipSetItem", function(self)
             local _, itemlink = self:GetItem()
