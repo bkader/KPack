@@ -202,11 +202,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
     local ActionBars_Range
     do
         function mod:ActionButton_OnEvent(btn, event, ...)
-			if not btn._eventRegistered then
-				btn._eventRegistered = true
-				btn:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
-			end
-            if event == "PLAYER_TARGET_CHANGED" or event == "UPDATE_MOUSEOVER_UNIT" then
+            if event == "PLAYER_TARGET_CHANGED" then
                 btn.newTimer = btn.rangeTimer
             end
         end
@@ -217,7 +213,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
             if valid == 0 then
                 icon:SetVertexColor(1.0, 0.1, 0.1)
             else
-                icon:SetVertexColor(1.0, 1.0, 1.0, 1.0)
+                icon:SetVertexColor(1.0, 1.0, 1.0)
             end
         end
 
