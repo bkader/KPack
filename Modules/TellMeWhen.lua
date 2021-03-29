@@ -54,7 +54,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         groupDefaults.Icons[i] = iconDefaults
     end
 
-    local DB
+    local DB, _
     local defaults = {
         Locked = false,
         Groups = {}
@@ -356,11 +356,21 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             end
 
             for i, iName in ipairs(icon.Name) do
+	            local buffName, iconTexture, count, duration, expirationTime
 	            local auraId = tonumber(iName)
-	            iName = auraId and GetSpellInfo(auraId) or iName
+	            if auraId then
+	                for i = 1, 32 do
+	                    local name, _, tex, stack, _, dur, expirers, _, _, _, spellId = UnitAura(icon.Unit, i, nil, filter)
+	                    if name and spellId and spellId == auraId then
+	                        buffName, iconTexture, count, duration, expirationTime = name, tex, stack, dur, expirers
+	                        break
+	                    end
+	                end
+	            else
+	                buffName, _, iconTexture, count, _, duration, expirationTime = UnitAura(icon.Unit, iName, nil, filter)
+	            end
 
-	            local buffName, _, iconTexture, count, _, duration, expirationTime, _, _, _, spellId = UnitAura(icon.Unit, iName, nil, filter)
-	            if buffName and ((auraId and auraId == spellId) or not auraId) then
+	            if buffName then
                     if icon.texture:GetTexture() ~= iconTexture then
                         icon.texture:SetTexture(iconTexture)
                         icon.learnedTexture = true
