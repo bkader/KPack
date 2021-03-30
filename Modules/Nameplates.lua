@@ -284,7 +284,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
                 self.hasThreat = (g + b) < 0.1
 
                 if self.hasThreat then
-                    Nameplate_SetHealthColor(self)
+                    self:SetHealthColor()
                 end
             end
         elseif self.glow.wasVisible then
@@ -292,7 +292,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
 
             if self.hasThreat then
                 self.hasThreat = nil
-                Nameplate_SetHealthColor(self)
+                self:SetHealthColor()
             end
         end
     end
@@ -353,7 +353,7 @@ KPack:AddModule("Nameplates", function(folder, core, L)
             self.level:SetText(level .. (elite and "+" or ""))
         end
         self.level:Show()
-        Nameplate_UpdateCritical(self)
+        self:UpdateCritical()
         Health_OnValueChanged(self.oldHealth, self.oldHealth:GetValue())
     end
 
@@ -520,13 +520,13 @@ KPack:AddModule("Nameplates", function(folder, core, L)
         left:Hide()
         frame.leftIndicator = left
 
-        frame:SetScript("OnShow", Nameplate_OnShow)
-        frame:SetScript("OnHide", Nameplate_OnHide)
-        Nameplate_OnShow(frame)
-
         frame.CheckForChange = Nameplate_CheckForChange
         frame.SetHealthColor = Nameplate_SetHealthColor
         frame.UpdateCritical = Nameplate_UpdateCritical
+
+        frame:SetScript("OnShow", Nameplate_OnShow)
+        frame:SetScript("OnHide", Nameplate_OnHide)
+        Nameplate_OnShow(frame)
 
         frame:SetScript("OnUpdate", Nameplate_OnUpdate)
     end
