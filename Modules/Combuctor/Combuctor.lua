@@ -10,7 +10,7 @@ KPack:AddModule("Combuctor", function(_, core, L)
 	local defaults = {
 		inventory = {
 			bags = {0, 1, 2, 3, 4},
-			position = {"RIGHT"},
+			position = {"BOTTOMRIGHT", nil, "BOTTOMRIGHT", -64, 64},
 			showBags = false,
 			leftSideFilter = true,
 			w = 384,
