@@ -142,13 +142,13 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
 
         t = icon:CreateTexture("$parentTexture", "ARTWORK")
         t:SetTexture([[Interface\Icons\INV_Misc_QuestionMark]])
-        t:SetSize(30, 30)
         t:SetAllPoints(icon)
         icon.texture = t
 
         t = icon:CreateTexture("$parentHighlight", "HIGHLIGHT")
         t:SetTexture([[Interface\Buttons\ButtonHilight-Square]])
-        t:SetSize(30, 30)
+        t:SetAllPoints(icon)
+        t:SetBlendMode("ADD")
         icon.highlight = t
 
         t = icon:CreateFontString("$parentCount", "ARTWORK", "NumberFontNormalSmall")
@@ -157,8 +157,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         icon.countText = t
 
         t = CreateFrame("Cooldown", "$parentCooldown", icon)
-        t:SetSize(30, 30)
-        t:SetPoint("CENTER", 0, -1)
+        t:SetAllPoints(icon)
         icon.Cooldown = t
 
         t = CreateFrame("Frame", "$parentDropDown", icon, "UIDropDownMenuTemplate")
