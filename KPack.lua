@@ -296,7 +296,7 @@ do
 			core.LSM:Register("font", "Hooge", [[Interface\Addons\KPack\Media\Fonts\HOOGE.ttf]])
 			core.LSM:Register("font", "Yanone", [[Interface\Addons\KPack\Media\Fonts\yanone.ttf]])
 
-            core:Print(L["addon loaded. use |cffffd700/kp help|r for help."])
+            core:Print(L["addon loaded. use |cffffd700/kp|r to access options."])
 
             if core.moduleslist then
                 for i = 1, #core.moduleslist do

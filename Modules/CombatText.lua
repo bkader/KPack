@@ -412,7 +412,6 @@ KPack:AddModule("xCT", function(_, core, L)
 	end
 
 	if ct.mergeaoespam then
-	    ct.aoespam[71904] = true -- Chaos Bane (Shadowmourne)
 	    ct.aoespam[56488] = true -- Global Sapper Charge (Explosion)
 	    ct.aoespam[56350] = true -- Saronite Bomb (Explosion)
 	end
@@ -420,9 +419,6 @@ KPack:AddModule("xCT", function(_, core, L)
 	--[[  Role Specific Filter Assignment  ]]
 	-- Healers
 	if ct.myclass == "DRUID" or ct.myclass == "PRIEST" or ct.myclass == "SHAMAN" or ct.myclass == "PALADIN" then
-	    ct.aoespam[109847] = true -- Maw of the Dragonlord (LFR)
-	    ct.aoespam[107835] = true -- Maw of the Dragonlord
-	    ct.aoespam[109849] = true -- Maw of the Dragonlord (Heroic)
 	end
 
 	--[[  Defining the Frames  ]]
