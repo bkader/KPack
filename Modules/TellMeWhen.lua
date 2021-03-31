@@ -567,7 +567,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         end
     end
 
-    local function KTellMeWhen_Group_OnEvent(self, event)
+    local function TellMeWhen_Group_OnEvent(self, event)
         if event == "PLAYER_REGEN_DISABLED" then
             self:Show()
         elseif event == "PLAYER_REGEN_ENABLED" then
@@ -911,7 +911,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         if onlyInCombat and genabled and locked then
             group:RegisterEvent("PLAYER_REGEN_ENABLED")
             group:RegisterEvent("PLAYER_REGEN_DISABLED")
-            group:SetScript("OnEvent", KTellMeWhen_Group_OnEvent)
+            group:SetScript("OnEvent", TellMeWhen_Group_OnEvent)
             group:Hide()
         else
             group:UnregisterEvent("PLAYER_REGEN_ENABLED")
