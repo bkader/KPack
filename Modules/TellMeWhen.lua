@@ -367,7 +367,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                 filter = filter .. "|PLAYER"
             end
 
-            for i, iName in ipairs(icon.Name) do
+            for _, iName in ipairs(icon.Name) do
                 local buffName, iconTexture, count, duration, expirationTime
                 local auraId = tonumber(iName)
                 if auraId then
@@ -628,7 +628,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         local TellMeWhen_IconMenu_BuffOptions = {
             {value = "BuffOrDebuff", text = L["Buff or Debuff"], hasArrow = true},
             {value = "Unit", text = L["Unit to watch"], hasArrow = true},
-            {value = "BuffShowWhen", text = L["Show when buff/debuff"], hasArrow = true},
+            {value = "BuffShowWhen", text = L["Show icon when"], hasArrow = true},
             {value = "ShowTimer", text = L["Show timer"]},
             {value = "OnlyMine", text = L["Only show if cast by self"]}
         }
@@ -649,7 +649,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             -- the keys on this table need to match the settings variable names
             Type = {
                 {value = "cooldown", text = L["Cooldown"]},
-                {value = "buff", text = L["Buff/Debuff"]},
+                {value = "buff", text = L["Buff or Debuff"]},
                 {value = "reactive", text = L["Reactive spell or ability"]},
                 {value = "wpnenchant", text = L["Temporary weapon enchant"]},
                 {value = "totem", text = L["Totem/non-MoG Ghoul"]}
