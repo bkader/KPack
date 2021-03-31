@@ -10,7 +10,7 @@ KPack:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removi
         editbox = "top"
     }
 
-    local DB, SetupDatabase
+    local DB, SetupDatabase, disabled
     local gsub, format = string.gsub, string.format
 
     local function Print(msg)
@@ -66,32 +66,6 @@ KPack:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removi
             end
         end
     end
-
-    -- :::::::::::::::::::::::::::::::::::::::::::::
-    -- Sticky Channels & Fading Alpha
-    -- :::::::::::::::::::::::::::::::::::::::::::::
-
-    ChatTypeInfo.BN_WHISPER.sticky = 0
-    ChatTypeInfo.EMOTE.sticky = 0
-    ChatTypeInfo.OFFICER.sticky = 1
-    ChatTypeInfo.RAID_WARNING.sticky = 0
-    ChatTypeInfo.WHISPER.sticky = 1
-    ChatTypeInfo.YELL.sticky = 0
-
-    _G.CHAT_FRAME_TAB_NORMAL_NOMOUSE_ALPHA = 0
-    _G.CHAT_FRAME_TAB_SELECTED_NOMOUSE_ALPHA = 0
-
-    -- -- :::::::::::::::::::::::::::::::::::::::::::::
-    -- -- Timestamp Customize
-    -- -- :::::::::::::::::::::::::::::::::::::::::::::
-
-    -- _G.TIMESTAMP_FORMAT_HHMM="|r|cff999999[%I:%M]|r "
-    -- _G.TIMESTAMP_FORMAT_HHMM_24HR="|r|cff999999[%H:%M]|r "
-    -- _G.TIMESTAMP_FORMAT_HHMM_AMPM="|r|cff999999[%I:%M %p]|r "
-
-    -- _G.TIMESTAMP_FORMAT_HHMMSS="|r|cff999999[%I:%M:%S]|r "
-    -- _G.TIMESTAMP_FORMAT_HHMMSS_24HR="|r|cff999999[%H:%M:%S]|r "
-    -- _G.TIMESTAMP_FORMAT_HHMMSS_AMPM="|r|cff999999[%I:%M:%S %p]|r "
 
     -- :::::::::::::::::::::::::::::::::::::::::::::
     -- Button Hiding/Moving
@@ -526,19 +500,48 @@ KPack:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removi
         DB = core.db.ChatMods
     end
 
-    -- Tell Target Command!
-    SlashCmdList["KPACKTELLTARGET"] = ChatMods_TellTarget
-    _G.SLASH_KPACKTELLTARGET1 = "/tt"
-    _G.SLASH_KPACKTELLTARGET2 = "/ее"
-    _G.SLASH_KPACKTELLTARGET3 = "/wt"
-
-    SlashCmdList["KPACKCHATMODS"] = SlashCommandHandler
-    _G.SLASH_KPACKCHATMODS1 = "/cm"
-    _G.SLASH_KPACKCHATMODS2 = "/chatmods"
-
     core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
-        if DB.enabled then
+        disabled = (_G.Chatter or _G.Prat or _G.ElvUI)
+
+        if not disabled and DB.enabled then
+
+			-- :::::::::::::::::::::::::::::::::::::::::::::
+			-- Sticky Channels & Fading Alpha
+			-- :::::::::::::::::::::::::::::::::::::::::::::
+
+			ChatTypeInfo.BN_WHISPER.sticky = 0
+			ChatTypeInfo.EMOTE.sticky = 0
+			ChatTypeInfo.OFFICER.sticky = 1
+			ChatTypeInfo.RAID_WARNING.sticky = 0
+			ChatTypeInfo.WHISPER.sticky = 1
+			ChatTypeInfo.YELL.sticky = 0
+
+			_G.CHAT_FRAME_TAB_NORMAL_NOMOUSE_ALPHA = 0
+			_G.CHAT_FRAME_TAB_SELECTED_NOMOUSE_ALPHA = 0
+
+			-- -- :::::::::::::::::::::::::::::::::::::::::::::
+			-- -- Timestamp Customize
+			-- -- :::::::::::::::::::::::::::::::::::::::::::::
+
+			-- _G.TIMESTAMP_FORMAT_HHMM="|r|cff999999[%I:%M]|r "
+			-- _G.TIMESTAMP_FORMAT_HHMM_24HR="|r|cff999999[%H:%M]|r "
+			-- _G.TIMESTAMP_FORMAT_HHMM_AMPM="|r|cff999999[%I:%M %p]|r "
+
+			-- _G.TIMESTAMP_FORMAT_HHMMSS="|r|cff999999[%I:%M:%S]|r "
+			-- _G.TIMESTAMP_FORMAT_HHMMSS_24HR="|r|cff999999[%H:%M:%S]|r "
+			-- _G.TIMESTAMP_FORMAT_HHMMSS_AMPM="|r|cff999999[%I:%M:%S %p]|r "
+
+		    -- Tell Target Command!
+		    SlashCmdList["KPACKTELLTARGET"] = ChatMods_TellTarget
+		    _G.SLASH_KPACKTELLTARGET1 = "/tt"
+		    _G.SLASH_KPACKTELLTARGET2 = "/ее"
+		    _G.SLASH_KPACKTELLTARGET3 = "/wt"
+
+		    SlashCmdList["KPACKCHATMODS"] = SlashCommandHandler
+		    _G.SLASH_KPACKCHATMODS1 = "/cm"
+		    _G.SLASH_KPACKCHATMODS2 = "/chatmods"
+
             hooksecurefunc("FloatingChatFrame_OnMouseScroll", ChatMods_FloatingChatFrame_OnMouseScroll)
         end
     end)
@@ -561,7 +564,7 @@ KPack:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removi
 
     core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
 		SetupDatabase()
-        if DB.enabled then
+        if not disabled and DB.enabled then
             ChatMods_Initialize()
         end
     end)
