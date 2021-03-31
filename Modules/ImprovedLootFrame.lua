@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when using the Blizzard default loot frame.", function(folder, core)
+KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when using the Blizzard default loot frame.", function(_, core, L)
     if core:IsDisabled("ImprovedLootFrame") then return end
 
     local mod = core.ILF or {}
@@ -123,9 +123,7 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
             end
         end
 
-        for k, v in pairs(randoms) do
-            randoms[k] = nil
-        end
+        randoms = {}
         for i = 1, 40 do
             candidate = GetMasterLootCandidate(i)
             if candidate then
@@ -137,20 +135,22 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
             info.textHeight = 12
             info.value = randoms[random(1, #randoms)]
             info.notCheckable = 1
-            info.text = "Random"
+            info.text = L["Random"]
             info.func = GroupLootDropDown_GiveLoot
+            info.hasArrow = nil
             UIDropDownMenu_AddButton(info)
         end
         for i = 1, 40 do
             candidate = GetMasterLootCandidate(i)
-            if candidate and candidate == playerName then
-                info.colorCode = hexColors[select(2, CandidateUnitClass(candidate))] or hexColors["UNKOWN"]
+            if candidate and candidate == core.name then
+                info.colorCode = hexColors[core.class] or hexColors["UNKOWN"]
                 info.textHeight = 12
                 info.value = i
                 info.notCheckable = 1
-                info.text = "Self"
+                info.text = L["Self Loot"]
                 info.func = GroupLootDropDown_GiveLoot
                 UIDropDownMenu_AddButton(info)
+                break
             end
         end
     end

@@ -68,22 +68,18 @@ L["%s will not be saved."] = true
 L["%s will move with handler %s"] = true
 -- ActionBars
 L["Allows you to tweak your action bars in the limit of the allowed."] = true
-L["move right action bars on top of middle ones."] = true
-L["move right action bars to their default location."] = true
 L["scales the action bars. n between 0 and 1."] = true
 L["toggles pixel perfect mode."] = true
 L["toggles bars range dectection."] = true
 L["toggles gryphons."] = true
 L["changes opacity of keybindings and macros names. n between 0 and 1."] = true
 L["shows right action bars on mouseover."] = true
-L["toggles BfA action bars."] = true
 L["action bars scale set to: |cff00ffff%s|r"] = true
 L["pixel perfect mode: %s"] = true
 L["gryphons: %s"] = true
 L["hotkeys opacity set to: |cff00ffff%s|r"] = true
 L["range detection: %s"] = true
 L["mouseover right bars: %s"] = true
-L["BfA UI: %s"] = true
 -- ActionBarSaver
 L["Allows you to setup different profiles for your action bars."] = true
 L["Unable to restore macros, you already have 18 global and 18 per character ones created."] = true
@@ -360,6 +356,8 @@ L["Filters loot messages from other players in your group, based on item quality
 L["Minimum item rarity for loot filter set to %s"] = true
 L["Check the filter status."] = true
 L["Condenses all loot onto one page when using the Blizzard default loot frame."] = true
+L["Random"] = true
+L["Self Loot"] = true
 -- Lynstats
 L["Total"] = true
 L["Total incl. Blizzard"] = true
