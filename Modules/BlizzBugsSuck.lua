@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("BlizzBugsSuck", function(folder, core, L)
+KPack:AddModule("BlizzBugsSuck", function(_, core)
     if core:IsDisabled("BlizzBugsSuck") then return end
 
     -- Fixes are:
@@ -352,12 +352,10 @@ KPack:AddModule("BlizzBugsSuck", function(folder, core, L)
 
     -- ///////////////////////////////////////////////////////
 
-    core:RegisterForEvent("ADDON_LOADED", function(_, name)
-        if name == folder then
-            Fix_UIDropDownMenu()
-            Fix_GermanLocale()
-            Fix_MinimapPing()
-            Fix_InterfaceOptionsCategory()
-        end
+    core:RegisterForEvent("PLAYER_LOGIN", function()
+        Fix_UIDropDownMenu()
+        Fix_GermanLocale()
+        Fix_MinimapPing()
+        Fix_InterfaceOptionsCategory()
     end)
 end)
