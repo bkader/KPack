@@ -46,7 +46,7 @@ KPack:AddModule("xCT", function(_, core, L)
 
 	    -- "Everything else" font size (heals/interrupts and the like)
 	    fontsize = 16,
-	    font = "Interface\\Addons\\KPack\\Media\\Fonts\\HOOGE.TTF", -- "Interface\\Addons\\KPack\\Media\\Fonts\\HOOGE.TTF" is default xct font.
+	    font = "Interface\\Addons\\KPack\\Media\\Fonts\\yanone.ttf",
 
 	    -- --------------------------------------------------------------------------------------
 	    -- xCT+ Frames
@@ -77,7 +77,7 @@ KPack:AddModule("xCT", function(_, core, L)
 	    iconsize = 16, -- outgoing damage icons' size
 	    damagefontsize = 16,
 	    fontstyle = "OUTLINE", -- valid options are "OUTLINE", "MONOCHROME", "THICKOUTLINE", "OUTLINE,MONOCHROME", "THICKOUTLINE,MONOCHROME"
-	    damagefont = "Interface\\Addons\\KPack\\Media\\Fonts\\HOOGE.TTF", -- "Interface\\Addons\\KPack\\Media\\Fonts\\HOOGE.TTF" is default xct damage font
+	    damagefont = "Interface\\Addons\\KPack\\Media\\Fonts\\yanone.ttf",
 
 	    -- Damage/Healing Minimum Value threshold
 	    treshold = 1, -- minimum value for outgoing damage
@@ -94,7 +94,7 @@ KPack:AddModule("xCT", function(_, core, L)
 	    criticonsize = 14, -- size of the icons in the crit frame
 
 	    -- Critical Custom Font and Format
-	    critfont = "Interface\\Addons\\KPack\\Media\\Fonts\\HOOGE.TTF", -- Special font for the crit frame. Default: Interface\\Addons\\KPack\\Media\\Fonts\\HOOGE.TTF
+	    critfont = "Interface\\Addons\\KPack\\Media\\Fonts\\yanone.ttf",
 	    critfontstyle = "OUTLINE",
 	    critfontsize = 22, -- crit font size ("auto" or Number)
 
@@ -120,7 +120,7 @@ KPack:AddModule("xCT", function(_, core, L)
 	    -- Item Options
 	    loothideicons = false, -- hide item icons when looted
 	    looticonsize = 20, -- Icon size of looted, crafted and quest items
-	    itemstotal = false, -- show the total amount of items in bag ("[Epic Item Name]x1 (x23)") - This is currently bugged and inacurate
+	    itemstotal = true, -- show the total amount of items in bag ("[Epic Item Name]x1 (x23)") - This is currently bugged and inacurate
 
 	    -- Item/Money Filter
 	    crafteditems = nil, -- show crafted items ( nil = default, false = always hide, true = always show)
@@ -139,7 +139,7 @@ KPack:AddModule("xCT", function(_, core, L)
 	    procwindow = false, -- Enable the frame to show Procs
 
 	    -- Proc Frame Custom Font Options
-	    procfont = "Interface\\Addons\\KPack\\Media\\Fonts\\HOOGE.TTF", -- Special font for the proc frame. Interface\\Addons\\KPack\\Media\\Fonts\\HOOGE.TTF
+	    procfont = "Interface\\Addons\\KPack\\Media\\Fonts\\yanone.ttf",
 	    procfontsize = 16, -- proc font size ("auto" or Number)
 	    procfontstyle = "OUTLINE",
 
