@@ -308,18 +308,9 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 
         for i = 0, 6 do
             if (ItemScore > i * 1000) and (ItemScore <= ((i + 1) * 1000)) then
-                Red =
-                    itemQuality[(i + 1) * 1000].Red["A"] +
-                    (((ItemScore - itemQuality[(i + 1) * 1000].Red["B"]) * itemQuality[(i + 1) * 1000].Red["C"]) *
-                        itemQuality[(i + 1) * 1000].Red["D"])
-                Blue =
-                    itemQuality[(i + 1) * 1000].Green["A"] +
-                    (((ItemScore - itemQuality[(i + 1) * 1000].Green["B"]) * itemQuality[(i + 1) * 1000].Green["C"]) *
-                        itemQuality[(i + 1) * 1000].Green["D"])
-                Green =
-                    itemQuality[(i + 1) * 1000].Blue["A"] +
-                    (((ItemScore - itemQuality[(i + 1) * 1000].Blue["B"]) * itemQuality[(i + 1) * 1000].Blue["C"]) *
-                        itemQuality[(i + 1) * 1000].Blue["D"])
+                Red = itemQuality[(i + 1) * 1000].Red["A"] + (((ItemScore - itemQuality[(i + 1) * 1000].Red["B"]) * itemQuality[(i + 1) * 1000].Red["C"]) * itemQuality[(i + 1) * 1000].Red["D"])
+                Blue = itemQuality[(i + 1) * 1000].Green["A"] + (((ItemScore - itemQuality[(i + 1) * 1000].Green["B"]) * itemQuality[(i + 1) * 1000].Green["C"]) * itemQuality[(i + 1) * 1000].Green["D"])
+                Green = itemQuality[(i + 1) * 1000].Blue["A"] + (((ItemScore - itemQuality[(i + 1) * 1000].Blue["B"]) * itemQuality[(i + 1) * 1000].Blue["C"]) * itemQuality[(i + 1) * 1000].Blue["D"])
                 Description = itemQuality[(i + 1) * 1000].Description
                 break
             end
