@@ -148,8 +148,10 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
         end
 
         if not InCombatLockdown() and GetComboPoints("player") == 0 and DB.combat then
-            for i = 1, maxPoints do
-                pointsFrame[i]:Hide()
+            if next(pointsFrame) then
+	            for i = 1, maxPoints do
+	                pointsFrame[i]:Hide()
+	            end
             end
             shown = false
         elseif not shown then
@@ -198,7 +200,7 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
         SCP_UpdatePoints()
         -- only for druids.
         if core.class == "DRUID" then
-            UPDATE_SHAPESHIFT_FORM()
+            core.After(1, UPDATE_SHAPESHIFT_FORM)
         end
     end)
 
@@ -212,13 +214,14 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
         if disabled or core.class ~= "DRUID" then
             return
         end
+        SetupDatabase()
 
         if GetShapeshiftForm() == 3 then
             for i = 1, maxPoints do
                 pointsFrame[i]:Show()
             end
             druidForm = false
-        else
+        elseif next(pointsFrame) then
             for i = 1, maxPoints do
                 pointsFrame[i]:Hide()
             end
