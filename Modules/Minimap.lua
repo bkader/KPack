@@ -7,6 +7,7 @@ KPack:AddModule("Minimap", function(_, core, L)
         enabled = true,
         locked = true,
         hide = false,
+        zone = false,
         scale = 1,
         combat = false,
         moved = false,
@@ -95,6 +96,16 @@ KPack:AddModule("Minimap", function(_, core, L)
             end
         end
 
+        exec.hidezone = function()
+            if not DB.zone then
+                DB.zone = true
+            else
+                DB.zone = false
+            end
+            PLAYER_ENTERING_WORLD()
+        end
+        exec.zone = exec.hidezone
+
         exec.combat = function()
             DB.combat = not DB.combat
             if DB.combat then
@@ -139,6 +150,7 @@ KPack:AddModule("Minimap", function(_, core, L)
                 print(format(help, "disable", L["disable module"]))
                 print(format(help, "show", L["show minimap"]))
                 print(format(help, "hide", L["hide minimap"]))
+                print(format(help, "zone", L["hide zone text"]))
                 print(format(help, "combat", L["toggle hiding minimap in combat"]))
                 print(format(help, "scale|r |cff00ffffn|r", L["change minimap scale"]))
                 print(format(help, "lock", L["lock the minimap"]))
@@ -190,16 +202,22 @@ KPack:AddModule("Minimap", function(_, core, L)
                     order = 3,
                     disabled = _disabled
                 },
+                zone = {
+                    type = "toggle",
+                    name = L["Hide Zone Text"],
+                    order = 4,
+                    disabled = _disabled
+                },
                 combat = {
                     type = "toggle",
                     name = L["Hide in combat"],
-                    order = 4,
+                    order = 5,
                     disabled = _disabled
                 },
                 scale = {
                     type = "range",
                     name = L["Scale"],
-                    order = 5,
+                    order = 6,
                     disabled = _disabled,
                     width = "full",
                     min = 0.5,
@@ -411,6 +429,11 @@ KPack:AddModule("Minimap", function(_, core, L)
             core:Kill(GameTimeFrame)
             core:Kill(MiniMapTracking)
             MinimapZoneText:SetPoint("TOPLEFT", "MinimapZoneTextButton", "TOPLEFT", 5, 5)
+            if DB.zone then
+            	MinimapZoneTextButton:Hide()
+            else
+            	MinimapZoneTextButton:Show()
+            end
             Minimap:EnableMouseWheel(true)
 
             Minimap:SetScript("OnMouseWheel", Minimap_OnMouseWheel)
