@@ -690,7 +690,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         function TellMeWhen:Icon_OnEnter(this, motion)
             GameTooltip_SetDefaultAnchor(GameTooltip, this)
             GameTooltip:AddLine("TellMeWhen", highlightColor.r, highlightColor.g, highlightColor.b, 1)
-            GameTooltip:AddLine(L["Right click for icon options. More options in Blizzard interface options menu. Type /tellmewhen to lock and enable addon."], normalColor.r, normalColor.g, normalColor.b, 1)
+            GameTooltip:AddLine(L["Right click for icon options. More options in Blizzard interface options menu. Type /tellmewhen to lock and enable module."], normalColor.r, normalColor.g, normalColor.b, 1)
             GameTooltip:Show()
         end
 
