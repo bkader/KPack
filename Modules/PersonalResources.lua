@@ -428,6 +428,11 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
             DB.percent = not DB.percent
         end
 
+        commands.config = function()
+            core:OpenConfig("presources")
+        end
+        commands.options = commands.config
+
         function SlashCommandHandler(msg)
             if InCombatLockdown() then
                 Print("|cffffe02e" .. ERR_NOT_IN_COMBAT .. "|r")

@@ -444,6 +444,7 @@ L["change personal resources scale"] = true
 L["change personal resources width"] = true
 L["change personal resources height"] = true
 L["Show out of combat"] = true
+L["Show percentage"] = true
 -- SimpleComboPoints
 L["The width must be a valid number"] = true
 L["The height must be a valid number"] = true

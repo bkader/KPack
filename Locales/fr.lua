@@ -415,18 +415,19 @@ L["Height"] = "Hauteur"
 L["Width"] = "Largeur"
 -- L["Tank Mode"] = true
 -- L["Bar color when you have threat."] = true
--- -- Personal Resources
+-- Personal Resources
 -- L['Mimics the retail feature named "Personal Resource Display".'] = true
--- L["Show Percentage"] = true
--- L["show personal resources"] = true
--- L["hide personal resources"] = true
--- L["toggle showing percentage of health and power"] = true
--- L["toggle showing personal resources out of combat"] = true
--- L["change personal resources scale"] = true
--- L["change personal resources width"] = true
--- L["change personal resources height"] = true
--- L["Show out of combat"] = true
--- -- SimpleComboPoints
+L["Show Percentage"] = "Afficher le pourcentage"
+L["show personal resources"] = "affiche les ressources personnelles"
+L["hide personal resources"] = "cache les ressources personnelles"
+L["toggle showing percentage of health and power"] = "affiche/cache les pourcentages de santé et de puissance"
+L["toggle showing personal resources out of combat"] = "afficher/cache les ressources personnelles hors combat"
+L["change personal resources scale"] = "change l'échelle des ressources personnelles"
+L["change personal resources width"] = "change la largeur des ressources personnelles"
+L["change personal resources height"] = "change la hauteur des ressources personnelles"
+L["Show out of combat"] = "Afficher hors du combat"
+L["Show percentage"] = "Afficher les pourcentages"
+-- SimpleComboPoints
 L["The width must be a valid number"] = "La largeur doit être un nombre valide"
 L["The height must be a valid number"] = "La hauteur doit être un nombre valide"
 L["Scale has to be a number, recommended to be between 0.5 and 3"] = "L'échelle doit être un nombre. Recommandé: entre 0.5 et 3"
