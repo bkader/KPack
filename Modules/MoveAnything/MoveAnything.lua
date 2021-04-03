@@ -288,7 +288,12 @@ local MovAny = {
 			AlwaysUpFrame1 = "AlwaysUpFrame1",
 			AlwaysUpFrame2 = "AlwaysUpFrame2",
 			VehicleMenuBarHealthBar = "VehicleMenuBarHealthBar",
-			VehicleMenuBarPowerBar = "VehicleMenuBarPowerBar"
+			VehicleMenuBarPowerBar = "VehicleMenuBarPowerBar",
+			ArenaEnemyFrame1 = "ArenaEnemyFrame1",
+			ArenaEnemyFrame2 = "ArenaEnemyFrame2",
+			ArenaEnemyFrame3 = "ArenaEnemyFrame3",
+			ArenaEnemyFrame4 = "ArenaEnemyFrame4",
+			ArenaEnemyFrame5 = "ArenaEnemyFrame5"
 		},
 		NoAlpha = {
 			CastingBarFrame = "CastingBarFrame",
@@ -300,13 +305,15 @@ local MovAny = {
 		NoHide = {
 			FramerateLabel = "FramerateLabel",
 			UIPanelMover1 = "UIPanelMover1",
-			UIPanelMover2 = "UIPanelMover2"
+			UIPanelMover2 = "UIPanelMover2",
+			WorldMapFrame = "WorldMapFrame"
 		},
 		NoMove = {
 			PVPFrame = "PVPFrame",
 			MinimapBackdrop = "MinimapBackdrop",
 			BuffFrame = "BuffFrame",
-			MinimapNorthTag = "MinimapNorthTag"
+			MinimapNorthTag = "MinimapNorthTag",
+			WorldMapFrame = "WorldMapFrame"
 		},
 		NoScale = {
 			WorldStateAlwaysUpFrame = "WorldStateAlwaysUpFrame",
@@ -334,7 +341,16 @@ local MovAny = {
 			ComboFrame = "ComboFrame",
 			MANudger = "MANudger",
 			TimeManagerClockButton = "TimeManagerClockButton",
-			TemporaryEnchantFrame = "TemporaryEnchantFrame"
+			TemporaryEnchantFrame = "TemporaryEnchantFrame",
+			PartyMember1DebuffsMover = "PartyMember1DebuffsMover",
+			PartyMember2DebuffsMover = "PartyMember2DebuffsMover",
+			PartyMember3DebuffsMover = "PartyMember3DebuffsMover",
+			PartyMember4DebuffsMover = "PartyMember4DebuffsMover",
+			PetDebuffsMover = "PetDebuffsMover",
+			TargetBuffsMover = "TargetBuffsMover",
+			TargetDebuffsMover = "TargetDebuffsMover",
+			FocusDebuffsMover = "FocusDebuffsMover",
+			TargetFrameToTDebuffsMover = "TargetFrameToTDebuffsMover"
 		},
 		DefaultFrameList = {
 
@@ -422,6 +438,7 @@ local MovAny = {
 			{"MainMenuBarVehicleLeaveButton", "Leave Vehicle Button"},
 
 			{"", "Dungeons & Raids"},
+			{"LFDParentFrame", LOOKING_FOR_DUNGEON},
 			{"DungeonCompletionAlertFrame1", "Dungeon Completion Alert"},
 			{"LFDSearchStatus", "Dungeon Search Status Tooltip"},
 			{"LFDDungeonReadyDialog", "Dungeon Ready Dialog"},
@@ -462,11 +479,11 @@ local MovAny = {
 			{"UIPanelMover1", "Generic Info Panel 1"},
 			{"UIPanelMover2", "Generic Info Panel 2"},
 			{"CharacterFrame", "Character / Pet / Reputation / Skills"},
-			{"LFDParentFrame", LOOKING_FOR_DUNGEON},
 			{"TaxiFrame", "Flight Paths"},
 			{"FriendsFrame", "Friends / Who / Guild / Chat / Raid"},
 			{"GossipFrame", "Gossip"},
 			{"InspectFrame", INSPECT},
+			{"LFDParentFrame", LOOKING_FOR_DUNGEON},
 			{"LFRParentFrame", "Looking For Raid"},
 			{"MacroFrame", MACROS},
 			{"MailFrame", MINIMAP_TRACKING_MAILBOX},
@@ -1030,7 +1047,8 @@ do
 		GameTooltip = true,
 		MessageFrame = true,
 		PlayerModel = true,
-		ColorSelect = true
+		ColorSelect = true,
+		EditBox = true
 	}
 
 	function MovAny:IsValidObject(f, silent)
