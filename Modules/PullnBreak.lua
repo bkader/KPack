@@ -58,21 +58,22 @@ KPack:AddModule("PullnBreak", function(_, core, L)
         local ended = false
 
         dur = dur or DB.duration
+        DB.duration = dur
         DB.type = isBreak and "break" or "pull"
 
         local timer = floor(isBreak and dur * 60 or dur) + 1
-        DB.duration = timer
 
         if not started then
-            PullnBreak_Announce(isBreak and L["{rt7} Break Canceled {rt7}"] or L["{rt7} Pull ABORTED {rt7}"])
+            PullnBreak_Announce(isBreak and L.BREAK_ABORT or L.PULL_ABORT)
             DB.type = "pull"
             DB.starttime = 0
+            DB.duration = 0
             ended = true
             isBreak = nil
         end
 
-        local startTime = floor(GetTime())
-        DB.starttime = startTime
+        local starttime = floor(GetTime())
+        DB.starttime = starttime
         local throttle = timer
 
         frame:SetScript("OnUpdate", function(self, elapsed)
@@ -83,14 +84,15 @@ KPack:AddModule("PullnBreak", function(_, core, L)
                 return
             end
 
-            local countdown = (startTime - floor(GetTime()) + timer)
+            local countdown = (starttime - floor(GetTime()) + timer)
 
             if (countdown + 1 == throttle) and countdown >= 0 then
                 if countdown == 0 then
-                    local output = isBreak and L["{rt1} Break Ends Now {rt1}"] or L["{rt8} Pull Now! {rt8}"]
+                    local output = isBreak and L.BREAK_NOW or L.PULL_NOW
                     PullnBreak_Announce(output)
                     DB.type = "pull"
                     DB.starttime = 0
+                    DB.duration = 0
 
                     throttle = countdown
                     ended = true
@@ -101,28 +103,28 @@ KPack:AddModule("PullnBreak", function(_, core, L)
                         local output
 
                         if countdown >= 60 then
-                            output = L:F(isBreak and "%s Break starts now!" or "Pull in %s", formatMin:format(ceil(countdown / 60)))
+                            output = L:F(isBreak and "BREAK_START" or "PULL_IN", formatMin:format(ceil(countdown / 60)))
                         else
-                            output = L:F(isBreak and "%s Break starts now!" or "Pull in %s", formatSec:format(countdown))
+                            output = L:F(isBreak and "BREAK_START" or "PULL_IN", formatSec:format(countdown))
                         end
 
                         core:Sync("DBMv4-Pizza", ("%s\t%s"):format(countdown, isBreak and "Break time!" or "Pull in"))
                         PullnBreak_Announce(output)
                     elseif countdown >= 60 and countdown % 60 == 0 then
-                        local output = L:F(isBreak and "Break ends in %s" or "Pull in %s", formatMin:format(ceil(countdown / 60)))
+                        local output = L:F(isBreak and "BREAK_IN" or "PULL_IN", formatMin:format(ceil(countdown / 60)))
                         PullnBreak_Announce(output)
                     elseif (countdown >= 10 and countdown <= 30) and countdown % 15 == 0 then
                         local output
 
                         if countdown == 30 then
-                            output = L:F(isBreak and "Break ends in %s" or "Pull in %s", formatSec:format(countdown))
+                            output = L:F(isBreak and "BREAK_IN" or "PULL_IN", formatSec:format(countdown))
                         elseif not isBreak then
-                            output = L:F("Pull in %s", formatSec:format(countdown))
+                            output = L:F("PULL_IN", formatSec:format(countdown))
                         end
 
                         PullnBreak_Announce(output)
                     elseif not isBreak and (countdown == 10 or countdown == 7 or countdown == 5 or (countdown > 0 and countdown <= 3)) then
-                        PullnBreak_Announce(L:F("Pull in %s", formatSec:format(countdown)))
+                        PullnBreak_Announce(L:F("PULL_IN", formatSec:format(countdown)))
                     end
 
                     throttle = countdown

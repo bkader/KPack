@@ -508,13 +508,13 @@ L["Killing blow at %s%% health."] = "Coup mortel à %s%% de vie."
 -- L["tooltip moved to top middle of the screen."] = true
 -- L["tooltip moved to default position."] = true
 -- -- PullnBreak
--- L["Pull in %s"] = true
--- L["{rt8} Pull Now! {rt8}"] = true
--- L["{rt7} Pull ABORTED {rt7}"] = true
--- L["%s Break starts now!"] = true
--- L["Break ends in %s"] = true
--- L["{rt1} Break Ends Now {rt1}"] = true
--- L["{rt7} Break Canceled {rt7}"] = true
+L.PULL_IN = "Pull dans %s"
+L.PULL_NOW = "{rt8} Pull Maintenant! {rt8}"
+L.PULL_ABORT = "{rt7} Pull ANNULÉ {rt7}"
+L.BREAK_START = "La pause démarre maintenant -- vous avez %s !"
+L.BREAK_IN = "La pause finit dans %s !"
+L.BREAK_NOW = "La pause est terminée"
+L.BREAK_ABORT = "{rt7} Pause Annulée {rt7}"
 -- -- QuickButton
 L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."] = "|cff00ff00Active|r ou |cffff0000désactive|r le module"
 L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = "|cff00ff00Active|r ou |cffff0000désactive|r la création de macro "

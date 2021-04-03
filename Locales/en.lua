@@ -526,13 +526,20 @@ L["enhanced tooltips: %s"] = true
 L["tooltip moved to top middle of the screen."] = true
 L["tooltip moved to default position."] = true
 -- PullnBreak
-L["Pull in %s"] = true
-L["{rt8} Pull Now! {rt8}"] = true
-L["{rt7} Pull ABORTED {rt7}"] = true
-L["%s Break starts now!"] = true
-L["Break ends in %s"] = true
-L["{rt1} Break Ends Now {rt1}"] = true
-L["{rt7} Break Canceled {rt7}"] = true
+L.PULL_IN = "Pull in %s"
+L.PULL_NOW = "{rt8} Pull Now! {rt8}"
+L.PULL_ABORT = "{rt7} Pull ABORTED {rt7}"
+L.BREAK_START = "Break starting now -- you have %s !"
+L.BREAK_IN = "Break ends in %s !"
+L.BREAK_NOW = "Break time is over"
+L.BREAK_ABORT = "{rt7} Break Canceled {rt7}"
+-- L["Pull in %s"] = true
+-- L["{rt8} Pull Now! {rt8}"] = true
+-- L["{rt7} Pull ABORTED {rt7}"] = true
+-- L["%s Break starts now!"] = true
+-- L["Break ends in %s"] = true
+-- L["{rt1} Break Ends Now {rt1}"] = true
+-- L["{rt7} Break Canceled {rt7}"] = true
 -- QuickButton
 L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."] = true
 L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = true
