@@ -331,7 +331,7 @@ KPack:AddModule("Tooltip", function(_, core, L)
                     end
 
                     for i = offset, lines do
-                        if (_G["GameTooltipTextLeft" .. i] and _G["GameTooltipTextLeft" .. i].GetText and _G["GameTooltipTextLeft" .. i]:GetText():find(PLAYER)) then
+                        if (type(_G["GameTooltipTextLeft" .. i]) == "table" and _G["GameTooltipTextLeft" .. i]:GetText():find(PLAYER)) then
                             _G["GameTooltipTextLeft" .. i]:SetFormattedText(
                                 LEVEL .. " %s%s|r %s |cff%s%s|r",
                                 Tooltip_Hex(diffColor.r, diffColor.g, diffColor.b),
