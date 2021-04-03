@@ -438,9 +438,9 @@ L["Hide in combat"] = "Cache en combat"
 -- L["Toggles showing combo points out of combat."] = true
 -- L["Hide out of combat"] = true
 -- -- Simplified
--- L["Combat logging is currently %s."] = true
--- L["Combat logging is now %s."] = true
--- L["Change Specilization"] = true
+L["Combat logging is currently %s."] = "La journal de combat est actuellement %s."
+L["Combat logging is now %s."] = "La journal de combat est maintenant %s."
+L["Change Specilization"] = "Changer la spécialisation"
 -- TellMeWhen
 L["Resize"] = "Redimensionner"
 L["Click and drag to change size."] = "Cliquez et faites glisser pour changer la taille."
