@@ -806,131 +806,162 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
         return options
     end
 
+	local defaults = {
+	    CastingBarFrame = {
+	        Show = true,
+	        ShowIcon = true,
+	        ShowLatency = true,
+	        ShowSpellTarget = true,
+	        ShowTotalCastTime = true,
+	        TotalCastTimeDecimals = 1,
+	        ShowPushback = true,
+	        ShowCooldownSpark = true,
+	        Width = 250,
+	        Height = 24,
+	        Texture = "Castbars",
+	        BarColor = {1.0, 0.49, 0},
+	        Font = "Friz Quadrata TT",
+	        FontSize = 10,
+	        TextAlignment = "CENTER",
+	        FontOutline = true,
+	        BorderColor = {0.0, 0.0, 0.0, 0.8},
+	        Border = "Blizzard Tooltip",
+	        Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = -145}
+	    },
+	    PetCastingBarFrame = {
+	        Show = true,
+	        ShowIcon = true,
+	        ShowTotalCastTime = true,
+	        Width = 150,
+	        Height = 12,
+	        Texture = "Castbars",
+	        BarColor = {1.0, 0.49, 0},
+	        Font = "Friz Quadrata TT",
+	        FontSize = 9,
+	        TextAlignment = "CENTER",
+	        FontOutline = true,
+	        BorderColor = {0.0, 0.0, 0.0, 0.8},
+	        Border = "None",
+	        Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = -175}
+	    },
+	    TargetCastingBarFrame = {
+	        Show = true,
+	        ShowIcon = true,
+	        ShowShield = true,
+	        ShowTotalCastTime = true,
+	        Width = 205,
+	        Height = 12,
+	        Texture = "Castbars",
+	        BarColor = {1.0, 0.49, 0},
+	        Font = "Friz Quadrata TT",
+	        FontSize = 10,
+	        TextAlignment = "CENTER",
+	        FontOutline = true,
+	        BorderColor = {0.0, 0.0, 0.0, 0.8},
+	        Border = "None",
+	        Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = 180}
+	    },
+	    FocusCastingBarFrame = {
+	        Show = false,
+	        ShowIcon = true,
+	        ShowShield = true,
+	        ShowTotalCastTime = true,
+	        Width = 205,
+	        Height = 12,
+	        Texture = "Castbars",
+	        BarColor = {1.0, 0.49, 0},
+	        Font = "Friz Quadrata TT",
+	        FontSize = 10,
+	        TextAlignment = "CENTER",
+	        FontOutline = true,
+	        BorderColor = {0.0, 0.0, 0.0, 0.8},
+	        Border = "None",
+	        Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = 200}
+	    },
+	    MirrorTimer = {
+	        Width = 205,
+	        Height = 13,
+	        Texture = "Castbars",
+	        BarColor = {1.0, 0.49, 0},
+	        Font = "Friz Quadrata TT",
+	        FontSize = 10,
+	        TextAlignment = "CENTER",
+	        FontOutline = true,
+	        Border = "Blizzard Tooltip",
+	        BorderColor = {0.0, 0.0, 0.0, 0.8},
+	        Position = {point = "TOP", relpoint = "TOP", x = 0, y = -130}
+	    }
+	}
+
 	local function Castbars_SetupDatabase()
 	    if type(core.db.Castbars) ~= "table" or not next(core.db.Castbars) then
-	        core.db.Castbars = {
-	            CastingBarFrame = {
-	                Show = true,
-	                ShowIcon = true,
-	                ShowLatency = true,
-	                ShowSpellTarget = true,
-	                ShowTotalCastTime = true,
-	                TotalCastTimeDecimals = 1,
-	                ShowPushback = true,
-	                ShowCooldownSpark = true,
-	                Width = 250,
-	                Height = 24,
-	                Texture = "Castbars",
-	                BarColor = {1.0, 0.49, 0},
-	                Font = "Friz Quadrata TT",
-	                FontSize = 10,
-	                TextAlignment = "CENTER",
-	                FontOutline = true,
-	                BorderColor = {0.0, 0.0, 0.0, 0.8},
-	                Border = "Blizzard Tooltip",
-	                Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = -145}
-	            },
-	            PetCastingBarFrame = {
-	                Show = true,
-	                ShowIcon = true,
-	                ShowTotalCastTime = true,
-	                Width = 150,
-	                Height = 12,
-	                Texture = "Castbars",
-	                BarColor = {1.0, 0.49, 0},
-	                Font = "Friz Quadrata TT",
-	                FontSize = 9,
-	                TextAlignment = "CENTER",
-	                FontOutline = true,
-	                BorderColor = {0.0, 0.0, 0.0, 0.8},
-	                Border = "None",
-	                Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = -175}
-	            },
-	            TargetCastingBarFrame = {
-	                Show = true,
-	                ShowIcon = true,
-	                ShowShield = true,
-	                ShowTotalCastTime = true,
-	                Width = 205,
-	                Height = 12,
-	                Texture = "Castbars",
-	                BarColor = {1.0, 0.49, 0},
-	                Font = "Friz Quadrata TT",
-	                FontSize = 10,
-	                TextAlignment = "CENTER",
-	                FontOutline = true,
-	                BorderColor = {0.0, 0.0, 0.0, 0.8},
-	                Border = "None",
-	                Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = 180}
-	            },
-	            FocusCastingBarFrame = {
-	                Show = false,
-	                ShowIcon = true,
-	                ShowShield = true,
-	                ShowTotalCastTime = true,
-	                Width = 205,
-	                Height = 12,
-	                Texture = "Castbars",
-	                BarColor = {1.0, 0.49, 0},
-	                Font = "Friz Quadrata TT",
-	                FontSize = 10,
-	                TextAlignment = "CENTER",
-	                FontOutline = true,
-	                BorderColor = {0.0, 0.0, 0.0, 0.8},
-	                Border = "None",
-	                Position = {point = "CENTER", relpoint = "CENTER", x = 0, y = 200}
-	            },
-	            MirrorTimer = {
-	                Width = 205,
-	                Height = 13,
-	                Texture = "Castbars",
-	                BarColor = {1.0, 0.49, 0},
-	                Font = "Friz Quadrata TT",
-	                FontSize = 10,
-	                TextAlignment = "CENTER",
-	                FontOutline = true,
-	                Border = "Blizzard Tooltip",
-	                BorderColor = {0.0, 0.0, 0.0, 0.8},
-	                Position = {point = "TOP", relpoint = "TOP", x = 0, y = -130}
-	            }
-	        }
+	        core.db.Castbars = CopyTable(defaults)
 	    end
 	    Castbars.db = core.db.Castbars
+
+	    -- character specific settings
+	    if Castbars.db.UseCharacter then
+	        if type(core.char.Castbars) ~= "table" or not next(core.char.Castbars) then
+	            core.char.Castbars = CopyTable(core.db.Castbars)
+	        end
+	        Castbars.db = core.char.Castbars
+	    end
 	end
 
-    local function Castbars_GetOptionsTable()
-        local options = {
-            type = "group",
-            name = "Castbars",
-            args = {
-                toggleconfigmode = {
-                    name = L["Configuration Mode"],
-                    type = "toggle",
-                    order = 1,
-                    desc = L["Toggle configuration mode to allow moving bars and setting appearance options."],
-                    get = function() return Castbars.ConfigMode end,
-                    set = function() Castbars:Toggle() end
-                },
-				reset = {
-					type = "execute",
-					name = RESET,
-					order = 2,
-					confirm = function() return L:F("Are you sure you want to reset %s to default?", "Castbars") end,
-					func = function()
-						core.db.Castbars = nil
-						Castbars_SetupDatabase()
-						Castbars_FrameLayoutRestoreAll()
-					end
-				},
-                player = Castbars_GetOptionsTableForBar("CastingBarFrame", L["Player/Vehicle Castbar"], 2, true, false, true, true, true, true, true, true, true, true),
-                pet = Castbars_GetOptionsTableForBar("PetCastingBarFrame", L["Pet Castbar"], 3, true, false, true, true, false, false, true, false, false, false),
-                target = Castbars_GetOptionsTableForBar("TargetCastingBarFrame", L["Target Castbar"], 4, true, true, true, true, false, false, true, false, false, false),
-                focus = Castbars_GetOptionsTableForBar("FocusCastingBarFrame", L["Focus Castbar"], 5, true, true, true, true, false, false, true, false, false, false),
-                mirror = Castbars_GetOptionsTableForBar("MirrorTimer", L["Mirror Timers"], 6)
-            },
-        }
-        return options
-    end
+	local function Castbars_GetOptionsTable()
+	    local options = {
+	        type = "group",
+	        name = "Castbars",
+	        args = {
+	            toggleconfigmode = {
+	                name = L["Configuration Mode"],
+	                type = "toggle",
+	                order = 1,
+	                desc = L["Toggle configuration mode to allow moving bars and setting appearance options."],
+	                get = function()
+	                    return Castbars.ConfigMode
+	                end,
+	                set = function()
+	                    Castbars:Toggle()
+	                end
+	            },
+	            characterspecific = {
+	                name = L["Character Specific"],
+	                type = "toggle",
+	                order = 2,
+	                desc = L["Enable this if you want settings to be stored per character rather than per account."],
+	                get = function()
+	                    return core.db.Castbars.UseCharacter
+	                end,
+	                set = function()
+	                    core.db.Castbars.UseCharacter = not core.db.Castbars.UseCharacter
+	                    Castbars_SetupDatabase()
+	                    Castbars_FrameLayoutRestoreAll()
+	                end
+	            },
+	            reset = {
+	                type = "execute",
+	                name = RESET,
+	                order = 3,
+	                width = "full",
+	                confirm = function()
+	                    return L:F("Are you sure you want to reset %s to default?", "Castbars")
+	                end,
+	                func = function()
+	                    core.db.Castbars = nil
+	                    Castbars_SetupDatabase()
+	                    Castbars_FrameLayoutRestoreAll()
+	                end
+	            },
+	            player = Castbars_GetOptionsTableForBar("CastingBarFrame", L["Player/Vehicle Castbar"], 4, true, false, true, true, true, true, true, true, true, true),
+	            pet = Castbars_GetOptionsTableForBar("PetCastingBarFrame", L["Pet Castbar"], 5, true, false, true, true, false, false, true, false, false, false),
+	            target = Castbars_GetOptionsTableForBar("TargetCastingBarFrame", L["Target Castbar"], 6, true, true, true, true, false, false, true, false, false, false),
+	            focus = Castbars_GetOptionsTableForBar("FocusCastingBarFrame", L["Focus Castbar"], 7, true, true, true, true, false, false, true, false, false, false),
+	            mirror = Castbars_GetOptionsTableForBar("MirrorTimer", L["Mirror Timers"], 8)
+	        }
+	    }
+	    return options
+	end
 
     local function UnitFullName(unit)
         local name, realm = UnitName(unit)

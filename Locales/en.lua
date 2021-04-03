@@ -51,6 +51,8 @@ L["|cffff0000OFF|r"] = true
 L["|cffffd700Example|r: %s"] = true
 L["Current list of commands:"] = true
 L["|cffffd700%s|r: %s"] = true
+L["Character Specific"] = true
+L["Enable this if you want settings to be stored per character rather than per account."] = true
 -- AddOn Manager:
 L["Reload UI"] = true
 L["Enable all"] = true

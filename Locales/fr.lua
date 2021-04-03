@@ -34,6 +34,8 @@ L["|cff00ff00ON|r"] = "|cff00ff00ON|r"
 L["|cffff0000OFF|r"] = "|cffff0000OFF|r"
 L["|cffffd700Example|r: %s"] = "|cffffd700Exemple|r: %s"
 L["Current list of commands:"] = "Liste des commandes disponibles:"
+L["Character Specific"] = "Par personnage"
+L["Enable this if you want settings to be stored per character rather than per account."] = "Activé ceci si vous voulez que les paramètres soient enregistrés par perso au lieu de par compte."
 -- AddOn Manager:
 L["Reload UI"] = "Reload UI"
 L["Enable all"] = "Tout Activer"
