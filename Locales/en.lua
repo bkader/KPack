@@ -544,7 +544,6 @@ L["Raid Menu"] = true
 L["Are you sure you want to disband the group?"] = true
 -- UnitFrames
 L["changes the unit frames scale."] = true
-L["toggle using class icons instead of portraits"] = true
 L["To move the player and target, hold SHIFT and ALT while dragging them around."] = true
 -- Viewporter
 L["changes thew viewport on the selected side."] = true

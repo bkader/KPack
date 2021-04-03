@@ -120,7 +120,7 @@ KPack:AddModule("QuickButton", function(folder, core, L)
         end
 
         local i = GetMacroIndexByName("KPackQuickButton")
-        local macroBody = format(macroFormat, spellName, unitId, spellName)
+        local macroBody = format(macroFormat, spellName, unitId or "player", spellName)
         if i > 0 then
             EditMacro(i, "KPackQuickButton", nil, macroBody)
         else
@@ -144,7 +144,8 @@ KPack:AddModule("QuickButton", function(folder, core, L)
             n = tonumber(n)
             if n and n ~= DB.scale then
                 DB.scale = n
-                button:SetScale(n)
+                if button then button:SetScale(n) end
+            	Print(L:F("button scale set to |cff00ffff%s|r", n))
             end
         end
 
@@ -171,7 +172,7 @@ KPack:AddModule("QuickButton", function(folder, core, L)
             else
                 Print(L:F("Acceptable commands for: |caaf49141%s|r", "/qb"))
                 print("|cffffd700toggle|r : ", L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."])
-                print("|cffffd700macro|r : ", L["Creates or deletes the QuickButton macro."])
+                print("|cffffd700macro|r : ", L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."])
                 print("|cffffd700scale|r |cff00ffffn|r : ", L["Scales the button."])
                 print("|cffffd700reset|r : ", L["Resets module settings to default."])
             end

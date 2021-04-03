@@ -516,21 +516,20 @@ L["Killing blow at %s%% health."] = "Coup mortel à %s%% de vie."
 -- L["{rt1} Break Ends Now {rt1}"] = true
 -- L["{rt7} Break Canceled {rt7}"] = true
 -- -- QuickButton
--- L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."] = true
--- L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = true
--- L["button scale set to |cff00ffff%s|r"] = true
--- L["Scales the button."] = true
+L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."] = "|cff00ff00Active|r ou |cffff0000désactive|r le module"
+L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = "|cff00ff00Active|r ou |cffff0000désactive|r la création de macro "
+L["button scale set to |cff00ffff%s|r"] = "échelle de bouton réglée sur |cff00ffff%s|r"
+L["Scales the button."] = "Change l'échelle du bouton."
 -- -- Raid Utility
 L["Disband Group"] = "Dissoudre le groupe"
 L["Raid Menu"] = "Menu Raid"
 L["Are you sure you want to disband the group?"] = "Êtes-vous sûr de vouloir dissoudre le groupe?"
 -- -- UnitFrames
--- L["changes the unit frames scale."] = true
--- L["toggle using class icons instead of portraits"] = true
--- L["To move the player and target, hold SHIFT and ALT while dragging them around."] = true
+L["changes the unit frames scale."] = "modifie l'échelle des cadres de l'unité."
+L["To move the player and target, hold SHIFT and ALT while dragging them around."] = "Pour déplacer le personnage et la cible, maintenez les touches MAJ et ALT enfoncées tout en les faisant glisser."
 -- -- Viewporter
--- L["changes thew viewport on the selected side."] = true
--- L["Toggles viewporter status."] = true
--- L["Enables viewporter."] = true
--- L["Disables viewporter."] = true
--- L["where side is left, right, top or bottom."] = true
+L["changes thew viewport on the selected side."] = "modifie la fenêtre d'affichage du côté sélectionné."
+L["Toggles viewporter status."] = "Active ou désactive la fenêtre d'affichage."
+L["Enables viewporter."] = "Active la fenêtre d'affichage."
+L["Disables viewporter."] = "Désactive la fenêtre d'affichage."
+L["where side is left, right, top or bottom."] = "où côté est left, right, top ou bottom."
