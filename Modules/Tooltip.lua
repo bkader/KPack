@@ -11,7 +11,10 @@ KPack:AddModule("Tooltip", function(_, core, L)
         class = false,
         enhance = true,
         scale = 1,
-        moved = false
+        moved = false,
+        point = "TOP",
+        xOfs = 0,
+        yOfs = -25
     }
     local disabled
 
@@ -48,81 +51,6 @@ KPack:AddModule("Tooltip", function(_, core, L)
     end
 
     do
-        -- slash commands handler
-        local SlashCommandHandler
-        do
-            local exec = {}
-            local helpStr = "|cffffd700%s|r: %s"
-
-            -- toggles unit tooltips
-            exec.unit = function()
-                DB.unit = not DB.unit
-                Print(L:F("unit tooltip in combat: %s",DB.unit and L["|cffff0000disabled|r"] or L["|cff00ff00enabled|r"]))
-            end
-
-            -- toggles spells tooltips
-            exec.action = function()
-                DB.spell = not DB.spell
-                Print(L:F("bar spells tooltip in combat: %s",DB.spell and L["|cffff0000disabled|r"] or L["|cff00ff00enabled|r"]))
-            end
-
-            -- toggles pet spells tooltips
-            exec.pet = function()
-                DB.petspell = not DB.petspell
-                Print(L:F("pet bar spells tooltip in combat: %s",DB.petspell and L["|cffff0000disabled|r"] or L["|cff00ff00enabled|r"]))
-            end
-
-            -- toggles class spells tooltips
-            exec.class = function()
-                DB.class = not DB.class
-                Print(L:F("class bar spells tooltip in combat: %s",DB.class and L["|cffff0000disabled|r"] or L["|cff00ff00enabled|r"]))
-            end
-
-            -- change tooltip scale
-            exec.scale = function(scale)
-                scale = tonumber(scale)
-                if scale and scale ~= DB.scale then
-                    DB.scale = scale
-                    Print(L:F("tooltip scale set to: |cff00ffff%s|r", scale))
-                end
-            end
-
-            -- move tooltip to top middle of the screen, or not
-            exec.move = function()
-                DB.move = not DB.move
-                if DB.move then
-                    Print(L["tooltip moved to top middle of the screen."])
-                else
-                    Print(L["tooltip moved to default position."])
-                end
-            end
-
-            -- toggle tooltip enhancement
-            exec.enhance = function()
-                DB.enhance = not DB.enhance
-                Print(L:F("enhanced tooltips: %s",DB.enhance and L["|cff00ff00enabled|r"] or L["|cffff0000disabled|r"]))
-            end
-
-            -- main slash commands function
-            function SlashCommandHandler(msg)
-                local cmd, rest = strsplit(" ", msg, 2)
-                cmd = cmd:lower()
-                if type(exec[cmd]) == "function" then
-                    exec[cmd](rest)
-                    PLAYER_ENTERING_WORLD()
-                else
-                    Print(L:F("Acceptable commands for: |caaf49141%s|r", "/tip"))
-                    print(helpStr:format("unit", L["toggles unit tooltip in combat"]))
-                    print(helpStr:format("spell", L["toggles bar spells tooltip in combat"]))
-                    print(helpStr:format("pet", L["toggles pet bar spells tooltip in combat"]))
-                    print(helpStr:format("class", L["toggles class bar spells tooltip in combat"]))
-                    print(helpStr:format("scale |cff00ffffn|r", L["change tooltips scale"]))
-                    print(helpStr:format("move", L["moves tooltip to top middle of the screen"]))
-                    print(helpStr:format("enhance", L["toggles enhanced tooltips (requires reload)"]))
-                end
-            end
-        end
-
         local function Tooltip_SetUnit()
             if DB.unit and inCombat then
                 GameTooltip:Hide()
@@ -149,30 +77,153 @@ KPack:AddModule("Tooltip", function(_, core, L)
 
         -- change game tooltip position
         local function Tooltip_ChangePosition(tooltip, parent)
-            if DB.move then
+            if DB.moved then
                 tooltip:SetOwner(parent, "ANCHOR_NONE")
-                tooltip:SetPoint("TOP", UIParent, "TOP", 0, -25)
+                tooltip:SetPoint(DB.point or "TOP", UIParent, DB.point or "TOP", DB.xOfs or 0, DB.yOfs or -25)
                 tooltip.default = 1
             end
         end
 
         core:RegisterForEvent("PLAYER_LOGIN", function()
+            SetupDatabase()
+
             if _G.Aurora then
                 disabled = true
                 return
             end
 
-            SetupDatabase()
-
-            SlashCmdList["KPACK_TOOLTIP"] = SlashCommandHandler
             SLASH_KPACK_TOOLTIP1 = "/tip"
             SLASH_KPACK_TOOLTIP2 = "/tooltip"
+            SlashCmdList["KPACK_TOOLTIP"] = function()
+                core:OpenConfig("Tooltip")
+            end
 
             hooksecurefunc(GameTooltip, "SetUnit", Tooltip_SetUnit)
             hooksecurefunc(GameTooltip, "SetAction", Tooltip_SetAction)
             hooksecurefunc(GameTooltip, "SetPetAction", Tooltip_SetPetAction)
             hooksecurefunc(GameTooltip, "SetShapeshift", Tooltip_SetShapeshift)
             hooksecurefunc("GameTooltip_SetDefaultAnchor", Tooltip_ChangePosition)
+
+			core.options.args.options.args.Tooltip = {
+			    type = "group",
+			    name = L["Tooltips"],
+			    get = function(i) return DB[i[#i]] end,
+			    set = function(i, val)
+			        DB[i[#i]] = val
+			        PLAYER_ENTERING_WORLD()
+			    end,
+			    args = {
+			        enhance = {
+			            type = "toggle",
+			            name = L["Enhanced Tooltips"],
+			            desc = L["Enable this if you want the change the style of tooltips."],
+			            order = 1
+			        },
+			        scale = {
+			            type = "range",
+			            name = L["Scale"],
+			            order = 2,
+			            min = 0.5,
+			            max = 3,
+			            step = 0.01,
+			            bigStep = 0.1
+			        },
+			        movetip = {
+			            type = "header",
+			            name = L["Move Tooltips"],
+			            order = 3
+			        },
+			        moved = {
+			            type = "toggle",
+			            name = L["Enable"],
+			            desc = L["Enable this if you want to change default tooltip position."],
+			            order = 4
+			        },
+			        point = {
+			            type = "select",
+			            name = L["Position"],
+			            order = 5,
+			            values = {
+			                TOPLEFT = L["Top Left"],
+			                TOPRIGHT = L["Top Right"],
+			                TOP = L["Top"],
+			                BOTTOMLEFT = L["Bottom Left"],
+			                BOTTOMRIGHT = L["Bottom Right"],
+			                BOTTON = L["Bottom"],
+			                LEFT = L["Left"],
+			                RIGHT = L["Right"],
+			                CENTER = L["Center"]
+			            }
+			        },
+			        xOfs = {
+			            type = "range",
+			            name = L["X Offset"],
+			            order = 6,
+			            min = -150,
+			            max = 150,
+			            step = 0.1,
+			            bigStep = 1
+			        },
+			        yOfs = {
+			            type = "range",
+			            name = L["Y Offset"],
+			            order = 7,
+			            min = -150,
+			            max = 150,
+			            step = 0.1,
+			            bigStep = 1
+			        },
+			        hideincombat = {
+			            type = "header",
+			            name = L["Hide in combat"],
+			            order = 8
+			        },
+			        unit = {
+			            type = "toggle",
+			            name = L["Unit"],
+			            desc = L["Hides unit tooltips in combat."],
+			            order = 9
+			        },
+			        spell = {
+			            type = "toggle",
+			            name = L["Action Bar"],
+			            desc = L["Hides your action bar spell tooltips in combat."],
+			            order = 10
+			        },
+			        petspell = {
+			            type = "toggle",
+			            name = L["Pet Bar"],
+			            desc = L["Hides your pet action bar spell tooltips in combat."],
+			            order = 12
+			        },
+			        class = {
+			            type = "toggle",
+			            name = L["Class Bar"],
+			            desc = L["Hides stance/shape bar tooltips in combat."],
+			            order = 13
+			        },
+			        sep = {
+			            type = "description",
+			            name = " ",
+			            order = 14,
+			            width = "full"
+			        },
+			        reset = {
+			            type = "execute",
+			            name = RESET,
+			            order = 99,
+			            width = "full",
+			            confirm = function()
+			                return L:F("Are you sure you want to reset %s to default?", L["Tooltips"])
+			            end,
+			            func = function()
+			                core.char.Tooltip = nil
+			                DB = nil
+			                SetupDatabase()
+			            end
+			        }
+			    }
+			}
         end)
     end
 
@@ -304,9 +355,7 @@ KPack:AddModule("Tooltip", function(_, core, L)
                 local creatureType = UnitCreatureType(unit) or ""
                 local unitName = UnitName(unit)
                 local level = UnitLevel(unit)
-                if level < 0 then
-                    level = "??"
-                end
+                if level < 0 then level = "??" end
 
                 if UnitIsPlayer(unit) then
                     if UnitIsAFK(unit) then
@@ -430,29 +479,23 @@ KPack:AddModule("Tooltip", function(_, core, L)
         end
 
         function PLAYER_ENTERING_WORLD()
-            if disabled then
-                return
-            end
-
             SetupDatabase()
 
-            if not DB.enhance then
+            if disabled or not DB.enhance then
                 return
             end
 
-            local tooltips = {
-                GameTooltip,
-                ItemRefTooltip,
-                ShoppingTooltip2,
-                ShoppingTooltip3,
-                WorldMapTooltip,
-                DropDownList1MenuBackdrop,
-                DropDownList2MenuBackdrop,
-                _G.L_DropDownList1MenuBackdrop,
-                _G.L_DropDownList2MenuBackdrop
-            }
-
-            for _, t in pairs(tooltips) do
+            for _, t in pairs({
+				GameTooltip,
+				ItemRefTooltip,
+				ShoppingTooltip2,
+				ShoppingTooltip3,
+				WorldMapTooltip,
+				DropDownList1MenuBackdrop,
+				DropDownList2MenuBackdrop,
+				_G.L_DropDownList1MenuBackdrop,
+				_G.L_DropDownList2MenuBackdrop
+            }) do
                 if t then
                     t:SetBackdrop(backdrop)
                     t:SetBackdropColor(0, 0, 0, 0.6)
@@ -499,20 +542,20 @@ KPack:AddModule("Tooltip", function(_, core, L)
     end
 
     core:RegisterForEvent("UPDATE_MOUSEOVER_UNIT", function()
-        if not disabled and DB and DB.unit and inCombat() then
+        if not disabled and DB and DB.unit and inCombat then
             GameTooltip:Hide()
         end
     end)
 
     core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()
         if not disabled then
-            inCombat = true
+            inCombat = nil
         end
     end)
 
     core:RegisterForEvent("PLAYER_REGEN_DISABLED", function()
         if not disabled then
-            inCombat = nil
+            inCombat = true
         end
     end)
 end)
