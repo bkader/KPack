@@ -949,6 +949,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 	                end,
 	                func = function()
 	                    core.db.Castbars = nil
+	                    core.char.Castbars = nil
 	                    Castbars_SetupDatabase()
 	                    Castbars_FrameLayoutRestoreAll()
 	                end
