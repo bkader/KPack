@@ -281,7 +281,7 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
                 DB.spacing = spacing
                 SCP_UpdateFrames()
             else
-                Print(L["Spacing has to be a number, recommended to be between 0.5 and 3"])
+                Print(L["The spacing must be a valid number"])
             end
         elseif cmd == "color" or cmd == "colour" then
             -- toggle in and out of combat
@@ -301,6 +301,8 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
             Print(L:F("Show out of combat: %s", (status and "|cff00ff00ON|r" or "|cffff0000OFF|r")))
 
             SCP_RefreshDisplay()
+        elseif cmd == "config" or cmd == "options" then
+        	core:OpenConfig("scp")
         else
             Print(L:F("Acceptable commands for: |caaf49141%s|r", "/scp"))
             print("|cffffd700toggle|r", L["Enables or disables the module."])
@@ -309,6 +311,7 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
             print("|cffffd700spacing |cff00ffffn|r|r", L["Changes spacing between points."])
             print("|cffffd700color|r", L["Changes points color."])
             print("|cffffd700combat|r", L["Toggles showing combo points out of combat."])
+            print("|cffffd700config|r", L["Access module settings."])
             print("|cffffd700reset|r", L["Resets module settings to default."])
         end
     end
@@ -348,6 +351,7 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
                 combat = {
                     type = "toggle",
                     name = L["Hide out of combat"],
+                    desc = L["Toggles showing combo points out of combat."],
                     order = 2
                 },
                 width = {
@@ -371,6 +375,7 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
                 scale = {
                     type = "range",
                     name = L["Scale"],
+                    desc = L["Changes frame scale."],
                     order = 5,
                     min = 0.5,
                     max = 3,
@@ -380,6 +385,7 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
                 spacing = {
                     type = "range",
                     name = L["Spacing"],
+                    desc = L["Changes spacing between points."],
                     order = 6,
                     min = 0,
                     max = 50,
@@ -389,6 +395,7 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
                 color = {
                     type = "color",
                     name = L["Color"],
+                    desc = L["Changes points color."],
                     hasAlpha = false,
                     order = 7,
                     get = function()
