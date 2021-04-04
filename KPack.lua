@@ -265,7 +265,7 @@ do
     end
 
 	function core:OpenConfig(mod)
-	    self.ACD:SetDefaultSize(folder, 600, 500)
+	    self.ACD:SetDefaultSize(folder, 640, 500)
 	    if not self.ACD:Close(folder) then
 	        self.ACD:Open(folder)
 	        if mod then self.ACD:SelectGroup(folder, mod) end
