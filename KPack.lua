@@ -187,16 +187,10 @@ do
                         order = 0,
                         width = "full"
                     },
-                    sep1 = {
+                    sep = {
                         type = "description",
                         name = " ",
                         order = 0.1,
-                        width = "full"
-                    },
-                    sep2 = {
-                        type = "description",
-                        name = " ",
-                        order = 98,
                         width = "full"
                     },
                     apply = {
@@ -357,26 +351,20 @@ end
 -- Modules
 --
 
-do
-    local numorder = 1
-
-    function core:AddModule(name, desc, func)
-        if type(desc) == "function" then
-            func = desc
-            desc = nil
-        end
-
-        self.moduleslist = self.moduleslist or {}
-        self.moduleslist[#self.moduleslist + 1] = func
-
-        self.options.args.modules.args[name] = {
-            type = "toggle",
-            name = name,
-            desc = L[desc],
-            order = numorder
-        }
-        numorder = numorder + 1
+function core:AddModule(name, desc, func)
+    if type(desc) == "function" then
+        func = desc
+        desc = nil
     end
+
+    self.moduleslist = self.moduleslist or {}
+    self.moduleslist[#self.moduleslist + 1] = func
+
+    self.options.args.modules.args[name] = {
+        type = "toggle",
+        name = name,
+        desc = L[desc]
+    }
 end
 
 function core:IsDisabled(...)
