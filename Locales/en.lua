@@ -35,6 +35,7 @@ L["module status: %s"] = true
 L["enable module"] = true
 L["disable module"] = true
 L["toggle module status"] = true
+L["Tick the modules you want to disable."] = true
 L["Acceptable commands for: |caaf49141%s|r"] = true
 L["Unknown Command. Type \"|caaf49141%s|r\" for a list of commands."] = true
 L["Available command for |caaf49141%s|r is |cffffd700%s|r"] = true
@@ -159,6 +160,7 @@ L["Duration Font Size"] = true
 L["Stack Font"] = true
 L["Stack Font Size"] = true
 -- Castbars
+L["Castbars"] = true
 L["Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars."] = true
 L["|cFFFFFFFFDrag with mouse.\n|cFFCCCCCCUse arrow keys while dragging to fine tune position."] = true
 L["Configuration Mode"] = true

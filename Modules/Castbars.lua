@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars.", function(folder, core, L)
-    if core:IsDisabled("Castbar") then return end
+    if core:IsDisabled("Castbars") then return end
 
     local Castbars = core.Castbars or {}
     core.Castbars = Castbars
@@ -911,7 +911,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 	local function Castbars_GetOptionsTable()
 	    local options = {
 	        type = "group",
-	        name = "Castbars",
+	        name = L["Castbars"],
 	        args = {
 	            toggleconfigmode = {
 	                name = L["Configuration Mode"],

@@ -19,6 +19,7 @@ L["module status: %s"] = "status du module: %s"
 L["enable module"] = "activer le module"
 L["disable module"] = "désactiver le module"
 L["toggle module status"] = "active/désactive le module"
+L["Tick the modules you want to disable."] = "Cochez le module que vous souhaitez désactiver."
 L["Acceptable commands for: |caaf49141%s|r"] = "Commandes acceptables pour: |caaf49141%s|r"
 L["Unknown Command. Type \"|caaf49141%s|r\" for a list of commands."] = "Commande inconnue. Taper \"|caaf49141%s|r\" pour accéder à la liste des commandes."
 L["Available command for |caaf49141%s|r is |cffffd700%s|r"] = "La commande disponible pour |caaf49141%s|r est |cffffd700%s|r"
@@ -99,16 +100,16 @@ L["Changes the opacity of action bar hotkeys."] = "Change l'opacité des raccour
 -- L["Toggles checking if you have the item in your inventory before restoring it, use if you have disconnect issues when restoring."] = true
 -- L["Attempts to restore macros that have been deleted for a profile."] = true
 -- L["Toggles if ABS should restore the highest rank of the spell, or the one saved originally."] = true
--- -- AFK
+-- AFK
 L["You are AFK!"] = "Vous êtes AFK!"
 L["I am Back"] = "Je suis là"
--- -- Align
+-- Align
 L["A very simple alignment grid with no options."] = "Une grille d'alignement très simple et sans options."
--- -- AllStats
+-- AllStats
 -- L["Moves the functionality of the stat dropdowns to a panel on the right side of the paperdoll, so that you can see all of your stats at once."] = true
--- -- AltTabber
+-- AltTabber
 L["Tick the sounds you want AltTabber to play:"] = "Cochez les sons que vous souhaitez qu'AltTabber joue:"
--- -- Automate
+-- Automate
 L["Automates some of the more tedious tasks in WoW."] = "Automatise certaines des tâches les plus fastidieuses de WoW."
 L["Repair equipment"] = "Réparation d'équipement"
 L["Sell Junk"] = "Vendre les gris"
@@ -125,7 +126,7 @@ L["You don't have enough money to repair items!"] = "Vous n'avez pas assez d'arg
 L["|cffffd700Alt-Click|r to buy a stack of item from merchant."] = "|cffffd700Alt-Clic|r pour acheter une pile d'objets auprès du marchand."
 L["You can keybind raid icons on MouseOver. Check keybindings."] = "Vous pouvez associer des icônes de raid sur MouseOver. Vérifiez les associations de touches."
 L["Remove Icon"] = "Retirer l'icône "
--- -- auto mounts
+-- auto mounts
 L["Enter the name or link the ground and flying mounts to be used using the provided keybinding."] = "Entrez le nom ou liez les montures à utiliser à l'aide de la combinaison de touches fournie."
 L["Ground Mount"] = "Monture terrestre"
 L["Flying Mount"] = "Monture volante"
@@ -141,53 +142,54 @@ L["Duration Font"] = "Police de la durée"
 L["Duration Font Size"] = "Taille de police des durées"
 L["Stack Font"] = "Police des stacks"
 L["Stack Font Size"] = "Taille de police des stacks"
--- -- Castbars
--- L["Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars."] = true
+-- Castbars
+L["Castbars"] = "Barres de sort"
+L["Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars."] = "Amélioration légère, efficace et facile à utiliser des barres de sort."
 -- L["|cFFFFFFFFDrag with mouse.\n|cFFCCCCCCUse arrow keys while dragging to fine tune position."] = true
--- L["Configuration Mode"] = true
--- L["Toggle configuration mode to allow moving bars and setting appearance options."] = true
--- L["Mirror Timers"] = true
--- L["Set the width of the %s"] = true
--- L["Set the height of the %s"] = true
--- L["Texture"] = true
--- L["Select texture to use for the %s"] = true
--- L["Bar Color"] = true
--- L["Set color of the %s"] = true
--- L["Font"] = true
--- L["Select font to use for the %s"] = true
--- L["Set the font size of the %s"] = true
--- L["Font Outline"] = true
--- L["Toggles outline on the font of the %s"] = true
--- L["Border"] = true
--- L["Select border to use for the %s"] = true
--- L["Border Color"] = true
--- L["Set color of the border of the %s"] = true
--- L["Toggles display of the %s"] = true
--- L["Show Icon"] = true
--- L["Toggles display of the icon at the left side of the bar"] = true
--- L["Show Shield"] = true
--- L["Toggles display of the shield around the bar when the spell cannot be interrupted."] = true
--- L["Show Latency"] = true
--- L["Toggles the latency indicator, which shows the latency at the time of spell cast as a red bar at the end of the Castbar."] = true
--- L["Show Spell Target"] = true
--- L["Toggles display of the target of the spell being cast."] = true
--- L["Show Total Cast Time"] = true
--- L["Toggles display of the total cast time."] = true
--- L["Total Cast Time Decimals"] = true
--- L["Set the number of decimal places for the total cast time."] = true
--- L["Show Pushback"] = true
--- L["Toggles display of the pushback time when spell casting is delayed."] = true
--- L["Show Global Cooldown Spark"] = true
--- L["Toggles display of the global cooldown spark."] = true
--- L["Text Alignment"] = true
--- L["Set the alignment of the Castbar text"] = true
+L["Configuration Mode"] = "Mode configuration"
+L["Toggle configuration mode to allow moving bars and setting appearance options."] = "Active le mode de configuration afin de déplacer les barres et modifier leurs appearances."
+L["Mirror Timers"] = "Barres miroirs"
+L["Set the width of the %s"] = "Modifie le largeur de %s"
+L["Set the height of the %s"] = "Modifie la hauteur de %s"
+L["Texture"] = "Texture"
+L["Select texture to use for the %s"] = "Sélectionnez la texture à utiliser pour %s"
+L["Bar Color"] = "Couleur de barre"
+L["Set color of the %s"] = "Modifie la couleur de %s"
+L["Font"] = "Police"
+L["Select font to use for the %s"] = "Sélectionnez la police à utiliser pour %s"
+L["Set the font size of the %s"] = "Modifie la taille de la police pour %s"
+L["Font Outline"] = "Contour de la police "
+L["Toggles outline on the font of the %s"] = "Activer le contour de la police pour %s"
+L["Border"] = "Bordure"
+L["Select border to use for the %s"] = "Sélectionnez la bordure à utiliser pour %s"
+L["Border Color"] = "Couleur de bordure"
+L["Set color of the border of the %s"] = "Modifie la couleur de la bordure pour %s"
+L["Toggles display of the %s"] = "Activer l'affichage de %s"
+L["Show Icon"] = "Afficher l'icône"
+L["Toggles display of the icon at the left side of the bar"] = "Afficher l'icône du sort à gauche de la barre"
+L["Show Shield"] = "Afficher le bouclier "
+L["Toggles display of the shield around the bar when the spell cannot be interrupted."] = "Afficher du bouclier autour de la barre lorsque le sort ne peut pas être interrompu."
+L["Show Latency"] = "Afficher la latence"
+L["Toggles the latency indicator, which shows the latency at the time of spell cast as a red bar at the end of the Castbar."] = "Afficher l'indicateur de latence qui montre la latence au moment de jeter le sort sous forme d'une barre rouge."
+L["Show Spell Target"] = "Afficher la cible du sort"
+L["Toggles display of the target of the spell being cast."] = "Afficher la cible du sort en cours de lancement."
+L["Show Total Cast Time"] = "Temps d'incantation total"
+L["Toggles display of the total cast time."] = "Activer l'affichage du temps d'incantation."
+L["Total Cast Time Decimals"] = "Nombre de décimales"
+L["Set the number of decimal places for the total cast time."] = "Définir le nombre de décimales à afficher pour le temps d'incantation."
+L["Show Pushback"] = "Afficher le refoulement"
+L["Toggles display of the pushback time when spell casting is delayed."] = "Afficher le temps de refoulement lorsque le lancement du sort est retardé."
+L["Show Global Cooldown Spark"] = "Étincelle de temps de recharge global"
+L["Toggles display of the global cooldown spark."] = "Afficher l'étincelle de temps de recharge global."
+L["Text Alignment"] = "Alignement du texte"
+L["Set the alignment of the Castbar text"] = "Définir l'alignement du texte de la barre de sort"
 L["Left"] = "À gauche"
 L["Center"] = "Centre"
--- L["Mirror Timer %d"] = true
--- L["Player/Vehicle Castbar"] = true
--- L["Pet Castbar"] = true
--- L["Target Castbar"] = true
--- L["Focus Castbar"] = true
+L["Mirror Timer %d"] = "Barre miroir %d"
+L["Player/Vehicle Castbar"] = "Barre du joueur/véhicule"
+L["Pet Castbar"] = "Barre du familier"
+L["Target Castbar"] = "Barre de la cible"
+L["Focus Castbar"] = "Barre de l'unité focalisée"
 -- Chat Filter
 L["Chat Filter"] = "Filtre de chat"
 L["Verbose Mode"] = "Notifications"
@@ -210,7 +212,7 @@ L["Remove keyword by |cff00ffffposition|r"] = "Supprime un mot-clé par |cff00ff
 L["Show or hide filter notifications"] = "Afficher ou masquer les notifications de filtre"
 L["View the last |cff00ffffn|r filtered messages (up to 20)"] = "Affiche les derniers |cff00ffffn|r messages filtrés (jusqu'à 20)"
 L["filtered a message from |cff00ffff%s|r"] = "un message de la part de |cff00ffff%s|r a été filtré"
--- -- ChatMods
+-- ChatMods
 -- L["editbox put in center"] = true
 -- L["editbox set to default position"] = true
 -- L["editbox position set to: |cff00ffff%s|r"] = true
@@ -218,11 +220,11 @@ L["filtered a message from |cff00ffff%s|r"] = "un message de la part de |cff00ff
 -- L["put the editbox on top of the chat frame."] = true
 -- L["put the editbox at the bottom of the chat frame."] = true
 -- L["Adds several tweaks to chat windows, such us removing buttons, mousewheel scroll, copy chat and clickable links."] = true
--- -- Close Up
+-- Close Up
 L["Undress"] = "Déshabiller"
 L["Cannot dress NPC models."] = "Impossible d'habiller les modèles de PNJ."
 L["Allows you to zoom, reposition, and rotate the UI's builtin models so that you may get a better view."] = "Vous permet de zoomer, repositionner et pivoter les modèles afin que vous puissiez obtenir une meilleure vue."
--- -- CombatLogFix
+-- CombatLogFix
 -- L["Fixes the combat log break bugs that have existed since 2.4."] = true
 -- L["Show set options"] = true
 -- L["Zone Clearing"] = true
@@ -235,7 +237,7 @@ L["Allows you to zoom, reposition, and rotate the UI's builtin models so that yo
 -- L["Toggles clearing combat log when it breaks."] = true
 -- L["Toggles not clearing until you drop combat."] = true
 -- L["Toggles reporting how many messages were found when it broke."] = true
--- -- CombatText
+-- CombatText
 -- L["No Name SpellID: %s"] = true
 -- L["unlocked."] = true
 -- L["already unlocked."] = true
@@ -249,7 +251,7 @@ L["Allows you to zoom, reposition, and rotate the UI's builtin models so that yo
 -- CombatTime
 L["trigger the in-game stopwatch on combat"] = "déclencher le chronomètre du jeu au combat"
 L["using stopwatch: %s"] = "utilisation du chronomètre: %s"
--- -- Combuctor
+-- Combuctor
 L["%s: toggle inventory"] = "%s: ouvre l'inventaire"
 L["%s: toggle bank"] = "%s: toggle la banque"
 L["%s: access options panel"] = "%s: accéder aux options"
@@ -275,7 +277,7 @@ L.Ammo = "Munitions"
 L.Shards = "Fragments"
 L.SoulShard = "Fragment d'âme"
 L.Usable = "Utilisable"
--- -- Death Recap
+-- Death Recap
 L["Death Recap"] = "Récap. de mort"
 L["Death Recap unavailable."] = "Récapitulatif non disponible."
 L["%s %s"] = "%s %s"
@@ -286,7 +288,7 @@ L["(%d Resisted)"] = "(%d résisté)"
 L["(%d Blocked)"] = "(%d bloqué)"
 L["%s sec before death at %s%% health."] = "%s sec avant la mort à %s%% de vie."
 L["Killing blow at %s%% health."] = "Coup mortel à %s%% de vie."
--- -- EnhancedColourPicker & EnhancedStackSplit
+-- EnhancedColourPicker & EnhancedStackSplit
 -- L["Adds Copy and Paste Functions to the ColorPicker."] = true
 -- L["Enhances the StackSplitFrame with numbered Buttons."] = true
 -- ErrorFilter
@@ -300,10 +302,10 @@ L["Show Frame"] = "Afficher le cadre"
 L["Enable this if you want to keep the errors frame visible for other errors."] = "Si activé, le cadre d'erreurs restera visible pour d'autres erreurs."
 L["Tick the messages you want to disable."] = "Cochez les messages que vous souhaitez désactiver."
 L["Filter Enabled: %s - Frame Shown: %s"] = "Filtre activé: %s - Cadre affichée: %s"
--- -- FriendsInfo
+-- FriendsInfo
 -- L["Adds info to the friends list."] = true
 -- L["Last seen %s ago"] = true
--- -- GearScoreLite:
+-- GearScoreLite:
 -- L["Toggles display of scores on players."] = true
 -- L["Toggles display of scores for items."] = true
 -- L["Resets GearScore's Options back to Default."] = true
@@ -314,13 +316,13 @@ L["Filter Enabled: %s - Frame Shown: %s"] = "Filtre activé: %s - Cadre affiché
 -- L["Item Levels: %s"] = true
 -- L["Comparisons: %s"] = true
 -- L["Item Level"] = true
--- -- IDs
+-- IDs
 -- L["Adds IDs to the ingame tooltips."] = true
 -- L["Spell ID"] = true
 -- L["Item ID"] = true
 -- L["Quest ID"] = true
 -- L["Achievement ID"] = true
--- -- IgnoreMore
+-- IgnoreMore
 -- L["%s does not look like a valid player name."] = true
 -- L["Reason for ignoring this player:"] = true
 -- L["remove a player from ignore list"] = true
@@ -329,7 +331,7 @@ L["Filter Enabled: %s - Frame Shown: %s"] = "Filtre activé: %s - Cadre affiché
 -- L["|cff00ffff%s|r successfully removed from the ignore list"] = true
 -- L["could not find a player named %|cff00ffff%s|r on the ignore list"] = true
 -- L["invalid player name"] = true
--- -- LookUp
+-- LookUp
 -- L["Searching for items containing |cffffd700%s|r"] = true
 -- L["Searching for spells containing |cffffd700%s|r"] = true
 -- L["Search completed, |cffffd700%d|r items matched."] = true
@@ -340,7 +342,7 @@ L["Filter Enabled: %s - Frame Shown: %s"] = "Filtre activé: %s - Cadre affiché
 -- L["|cffffd700Spell|r : %s [%d]"] = true
 -- L["Searches for item link in local cache."] = true
 -- L["Searches for spell link."] = true
--- -- LootMessageFilter & ImprovedLootFrame
+-- LootMessageFilter & ImprovedLootFrame
 -- L["A slash command that allows you to search items and spells."] = true
 -- L["Filters loot messages from other players in your group, based on item quality."] = true
 -- L["Minimum item rarity for loot filter set to %s"] = true
@@ -348,10 +350,10 @@ L["Filter Enabled: %s - Frame Shown: %s"] = "Filtre activé: %s - Cadre affiché
 -- L["Condenses all loot onto one page when using the Blizzard default loot frame."] = true
 -- L["Random"] = true
 -- L["Self Loot"] = true
--- -- Lynstats
+-- Lynstats
 -- L["Total"] = true
 -- L["Total incl. Blizzard"] = true
--- -- Minimap
+-- Minimap
 -- L["Calendar"] = true
 -- L["show minimap"] = true
 -- L["hide minimap"] = true
@@ -369,7 +371,7 @@ L["Filter Enabled: %s - Frame Shown: %s"] = "Filtre activé: %s - Cadre affiché
 -- L["Lock Minimap"] = true
 -- L["Hide Minimap"] = true
 L["Hide in combat"] = "Cache en combat"
--- -- MoveAnything
+-- MoveAnything
 -- L["Reset %s? Press again to confirm"] = true
 -- L["Resetting %s"] = true
 -- L["MoveAnything: Reset all frames in the current profile?"] = true
@@ -404,7 +406,7 @@ L["Hide in combat"] = "Cache en combat"
 -- L.MASyncHelp = "Synchronizes all frames modified by MoveAnything"
 -- L.MACloseHelp = "Closes this dialog. Ctrl-Shift-Alt click reloads the interface"
 -- L.MAResetHelp = "Resets all frames"
--- -- Nameplates
+-- Nameplates
 -- L["Nameplates"] = true
 -- L["changes nameplates font size"] = true
 -- L["changes nameplates height"] = true
@@ -503,7 +505,7 @@ L["Rows"] = "Lignes"
 L["Set the number of icon rows in this group."] = "Nombre de lignes d'icônes dans ce groupe."
 L["Spacing"] = "Espacement"
 L["Group %d position successfully reset."] = "La position du groupe %d a été réinitialisée avec succès."
--- -- Tooltip
+-- Tooltip
 L["Tooltips"] = "Info-bulles"
 L["Enhanced Tooltips"] = "Info-bulles améliorées"
 L["Enable this if you want the change the style of tooltips."] = "Activez cette option si vous souhaitez modifier le style des info-bulles."
@@ -527,7 +529,7 @@ L["Pet Bar"] = "Barre du familier"
 L["Hides your pet action bar spell tooltips in combat."] = "Cache les info-bulles des sorts de votre familier en combat."
 L["Class Bar"] = "Barre de classe"
 L["Hides stance/shape bar tooltips in combat."] = "Masque les info-bulles de la barre de classe/forme en combat."
--- -- PullnBreak
+-- PullnBreak
 L.PULL_IN = "Pull dans %s"
 L.PULL_NOW = "{rt8} Pull Maintenant! {rt8}"
 L.PULL_ABORT = "{rt7} Pull ANNULÉ {rt7}"
@@ -535,7 +537,7 @@ L.BREAK_START = "La pause démarre maintenant -- vous avez %s !"
 L.BREAK_IN = "La pause finit dans %s !"
 L.BREAK_NOW = "La pause est terminée"
 L.BREAK_ABORT = "{rt7} Pause Annulée {rt7}"
--- -- QuickButton
+-- QuickButton
 L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."] = "|cff00ff00Active|r ou |cffff0000désactive|r le module"
 L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = "|cff00ff00Active|r ou |cffff0000désactive|r la création de macro "
 L["button scale set to |cff00ffff%s|r"] = "échelle de bouton réglée sur |cff00ffff%s|r"
@@ -551,14 +553,14 @@ L["Select Icon on Hover"] = "Sélectionner l'icône au survol"
 L["Double Left Click"] = "Double clic gauche"
 L["Double Click Speed"] = "Vitesse du double-clic"
 L["Hover Wait Time"] = "Temps d'attente de survol"
--- -- Raid Utility
+-- Raid Utility
 L["Disband Group"] = "Dissoudre le groupe"
 L["Raid Menu"] = "Menu Raid"
 L["Are you sure you want to disband the group?"] = "Êtes-vous sûr de vouloir dissoudre le groupe?"
--- -- UnitFrames
+-- UnitFrames
 L["changes the unit frames scale."] = "modifie l'échelle des cadres de l'unité."
 L["To move the player and target, hold SHIFT and ALT while dragging them around."] = "Pour déplacer le personnage et la cible, maintenez les touches MAJ et ALT enfoncées tout en les faisant glisser."
--- -- Viewporter
+-- Viewporter
 L["changes thew viewport on the selected side."] = "modifie la fenêtre d'affichage du côté sélectionné."
 L["Toggles viewporter status."] = "Active ou désactive la fenêtre d'affichage."
 L["Enables viewporter."] = "Active la fenêtre d'affichage."
