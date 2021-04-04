@@ -362,24 +362,22 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             local maxExpirationTime = 0
             local processedBuffInAuraNames = false
 
-            local filter = icon.BuffOrDebuff
-            if icon.OnlyMine then
-                filter = filter .. "|PLAYER"
-            end
+		    local filter = icon.OnlyMine and "PLAYER"
+		    local func = (icon.BuffOrDebuff == "HELPFUL") and UnitBuff or UnitDebuff
 
             for _, iName in ipairs(icon.Name) do
                 local buffName, iconTexture, count, duration, expirationTime
                 local auraId = tonumber(iName)
                 if auraId then
                     for i = 1, 32 do
-                        local name, _, tex, stack, _, dur, expirers, _, _, _, spellId = UnitAura(icon.Unit, i, nil, filter)
+                        local name, _, tex, stack, _, dur, expirers, _, _, _, spellId = func(icon.Unit, i, nil, filter)
                         if name and spellId and spellId == auraId then
                             buffName, iconTexture, count, duration, expirationTime = name, tex, stack, dur, expirers
                             break
                         end
                     end
                 else
-                    buffName, _, iconTexture, count, _, duration, expirationTime = UnitAura(icon.Unit, iName, nil, filter)
+                    buffName, _, iconTexture, count, _, duration, expirationTime = func(icon.Unit, iName, nil, filter)
                 end
 
                 if buffName then
@@ -663,11 +661,11 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                 {value = "HARMFUL", text = L["Debuff"]}
             },
             Unit = {
-                {value = "player", text = PLAYER},
-                {value = "target", text = TARGET},
+                {value = "player", text = STATUS_TEXT_PLAYER},
+                {value = "target", text = STATUS_TEXT_TARGET},
                 {value = "targettarget", text = L["Target of Target"]},
                 {value = "focus", text = FOCUS},
-                {value = "focustarget", text = L["Focus Target"]},
+                {value = "focustarget", text = TARGETFOCUS},
                 {value = "pet", text = PET},
                 {value = "pettarget", text = L["Pet Target"]}
             },
