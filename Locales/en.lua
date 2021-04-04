@@ -558,6 +558,17 @@ L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."] = true
 L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = true
 L["button scale set to |cff00ffff%s|r"] = true
 L["Scales the button."] = true
+-- Raid Target Icons
+L["Allows you to quickly mark raid targets using a radial menu."] = true
+L["Left Click"] = true
+L["Modifiers"] = true
+L["CTRL"] = true
+L["ALT"] = true
+L["SHIFT"] = true
+L["Select Icon on Hover"] = true
+L["Double Left Click"] = true
+L["Double Click Speed"] = true
+L["Hover Wait Time"] = true
 -- Raid Utility
 L["Disband Group"] = true
 L["Raid Menu"] = true

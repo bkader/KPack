@@ -540,6 +540,17 @@ L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."] = "|cff00ff00Active|r ou |c
 L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = "|cff00ff00Active|r ou |cffff0000désactive|r la création de macro "
 L["button scale set to |cff00ffff%s|r"] = "échelle de bouton réglée sur |cff00ffff%s|r"
 L["Scales the button."] = "Change l'échelle du bouton."
+-- Raid Target Icons
+L["Allows you to quickly mark raid targets using a radial menu."] = "Vous permet de marquer rapidement les cibles de raid à l'aide d'un menu radial."
+L["Left Click"] = "Clic gauche"
+L["Modifiers"] = "Modificateurs"
+L["CTRL"] = "CTRL"
+L["ALT"] = "ALT"
+L["SHIFT"] = "MAJ"
+L["Select Icon on Hover"] = "Sélectionner l'icône au survol"
+L["Double Left Click"] = "Double clic gauche"
+L["Double Click Speed"] = "Vitesse du double-clic"
+L["Hover Wait Time"] = "Temps d'attente de survol"
 -- -- Raid Utility
 L["Disband Group"] = "Dissoudre le groupe"
 L["Raid Menu"] = "Menu Raid"
