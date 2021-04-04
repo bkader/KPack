@@ -207,6 +207,9 @@ L["Target Castbar"] = true
 L["Focus Castbar"] = true
 -- Chat Filter
 L["Chat Filter"] = true
+L["Verbose Mode"] = true
+L["Notifies you whenever a message is filtered."] = true
+L["Keywords"] = true
 L["Filters out words or completely removes sentences from the chat when a blacklisted word has been found in the sentence."] = true
 L["filter is now %s"] = true
 L["Input is not a number"] = true
@@ -217,14 +220,12 @@ L["Displaying the last %d messages:"] = true
 L["the word |cff00ffff%s|r was added successfully."] = true
 L["the word |cff00ffff%s|r was removed successfully."] = true
 L["Index is out of range. Max value is |cff00ffff%d|r."] = true
-L["settings were set to default."] = true
-L["Turn filter |cff00ff00on|r / |cffff0000off|r"] = true
+L["Turn filter |cff00ff00ON|r / |cffff0000OFF|r"] = true
 L["View filter keywords (case-insensitive)"] = true
 L["Adds a |cff00ffffkeyword|r"] = true
 L["Remove keyword by |cff00ffffposition|r"] = true
 L["Show or hide filter notifications"] = true
 L["View the last |cff00ffffn|r filtered messages (up to 20)"] = true
-L["Resets settings to default"] = true
 L["filtered a message from |cff00ffff%s|r"] = true
 -- ChatMods
 L["editbox put in center"] = true

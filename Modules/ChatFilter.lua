@@ -15,8 +15,8 @@ KPack:AddModule("ChatFilter", "Filters out words or completely removes sentences
     local logs, last = {}, 0
 
     -- cache frequently used globals
-    local find, lower, format = string.find, string.lower, string.format
-    local tinsert, tremove = table.insert, table.remove
+    local strfind, strlower, strformat = string.find, string.lower, string.format
+    local tinsert, tremove, tmaxn = table.insert, table.remove, table.maxn
     local UnitIsInMyGuild, UnitInRaid, UnitInParty = UnitIsInMyGuild, UnitInRaid, UnitInParty
 
     -- replace default UnitIsFriend
@@ -64,6 +64,8 @@ KPack:AddModule("ChatFilter", "Filters out words or completely removes sentences
             -- toggle verbose mode
             DB.enabled = not DB.enabled
             Print(L:F("filter is now %s", ChatFilter_StatusMessage(DB.enabled)))
+        elseif cmd == "config" or cmd == "options" then
+        	core:OpenConfig("ChatFilter")
         elseif cmd == "verbose" then
             -- list words
             DB.verbose = not DB.verbose
@@ -90,7 +92,7 @@ KPack:AddModule("ChatFilter", "Filters out words or completely removes sentences
             -- remove a word from the list
             tinsert(DB.words, rest:trim())
             Print(L:F("the word |cff00ffff%s|r was added successfully.", rest:trim()))
-        elseif (cmd == "remove" or cmd == "delete") and rest then
+        elseif (cmd == "remove" or cmd == "delete" or cmd == "del") and rest then
             -- reset or default values
             if not strmatch(rest, "%d") then
                 Print(L["Input is not a number"])
@@ -110,7 +112,7 @@ KPack:AddModule("ChatFilter", "Filters out words or completely removes sentences
         elseif cmd == "default" or cmd == "reset" then
             -- anything else will display the help menu
             DB = CopyTable(defaults)
-            Print(L["settings were set to default."])
+            Print(L["module's settings reset to default."])
 
             -- clear logs
             wipe(logs)
@@ -120,10 +122,11 @@ KPack:AddModule("ChatFilter", "Filters out words or completely removes sentences
             print("|cffffd700toggle|r : ", L["Turn filter |cff00ff00ON|r / |cffff0000OFF|r"])
             print("|cffffd700words|r : ", L["View filter keywords (case-insensitive)"])
             print("|cffffd700add|r |cff00ffffword|r : ", L["Adds a |cff00ffffkeyword|r"])
-            print("|cffffd700remove|r |cff00ffffpos|r : ", L["Remove keyword by |cff00ffffposition|r"])
+            print("|cffffd700del|r |cff00ffffpos|r : ", L["Remove keyword by |cff00ffffposition|r"])
             print("|cffffd700verbose|r : ", L["Show or hide filter notifications"])
             print("|cffffd700log|r |cff00ffffn|r : ", L["View the last |cff00ffffn|r filtered messages (up to 20)"])
-            print("|cffffd700reset|r : ", L["Resets settings to default"])
+            print("|cffffd700config|r : ", L["Access module settings."])
+            print("|cffffd700reset|r : ", L["Resets module settings to default."])
         end
     end
 
@@ -137,15 +140,14 @@ KPack:AddModule("ChatFilter", "Filters out words or completely removes sentences
                 last = GetTime()
             end
 
-            local message = format("|cffd3d3d3[%s]|r: %s", name, msg)
+            local message = strformat("|cffd3d3d3[%s]|r: %s", name, msg)
             if not tContains(logs, message) then
                 tinsert(logs, 0, message)
             end
 
             -- remove the last element if we exceed 20
-            local i = #logs
-            if i > 20 then
-                tremove(logs, i)
+            while tmaxn(logs) > 20 do
+                tremove(logs)
             end
         end
 
@@ -154,16 +156,13 @@ KPack:AddModule("ChatFilter", "Filters out words or completely removes sentences
             -- or the player is from the guild
             -- or the player is a friend
             -- or the player is in a raid or party group
-            if
-                not DB.enabled or UnitIsInMyGuild(player) or UnitIsFriend(player) or UnitInRaid(player) or
-                    UnitInParty(player)
-             then
+            if not DB.enabled or UnitIsInMyGuild(player) or UnitIsFriend(player) or UnitInRaid(player) or UnitInParty(player) then
                 return false
             end
 
-            local temp, count = lower(msg), #DB.words
+            local temp, count = strlower(msg), #DB.words
             for i = 1, count do
-                if find(temp, lower(DB.words[i])) then
+                if strfind(temp, strlower(DB.words[i])) then
                     ChatFilter_AddLog(player, msg)
                     return true
                 end
@@ -192,13 +191,13 @@ KPack:AddModule("ChatFilter", "Filters out words or completely removes sentences
             verbose = {
                 type = "toggle",
                 name = L["Verbose Mode"],
-                desc = L["Shows filter notifications."],
+                desc = L["Notifies you whenever a message is filtered."],
                 order = 2,
                 disabled = disabled
             },
             header = {
                 type = "header",
-                name = L["Words"],
+                name = L["Keywords"],
                 order = 3
             },
             words = {
