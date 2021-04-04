@@ -4,7 +4,7 @@ local L = core.L
 
 L["addon loaded. use |cffffd700/kp|r to access options."] = "addon chargé. Utilisez |cffffd700/kp|r pour accéder à la config."
 L["Enable"] = "Activer"
-L["Type |cffffd700/%s|r in chat for more."] = "Taper |cffffd700/%s|r pour plus."
+L["Type |cffffd700/%s|r in chat for more."] = "Taper |cffffd700/%s|r pour plus de détails."
 L["module enabled."] = "module activé."
 L["module disabled."] = "module désactivé."
 L["Some settings require UI to be reloaded."] = "Quelques paramètres nécessitent un rechargement."
