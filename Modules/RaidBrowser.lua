@@ -5,12 +5,21 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
     local RaidBrowser = core.RaidBrowser or {}
     core.RaidBrowser = RaidBrowser
 
+	local pairs, ipairs = pairs, ipairs
+	local strlower = string.lower
+	local strfind = string.find
+	local strsub = string.sub
+	local strgsub = string.gsub
+	local strformat = string.format
+	local tinsert = table.insert
+	local math_huge, math_floor = math.huge, math.floor
+
     local DB
     local lfm_channel_listeners = {CHAT_MSG_CHANNEL = {}, CHAT_MSG_YELL = {}}
     local algorithm = {}
     do
         function algorithm.max_of(t)
-            local result = -math.huge
+            local result = -math_huge
             local index = 1
 
             for i, v in ipairs(t) do
@@ -28,7 +37,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 
             for _, v in ipairs(values) do
                 local result = fn(v)
-                table.insert(t, result)
+                tinsert(t, result)
             end
 
             return t
@@ -46,7 +55,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 
         function algorithm.copy_back(target, source)
             for _, v in ipairs(source) do
-                table.insert(target, v)
+                tinsert(target, v)
             end
 
             return target
@@ -69,7 +78,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
         local sep = "[%s-_,.]"
         local csep = sep .. "*"
         local psep = sep .. "+"
-        local raid_patterns_template = {
+        local raidpatterns = {
             hc = {
                 "<raid>" .. csep .. "<size>" .. csep .. "m?a?n?" .. csep .. "%(?hc?%)?",
                 psep .. "%(?hc?%)?" .. csep .. "<raid>" .. csep .. "<size>",
@@ -95,12 +104,10 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
             }
         }
 
-        local function CreatePatternFromTemplate(raid_name_pattern, size, difficulty, full_raid_name)
-            if not raid_name_pattern or not size or not difficulty or not full_raid_name then
+        local function CreatePatternFromTemplate(name, size, diff, fullname)
+            if not name or not size or not diff or not fullname then
                 return
             end
-
-            full_raid_name = string.lower(full_raid_name)
 
             if size == 10 then
                 size = "1[0o]"
@@ -108,15 +115,12 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
                 size = "4[0p]"
             end
 
-            return algorithm.transform(
-                raid_patterns_template[difficulty],
-                function(pattern)
-                    pattern = string.gsub(pattern, "<fullraid>", full_raid_name)
-                    pattern = string.gsub(pattern, "<raid>", raid_name_pattern)
-                    pattern = string.gsub(pattern, "<size>", size)
-                    return pattern
-                end
-            )
+            return algorithm.transform(raidpatterns[diff], function(pattern)
+                pattern = strgsub(pattern, "<fullraid>", strlower(fullname))
+                pattern = strgsub(pattern, "<raid>", name)
+                pattern = strgsub(pattern, "<size>", size)
+                return pattern
+            end)
         end
 
         local raid_list = {
@@ -128,7 +132,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
                 instance_name = "Icecrown Citadel",
                 size = 25,
                 patterns = {
-                    "icc" .. csep .. "25" .. csep .. "m?a?n?" .. csep .. "repu?t?a?t?i?o?n?" .. csep .. "",
+                    "icc" .. csep .. "25" .. csep .. "m?a?n?" .. csep .. "repu?t?a?t?i?o?n?" .. csep,
                     "icc" .. csep .. "repu?t?a?t?i?o?n?" .. csep .. "25" .. csep .. "m?a?n?"
                 }
             },
@@ -137,7 +141,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
                 instance_name = "Icecrown Citadel",
                 size = 10,
                 patterns = {
-                    "icc" .. csep .. "10" .. csep .. "m?a?n?" .. csep .. "repu?t?a?t?i?o?n?" .. csep .. "",
+                    "icc" .. csep .. "10" .. csep .. "m?a?n?" .. csep .. "repu?t?a?t?i?o?n?" .. csep,
                     "icc" .. csep .. "repu?t?a?t?i?o?n?" .. csep .. "10",
                     "icc" .. csep .. "repu?t?a?t?i?o?n?"
                 }
@@ -170,67 +174,49 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
                 name = "toc10hc",
                 instance_name = "Trial of the Crusader",
                 size = 10,
-                patterns = algorithm.copy_back(
-                    CreatePatternFromTemplate("toc", 10, "hc", "Trial of the Crusader"),
-                    {
-                        "togc" .. csep .. "10"
-                        --'%[call of the grand crusade %(10 player%)%]'
-                    } -- Trial of the grand crusader (togc) refers to heroic toc
-                )
+                patterns = algorithm.copy_back(CreatePatternFromTemplate("toc", 10, "hc", "Trial of the Crusader"), {"togc" .. csep .. "10"})
             },
             {
                 name = "toc25hc",
                 instance_name = "Trial of the Crusader",
                 size = 25,
-                patterns = algorithm.copy_back(
-                    CreatePatternFromTemplate("toc", 25, "hc", "Trial of the Crusader"),
-                    {
-                        "togc" .. csep .. "25"
-                        --'%[call of the grand crusade %(25 player%)%]'
-                    } -- Trial of the grand crusader (togc) refers to heroic toc
-                )
+                patterns = algorithm.copy_back(CreatePatternFromTemplate("toc", 25, "hc", "Trial of the Crusader"), {"togc" .. csep .. "25"})
             },
             {
                 name = "toc10nm",
                 instance_name = "Trial of the Crusader",
                 size = 10,
-                patterns = algorithm.copy_back(
-                    CreatePatternFromTemplate("toc", 10, "nm", "Trial of the Crusader"),
-                    {"%[call of the crusade %(10 player%)%]"}
-                )
+                patterns = algorithm.copy_back(CreatePatternFromTemplate("toc", 10, "nm", "Trial of the Crusader"), {"%[call of the crusade %(10 player%)%]"})
             },
             {
                 name = "toc25nm",
                 instance_name = "Trial of the Crusader",
                 size = 25,
-                patterns = algorithm.copy_back(
-                    CreatePatternFromTemplate("toc", 25, "nm", "Trial of the Crusader"),
-                    {"%[call of the crusade %(25 player%)%]"}
-                )
+                patterns = algorithm.copy_back(CreatePatternFromTemplate("toc", 25, "nm", "Trial of the Crusader"), {"%[call of the crusade %(25 player%)%]"})
             },
             {
                 name = "rs10hc",
                 instance_name = "The Ruby Sanctum",
                 size = 10,
-                patterns = CreatePatternFromTemplate("rs", 10, "hc", "ruby sanctum")
+                patterns = CreatePatternFromTemplate("rs", 10, "hc", "The Ruby Sanctum")
             },
             {
                 name = "rs25hc",
                 instance_name = "The Ruby Sanctum",
                 size = 25,
-                patterns = CreatePatternFromTemplate("rs", 25, "hc", "ruby sanctum")
+                patterns = CreatePatternFromTemplate("rs", 25, "hc", "The Ruby Sanctum")
             },
             {
                 name = "rs10nm",
                 instance_name = "The Ruby Sanctum",
                 size = 10,
-                patterns = CreatePatternFromTemplate("rs", 10, "nm", "ruby sanctum")
+                patterns = CreatePatternFromTemplate("rs", 10, "nm", "The Ruby Sanctum")
             },
             {
                 name = "rs25nm",
                 instance_name = "The Ruby Sanctum",
                 size = 25,
-                patterns = CreatePatternFromTemplate("rs", 25, "nm", "ruby sanctum")
+                patterns = CreatePatternFromTemplate("rs", 25, "nm", "The Ruby Sanctum")
             },
             {
                 name = "voa10",
@@ -248,17 +234,13 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
                 name = "ulduar10",
                 instance_name = "Ulduar",
                 size = 10,
-                patterns = {
-                    "ull?a?d[au]?[au]?r?" .. csep .. "10"
-                }
+                patterns = {"ull?a?d[au]?[au]?r?" .. csep .. "10"}
             },
             {
                 name = "ulduar25",
                 instance_name = "Ulduar",
                 size = 25,
-                patterns = {
-                    "ull?a?d[au]?[au]?r?" .. csep .. "25"
-                }
+                patterns = {"ull?a?d[au]?[au]?r?" .. csep .. "25"}
             },
             {
                 name = "os10",
@@ -277,8 +259,8 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
                 instance_name = "Naxxramas",
                 size = 10,
                 patterns = {
-                    "naxx?r?a?m?m?a?s?" .. csep .. "10",
-                    "naxx" .. sep .. "weekly",
+                    "nax?x?r?a?m?m?a?s?" .. csep .. "10",
+                    "nax?x" .. sep .. "weekly",
                     "patchwerk" .. sep .. "must" .. sep .. "die!"
                 }
             },
@@ -286,33 +268,25 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
                 name = "naxx25",
                 instance_name = "Naxxramas",
                 size = 25,
-                patterns = {
-                    "naxx?r?a?m?m?a?s?" .. csep .. "25"
-                }
+                patterns = {"nax?x?r?a?m?m?a?s?" .. csep .. "25"}
             },
             {
                 name = "onyxia25",
                 instance_name = "Onyxia's Lair",
                 size = 25,
-                patterns = {
-                    "onyx?i?a?" .. csep .. "25"
-                }
+                patterns = {"ony?x?i?a?" .. csep .. "25"}
             },
             {
                 name = "onyxia10",
                 instance_name = "Onyxia's Lair",
                 size = 10,
-                patterns = {
-                    "onyx?i?a?" .. csep .. "10"
-                }
+                patterns = {"onyx?i?a?" .. csep .. "10"}
             },
             {
                 name = "karazhan",
                 instance_name = "Karazhan",
                 size = 10,
-                patterns = {
-                    "karaz?h?a?n?" .. csep .. "1?0?" -- karazhan
-                }
+                patterns = {"kar?a?z?h?a?n?" .. csep .. "1?0?"}
             },
             {
                 name = "molten core",
@@ -334,11 +308,11 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
             },
             {
                 name = "aq40",
-                instance_name = "Ahn'Qiraj Temple",
+                instance_name = "Temple of Ahn'Qiraj",
                 size = 40,
                 patterns = {
                     "temple?" .. csep .. "of?" .. csep .. "ahn'?" .. csep .. "qiraj",
-                    sep .. "*aq" .. csep .. "40" .. csep .. ""
+                    sep .. "*aq" .. csep .. "40" .. csep
                 }
             },
             {
@@ -347,7 +321,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
                 size = 20,
                 patterns = {
                     "ruins?" .. csep .. "of?" .. csep .. "ahn'?" .. csep .. "qiraj",
-                    sep .. "*aq" .. csep .. "20" .. csep .. ""
+                    sep .. "*aq" .. csep .. "20" .. csep
                 }
             }
         }
@@ -452,13 +426,13 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
         end
 
         local function RemoveAchievementText(message)
-            return string.gsub(message, "|c.*|r", "")
+            return strgsub(message, "|c.*|r", "")
         end
 
         local function FormatGSString(gs)
-            local formatted = string.gsub(gs, sep .. "*%+?", "") -- Trim whitespace
-            formatted = string.gsub(formatted, "k", "")
-            formatted = string.gsub(formatted, sep, ".")
+            local formatted = strgsub(gs, sep .. "*%+?", "") -- Trim whitespace
+            formatted = strgsub(formatted, "k", "")
+            formatted = strgsub(formatted, sep, ".")
             formatted = tonumber(formatted)
 
             -- Convert ex: 5800 into 5.8 for display
@@ -472,14 +446,14 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
                 formatted = formatted / 10
             end
 
-            return string.format("%.1f", formatted)
+            return strformat("%.1f", formatted)
         end
 
         local function IsGuildRecruitment(message)
             return algorithm.find_if(
                 guild_recruitment_patterns,
                 function(pattern)
-                    return string.find(message, pattern)
+                    return strfind(message, pattern)
                 end
             )
         end
@@ -488,7 +462,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
             return algorithm.find_if(
                 wts_message_patterns,
                 function(pattern)
-                    return string.find(message, pattern)
+                    return strfind(message, pattern)
                 end
             )
         end
@@ -496,20 +470,20 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
         -- Basic http pattern matching for streaming sites and etc.
         local function RemoveHttpLinks(message)
             local http_pattern = "https?://*[%a]*.[%a]*.[%a]*/?[%a%-%%0-9_]*/?"
-            return string.gsub(message, http_pattern, "")
+            return strgsub(message, http_pattern, "")
         end
 
         local function FindRoles(roles, message, pattern_table, role)
             local found = false
             for _, pattern in ipairs(pattern_table[role]) do
-                local result = string.find(message, pattern)
+                local result = strfind(message, pattern)
 
                 -- If a raid was found then save it to our list of roles and continue.
                 if result then
                     found = true
 
                     -- Remove the substring from the message
-                    message = string.gsub(message, pattern, "")
+                    message = strgsub(message, pattern, "")
                 end
             end
 
@@ -517,7 +491,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
                 return roles, message
             end
 
-            table.insert(roles, role)
+            tinsert(roles, role)
             return roles, message
         end
 
@@ -525,7 +499,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
             if not message then
                 return
             end
-            message = string.lower(message)
+            message = strlower(message)
             message = RemoveHttpLinks(message)
 
             -- Stop if it's a guild recruit message
@@ -538,7 +512,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
                 algorithm.find_if(
                 lfm_patterns,
                 function(pattern)
-                    return string.find(message, pattern)
+                    return strfind(message, pattern)
                 end
             )
 
@@ -550,14 +524,14 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
             local raid_info = nil
             for _, r in ipairs(raid_list) do
                 for _, pattern in ipairs(r.patterns) do
-                    local result = string.find(message, pattern)
+                    local result = strfind(message, pattern)
 
                     -- If a raid was found then save it and continue.
                     if result then
                         raid_info = r
 
                         -- Remove the substring from the message
-                        message = string.gsub(message, pattern, "")
+                        message = strgsub(message, pattern, "")
                         break
                     end
                 end
@@ -572,8 +546,8 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
             -- Get any roles that are needed
             local roles = {}
 
-            --if string.find(message, '
-            if not string.find(message, "lfm? all ") and not string.find(message, "need all ") then
+            --if strfind(message, '
+            if not strfind(message, "lfm? all ") and not strfind(message, "need all ") then
                 roles, message = FindRoles(roles, message, role_patterns, "dps")
                 roles, message = FindRoles(roles, message, role_patterns, "tank")
                 roles, message = FindRoles(roles, message, role_patterns, "healer")
@@ -588,11 +562,11 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 
             -- Search for a gearscore requirement.
             for _, pattern in pairs(gearscore_patterns) do
-                local gs_start, gs_end = string.find(message, pattern)
+                local gs_start, gs_end = strfind(message, pattern)
 
                 -- If a gs requirement was found, then save it and continue.
                 if gs_start and gs_end then
-                    gs = FormatGSString(string.sub(message, gs_start, gs_end))
+                    gs = FormatGSString(strsub(message, gs_start, gs_end))
                     break
                 end
             end
@@ -881,7 +855,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
             message = message .. gs .. "gs " .. spec .. " " .. class
 
             -- Remove difficulty and raid_name size from the string
-            raid_name = string.gsub(raid_name, "[1|2][0|5](%w+)", "")
+            raid_name = strgsub(raid_name, "[1|2][0|5](%w+)", "")
 
             -- Find the best possible achievement for the given raid_name.
             local achieve_id = FindBestAchievement(raid_name)
@@ -923,7 +897,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
             end
         end
 
-        join_button:SetText("Join")
+        join_button:SetText(JOIN)
         join_button:SetScript("OnClick", OnJoin)
 
         local function FormatCount(value)
@@ -947,19 +921,19 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
             local seconds_text = ""
 
             if seconds >= 86400 then
-                local days = math.floor(seconds / 86400)
+                local days = math_floor(seconds / 86400)
                 days_text = days .. " day" .. FormatCount(days)
                 seconds = seconds % 86400
             end
 
             if seconds >= 3600 then
-                local hours = math.floor(seconds / 3600)
+                local hours = math_floor(seconds / 3600)
                 hours_text = hours .. " hr" .. FormatCount(hours)
                 seconds = seconds % 3600
             end
 
             if seconds >= 60 then
-                local minutes = math.floor(seconds / 60)
+                local minutes = math_floor(seconds / 60)
                 minutes_text = minutes .. " min" .. FormatCount(minutes)
             end
 
@@ -995,7 +969,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
                     GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
 
                     local seconds = time() - button.lfm_info.time
-                    local last_sent = string.format("Last sent: %d seconds ago", seconds)
+                    local last_sent = strformat("Last sent: %d seconds ago", seconds)
                     GameTooltip:AddLine(button.lfm_info.message, 1, 1, 1, true)
                     GameTooltip:AddLine(last_sent)
 
@@ -1055,8 +1029,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
             -- Raid name
             button.class:SetText(button.raid_info.name)
 
-            button.raid_locked =
-                RaidBrowser.stats.RaidLockInfo(button.raid_info.instance_name, button.raid_info.size)
+            button.raid_locked = RaidBrowser.stats.RaidLockInfo(button.raid_info.instance_name, button.raid_info.size)
             button.type = "party"
 
             button.partyIcon:Show()
