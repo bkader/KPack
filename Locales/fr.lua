@@ -214,13 +214,13 @@ L["Show or hide filter notifications"] = "Afficher ou masquer les notifications 
 L["View the last |cff00ffffn|r filtered messages (up to 20)"] = "Affiche les derniers |cff00ffffn|r messages filtrés (jusqu'à 20)"
 L["filtered a message from |cff00ffff%s|r"] = "un message de la part de |cff00ffff%s|r a été filtré"
 -- ChatMods
--- L["editbox put in center"] = true
--- L["editbox set to default position"] = true
--- L["editbox position set to: |cff00ffff%s|r"] = true
--- L["put the editbox in the middle of the screen."] = true
--- L["put the editbox on top of the chat frame."] = true
--- L["put the editbox at the bottom of the chat frame."] = true
--- L["Adds several tweaks to chat windows, such us removing buttons, mousewheel scroll, copy chat and clickable links."] = true
+L["Adds several tweaks to chat windows, such us removing buttons, mousewheel scroll, copy chat and clickable links."] = "Ajoute plusieurs modifications aux fenêtres de discussion, telles que la suppression des boutons, le défilement à la molette de la souris, la copie de discussion et les liens cliquables."
+L["editbox put in center"] = "zone d'édition mise au centre"
+L["editbox set to default position"] = "zone d'édition mise à la position par défaut"
+L["editbox position set to: |cff00ffff%s|r"] = "position de la zone d'édition: |cff00ffff%s|r"
+L["put the editbox in the middle of the screen."] = "zone d'édition au milieu de votre écran"
+L["put the editbox on top of the chat frame."] = "zone d'édition au dessus de la fenêtre de discussion"
+L["put the editbox at the bottom of the chat frame."] = "zone d'édition en dessous de la fenêtre de discussion"
 -- Close Up
 L["Undress"] = "Déshabiller"
 L["Cannot dress NPC models."] = "Impossible d'habiller les modèles de PNJ."
@@ -239,16 +239,17 @@ L["Allows you to zoom, reposition, and rotate the UI's builtin models so that yo
 -- L["Toggles not clearing until you drop combat."] = true
 -- L["Toggles reporting how many messages were found when it broke."] = true
 -- CombatText
--- L["No Name SpellID: %s"] = true
--- L["unlocked."] = true
--- L["already unlocked."] = true
--- L["already locked."] = true
--- L["Window positions unsaved, don't forget to reload UI."] = true
--- L["test mode enabled."] = true
--- L["test mode disabled."] = true
--- L["%s: to move and resize frames."] = true
--- L["%s: to lock frames."] = true
--- L["%s: to toggle testmode (sample xCT output)."] = true
+L["No Name SpellID: %s"] = "Aucun nom pour ID: %s"
+L["unlocked."] = "déverrouillé."
+L["already unlocked."] = "déja déverrouillé."
+L["already locked."] = "déja verrouillé."
+L["Window positions unsaved, don't forget to reload UI."] = "Les positions des fenêtres n'ont pas été enregistrées, n'oubliez pas de recharger l'UI."
+L["test mode enabled."] = "mode test activé."
+L["test mode disabled."] = "mode test désactivé."
+-- L["%s: to move and resize frames."] = "%s: pour déplacer et redimensionner les fenêtres."
+L["%s: to move and resize frames."] = true
+L["%s: to lock frames."] = "%s: pour verrouiller les fenêtres."
+L["%s: to toggle testmode (sample xCT output)."] = "%s: activer/désactiver le mode test (données fictives)."
 -- CombatTime
 L["trigger the in-game stopwatch on combat"] = "déclencher le chronomètre du jeu au combat"
 L["using stopwatch: %s"] = "utilisation du chronomètre: %s"

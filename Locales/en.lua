@@ -231,13 +231,13 @@ L["Show or hide filter notifications"] = true
 L["View the last |cff00ffffn|r filtered messages (up to 20)"] = true
 L["filtered a message from |cff00ffff%s|r"] = true
 -- ChatMods
+L["Adds several tweaks to chat windows, such us removing buttons, mousewheel scroll, copy chat and clickable links."] = true
 L["editbox put in center"] = true
 L["editbox set to default position"] = true
 L["editbox position set to: |cff00ffff%s|r"] = true
 L["put the editbox in the middle of the screen."] = true
 L["put the editbox on top of the chat frame."] = true
 L["put the editbox at the bottom of the chat frame."] = true
-L["Adds several tweaks to chat windows, such us removing buttons, mousewheel scroll, copy chat and clickable links."] = true
 -- Close Up
 L["Undress"] = true
 L["Cannot dress NPC models."] = true
