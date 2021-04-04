@@ -5,10 +5,10 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
     local mod = core.ErrorFilter or {}
     core.ErrorFilter = mod
 
-	local strfind = string.find
-	local strlower = string.lower
+    local strfind = string.find
+    local strlower = string.lower
 
-    local DB
+    local DB, SetupDatabase
     local function Print(msg)
         if msg then
             core:Print(msg, "ErrorFilter")
@@ -18,24 +18,27 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
     local options = {enabled = true, shown = true}
 
     local filters = {
-        "your target is dead",
-        "there is nothing to attack",
-        "not enough rage",
-        "not enough energy",
-        "that ability requires combo points",
-        "not enough runic power",
-        "not enough runes",
-        "you have no target",
-        "invalid target",
-        "you cannot attack that target",
-        "spell is not ready yet",
-        "ability is not ready yet",
-        "you can't do that yet",
-        "you are too far away",
-        "out of range",
-        "another action is in progress",
-        "not enough mana",
-        "not enough focus"
+        [ERR_ABILITY_COOLDOWN] = true,
+        [ERR_BADATTACKPOS] = true,
+        [ERR_GENERIC_NO_TARGET] = true,
+        [ERR_INVALID_ATTACK_TARGET] = true,
+        [ERR_NO_ATTACK_TARGET] = true,
+        [ERR_OUT_OF_ENERGY] = true,
+        [ERR_OUT_OF_FOCUS] = true,
+        [ERR_OUT_OF_MANA] = true,
+        [ERR_OUT_OF_RAGE] = true,
+        [ERR_OUT_OF_RANGE] = true,
+        [ERR_OUT_OF_RUNES] = true,
+        [ERR_OUT_OF_RUNIC_POWER] = true,
+        [ERR_SPELL_COOLDOWN] = true,
+        [ERR_TOO_FAR_TO_ATTACK] = true,
+        [ERR_TOO_FAR_TO_INTERACT] = true,
+        [SPELL_FAILED_AURA_BOUNCED] = true,
+        [SPELL_FAILED_BAD_TARGETS] = true,
+        [SPELL_FAILED_CASTER_AURASTATE] = true,
+        [SPELL_FAILED_NO_COMBO_POINTS] = true,
+        [SPELL_FAILED_SPELL_IN_PROGRESS] = true,
+        [SPELL_FAILED_TARGETS_DEAD] = true
     }
 
     local SlashCommandHandler
@@ -76,49 +79,18 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
             end
         end
 
-        exec.list = function()
-            Print(L["filter database:"])
-            for i, filter in ipairs(DB.filters) do
-                print("|cff00ff00" .. i .. "|r " .. filter)
-            end
-        end
-
-        exec.clear = function()
-            DB.filters = {}
-            Print(L["database cleared."])
-        end
-
         exec.reset = function()
-            for k, v in pairs(options) do
-                DB.options[k] = v
-            end
-
-            for i, filter in ipairs(filters) do
-                DB.filters[i] = filter
-            end
-
+            core.db.ErrorFilter = nil
+            DB = nil
+            SetupDatabase()
             Print(L["module's settings reset to default."])
         end
         exec.default = exec.reset
 
-        exec.add = function(filter)
-            if filter and filter ~= "" then
-                tinsert(DB.filters, filter)
-                Print(L:F("filter added: %s", filter))
-            end
+        exec.config = function()
+            core:OpenConfig("ErrorFilter")
         end
-
-        exec.delete = function(num)
-            num = tonumber(num)
-            for i, filter in ipairs(DB.filters) do
-                if i == num then
-                    table.remove(DB.filters, i)
-                    Print(L:F("filter added: %s", filter))
-                    break
-                end
-            end
-        end
-        exec.del = exec.delete
+        exec.options = exec.config
 
         function SlashCommandHandler(msg)
             local cmd, rest = strsplit(" ", msg, 2)
@@ -131,55 +103,99 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
                 print("|cffffd700disable|r", L["disable the module."])
                 print("|cffffd700hide|r", L["hide error frame."])
                 print("|cffffd700show|r", L["show error frame."])
-                print("|cffffd700list|r", L["list of filtered errors."])
-                print("|cffffd700clear|r", L["clear the list of filtered errors."])
-                print("|cffffd700add|r |cff00ffffcontent|r : ", L["add an error filter"])
-                print("|cffffd700delete|r |cff00ffffn|r : ", L["delete a filter by index"])
+                print("|cffffd700config|r", L["Access module settings."])
                 print("|cffffd700reset|r", L["Resets module settings to default."])
             end
         end
     end
 
-    local UIErrorsFrame_OldOnEvent = UIErrorsFrame:GetScript("OnEvent")
-    UIErrorsFrame:SetScript("OnEvent", function(self, event, ...)
-        if self[event] then
-            return self[event](self, event, ...)
-        end
-
-        return UIErrorsFrame_OldOnEvent(self, event, ...)
-    end)
-
-    function UIErrorsFrame:UI_ERROR_MESSAGE(event, name, ...)
-        if DB.options.enabled and DB.options.shown and DB.filters[1] then
-            for k, v in next, DB.filters do
-                if strfind(strlower(name), v) then
-                    return
-                end
+    function SetupDatabase()
+        if not DB then
+            if type(core.db.ErrorFilter) ~= "table" or not next(core.db.ErrorFilter) then
+                core.db.ErrorFilter = {
+                    options = CopyTable(options),
+                    filters = CopyTable(filters)
+                }
             end
+            DB = core.db.ErrorFilter
         end
-
-        return UIErrorsFrame_OldOnEvent(self, event, name, ...)
     end
 
-    local function SetupDatabase()
-        if not DB then
-            core.db.ErrorFilter = core.db.ErrorFilter or {}
-            DB = core.db.ErrorFilter
-
-            DB.options = DB.options or {}
-            for k, v in pairs(options) do
-                if DB.options[k] == nil then
-                    DB.options[k] = v
-                end
+    local options
+    local function GetOptions()
+        if not options then
+            local disabled = function()
+                return not DB.options.enabled
             end
 
-            DB.filters = DB.filters or {}
-            if not DB.filters[1] then
-                for i, filter in ipairs(filters) do
-                    DB.filters[i] = filter
-                end
+            options = {
+                type = "group",
+                name = L["Error Filter"],
+                get = function(i)
+                    return DB.options[i[#i]]
+                end,
+                set = function(i, val)
+                    DB.options[i[#i]] = val
+                end,
+                args = {
+                    enabled = {
+                        type = "toggle",
+                        name = L["Enable"],
+                        order = 1
+                    },
+                    shown = {
+                        type = "toggle",
+                        name = L["Show Frame"],
+                        desc = L["Enable this if you want to keep the errors frame visible for other errors."],
+                        order = 2,
+                        disabled = disabled
+                    },
+                    messages = {
+                        type = "group",
+                        name = L["Tick the messages you want to disable."],
+                        get = function(i)
+                            return DB.filters[i[#i]]
+                        end,
+                        set = function(i, val)
+                            DB.filters[i[#i]] = val
+                        end,
+                        order = 3,
+                        width = "full",
+                        inline = true,
+                        disabled = disabled,
+                        args = {}
+                    },
+                    reset = {
+                        type = "execute",
+                        name = RESET,
+                        order = 9,
+                        disabled = disabled,
+                        width = "full",
+                        confirm = function()
+                            return L:F("Are you sure you want to reset %s to default?", L["Error Filter"])
+                        end,
+                        func = function()
+                            core.db.ErrorFilter = nil
+                            DB = nil
+                            SetupDatabase()
+                            Print(L["module's settings reset to default."])
+                        end
+                    }
+                }
+            }
+
+            local numorder = 1
+            for k, v in pairs(DB.filters) do
+                options.args.messages.args[k] = {
+                    type = "toggle",
+                    name = k,
+                    width = "full",
+                    order = numorder
+                }
+                numorder = numorder + 1
             end
         end
+        return options
     end
 
     core:RegisterForEvent("PLAYER_LOGIN", function()
@@ -189,6 +205,21 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
         else
             UIErrorsFrame:Hide()
         end
+
+        core.options.args.options.args.ErrorFilter = GetOptions()
+        print("here", type(core.options.args.options.args.ErrorFilter))
+    end)
+
+    local UIErrorsFrame_OldOnEvent = UIErrorsFrame:GetScript("OnEvent")
+    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
+        SetupDatabase()
+        UIErrorsFrame:SetScript("OnEvent", function(self, event, ...)
+            if event == "UI_ERROR_MESSAGE" and DB.options.enabled and DB.filters[arg1] then
+                return
+            end
+
+            return UIErrorsFrame_OldOnEvent(self, event, ...)
+        end)
     end)
 
     SlashCmdList["KPACKERRORFILTER"] = SlashCommandHandler

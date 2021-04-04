@@ -277,19 +277,17 @@ L["Killing blow at %s%% health."] = "Coup mortel à %s%% de vie."
 -- -- EnhancedColourPicker & EnhancedStackSplit
 -- L["Adds Copy and Paste Functions to the ColorPicker."] = true
 -- L["Enhances the StackSplitFrame with numbered Buttons."] = true
--- -- ErrorFilter
--- L["database cleared."] = true
--- L["filter database:"] = true
--- L["Error frame is now hidden."] = true
--- L["Error frame is now visible."] = true
--- L["filter added: %s"] = true
--- L["hide error frame."] = true
--- L["show error frame."] = true
--- L["list of filtered errors."] = true
--- L["clear the list of filtered errors."] = true
--- L["add an error filter"] = true
--- L["delete a filter by index"] = true
--- L["Filter Enabled: %s - Frame Shown: %s"] = true
+-- ErrorFilter
+L["Error Filter"] = "Filtre d'erreur"
+L["Manages the errors that are displayed in the blizzard UIErrorsFrame."] = "Gère les erreurs qui s'affichent dans le cadre UIErrorsFrame."
+L["Error frame is now hidden."] = "Le cadre d'erreur est maintenant masqué."
+L["Error frame is now visible."] = "Le cadre d'erreur est maintenant visible."
+L["hide error frame."] = "masquer le cadre d'erreur."
+L["show error frame."] = "afficher le cadre d'erreur."
+L["Show Frame"] = "Afficher le cadre"
+L["Enable this if you want to keep the errors frame visible for other errors."] = "Si activé, le cadre d'erreurs restera visible pour d'autres erreurs."
+L["Tick the messages you want to disable."] = "Cochez les messages que vous souhaitez désactiver."
+L["Filter Enabled: %s - Frame Shown: %s"] = "Filtre activé: %s - Cadre affichée: %s"
 -- -- FriendsInfo
 -- L["Adds info to the friends list."] = true
 -- L["Last seen %s ago"] = true
@@ -468,7 +466,6 @@ L["Always"] = "Toujours"
 L["Weapon slot to monitor"] = "Emplacement d'arme"
 L["Unit to watch"] = "Unité à surveiller"
 L["Target of Target"] = "Cible de la cible"
-L["Focus Target"] = "Cible de focus"
 L["Pet Target"] = "Cible de familier"
 L["Only show if cast by self"] = "Seulement si lancé par soi-même"
 L["Show timer"] = "Afficher la temps"
