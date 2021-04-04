@@ -260,6 +260,7 @@ L["No Name SpellID: %s"] = true
 L["unlocked."] = true
 L["already unlocked."] = true
 L["already locked."] = true
+L["To save window positions you need to reload your UI."] = true
 L["Window positions unsaved, don't forget to reload UI."] = true
 L["test mode enabled."] = true
 L["test mode disabled."] = true

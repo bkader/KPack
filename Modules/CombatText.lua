@@ -1428,7 +1428,7 @@ KPack:AddModule("xCT", function(_, core, L)
 
 	--[[  Pop-Up Dialog  ]]
 	StaticPopupDialogs["KPACK_XCT_LOCK"] = {
-	    text = "To save |cffFF0000x|rCT window positions you need to reload your UI.\n Click " .. ACCEPT .. " to reload UI.\nClick " .. CANCEL .. " to do it later.",
+	    text = L["To save window positions you need to reload your UI."],
 	    button1 = ACCEPT,
 	    button2 = CANCEL,
 	    OnAccept = function()
