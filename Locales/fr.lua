@@ -246,9 +246,9 @@ L["Allows you to zoom, reposition, and rotate the UI's builtin models so that yo
 -- L["%s: to move and resize frames."] = true
 -- L["%s: to lock frames."] = true
 -- L["%s: to toggle testmode (sample xCT output)."] = true
--- -- CombatTime
--- L["trigger the in-game stopwatch on combat"] = true
--- L["using stopwatch: %s"] = true
+-- CombatTime
+L["trigger the in-game stopwatch on combat"] = "déclencher le chronomètre du jeu au combat"
+L["using stopwatch: %s"] = "utilisation du chronomètre: %s"
 -- -- Combuctor
 L["%s: toggle inventory"] = "%s: ouvre l'inventaire"
 L["%s: toggle bank"] = "%s: toggle la banque"
