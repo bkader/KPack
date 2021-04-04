@@ -86,11 +86,8 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 
     core:RegisterForEvent("PLAYER_LOGIN", function()
         if not _G.OmniCC then
-            _G.OmniCC = true
             hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, "SetCooldown", function(self, start, duration)
-                if self.noOCC then
-                    return
-                end
+                if self.noOCC then return end
                 if start > 0 and duration > minDuration then
                     Cooldowns_StartTimer(self, start, duration)
                 else
