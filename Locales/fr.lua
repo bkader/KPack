@@ -246,8 +246,7 @@ L["already locked."] = "déja verrouillé."
 L["Window positions unsaved, don't forget to reload UI."] = "Les positions des fenêtres n'ont pas été enregistrées, n'oubliez pas de recharger l'UI."
 L["test mode enabled."] = "mode test activé."
 L["test mode disabled."] = "mode test désactivé."
--- L["%s: to move and resize frames."] = "%s: pour déplacer et redimensionner les fenêtres."
-L["%s: to move and resize frames."] = true
+L["%s: to move and resize frames."] = "%s: pour déplacer et redimensionner les fenêtres."
 L["%s: to lock frames."] = "%s: pour verrouiller les fenêtres."
 L["%s: to toggle testmode (sample xCT output)."] = "%s: activer/désactiver le mode test (données fictives)."
 -- CombatTime
