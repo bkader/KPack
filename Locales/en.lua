@@ -69,6 +69,7 @@ L["%s will not be saved."] = true
 L["%s will move with handler %s"] = true
 -- ActionBars
 L["Allows you to tweak your action bars in the limit of the allowed."] = true
+L["Hide Gryphons"] = true
 L["Range Detection"] = true
 L["Turns your buttons red if your target is out of range."] = true
 L["Dark Mode"] = true

@@ -24,7 +24,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
     local math_min, math__max, _select = math.min, math.max, select
     local _SetCVar, _GetCVar = SetCVar, GetCVar
 
-    local DB
+    local DB, SetupDatabase
     local defaults = {
         scale = 1,
         dark = true,
@@ -353,7 +353,6 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
                 desc = L["Changes action bars scale"],
                 order = 7,
 				disabled = function() return disabled end,
-                width = "full",
                 min = 0.5,
                 max = 3,
                 step = 0.01,
@@ -365,7 +364,6 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
                 desc = L["Changes the opacity of action bar hotkeys."],
                 order = 8,
 				disabled = function() return disabled end,
-                width = "full",
                 min = 0,
                 max = 1,
                 step = 0.01,
@@ -381,8 +379,9 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
                     return L:F("Are you sure you want to reset %s to default?", "Automate")
                 end,
                 func = function()
-                    wipe(DB)
-                    DB = defaults
+                    core.db.ActionBars = nil
+                    DB = nil
+                    SetupDatabase()
                     Print(L["module's settings reset to default."])
                     LoadSettings()
                 end
@@ -390,7 +389,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
         }
     }
 
-    local function SetupDatabase()
+    function SetupDatabase()
         if not DB then
             if type(core.db.ActionBars) ~= "table" or not next(core.db.ActionBars) then
                 core.db.ActionBars = CopyTable(defaults)
