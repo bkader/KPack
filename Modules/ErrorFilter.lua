@@ -207,7 +207,6 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
         end
 
         core.options.args.options.args.ErrorFilter = GetOptions()
-        print("here", type(core.options.args.options.args.ErrorFilter))
     end)
 
     local UIErrorsFrame_OldOnEvent = UIErrorsFrame:GetScript("OnEvent")
