@@ -147,6 +147,17 @@ L["Enter the name or link the ground and flying mounts to be used using the prov
 L["Ground Mount"] = true
 L["Flying Mount"] = true
 L["Auto Mount/Dismount"] = true
+-- BuffFrame
+L["Buff Frame"] = true
+L["Lightweight, it modifies your buff and debuff frames."] = true
+L["Buffs"] = true
+L["Debuffs"] = true
+L["Buff Size"] = true
+L["Debuff Size"] = true
+L["Duration Font"] = true
+L["Duration Font Size"] = true
+L["Stack Font"] = true
+L["Stack Font Size"] = true
 -- Castbars
 L["Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars."] = true
 L["|cFFFFFFFFDrag with mouse.\n|cFFCCCCCCUse arrow keys while dragging to fine tune position."] = true
@@ -523,7 +534,6 @@ L["Bottom Left"] = true
 L["Bottom Right"] = true
 L["Bottom"] = true
 L["Right"] = true
-L["Center"] = true
 L["X Offset"] = true
 L["Y Offset"] = true
 L["Unit"] = true

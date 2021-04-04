@@ -130,6 +130,17 @@ L["Enter the name or link the ground and flying mounts to be used using the prov
 L["Ground Mount"] = "Monture terrestre"
 L["Flying Mount"] = "Monture volante"
 L["Auto Mount/Dismount"] = "Montée/descente automatique"
+-- BuffFrame
+L["Buff Frame"] = "Buff & Débuffs"
+L["Lightweight, it modifies your buff and debuff frames."] = "Léger, il modifie vos buffs et débuffs."
+L["Buffs"] = "Buffs"
+L["Debuffs"] = "Débuffs"
+L["Buff Size"] = "Taille des buffs"
+L["Debuff Size"] = "Taille des débuffs"
+L["Duration Font"] = "Police de la durée"
+L["Duration Font Size"] = "Taille de police des durées"
+L["Stack Font"] = "Police des stacks"
+L["Stack Font Size"] = "Taille de police des stacks"
 -- -- Castbars
 -- L["Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars."] = true
 -- L["|cFFFFFFFFDrag with mouse.\n|cFFCCCCCCUse arrow keys while dragging to fine tune position."] = true
@@ -397,7 +408,7 @@ L["Hide in combat"] = "Cache en combat"
 -- L["changes nameplates font size"] = true
 -- L["changes nameplates height"] = true
 -- L["changes nameplates width"] = true
--- L["Font Size"] = true
+L["Font Size"] = "Taille de police"
 L["Height"] = "Hauteur"
 -- L["Monochrome"] = true
 -- L["Outline"] = true
@@ -505,7 +516,6 @@ L["Bottom Left"] = "En bas à gauche"
 L["Bottom Right"] = "En bas à droite"
 L["Bottom"] = "En bas"
 L["Right"] = "À droite"
-L["Center"] = "Centre"
 L["X Offset"] = "Décalage X"
 L["Y Offset"] = "Décalage Y"
 L["Unit"] = "Unité"
