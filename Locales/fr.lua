@@ -569,8 +569,6 @@ L["Are you sure you want to disband the group?"] = "Êtes-vous sûr de vouloir d
 L["changes the unit frames scale."] = "modifie l'échelle des cadres de l'unité."
 L["To move the player and target, hold SHIFT and ALT while dragging them around."] = "Pour déplacer le personnage et la cible, maintenez les touches MAJ et ALT enfoncées tout en les faisant glisser."
 -- Viewporter
-L["changes thew viewport on the selected side."] = "modifie la fenêtre d'affichage du côté sélectionné."
-L["Toggles viewporter status."] = "Active ou désactive la fenêtre d'affichage."
-L["Enables viewporter."] = "Active la fenêtre d'affichage."
-L["Disables viewporter."] = "Désactive la fenêtre d'affichage."
-L["where side is left, right, top or bottom."] = "où côté est left, right, top ou bottom."
+L["Viewporter"] = "Fenêtre d'affichage"
+L["toggles viewporter status"] = "active/désactive la fenêtre d'affichage"
+L["where side is left, right, top or bottom."] = "où <side> est <left>, <right>, <top> ou <bottom>."

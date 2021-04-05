@@ -587,8 +587,6 @@ L["Are you sure you want to disband the group?"] = true
 L["changes the unit frames scale."] = true
 L["To move the player and target, hold SHIFT and ALT while dragging them around."] = true
 -- Viewporter
-L["changes thew viewport on the selected side."] = true
-L["Toggles viewporter status."] = true
-L["Enables viewporter."] = true
-L["Disables viewporter."] = true
+L["Viewporter"] = true
+L["toggles viewporter status"] = true
 L["where side is left, right, top or bottom."] = true
