@@ -943,7 +943,6 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 	                type = "execute",
 	                name = RESET,
 	                order = 3,
-	                width = "full",
 	                confirm = function()
 	                    return L:F("Are you sure you want to reset %s to default?", "Castbars")
 	                end,
