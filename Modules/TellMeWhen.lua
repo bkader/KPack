@@ -851,6 +851,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         local currentSpec = TellMeWhen:GetActiveTalentGroup()
         local groupName = "KTellMeWhen_Group" .. groupID
         local group = _G[groupName]
+        if not group then return end
         local resizeButton = group.resize
 
         local locked = DB.Locked
