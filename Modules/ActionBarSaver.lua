@@ -4,6 +4,7 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
 
     local ABS = core.ActionBarSaver or {}
     core.ActionBarSaver = ABS
+    local command = core.locale == "frFR" and "abr" or "abs"
 
     -- frequently used globals
     local strtrim = string.trim
@@ -120,7 +121,7 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
                 if not macroID then
                     local globalNum, charNum = GetNumMacros()
                     if globalNum == MAX_GLOBAL_MACROS and charNum == MAX_CHAR_MACROS then
-                        tinsert(errorsCache, L["Unable to restore macros, you already have 18 global and 18 per character ones created."])
+                        tinsert(errorsCache, L["Unable to restore macros, you already have 36 global and 18 per character ones created."])
                         break
                     elseif charNum == MAX_CHAR_MACROS then
                         perCharacter = false
@@ -456,7 +457,7 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
             if exec[cmd] then
                 exec[cmd](arg)
             else
-                Print(L:F("Acceptable commands for: |caaf49141%s|r", "/abs"))
+                Print(L:F("Acceptable commands for: |caaf49141%s|r", "/"..command))
                 print(L["/abs save <profile> - Saves your current action bar setup under the given profile."])
                 print(L["/abs restore <profile> - Changes your action bars to the passed profile."])
                 print(L["/abs delete <profile> - Deletes the saved profile."])
@@ -493,7 +494,7 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
                 },
                 rank = {
                     type = "toggle",
-                    name = RANK,
+                    name = L["Rank"],
                     desc = L["Toggles if ABS should restore the highest rank of the spell, or the one saved originally."],
                     order = 3
                 }
@@ -503,7 +504,7 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
         core:RegisterForEvent("PLAYER_LOGIN", function()
             if _G.ABS then return end
             LoadDatabase()
-            SLASH_KPACKABS1 = "/abs"
+            SLASH_KPACKABS1 = "/"..command
             SLASH_KPACKABS2 = "/actionbarsaver"
             SlashCmdList.KPACKABS = SlashCommandHandler
             core.options.args.options.args.actionbarsaver = options

@@ -80,8 +80,10 @@ L["Changes action bars scale"] = true
 L["Hotkeys"] = true
 L["Changes the opacity of action bar hotkeys."] = true
 -- ActionBarSaver
+L["Count"] = true
+L["Rank"] = true
 L["Allows you to setup different profiles for your action bars."] = true
-L["Unable to restore macros, you already have 18 global and 18 per character ones created."] = true
+L["Unable to restore macros, you already have 36 global and 18 per character ones created."] = true
 L["Invalid spells passed, remember you must put quotes around both of them."] = true
 L["Auto macro restoration is now disabled!"] = true
 L["Auto macro restoration is now enabled!"] = true
