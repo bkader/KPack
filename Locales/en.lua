@@ -61,6 +61,16 @@ L["Enable all"] = true
 L["Disable all"] = true
 L["|cffff4400Dependencies: |r"] = true
 L["|cffffffff%d|r AddOns: |cffffffff%d|r |cff00ff00Enabled|r, |cffffffff%d|r |cffff0000Disabled|r"] = true
+-- Binder
+L["Allows you to save your current keybinds as a profile that you can load whenever you want."] = true
+L["Create Profile"] = true
+L["Enter the name of the new profile then press Enter or click OK.\nThe new created profile will store the keybinds you are currently using."] = true
+L["Restore Profile"] = true
+L["Select the profile you want to restore or delete."] = true
+L["Are you sure you want to restore the profile: %s?"] = true
+L['Profile "%s" successfully restored.'] = true
+L["Are you sure you want to delete the profile: %s?"] = true
+L['Profile "%s" successfully deleted.'] = true
 -- BlizzMove
 L["Click the button below to reset all frames."] = true
 L["Move/Lock a Frame"] = true

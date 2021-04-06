@@ -44,6 +44,16 @@ L["Enable all"] = "Tout Activer"
 L["Disable all"] = "Tout Désactiver"
 L["|cffff4400Dependencies: |r"] = "|cffff4400Dependencies: |r"
 L["|cffffffff%d|r AddOns: |cffffffff%d|r |cff00ff00Enabled|r, |cffffffff%d|r |cffff0000Disabled|r"] = "|cffffffff%d|r AddOns: |cffffffff%d|r |cff00ff00Activés|r, |cffffffff%d|r |cffff0000Désactivés|r"
+-- Binder
+L["Allows you to save your current keybinds as a profile that you can load whenever you want."] = "Vous permet d'enregistrer vos raccourcis actuels en tant que profil que vous pouvez charger quand vous le souhaitez."
+L["Create Profile"] = "Créer un profil"
+L["Enter the name of the new profile then press Enter or click OK.\nThe new created profile will store the keybinds you are currently using."] = "Entrez le nom du nouveau profile puis appuyez sur Entrée or cliquez OK.\nLe nouveau profil créé contiendra vos raccourcis actuels."
+L["Restore Profile"] = "Restaurer un profil"
+L["Select the profile you want to restore or delete."] = "Sélectionnez le profil que vous souhaitez restaurer or supprimer."
+L["Are you sure you want to restore the profile: %s?"] = "Êtes-vous sûr de vouloir restaurer le profil: %s?"
+L['Profile "%s" successfully restored.'] = 'Le profile "%s" a été restauré avec succès.'
+L["Are you sure you want to delete the profile: %s?"] = "Êtes-vous sûr de vouloir supprimer le profil: %s?"
+L['Profile "%s" successfully deleted.'] = 'Le profile "%s" a été supprimé avec succès.'
 -- BlizzMove
 L["Click the button below to reset all frames."] = "Cliquer ce bouton pour tout réinitialiser."
 L["Move/Lock a Frame"] = "Bouger/Verrouiller"
