@@ -4289,7 +4289,7 @@ function MovAny:TooltipShow()
 	if (DB.tooltips and not IsShiftKeyDown()) or (not DB.tooltips and IsShiftKeyDown()) then
 		GameTooltip:SetOwner(this, "ANCHOR_CURSOR")
 		GameTooltip:ClearLines()
-		GameTooltip:AddLine(this.tooltipText)
+		GameTooltip:AddLine(this.tooltipText, nil, nil, nil, true)
 		GameTooltip:Show()
 	end
 end
@@ -4322,7 +4322,7 @@ function MovAny:TooltipShowMultiline(reserved, parent, tooltipLines)
 		GameTooltip:SetOwner(parent, "ANCHOR_CURSOR")
 		GameTooltip:ClearLines()
 		for i, v in ipairs(tooltipLines) do
-			GameTooltip:AddLine(v)
+			GameTooltip:AddLine(v, nil, nil, nil, true)
 		end
 		GameTooltip:Show()
 	end
