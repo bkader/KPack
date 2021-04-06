@@ -110,7 +110,7 @@ function core:Print(msg, pref)
         else
             pref = "|cff33ff99" .. folder .. "|r - |caaf49141" .. pref .. "|r"
         end
-        print(format("%s : %s", pref, tostring(msg)))
+        print(format("%s: %s", pref, tostring(msg)))
     end
 end
 
@@ -123,7 +123,7 @@ function core:Notify(msg, pref)
         else
             pref = "|cff33ff99" .. folder .. "|r - |caaf49141" .. pref .. "|r"
         end
-        RaidNotice_AddMessage(RaidWarningFrame, format("%s : %s", pref, tostring(msg)), ChatTypeInfo["SAY"])
+        RaidNotice_AddMessage(RaidWarningFrame, format("%s: %s", pref, tostring(msg)), ChatTypeInfo["SAY"])
     end
 end
 
