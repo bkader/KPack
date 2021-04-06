@@ -517,6 +517,7 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
     -- ///////////////////////////////////////////////////////
 
     core:RegisterForEvent("ACTIVE_TALENT_GROUP_CHANGED", function(_, index)
+        SetupDatabase()
         if not DB.enabled or not index or GetNumEquipmentSets() == 0 then
             return
         end
@@ -524,7 +525,7 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
         local setname = CharDB.sets[index]
 
         if setname and setname ~= "None" and UseEquipmentSet(setname) then
-            core:Notify(L:F("Changed equipment set to: |cffffd700%s|r", setname), "Automate")
+            core:Notify(L:F("Changed equipment set to |cffffd700%s|r", setname))
         end
     end)
 
