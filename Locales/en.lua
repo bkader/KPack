@@ -141,6 +141,7 @@ L["Moves the functionality of the stat dropdowns to a panel on the right side of
 L["Tick the sounds you want AltTabber to play:"] = true
 -- Automate
 L["Automates some of the more tedious tasks in WoW."] = true
+L["Automatic Tasks"] = true
 L["Repair equipment"] = true
 L["Sell Junk"] = true
 L["Shows nameplates only in combat."] = true
@@ -149,6 +150,9 @@ L["Skip Quest Gossip"] = true
 L["Max Camera Distance"] = true
 L["Achievement Screenshot"] = true
 L["Automatic UI Scale"] = true
+L["Auto Equipment"] = true
+L["Allows you to automatocally swap gear to the selected equipment sets when you change your spec."] = true
+L["Changed equipment set to: |cffffd700%s|r"] = true
 L["You have successfully sold %d grey items."] = true
 L["Repair cost covered by Guild Bank: %dg %ds %dc."] = true
 L["Your items have been repaired for %dg %ds %dc."] = true

@@ -28,6 +28,10 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
 
     local chatFrame = DEFAULT_CHAT_FRAME
 
+    local GetNumEquipmentSets = GetNumEquipmentSets
+    local GetEquipmentSetInfo = GetEquipmentSetInfo
+    local UseEquipmentSet = UseEquipmentSet
+
     -- module's print function
     local function Print(msg)
         if msg then
@@ -72,6 +76,18 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
             end
         end
 
+        local function Automate_ListEquipments()
+            local list = {None = NONE}
+            local num = GetNumEquipmentSets()
+            if num > 0 then
+                for i = 1, num do
+                    local name, Icon, _ = GetEquipmentSetInfo(i)
+                    list[name] = name
+                end
+            end
+            return list
+        end
+
         function PLAYER_ENTERING_WORLD()
             SetupDatabase()
             if DB.enabled then
@@ -86,80 +102,122 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
         local options = {
             type = "group",
             name = "Automate",
-            get = function(i) return DB[i[#i]] end,
-            set = function(i, val) DB[i[#i]] = val end,
+            get = function(i)
+                return DB[i[#i]]
+            end,
+            set = function(i, val)
+                DB[i[#i]] = val
+            end,
             args = {
                 enabled = {
                     type = "toggle",
                     name = L["Enable"],
                     order = 1
                 },
-                repair = {
-                    type = "toggle",
-                    name = L["Repair equipment"],
+                automatic = {
+                    type = "group",
+                    name = L["Automatic Tasks"],
                     order = 2,
-                    disabled = disabled
+                    disabled = disabled,
+                    inline = true,
+                    args = {
+                        repair = {
+                            type = "toggle",
+                            name = L["Repair equipment"],
+                            order = 1
+                        },
+                        junk = {
+                            type = "toggle",
+                            name = L["Sell Junk"],
+                            order = 2
+                        },
+                        nameplate = {
+                            type = "toggle",
+                            name = L["Nameplates"],
+                            desc = L["Shows nameplates only in combat."],
+                            order = 3
+                        },
+                        duels = {
+                            type = "toggle",
+                            name = L["Cancel Duels"],
+                            order = 4
+                        },
+                        gossip = {
+                            type = "toggle",
+                            name = L["Skip Quest Gossip"],
+                            order = 5
+                        },
+                        camera = {
+                            type = "toggle",
+                            name = L["Max Camera Distance"],
+                            order = 6
+                        },
+                        screenshot = {
+                            type = "toggle",
+                            name = L["Achievement Screenshot"],
+                            order = 7
+                        },
+                        uiscale = {
+                            type = "toggle",
+                            name = L["Automatic UI Scale"],
+                            order = 8
+                        }
+                    }
                 },
-                junk = {
-                    type = "toggle",
-                    name = L["Sell Junk"],
+                equipment = {
+                    type = "group",
+                    name = L["Auto Equipment"],
                     order = 3,
-                    disabled = disabled
-                },
-                nameplate = {
-                    type = "toggle",
-                    name = L["Nameplates"],
-                    desc = L["Shows nameplates only in combat."],
-                    order = 4,
-                    disabled = disabled
-                },
-                duels = {
-                    type = "toggle",
-                    name = L["Cancel Duels"],
-                    order = 5,
-                    disabled = disabled
-                },
-                gossip = {
-                    type = "toggle",
-                    name = L["Skip Quest Gossip"],
-                    order = 6,
-                    disabled = disabled
-                },
-                camera = {
-                    type = "toggle",
-                    name = L["Max Camera Distance"],
-                    order = 7,
-                    disabled = disabled
-                },
-                screenshot = {
-                    type = "toggle",
-                    name = L["Achievement Screenshot"],
-                    order = 8,
-                    disabled = disabled
-                },
-                uiscale = {
-                    type = "toggle",
-                    name = L["Automatic UI Scale"],
-                    order = 9,
-                    disabled = disabled
+                    disabled = disabled,
+                    inline = true,
+                    get = function(i)
+                        CharDB.sets = CharDB.sets or {}
+                        local index = (i[#i] == "secondaryset") and 2 or 1
+                        return CharDB.sets[index]
+                    end,
+                    set = function(i, val)
+                        local index = (i[#i] == "secondaryset") and 2 or 1
+                        CharDB.sets[index] = val
+                    end,
+                    args = {
+                        equipmenttip = {
+                            type = "description",
+                            name = L["Allows you to automatocally swap gear to the selected equipment sets when you change your spec."],
+                            order = 1
+                        },
+                        primaryset = {
+                            type = "select",
+                            name = L["Primary Spec"],
+                            order = 2,
+                            disabled = function()
+                                return GetNumEquipmentSets() == 0
+                            end,
+                            values = function()
+                                return Automate_ListEquipments()
+                            end
+                        },
+                        secondaryset = {
+                            type = "select",
+                            name = L["Secondary Spec"],
+                            order = 3,
+                            disabled = function()
+                                return GetNumEquipmentSets() == 0
+                            end,
+                            values = function()
+                                return Automate_ListEquipments()
+                            end
+                        }
+                    }
                 },
                 mounts = {
-                    type = "header",
+                    type = "group",
                     name = MOUNTS,
-                    order = 10
-                },
-                mountstip = {
-                    type = "description",
-                    name = L["Enter the name or link the ground and flying mounts to be used using the provided keybinding."],
-                    order = 10.1,
-                    width = "full"
-                },
-                groundmount = {
-                    type = "input",
-                    name = L["Ground Mount"],
-                    order = 11,
+                    order = 4,
                     disabled = disabled,
-                    get = function(i) return CharDB[i[#i]] end,
+                    inline = true,
+                    get = function(i)
+                        return CharDB[i[#i]]
+                    end,
                     set = function(i, val)
                         local name = tostring(val)
                         if name:find("spell:") then
@@ -168,25 +226,26 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
                                 name = GetSpellInfo(spellid)
                             end
                         end
-                        CharDB.groundmount = name or ""
-                    end
-                },
-                flyingmount = {
-                    type = "input",
-                    name = L["Flying Mount"],
-                    order = 12,
-                    disabled = disabled,
-                    get = function(i) return CharDB[i[#i]] end,
-                    set = function(i, val)
-                        local name = tostring(val)
-                        if name:find("spell:") then
-                            local spellid = name:match("spell:(%d+)")
-                            if spellid then
-                                name = GetSpellInfo(spellid)
-                            end
-                        end
-                        CharDB.flyingmount = name or ""
-                    end
+                        CharDB[i[#i]] = name or ""
+                    end,
+                    args = {
+                        mountstip = {
+                            type = "description",
+                            name = L["Enter the name or link the ground and flying mounts to be used using the provided keybinding."],
+                            order = 1,
+                            width = "full"
+                        },
+                        groundmount = {
+                            type = "input",
+                            name = L["Ground Mount"],
+                            order = 2
+                        },
+                        flyingmount = {
+                            type = "input",
+                            name = L["Flying Mount"],
+                            order = 3
+                        }
+                    }
                 },
                 more = {
                     type = "header",
@@ -439,9 +498,7 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
         end
 
         function mod:TrainButtonUpdate()
-            if locked then
-                return
-            end
+            if locked then return end
 
             for i = 1, GetNumTrainerServices() do
                 if select(3, GetTrainerServiceInfo(i)) == "available" then
@@ -453,6 +510,22 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
             button:Disable()
         end
     end
+
+    -- ///////////////////////////////////////////////////////
+    -- Auto Equipment Set
+    -- ///////////////////////////////////////////////////////
+
+    core:RegisterForEvent("ACTIVE_TALENT_GROUP_CHANGED", function(_, index)
+        if not DB.enabled or not index or GetNumEquipmentSets() == 0 then
+            return
+        end
+        CharDB.sets = CharDB.sets or {}
+        local setname = CharDB.sets[index]
+
+        if setname and setname ~= "None" and UseEquipmentSet(setname) then
+            core:Notify(L:F("Changed equipment set to: |cffffd700%s|r", setname), "Automate")
+        end
+    end)
 
     -- ///////////////////////////////////////////////////////
     -- Auto Mount Up
