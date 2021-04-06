@@ -6,7 +6,7 @@ KPack:AddModule("Combuctor", function(_, core, L)
 	local mod = core.Combuctor or {}
 	core.Combuctor = mod
 
-	local DB
+	local DB, SetupDatabase, _
 	local defaults = {
 		inventory = {
 			bags = {0, 1, 2, 3, 4},
@@ -23,6 +23,11 @@ KPack:AddModule("Combuctor", function(_, core, L)
 			h = 512
 		}
 	}
+
+	-- add some line to localization
+	L.Weapon, L.Armor, L.Container, L.Consumable, L.Glyph, L.TradeGood, _, _, L.Recipe, L.Gem, L.Misc, L.Quest = GetAuctionItemClasses()
+	L.Devices, L.Explosives = select(10, GetAuctionItemSubClasses(6))
+	L.SimpleGem = select(8, GetAuctionItemSubClasses(7))
 
 	local AutoShowInventory, AutoHideInventory
 
@@ -134,27 +139,27 @@ KPack:AddModule("Combuctor", function(_, core, L)
 			return sets, exclude
 		end
 
-		core:RegisterForEvent("VARIABLES_LOADED", function()
-			if type(core.char.Combuctor) ~= "table" or not next(core.char.Combuctor) then
-				core.char.Combuctor = CopyTable(defaults)
-			end
-			DB = core.char.Combuctor
+		function SetupDatabase()
+		    if not DB then
+		        if type(core.char.Combuctor) ~= "table" or not next(core.char.Combuctor) then
+		            core.char.Combuctor = CopyTable(defaults)
+		        end
+		        DB = core.char.Combuctor
 
-			if not DB.inventory.sets or not DB.inventory.exclude then
-				DB.inventory.sets, DB.inventory.exclude = DefaultInventorySets(core.class)
-			end
-			if not DB.bank.sets or not DB.bank.exclude then
-				DB.bank.sets, DB.bank.exclude = DefaultBankSets(core.class)
-			end
+		        if not DB.inventory.sets or not DB.inventory.exclude then
+		            DB.inventory.sets, DB.inventory.exclude = DefaultInventorySets(core.class)
+		        end
+		        if not DB.bank.sets or not DB.bank.exclude then
+		            DB.bank.sets, DB.bank.exclude = DefaultBankSets(core.class)
+		        end
+		    end
+		end
 
-			-- add some line to localization
-			L.Weapon, L.Armor, L.Container, L.Consumable, L.Glyph, L.TradeGood, L.Recipe, L.Gem, L.Misc, L.Quest = GetAuctionItemClasses()
-			L.Devices, L.Explosives = select(10, GetAuctionItemSubClasses(6))
-			L.SimpleGem = select(8, GetAuctionItemSubClasses(7))
-		end)
+		core:RegisterForEvent("VARIABLES_LOADED", SetupDatabase)
 	end
 
 	core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
+		SetupDatabase()
 		mod.frames = {
 			mod.Frame:New(L.InventoryTitle, DB.inventory, false, "inventory"),
 			mod.Frame:New(L.BankTitle, DB.bank, true, "bank")
