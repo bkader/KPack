@@ -46,7 +46,7 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
             },
             lfg = {
                 type = "toggle",
-                name = LOOKING_FOR_DUNGEON,
+                name = LFG_TYPE_RANDOM_DUNGEON,
                 order = 3,
                 disabled = disabled
             },
