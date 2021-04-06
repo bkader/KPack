@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("Binder", "Allows you to save your current keybinds as a profile that you can load whenever you want.", function(_, core, L)
-    if KPack:IsDisabled("Binder") then return end
+    if core:IsDisabled("Binder") then return end
 
     local Binder = {}
     core.Binder = Binder
