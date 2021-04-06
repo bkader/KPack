@@ -23,16 +23,19 @@ local MAPrint
 local echo, decho, dechoSub
 
 local DB
-core:RegisterForEvent("VARIABLES_LOADED", function()
-	if type(core.db.MoveAnything) ~= "table" or not next(core.db.MoveAnything) then
-		core.db.MoveAnything = {
-			CustomFrames = {},
-			CharacterSettings = {},
-			UseCharacterSettings = false
-		}
-	end
-	DB = core.db.MoveAnything
-end)
+local function SetupDatabase()
+    if not DB then
+        if type(core.db.MoveAnything) ~= "table" or not next(core.db.MoveAnything) then
+            core.db.MoveAnything = {
+                CustomFrames = {},
+                CharacterSettings = {},
+                UseCharacterSettings = false
+            }
+        end
+        DB = core.db.MoveAnything
+    end
+end
+core:RegisterForEvent("VARIABLES_LOADED", SetupDatabase)
 
 local function void()
 end
@@ -693,6 +696,7 @@ function MovAny:Boot()
 		return
 	end
 
+	SetupDatabase()
 	self.db = DB
 	_G["MAOptionsCaption"]:SetText(BINDING_HEADER_KPACKMOVEANYTHING)
 
