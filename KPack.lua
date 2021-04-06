@@ -99,6 +99,8 @@ end
 
 -------------------------------------------------------------------------------
 
+local format = string.format
+
 -- main print function
 function core:Print(msg, pref)
     if msg then
@@ -108,7 +110,20 @@ function core:Print(msg, pref)
         else
             pref = "|cff33ff99" .. folder .. "|r - |caaf49141" .. pref .. "|r"
         end
-        print(string.format("%s : %s", pref, tostring(msg)))
+        print(format("%s : %s", pref, tostring(msg)))
+    end
+end
+
+-- notify function to print message to raid warning frame
+function core:Notify(msg, pref)
+    if msg then
+        -- prepare the prefix:
+        if not pref then
+            pref = "|cff33ff99" .. folder .. "|r"
+        else
+            pref = "|cff33ff99" .. folder .. "|r - |caaf49141" .. pref .. "|r"
+        end
+        RaidNotice_AddMessage(RaidWarningFrame, format("%s : %s", pref, tostring(msg)), ChatTypeInfo["SAY"])
     end
 end
 
