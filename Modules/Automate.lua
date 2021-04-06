@@ -202,7 +202,7 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
                             name = L["Secondary Spec"],
                             order = 3,
                             disabled = function()
-                                return GetNumEquipmentSets() == 0
+                                return (GetNumEquipmentSets() == 0 or GetNumTalentGroups() == 1)
                             end,
                             values = function()
                                 return Automate_ListEquipments()
