@@ -84,9 +84,7 @@ KPack:AddModule("Binder", "Allows you to save your current keybinds as a profile
                 },
                 desc1 = {
                     type = "description",
-                    name = L[
-                        "Enter the name of the new profile then press Enter or click OK.\nThe new created profile will store the keybinds you are currently using."
-                    ],
+                    name = L["Enter the name of the new profile then press Enter or click OK.\nThe new created profile will store the keybinds you are currently using."],
                     fontSize = "medium",
                     order = 2,
                     width = "full"
@@ -98,9 +96,7 @@ KPack:AddModule("Binder", "Allows you to save your current keybinds as a profile
                     width = "full",
                     set = function(_, val)
                         val = val:trim()
-                        if val == "" then
-                            return
-                        end
+                        if val == "" then return end
                         tinsert(DB, {name = val, binds = Binder_SaveBindings()})
                         core:Print(L:F('Profile "%s" successfully created.', val), "Binder")
                         selectedprofile, characterspecific = nil, nil
@@ -155,18 +151,12 @@ KPack:AddModule("Binder", "Allows you to save your current keybinds as a profile
                         return not selectedprofile
                     end,
                     confirm = function()
-                        return L:F(
-                            "Are you sure you want to restore the profile: %s?",
-                            DB[selectedprofile].name
-                        )
+                        return L:F("Are you sure you want to restore the profile: %s?", DB[selectedprofile].name)
                     end,
                     func = function()
                         local succes = Binder_LoadBindings(selectedprofile)
                         if succes then
-                            core:Print(
-                                L:F('Profile "%s" successfully restored.', DB[selectedprofile].name),
-                                "Binder"
-                            )
+                            core:Print(L:F('Profile "%s" successfully restored.', DB[selectedprofile].name), "Binder")
                         end
                         selectedprofile, characterspecific = nil, nil
                     end
