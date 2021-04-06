@@ -31,7 +31,7 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
 
     local GetNumEquipmentSets = GetNumEquipmentSets
     local GetEquipmentSetInfo = GetEquipmentSetInfo
-    local UseEquipmentSet = UseEquipmentSet
+    local EquipmentManager_EquipSet = EquipmentManager_EquipSet
 
     -- module's print function
     local function Print(msg)
@@ -524,7 +524,8 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
         CharDB.sets = CharDB.sets or {}
         local setname = CharDB.sets[index]
 
-        if setname and setname ~= "None" and UseEquipmentSet(setname) then
+        if setname and setname ~= "None" then
+            EquipmentManager_EquipSet(setname)
             core:Notify(L:F("Changed equipment set to |cffffd700%s|r", setname))
         end
     end)
