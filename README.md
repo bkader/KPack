@@ -1,6 +1,6 @@
-# KPack - Lots-In-One AddOn Collection! (57)
+# KPack - Lots-In-One AddOn Collection! (58)
 
-Currently, this pack contains 57 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 58 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -206,9 +206,9 @@ Added as a module as well. It allows you to cast your spells on key down instead
 
 It can be useful in certain situation. It delays macros, that's all. It doesn't work for protected function such `use`, `cast`, `target` ... etc. Example: `/in 5 /y Hello There`: in 5sec it yells Hello.
 
-## 43. SpellIDs:
+## 43. ID:
 
-Adds spells and items IDs to tooltips.
+Adds spell, item, quest and achievement IDs to tooltips.
 
 ## 44. Tooltip Module:
 
@@ -265,3 +265,7 @@ Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard
 ## 57. TellMeWhen
 
 Provides visual, auditory, and textual notifications about cooldowns, buffs, and pretty much every other element of combat. 
+
+## 58. Binder
+
+Allows you to save your current keybinds as profile that you can load whenever you want.
