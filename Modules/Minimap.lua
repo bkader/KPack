@@ -188,7 +188,8 @@ KPack:AddModule("Minimap", function(_, core, L)
                 enabled = {
                     type = "toggle",
                     name = L["Enable"],
-                    order = 1
+                    order = 1,
+                    width = "full"
                 },
                 locked = {
                     type = "toggle",
