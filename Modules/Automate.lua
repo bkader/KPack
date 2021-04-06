@@ -19,7 +19,8 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
     }
     local defaultsChar = {
         flyingmount = "",
-        groundmount = ""
+        groundmount = "",
+        sets = {}
     }
 
     local PLAYER_ENTERING_WORLD
