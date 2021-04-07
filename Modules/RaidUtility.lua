@@ -34,7 +34,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
     end
 
     local function CheckUnit(unit)
-        return (unit and UnitInParty(unit) and UnitIsPlayer(unit) and UnitIsFriend("player", unit))
+        return (unit and (UnitInParty(unit) or UnitInRaid(unit)) and UnitIsPlayer(unit) and UnitIsFriend("player", unit))
     end
 
     ---------------------------------------------------------------------------
@@ -628,6 +628,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             local f = _G["KPackPaladinAuras" .. playername]
             if f then
                 f:Hide()
+                f.cooldown:Hide()
             end
             rendered = nil
         end
