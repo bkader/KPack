@@ -240,7 +240,19 @@ Adds a button to the death dialog that shows you the last 5 events prior to your
 
 ## 51. Raid Utility:
 
-Provides buttons for several uses in groups or raids. You can disband the group, set the main tank and off tank, do a ready check, convert the group to raid and toggle raid frame.
+This module provides 4 tools (more to come):
+
+#### Raid Control Menu
+This provides few buttons that you can use ad raid leader/assist. From disbanding, converting, assigning main and off tank and doing Ready Check.
+
+#### Loot Method
+Allows you to set loot methods for the party or the raid as well and the loot threshold. It will automatically handle chaning the loot method for you.
+
+#### Paladin Auras
+A simple module that allows you to track paladin auras as well as Aura Mastery. You can customize it the want you want.
+
+#### Sunder Armor
+A simple Sunder Armor tracker/counter that allows you as well to report the result to party/raid. Also customizable.
 
 ## 52. Raid Target Icons:
 
