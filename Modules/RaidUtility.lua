@@ -10,7 +10,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
     local pairs, ipairs, select = pairs, ipairs, select
     local tinsert, tsort = table.insert, table.sort
-    local strformat, strfind = string.format, string.find
+    local strformat, strfind, strlower = string.format, string.find, string.lower
     local CreateFrame = CreateFrame
     local GetNumRaidMembers = GetNumRaidMembers
     local GetNumPartyMembers = GetNumPartyMembers
@@ -130,25 +130,29 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     Print(ERR_NOT_IN_COMBAT)
                     return
                 elseif DB.Menu.locked then
-	                return
+                    return
                 end
+                self.moving = true
                 self:StartMoving()
             end)
 
-            showButton:SetScript("OnDragStop", function(self)
-                self:StopMovingOrSizing()
-                local point = self:GetPoint()
-                local xOffset = self:GetCenter()
-                local screenWidth = UIParent:GetWidth() / 2
-                xOffset = xOffset - screenWidth
-                self:ClearAllPoints()
-                if strfind(point, "BOTTOM") then
-                    self:SetPoint("BOTTOM", UIParent, "BOTTOM", xOffset, -1)
-                else
-                    self:SetPoint("TOP", UIParent, "TOP", xOffset, 1)
-                end
-                DB.Menu.point, _, _, DB.Menu.xOfs, DB.Menu.yOfs = self:GetPoint(1)
-            end)
+			showButton:SetScript("OnDragStop", function(self)
+		        if self.moving then
+		            self.moving = nil
+		            self:StopMovingOrSizing()
+		            local point = self:GetPoint()
+		            local xOffset = self:GetCenter()
+		            local screenWidth = UIParent:GetWidth() / 2
+		            xOffset = xOffset - screenWidth
+		            self:ClearAllPoints()
+		            if strfind(point, "BOTTOM") then
+		                self:SetPoint("BOTTOM", UIParent, "BOTTOM", xOffset, -1)
+		            else
+		                self:SetPoint("TOP", UIParent, "TOP", xOffset, 1)
+		            end
+		            DB.Menu.point, _, _, DB.Menu.xOfs, DB.Menu.yOfs = self:GetPoint(1)
+		        end
+		    end)
 
             local close = CreateFrame("Button", "KPackRaidUtility_CloseButton", RaidUtilityPanel, "KPackButtonTemplate, SecureHandlerClickTemplate")
             close:SetSize(136, 20)
@@ -294,7 +298,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             preferredIndex = 3
         }
 
-        options.args.Menu = {
+        options.args.Control = {
             type = "group",
             name = RAID_CONTROL,
             order = 1,
@@ -318,6 +322,224 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 }
             }
         }
+    end
+
+    ---------------------------------------------------------------------------
+    -- Loot Method
+
+    do
+        local HandleLootMethod
+        defaults.Loot = {
+            enabled = false,
+            party = {
+                enabled = true,
+                method = "group",
+                threshold = 2,
+                master = ""
+            },
+            raid = {
+                enabled = true,
+                method = "master",
+                threshold = 2,
+                master = ""
+            }
+        }
+
+        options.args.Loot = {
+            type = "group",
+            name = LOOT_METHOD,
+            order = 2,
+            args = {
+                enabled = {
+                    type = "toggle",
+                    name = L["Enable"],
+                    order = 1,
+                    get = function()
+                        return DB.Loot.enabled
+                    end,
+                    set = function(_, val)
+                        DB.Loot.enabled = val
+                        HandleLootMethod()
+                    end
+                },
+                party = {
+                    type = "group",
+                    name = PARTY,
+                    order = 2,
+                    inline = true,
+                    disabled = function()
+                        return not DB.Loot.enabled
+                    end,
+                    get = function(i)
+                        return DB.Loot.party[i[#i]]
+                    end,
+                    set = function(i, val)
+                        DB.Loot.party[i[#i]] = val
+                    end,
+                    args = {
+                        enabled = {
+                            type = "toggle",
+                            name = L["Enable"],
+                            order = 1,
+                            width = "full"
+                        },
+                        method = {
+                            type = "select",
+                            name = LOOT_METHOD,
+                            order = 2,
+                            disabled = function()
+                                return not DB.Loot.party.enabled
+                            end,
+                            values = {
+                                needbeforegreed = LOOT_NEED_BEFORE_GREED,
+                                freeforall = LOOT_FREE_FOR_ALL,
+                                roundrobin = LOOT_ROUND_ROBIN,
+                                master = LOOT_MASTER_LOOTER,
+                                group = LOOT_GROUP_LOOT
+                            }
+                        },
+                        threshold = {
+                            type = "select",
+                            name = LOOT_THRESHOLD,
+                            order = 3,
+                            disabled = function()
+                                return not DB.Loot.party.enabled
+                            end,
+                            values = {
+                                [2] = "|cff1eff00" .. ITEM_QUALITY2_DESC .. "|r",
+                                [3] = "|cff0070dd" .. ITEM_QUALITY3_DESC .. "|r",
+                                [4] = "|cffa335ee" .. ITEM_QUALITY4_DESC .. "|r",
+                                [5] = "|cffff8000" .. ITEM_QUALITY5_DESC .. "|r",
+                                [6] = "|cffe6cc80" .. ITEM_QUALITY6_DESC .. "|r"
+                            }
+                        }
+                    }
+                },
+                raid = {
+                    type = "group",
+                    name = RAID,
+                    order = 3,
+                    inline = true,
+                    disabled = function()
+                        return not DB.Loot.enabled
+                    end,
+                    get = function(i)
+                        return DB.Loot.raid[i[#i]]
+                    end,
+                    set = function(i, val)
+                        DB.Loot.raid[i[#i]] = val
+                    end,
+                    args = {
+                        enabled = {
+                            type = "toggle",
+                            name = L["Enable"],
+                            order = 1,
+                            width = "full"
+                        },
+                        method = {
+                            type = "select",
+                            name = LOOT_METHOD,
+                            order = 2,
+                            disabled = function()
+                                return not DB.Loot.raid.enabled
+                            end,
+                            values = {
+                                needbeforegreed = LOOT_NEED_BEFORE_GREED,
+                                freeforall = LOOT_FREE_FOR_ALL,
+                                roundrobin = LOOT_ROUND_ROBIN,
+                                master = LOOT_MASTER_LOOTER,
+                                group = LOOT_GROUP_LOOT
+                            }
+                        },
+                        threshold = {
+                            type = "select",
+                            name = LOOT_THRESHOLD,
+                            order = 3,
+                            disabled = function()
+                                return not DB.Loot.raid.enabled
+                            end,
+                            values = {
+                                [2] = "|cff1eff00" .. ITEM_QUALITY2_DESC .. "|r",
+                                [3] = "|cff0070dd" .. ITEM_QUALITY3_DESC .. "|r",
+                                [4] = "|cffa335ee" .. ITEM_QUALITY4_DESC .. "|r",
+                                [5] = "|cffff8000" .. ITEM_QUALITY5_DESC .. "|r",
+                                [6] = "|cffe6cc80" .. ITEM_QUALITY6_DESC .. "|r"
+                            }
+                        }
+                    }
+                },
+                reset = {
+                    type = "execute",
+                    name = RESET,
+                    order = 99,
+                    width = "full",
+                    confirm = function()
+                        return L:F("Are you sure you want to reset %s to default?", LOOT_METHOD)
+                    end,
+                    func = function()
+                        DB.Loot = defaults.Loot
+                    end
+                }
+            }
+        }
+
+        local frame = CreateFrame("Frame")
+        frame:Hide()
+        frame:SetScript("OnUpdate", function(self, elapsed)
+            self.elapsed = (self.elapsed or 0) + elapsed
+            if self.elapsed >= 3 then
+                SetLootThreshold(self.threshold)
+                self:Hide()
+            end
+        end)
+
+        function mod:IsPromoted(name)
+            name = name or "player"
+            if UnitInRaid(name) then
+                return UnitIsRaidOfficer(name), "raid"
+            elseif UnitInParty(name) then
+                return UnitIsPartyLeader(name), "party"
+            end
+        end
+
+        function HandleLootMethod()
+            if not DB.Loot.enabled then
+                return
+            end
+            local ranked, key = mod:IsPromoted()
+            if not ranked or not key then
+                return
+            end
+            if not DB.Loot[key].enabled then
+                return
+            end
+
+            if IsRaidLeader() or IsPartyLeader() then
+                local method = DB.Loot[key].method
+                local threshold = DB.Loot[key].threshold
+
+                local current = GetLootMethod()
+                if current and current == method then
+                    -- the threshold was changed, so we make sure to change it.
+                    if threshold ~= GetLootThreshold() then
+                        frame.threshold = threshold
+                        frame.elapsed = 0
+                        frame:Show()
+                    end
+                    return
+                end
+                SetLootMethod(method, core.name, threshold)
+
+                if method == "master" or method == "group" then
+                    frame.threshold = threshold
+                    frame.elapsed = 0
+                    frame:Show()
+                end
+            end
+        end
+
+        core:RegisterForEvent("PLAYER_ENTERING_WORLD", HandleLootMethod)
+        core:RegisterForEvent("PARTY_CONVERTED_TO_RAID", HandleLootMethod)
     end
 
     ---------------------------------------------------------------------------
@@ -378,7 +600,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             updateInterval = 0.25,
             hideTitle = false,
             scale = 1,
-            font = "Arial Narrow",
+            font = "Yanone",
             fontSize = 14,
             fontFlags = "OUTLINE",
             iconSize = 24,
@@ -507,13 +729,19 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 UnlockDisplay()
             end
 
+            local point, _, _, xOfs, yOfs = display:GetPoint()
+            if point ~= DB.Auras.point or xOfs ~= DB.Auras.xOfs or yOfs ~= DB.Auras.yOfs then
+                display:ClearAllPoints()
+                display:SetPoint(DB.Auras.point or "CENTER", DB.Auras.xOfs or 0, DB.Auras.yOfs or 0)
+            end
+
             display:SetScale(DB.Auras.scale or 1)
 
             display.header:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
             display.header:SetJustifyH(DB.Auras.align or "LEFT")
-            if DB.Auras.hideTitle and display.header:IsShown() then
+            if DB.Auras.hideTitle and locked then
                 display.header:Hide()
-            elseif not DB.Auras.hideTitle and not display.header:IsShown() then
+            else
                 display.header:Show()
             end
 
@@ -824,6 +1052,19 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                         end
                         UpdateDisplay()
                     end
+                },
+                reset = {
+                    type = "execute",
+                    name = RESET,
+                    order = 99,
+                    width = "full",
+                    confirm = function()
+                        return L:F("Are you sure you want to reset %s to default?", L["Paladin Auras"])
+                    end,
+                    func = function()
+                        DB.Auras = defaults.Auras
+                        UpdateDisplay()
+                    end
                 }
             }
         }
@@ -873,7 +1114,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             locked = false,
             updateInterval = 0.25,
             hideTitle = false,
-            font = "Arial Narrow",
+            font = "Yanone",
             fontSize = 14,
             fontFlags = "OUTLINE",
             align = "RIGHT",
@@ -883,7 +1124,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         }
 
         function UpdateDisplay()
-            if not display then return end
+            if not display then
+                return
+            end
 
             if DB.Sunders.enabled then
                 ShowDisplay()
@@ -897,6 +1140,12 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 UnlockDisplay()
             end
 
+            local point, _, _, xOfs, yOfs = display:GetPoint()
+            if point ~= DB.Sunders.point or xOfs ~= DB.Sunders.xOfs or yOfs ~= DB.Sunders.yOfs then
+                display:ClearAllPoints()
+                display:SetPoint(DB.Sunders.point or "CENTER", DB.Sunders.xOfs or 0, DB.Sunders.yOfs or 0)
+            end
+
             display:SetScale(DB.Sunders.scale or 1)
 
             display.header.text:SetFont(
@@ -905,9 +1154,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 DB.Sunders.fontFlags
             )
             display.header.text:SetJustifyH(DB.Sunders.align or "LEFT")
-            if DB.Sunders.hideTitle and display.header:IsShown() then
+            if DB.Sunders.hideTitle and locked then
                 display.header:Hide()
-            elseif not DB.Sunders.hideTitle and not display.header:IsShown() then
+            else
                 display.header:Show()
             end
 
@@ -928,12 +1177,16 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             local menu = {
                 {
                     text = RESET,
-                    func = function() ResetSunders() end,
+                    func = function()
+                        ResetSunders()
+                    end,
                     notCheckable = 1
                 },
                 {
                     text = L["Report"],
-                    func = function() ReportSunders() end,
+                    func = function()
+                        ReportSunders()
+                    end,
                     notCheckable = 1
                 }
             }
@@ -1265,33 +1518,11 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                         }
                     }
                 },
-                report = {
-                    type = "execute",
-                    name = L["Report"],
-                    order = 5,
-                    func = function()
-                        ReportSunders()
-                    end
-                },
-                reset = {
-                    type = "execute",
-                    name = RESET,
-                    order = 6,
-                    func = function()
-                        ResetSunders()
-                    end
-                },
-                sep = {
-                    type = "description",
-                    name = " ",
-                    order = 7,
-                    width = "full"
-                },
                 testMode = {
                     type = "toggle",
                     name = L["Configuration Mode"],
                     desc = L["Toggle configuration mode to allow moving frames and setting appearance options."],
-                    order = 8,
+                    order = 5,
                     width = "full",
                     get = function()
                         return testMode
@@ -1305,6 +1536,19 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                                 f = nil
                             end
                         end
+                        UpdateDisplay()
+                    end
+                },
+                reset = {
+                    type = "execute",
+                    name = RESET,
+                    order = 99,
+                    width = "full",
+                    confirm = function()
+                        return L:F("Are you sure you want to reset %s to default?", sunder)
+                    end,
+                    func = function()
+                        DB.Sunders = defaults.Sunders
                         UpdateDisplay()
                     end
                 }
@@ -1329,6 +1573,22 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 locked = true
                 UnlockDisplay()
             end
+
+            SLASH_KPACKSUNDER1 = "/sunder"
+            SlashCmdList.KPACKSUNDER = function(cmd)
+                cmd = strlower(cmd:trim())
+                if cmd == "reset" then
+                    ResetSunders()
+                elseif cmd == "report" then
+                    ReportSunders()
+                elseif cmd == "lock" then
+                    LockDisplay()
+                elseif cmd == "unlock" then
+                    UnlockDisplay()
+                else
+                    core:OpenConfig("RaidUtility")
+                end
+            end
         end)
     end
 
@@ -1341,6 +1601,19 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 core.db.RaidUtility = CopyTable(defaults)
             end
             DB = core.db.RaidUtility
+
+            -- database check to fix in case of updates.
+            for k, v in pairs(defaults) do
+                if DB[k] == nil then
+                    DB[k] = CopyTable(v)
+                end
+            end
+            -- delete old entries
+            for k, v in pairs(DB) do
+                if defaults[k] == nil then
+                    DB[k] = nil
+                end
+            end
         end
     end
 
