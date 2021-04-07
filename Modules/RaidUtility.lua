@@ -921,7 +921,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         options.args.Auras = {
             type = "group",
             name = L["Paladin Auras"],
-            order = 2,
+            order = 3,
             get = function(i)
                 return DB.Auras[i[#i]]
             end,
@@ -935,10 +935,30 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     name = L["Enable"],
                     order = 1
                 },
+                testMode = {
+                    type = "toggle",
+                    name = L["Configuration Mode"],
+                    desc = L["Toggle configuration mode to allow moving frames and setting appearance options."],
+                    order = 2,
+                    get = function()
+                        return testMode
+                    end,
+                    set = function(_, val)
+                        testMode = val
+                        for _, name in pairs(testMode and auras or testAuras) do
+                            local f = _G["KPackPaladinAuras" .. name]
+                            if f then
+                                f:Hide()
+                                f = nil
+                            end
+                        end
+                        UpdateDisplay()
+                    end
+                },
                 locked = {
                     type = "toggle",
                     name = L["Lock"],
-                    order = 2,
+                    order = 3,
                     disabled = function()
                         return not DB.Auras.enabled
                     end
@@ -946,8 +966,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 updateInterval = {
                     type = "range",
                     name = L["Update Frequency"],
-                    order = 3,
-                    width = "full",
+                    order = 4,
                     disabled = function()
                         return not DB.Auras.enabled
                     end,
@@ -959,7 +978,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 appearance = {
                     type = "group",
                     name = L["Appearance"],
-                    order = 4,
+                    order = 5,
                     inline = true,
                     disabled = function()
                         return not DB.Auras.enabled
@@ -1031,27 +1050,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                             order = 8
                         }
                     }
-                },
-                testMode = {
-                    type = "toggle",
-                    name = L["Configuration Mode"],
-                    desc = L["Toggle configuration mode to allow moving frames and setting appearance options."],
-                    order = 5,
-                    width = "full",
-                    get = function()
-                        return testMode
-                    end,
-                    set = function(_, val)
-                        testMode = val
-                        for _, name in pairs(testMode and auras or testAuras) do
-                            local f = _G["KPackPaladinAuras" .. name]
-                            if f then
-                                f:Hide()
-                                f = nil
-                            end
-                        end
-                        UpdateDisplay()
-                    end
                 },
                 reset = {
                     type = "execute",
@@ -1415,7 +1413,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         options.args.Sunders = {
             type = "group",
             name = sunder,
-            order = 3,
+            order = 4,
             get = function(i)
                 return DB.Sunders[i[#i]]
             end,
@@ -1429,10 +1427,30 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     name = L["Enable"],
                     order = 1
                 },
+                testMode = {
+                    type = "toggle",
+                    name = L["Configuration Mode"],
+                    desc = L["Toggle configuration mode to allow moving frames and setting appearance options."],
+                    order = 2,
+                    get = function()
+                        return testMode
+                    end,
+                    set = function(_, val)
+                        testMode = val
+                        for name, _ in pairs(testMode and sunders or testSunders) do
+                            local f = _G["KPackSunderCounter" .. name]
+                            if f then
+                                f:Hide()
+                                f = nil
+                            end
+                        end
+                        UpdateDisplay()
+                    end
+                },
                 locked = {
                     type = "toggle",
                     name = L["Lock"],
-                    order = 2,
+                    order = 3,
                     disabled = function()
                         return not DB.Sunders.enabled
                     end
@@ -1440,8 +1458,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 updateInterval = {
                     type = "range",
                     name = L["Update Frequency"],
-                    order = 3,
-                    width = "full",
+                    order = 4,
                     disabled = function()
                         return not DB.Sunders.enabled
                     end,
@@ -1453,7 +1470,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 appearance = {
                     type = "group",
                     name = L["Appearance"],
-                    order = 4,
+                    order = 5,
                     inline = true,
                     disabled = function()
                         return not DB.Sunders.enabled
@@ -1517,27 +1534,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                             order = 7
                         }
                     }
-                },
-                testMode = {
-                    type = "toggle",
-                    name = L["Configuration Mode"],
-                    desc = L["Toggle configuration mode to allow moving frames and setting appearance options."],
-                    order = 5,
-                    width = "full",
-                    get = function()
-                        return testMode
-                    end,
-                    set = function(_, val)
-                        testMode = val
-                        for name, _ in pairs(testMode and sunders or testSunders) do
-                            local f = _G["KPackSunderCounter" .. name]
-                            if f then
-                                f:Hide()
-                                f = nil
-                            end
-                        end
-                        UpdateDisplay()
-                    end
                 },
                 reset = {
                     type = "execute",
