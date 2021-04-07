@@ -196,29 +196,25 @@ do
                     core.options.args.modules.args.apply.disabled = false
                 end,
                 args = {
-                    desc = {
-                        type = "description",
-                        name = L["Tick the modules you want to disable."],
-                        order = 0,
-                        width = "full"
-                    },
-                    sep = {
-                        type = "description",
-                        name = " ",
-                        order = 0.1,
-                        width = "full"
-                    },
                     apply = {
                         type = "execute",
                         name = APPLY,
-                        order = 99,
+                        order = 1,
                         width = "full",
+                        disabled = true,
                         confirm = function()
                             return L["This change requires a UI reload. Are you sure?"]
                         end,
                         func = function()
                             ReloadUI()
                         end
+                    },
+                    list = {
+                        type = "group",
+                        name = L["Tick the modules you want to disable."],
+                        order = 2,
+                        inline = true,
+                        args = {}
                     }
                 }
             }
@@ -274,7 +270,7 @@ do
     end
 
 	function core:OpenConfig(mod)
-	    self.ACD:SetDefaultSize(folder, 640, 500)
+	    self.ACD:SetDefaultSize(folder, 655, 500)
 	    if not self.ACD:Close(folder) then
 	        self.ACD:Open(folder)
 	        if mod then self.ACD:SelectGroup(folder, mod) end
@@ -375,7 +371,7 @@ function core:AddModule(name, desc, func)
     self.moduleslist = self.moduleslist or {}
     self.moduleslist[#self.moduleslist + 1] = func
 
-    self.options.args.modules.args[name] = {
+    self.options.args.modules.args.list.args[name] = {
         type = "toggle",
         name = name,
         desc = L[desc]
