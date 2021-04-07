@@ -181,7 +181,7 @@ L["Castbars"] = true
 L["Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars."] = true
 L["|cFFFFFFFFDrag with mouse.\n|cFFCCCCCCUse arrow keys while dragging to fine tune position."] = true
 L["Configuration Mode"] = true
-L["Toggle configuration mode to allow moving bars and setting appearance options."] = true
+L["Toggle configuration mode to allow moving frames and setting appearance options."] = true
 L["Mirror Timers"] = true
 L["Set the width of the %s"] = true
 L["Set the height of the %s"] = true
@@ -596,9 +596,16 @@ L["Double Left Click"] = true
 L["Double Click Speed"] = true
 L["Hover Wait Time"] = true
 -- Raid Utility
+L["Raid Utility"] = true
 L["Disband Group"] = true
 L["Raid Menu"] = true
 L["Are you sure you want to disband the group?"] = true
+L["Paladin Auras"] = true
+L["Update Frequency"] = true
+L["Icon Size"] = true
+L["Hide Title"] = true
+L["Enable this if you want to hide the title text when locked."] = true
+L["Report"] = true
 -- UnitFrames
 L["changes the unit frames scale."] = true
 L["To move the player and target, hold SHIFT and ALT while dragging them around."] = true

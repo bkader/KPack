@@ -917,7 +917,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 	                name = L["Configuration Mode"],
 	                type = "toggle",
 	                order = 1,
-	                desc = L["Toggle configuration mode to allow moving bars and setting appearance options."],
+	                desc = L["Toggle configuration mode to allow moving frames and setting appearance options."],
 	                get = function()
 	                    return Castbars.ConfigMode
 	                end,
