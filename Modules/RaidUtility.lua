@@ -560,11 +560,11 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         local auraMastery = select(1, GetSpellInfo(31821))
         do
             local auraDevotion = select(1, GetSpellInfo(48942))
-            local auraRetribution = select(1, GetSpellInfo(27150))
+            local auraRetribution = select(1, GetSpellInfo(54043))
             local auraConcentration = select(1, GetSpellInfo(19746))
-            local auraShadow = select(1, GetSpellInfo(27151))
-            local auraFrost = select(1, GetSpellInfo(27152))
-            local auraFire = select(1, GetSpellInfo(19900))
+            local auraShadow = select(1, GetSpellInfo(48943))
+            local auraFrost = select(1, GetSpellInfo(48945))
+            local auraFire = select(1, GetSpellInfo(48947))
             local auraCrusader = select(1, GetSpellInfo(32223))
 
             aurasOrder = {
@@ -1689,6 +1689,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                         curmana = UnitPower(unit, 0),
                         maxmana = UnitPowerMax(unit, 0)
                     }
+                elseif healers[unit] then
+                    healers[unit] = nil
                 end
             end
 
@@ -1872,7 +1874,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             local cacheEvents = {
                 ACTIVE_TALENT_GROUP_CHANGED = true,
                 PARTY_MEMBERS_CHANGED = true,
-                RAID_ROSTER_UPDATE = true
+                RAID_ROSTER_UPDATE = true,
+                PLAYER_REGEN_DISABLED = true
             }
 
             local function OnEvent(self, event, ...)
@@ -1888,10 +1891,12 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
                         local _, _, icon, _, _, duration, _, _, _, _, _ = UnitBuff(arg1, TUTORIAL_TITLE12)
                         if icon then
+                            f.drinking = true
                             f._icon = f.icon:GetTexture()
                             f.icon:SetTexture(icon)
                             CooldownFrame_SetTimer(f.cooldown, GetTime(), duration, 1)
-                        elseif f.cooldown:IsShown() then
+                        elseif f.drinking then
+                            f.drinking = nil
                             f.cooldown:Hide()
                             if f._icon then
                                 f.icon:SetTexture(f._icon)
@@ -2156,10 +2161,10 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             if not LGT then
                 return
             end
+            core.After(3, CacheHealers)
 
             if DB.Mana.enabled then
                 ShowDisplay()
-                core.After(2, CacheHealers)
             else
                 HideDisplay()
             end
