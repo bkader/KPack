@@ -370,9 +370,9 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                 local auraId = tonumber(iName)
                 if auraId then
                     for i = 1, 32 do
-                        local name, _, tex, stack, _, dur, expirers, _, _, _, spellId = func(icon.Unit, i, nil, filter)
+                        local name, _, tex, stack, _, dur, expires, _, _, _, spellId = func(icon.Unit, i, nil, filter)
                         if name and spellId and spellId == auraId then
-                            buffName, iconTexture, count, duration, expirationTime = name, tex, stack, dur, expirers
+                            buffName, iconTexture, count, duration, expirationTime = name, tex, stack, dur, expires
                             break
                         end
                     end
