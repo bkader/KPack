@@ -16,7 +16,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
     local GetNumPartyMembers = GetNumPartyMembers
     local GetSpellInfo = GetSpellInfo
     local UnitExists, UnitIsPlayer, UnitIsFriend = UnitExists, UnitIsPlayer, UnitIsFriend
-    local UnitName, UnitGUID, UnitClass = UnitName, UnitGUID, UnitClass
+    local UnitName, UnitGUID, UnitClass, UnitIsDeadOrGhost = UnitName, UnitGUID, UnitClass, UnitIsDeadOrGhost
     local UnitInParty, UnitIsPartyLeader, IsPartyLeader = UnitInParty, UnitIsPartyLeader, IsPartyLeader
     local UnitInRaid, UnitIsRaidOfficer, IsRaidLeader = UnitInRaid, UnitIsRaidOfficer, IsRaidLeader
     local UnitPower, UnitPowerMax, UnitBuff = UnitPower, UnitPowerMax, UnitBuff
@@ -220,8 +220,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             end)
             RaidUtilityPanel.control = control
 
-            local convert =
-                CreateFrame("Button", nil, RaidUtilityPanel, "SecureHandlerClickTemplate, KPackButtonTemplate")
+            local convert = CreateFrame("Button", nil, RaidUtilityPanel, "SecureHandlerClickTemplate, KPackButtonTemplate")
             convert:SetSize(95, 20)
             convert:SetPoint("TOPRIGHT", ready, "BOTTOMRIGHT", 0, -5)
             convert:SetText(CONVERT_TO_RAID)
@@ -1743,6 +1742,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             if unit and healers[unit] then
                 healers[unit].curmana = curmana
                 healers[unit].maxmana = maxmana
+                healers[unit].dead = UnitIsDeadOrGhost(unit)
             end
         end
 
@@ -1906,7 +1906,13 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     for _, data in pairs(healers) do
                         local f = _G["KPackHealersMana" .. data.name]
                         if f then
-                            f.mana:SetText(strformat("%02.f%%", 100 * data.curmana / data.maxmana))
+                            if data.dead then
+                                f.mana:SetText(DEAD)
+                                f:SetAlpha(0.5)
+                            else
+                                f.mana:SetText(strformat("%02.f%%", 100 * data.curmana / data.maxmana))
+                                f:SetAlpha(1)
+                            end
                         end
                     end
                     self.lastUpdate = 0
