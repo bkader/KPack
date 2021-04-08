@@ -24,7 +24,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
     local DB, SetupDatabase, _
     local defaults = {}
     local order = 1
-    local options ={
+    local options = {
         type = "group",
         name = L["Raid Utility"],
         args = {}
@@ -80,7 +80,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
         function CreateRaidUtilityPanel()
             SetupDatabase()
-            if not DB.Menu.enabled or RaidUtilityPanel then return end
+            if not DB.Menu.enabled or RaidUtilityPanel then
+                return
+            end
             RaidUtilityPanel = CreateFrame("Frame", "KPackRaidUtilityPanel", UIParent, "SecureHandlerClickTemplate")
             RaidUtilityPanel:SetBackdrop({
                 bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]],
@@ -218,7 +220,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             end)
             RaidUtilityPanel.control = control
 
-            local convert = CreateFrame("Button", nil, RaidUtilityPanel, "SecureHandlerClickTemplate, KPackButtonTemplate")
+            local convert =
+                CreateFrame("Button", nil, RaidUtilityPanel, "SecureHandlerClickTemplate, KPackButtonTemplate")
             convert:SetSize(95, 20)
             convert:SetPoint("TOPRIGHT", ready, "BOTTOMRIGHT", 0, -5)
             convert:SetText(CONVERT_TO_RAID)
@@ -618,10 +621,11 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         local LockDisplay, UnlockDisplay
         local UpdateDisplay
 
-        local auras = {}
+        local auras, auraFrames = {}, {}
         local AddAura, RemoveAura
         local FetchDisplay, fetched
         local RenderDisplay, rendered
+        local ResetFrames
 
         function AddAura(auraname, playername)
             auras[auraname] = playername
@@ -662,7 +666,18 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 end
             end
 
+            function ResetFrames()
+                for k, v in pairs(auraFrames) do
+                    if _G[k] then
+                        _G[k]:Hide()
+                        _G[k] = nil
+                    end
+                    v = nil
+                end
+            end
+
             function RenderDisplay()
+                ResetFrames()
                 if not DB.Auras.enabled then
                     rendered = true
                     return
@@ -715,6 +730,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                         f.name:SetPoint("LEFT", f.icon, "RIGHT", size / 3, 0)
                         f.name:SetJustifyH("LEFT")
                     end
+                    auraFrames[fname] = true
                 end
 
                 rendered = true
@@ -722,7 +738,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         end
 
         function UpdateDisplay()
-            if not display then return end
+            if not display then
+                return
+            end
 
             if DB.Auras.enabled then
                 ShowDisplay()
@@ -803,7 +821,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             end
 
             function CreateDisplay()
-                if display then return end
+                if display then
+                    return
+                end
                 display = CreateFrame("Frame", "KPackPaladinAuras", UIParent)
                 display:SetSize(134, (DB.Auras.iconSize or 24) * 7 + (DB.Auras.spacing or 0) * 6)
                 display:SetClampedToScreen(true)
@@ -947,13 +967,12 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     end,
                     set = function(_, val)
                         testMode = val
-                        for _, name in pairs(testMode and auras or testAuras) do
-                            local f = _G["KPackPaladinAuras" .. name]
-                            if f then
-                                f:Hide()
-                                f = nil
-                            end
+                        if testMode then
+                            display:UnregisterAllEvents()
+                        else
+                            display:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
                         end
+                        ResetFrames()
                         UpdateDisplay()
                     end
                 },
@@ -1095,11 +1114,12 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         local LockDisplay, UnlockDisplay
         local UpdateDisplay
         local RenderDisplay, rendered
+        local ResetFrames
 
         local AddSunder, ResetSunders, ReportSunders
 
         local sunder = select(1, GetSpellInfo(47467))
-        local sunders = {}
+        local sunders, sunderFrames = {}, {}
         local testSunders, testMode = {Name1 = 20, Name2 = 32, Name3 = 6, Name4 = 12}
 
         -- defaults
@@ -1118,7 +1138,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         }
 
         function UpdateDisplay()
-            if not display then return end
+            if not display then
+                return
+            end
 
             if DB.Sunders.enabled then
                 ShowDisplay()
@@ -1200,7 +1222,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             end
 
             function CreateDisplay()
-                if display then return end
+                if display then
+                    return
+                end
                 display = CreateFrame("Frame", "KPackSunderCounter", UIParent)
                 display:SetSize(134, 20)
                 display:SetClampedToScreen(true)
@@ -1276,13 +1300,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         end
 
         function ResetSunders()
-            for name, _ in pairs(DB.Sunders.sunders) do
-                local f = _G["KPackSunderCounter" .. name]
-                if f then
-                    f:Hide()
-                    f = nil
-                end
-            end
+            ResetFrames()
             DB.Sunders.sunders = {}
             rendered = nil
             UpdateDisplay()
@@ -1355,8 +1373,21 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             end
         end
 
+        function ResetFrames()
+            for k, v in pairs(sunderFrames) do
+                if _G[k] then
+                    _G[k]:Hide()
+                    _G[k] = nil
+                end
+                v = nil
+            end
+        end
+
         function RenderDisplay()
-            if rendered then return end
+            if rendered then
+                return
+            end
+            ResetFrames()
 
             local list = {}
             for name, count in pairs(sunders or {}) do
@@ -1392,6 +1423,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     if i > 1 then
                         height = height + 21 + (DB.Sunders.spacing or 0)
                     end
+                    sunderFrames[fname] = true
                 end
             end
 
@@ -1426,13 +1458,12 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     end,
                     set = function(_, val)
                         testMode = val
-                        for name, _ in pairs(testMode and sunders or testSunders) do
-                            local f = _G["KPackSunderCounter" .. name]
-                            if f then
-                                f:Hide()
-                                f = nil
-                            end
+                        if testMode then
+                            display:UnregisterAllEvents()
+                        else
+                            display:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
                         end
+                        ResetFrames()
                         UpdateDisplay()
                     end
                 },
@@ -1601,7 +1632,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         local UpdateDisplay
         local RenderDisplay, rendered
         local UpdateMana
-        local healers = {}
+        local healers, healerFrames = {}, {}
         local testHealers = {
             raid1 = {
                 name = "Name 1",
@@ -1667,10 +1698,21 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             return "Interface\\Icons\\INV_Misc_QuestionMark"
         end
 
+        local function ResetFrames()
+            for k, v in pairs(healerFrames) do
+                if _G[k] then
+                    _G[k]:Hide()
+                    _G[k] = nil
+                end
+                v = nil
+            end
+        end
+
         local function CacheHealers()
             if testMode then
                 return
             end
+
             local prefix, min, max = "raid", 1, GetNumRaidMembers()
             if max == 0 then
                 prefix, min, max = "party", 0, GetNumPartyMembers()
@@ -1879,7 +1921,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             }
 
             local function OnEvent(self, event, ...)
-                if not self or self ~= display then return end
+                if not self or self ~= display then
+                    return
+                end
                 if cacheEvents[event] then
                     CacheHealers()
                 elseif arg1 and CheckUnit(arg1) and healers[arg1] then
@@ -1887,20 +1931,26 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                         UpdateMana(arg1, UnitPower(arg1, 0), UnitPowerMax(arg1, 0))
                     elseif event == "UNIT_AURA" then
                         local f = _G["KPackHealersMana" .. UnitName(arg1)]
-                        if not f then return end
+                        if not f then
+                            return
+                        end
 
                         local _, _, icon, _, _, duration, _, _, _, _, _ = UnitBuff(arg1, TUTORIAL_TITLE12)
                         if icon then
-                            f.drinking = true
-                            f._icon = f.icon:GetTexture()
+                            f._icon = f._icon or f.icon:GetTexture()
                             f.icon:SetTexture(icon)
-                            CooldownFrame_SetTimer(f.cooldown, GetTime(), duration, 1)
-                        elseif f.drinking then
-                            f.drinking = nil
-                            f.cooldown:Hide()
+                            if not f.drinking then
+                                f.drinking = true
+                                CooldownFrame_SetTimer(f.cooldown, GetTime(), duration, 1)
+                            end
+                        else
                             if f._icon then
                                 f.icon:SetTexture(f._icon)
                                 f._icon = nil
+                            end
+                            if f.drinking then
+                                f.drinking = nil
+                                f.cooldown:Hide()
                             end
                         end
                     end
@@ -1932,6 +1982,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         end
 
         function RenderDisplay()
+            ResetFrames()
             if rendered then
                 return
             end
@@ -1993,6 +2044,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     height = height + size + (DB.Mana.spacing or 0)
                 end
                 i = i + 1
+                healerFrames[fname] = true
             end
 
             display:SetHeight(height)
@@ -2026,13 +2078,16 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     end,
                     set = function(_, val)
                         testMode = val
-                        for unit, data in pairs(testMode and healers or testHealers) do
-                            local f = _G["KPackHealersMana" .. data.name]
-                            if f then
-                                f:Hide()
-                                f.cooldown:Hide()
-                            end
+                        if testMode then
+                            display:UnregisterAllEvents()
+                        else
+                            display:RegisterEvent("PARTY_MEMBERS_CHANGED")
+                            display:RegisterEvent("RAID_ROSTER_UPDATE")
+                            display:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+                            display:RegisterEvent("UNIT_MANA")
+                            display:RegisterEvent("UNIT_AURA")
                         end
+                        ResetFrames()
                         UpdateDisplay()
                     end
                 },
@@ -2161,7 +2216,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             if not LGT then
                 return
             end
-            core.After(3, CacheHealers)
+            core.After(5, CacheHealers)
 
             if DB.Mana.enabled then
                 ShowDisplay()
