@@ -606,6 +606,7 @@ L["Icon Size"] = true
 L["Hide Title"] = true
 L["Enable this if you want to hide the title text when locked."] = true
 L["Report"] = true
+L["Healers Mana"] = true
 -- UnitFrames
 L["changes the unit frames scale."] = true
 L["To move the player and target, hold SHIFT and ALT while dragging them around."] = true

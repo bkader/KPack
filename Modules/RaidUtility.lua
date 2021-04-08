@@ -10,15 +10,21 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
     local pairs, ipairs, select = pairs, ipairs, select
     local tinsert, tsort = table.insert, table.sort
-    local strformat, strfind, strlower = string.format, string.find, string.lower
+    local strformat, strfind, strlower, strlen = string.format, string.find, string.lower, string.len
     local CreateFrame = CreateFrame
     local GetNumRaidMembers = GetNumRaidMembers
     local GetNumPartyMembers = GetNumPartyMembers
     local GetSpellInfo = GetSpellInfo
+    local UnitExists, UnitIsPlayer, UnitIsFriend = UnitExists, UnitIsPlayer, UnitIsFriend
+    local UnitName, UnitGUID, UnitClass = UnitName, UnitGUID, UnitClass
+    local UnitInParty, UnitIsPartyLeader, IsPartyLeader = UnitInParty, UnitIsPartyLeader, IsPartyLeader
+    local UnitInRaid, UnitIsRaidOfficer, IsRaidLeader = UnitInRaid, UnitIsRaidOfficer, IsRaidLeader
+    local UnitPower, UnitPowerMax, UnitBuff = UnitPower, UnitPowerMax, UnitBuff
 
     local DB, SetupDatabase, _
     local defaults = {}
-    local options = {
+    local order = 1
+    local options ={
         type = "group",
         name = L["Raid Utility"],
         args = {}
@@ -136,23 +142,23 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 self:StartMoving()
             end)
 
-			showButton:SetScript("OnDragStop", function(self)
-		        if self.moving then
-		            self.moving = nil
-		            self:StopMovingOrSizing()
-		            local point = self:GetPoint()
-		            local xOffset = self:GetCenter()
-		            local screenWidth = UIParent:GetWidth() / 2
-		            xOffset = xOffset - screenWidth
-		            self:ClearAllPoints()
-		            if strfind(point, "BOTTOM") then
-		                self:SetPoint("BOTTOM", UIParent, "BOTTOM", xOffset, -1)
-		            else
-		                self:SetPoint("TOP", UIParent, "TOP", xOffset, 1)
-		            end
-		            DB.Menu.point, _, _, DB.Menu.xOfs, DB.Menu.yOfs = self:GetPoint(1)
-		        end
-		    end)
+            showButton:SetScript("OnDragStop", function(self)
+                if self.moving then
+                    self.moving = nil
+                    self:StopMovingOrSizing()
+                    local point = self:GetPoint()
+                    local xOffset = self:GetCenter()
+                    local screenWidth = UIParent:GetWidth() / 2
+                    xOffset = xOffset - screenWidth
+                    self:ClearAllPoints()
+                    if strfind(point, "BOTTOM") then
+                        self:SetPoint("BOTTOM", UIParent, "BOTTOM", xOffset, -1)
+                    else
+                        self:SetPoint("TOP", UIParent, "TOP", xOffset, 1)
+                    end
+                    DB.Menu.point, _, _, DB.Menu.xOfs, DB.Menu.yOfs = self:GetPoint(1)
+                end
+            end)
 
             local close = CreateFrame("Button", "KPackRaidUtility_CloseButton", RaidUtilityPanel, "KPackButtonTemplate, SecureHandlerClickTemplate")
             close:SetSize(136, 20)
@@ -301,7 +307,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         options.args.Control = {
             type = "group",
             name = RAID_CONTROL,
-            order = 1,
+            order = order,
             get = function(i)
                 return DB.Menu[i[#i]]
             end,
@@ -322,6 +328,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 }
             }
         }
+        order = order + 1
     end
 
     ---------------------------------------------------------------------------
@@ -348,7 +355,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         options.args.Loot = {
             type = "group",
             name = LOOT_METHOD,
-            order = 2,
+            order = order,
             args = {
                 enabled = {
                     type = "toggle",
@@ -482,6 +489,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 }
             }
         }
+        order = order + 1
 
         local frame = CreateFrame("Frame")
         frame:Hide()
@@ -546,9 +554,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
     -- Paladin Auras
 
     do
-        -- cache frequently used globals
-        local UnitName, UnitBuff = UnitName, UnitBuff
-
         -- paladin auras
         local aurasOrder, spellIcons
         local testAuras, testMode
@@ -609,8 +614,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         }
 
         local display, CreateDisplay
-        local ShowDisplay, HideDisplay, shown
-        local LockDisplay, UnlockDisplay, locked
+        local ShowDisplay, HideDisplay
+        local LockDisplay, UnlockDisplay
         local UpdateDisplay
 
         local auras = {}
@@ -635,6 +640,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
         function FetchDisplay()
             if not fetched then
+                auras = {}
                 for i = 1, 32 do
                     local name, _, icon, _, _, _, _, unit = UnitBuff("player", i)
                     if name and spellIcons[name] and unit then
@@ -677,7 +683,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     local f = _G[fname]
                     if not f then
                         f = CreateFrame("Frame", fname, display)
-                        f:SetSize(134, size)
 
                         local t = f:CreateTexture(nil, "BACKGROUND")
                         t:SetSize(size, size)
@@ -695,6 +700,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                         f.name = t
                     end
 
+                    f:SetSize(134, size)
                     f:SetPoint("TOPLEFT", display, "TOPLEFT", 0, -((size + (DB.Auras.spacing or 0)) * (i - 1)))
                     f.icon:SetTexture(spellIcons[aura[1]])
                     f.name:SetText(aura[2])
@@ -730,17 +736,13 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 UnlockDisplay()
             end
 
-            local point, _, _, xOfs, yOfs = display:GetPoint()
-            if point ~= DB.Auras.point or xOfs ~= DB.Auras.xOfs or yOfs ~= DB.Auras.yOfs then
-                display:ClearAllPoints()
-                display:SetPoint(DB.Auras.point or "CENTER", DB.Auras.xOfs or 0, DB.Auras.yOfs or 0)
-            end
+            core:RestorePosition(display, DB.Auras)
 
             display:SetScale(DB.Auras.scale or 1)
 
             display.header:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
             display.header:SetJustifyH(DB.Auras.align or "LEFT")
-            if DB.Auras.hideTitle and locked then
+            if DB.Auras.hideTitle and display.locked then
                 display.header:Hide()
             else
                 display.header:Show()
@@ -748,6 +750,14 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
             local iconSize = DB.Auras.iconSize or 24
             display:SetHeight(iconSize * 7 + (DB.Auras.spacing or 0) * 6)
+
+            if testMode then
+                auras = testAuras
+            else
+                auras, fetched = {}, nil
+                FetchDisplay()
+            end
+
             for _, name in pairs(auras) do
                 local f = _G["KPackPaladinAuras" .. name]
                 if f then
@@ -769,12 +779,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 end
             end
 
-            if testMode then
-                auras = testAuras
-            else
-                auras = {}
-                fetched = nil
-            end
             rendered = nil
         end
 
@@ -787,8 +791,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             local function StopMoving(self)
                 if self.moving then
                     self:StopMovingOrSizing()
-                    DB.Auras.point, _, _, DB.Auras.xOfs, DB.Auras.yOfs = self:GetPoint(1)
                     self.moving = nil
+                    core:SavePosition(self, DB.Auras)
                 end
             end
 
@@ -802,9 +806,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 if display then return end
                 display = CreateFrame("Frame", "KPackPaladinAuras", UIParent)
                 display:SetSize(134, (DB.Auras.iconSize or 24) * 7 + (DB.Auras.spacing or 0) * 6)
-                display:SetPoint(DB.Auras.point or "CENTER", DB.Auras.xOfs or 0, DB.Auras.yOfs or 0)
                 display:SetClampedToScreen(true)
                 display:SetScale(DB.Auras.scale or 1)
+                core:RestorePosition(display, DB.Auras)
 
                 local t = display:CreateTexture(nil, "BACKGROUND")
                 t:SetPoint("TOPLEFT", -2, 2)
@@ -813,7 +817,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 display.bg = t
 
                 t = display:CreateFontString(nil, "OVERLAY")
-                t:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontOutline)
+                t:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
                 t:SetPoint("BOTTOMLEFT", display, "TOPLEFT", 0, 5)
                 t:SetPoint("BOTTOMRIGHT", display, "TOPRIGHT", 0, 5)
                 t:SetText(L["Paladin Auras"])
@@ -823,7 +827,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             end
 
             function LockDisplay()
-                if locked then return end
                 if not display then
                     CreateDisplay()
                 end
@@ -837,11 +840,10 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 if DB.Auras.hideTitle then
                     display.header:Hide()
                 end
-                locked = true
+                display.locked = true
             end
 
             function UnlockDisplay()
-                if not locked then return end
                 if not display then
                     CreateDisplay()
                 end
@@ -855,7 +857,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 if DB.Auras.hideTitle then
                     display.header:Show()
                 end
-                locked = nil
+                display.locked = nil
             end
         end
 
@@ -899,7 +901,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             end
 
             function ShowDisplay()
-                if shown then return end
                 if not display then
                     CreateDisplay()
                 end
@@ -922,7 +923,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         options.args.Auras = {
             type = "group",
             name = L["Paladin Auras"],
-            order = 3,
+            order = order,
             get = function(i)
                 return DB.Auras[i[#i]]
             end,
@@ -1009,8 +1010,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                             type = "range",
                             name = L["Font Size"],
                             order = 3,
-                            min = 6,
-                            max = 25,
+                            min = 8,
+                            max = 30,
                             step = 1
                         },
                         align = {
@@ -1023,8 +1024,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                             type = "range",
                             name = L["Icon Size"],
                             order = 5,
-                            min = 6,
-                            max = 24,
+                            min = 8,
+                            max = 30,
                             step = 1
                         },
                         spacing = {
@@ -1067,23 +1068,19 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 }
             }
         }
+        order = order + 1
 
         core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
             SetupDatabase()
             if DB.Auras.enabled then
                 ShowDisplay()
-                shown = true
             else
                 HideDisplay()
-                shown = nil
-                display:UnregisterAllEvents()
             end
 
             if DB.Auras.locked then
-                locked = nil
                 LockDisplay()
             else
-                locked = true
                 UnlockDisplay()
             end
         end)
@@ -1094,11 +1091,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
     do
         local display, CreateDisplay
-        local ShowDisplay, HideDisplay, shown
-        local LockDisplay, UnlockDisplay, locked
+        local ShowDisplay, HideDisplay
+        local LockDisplay, UnlockDisplay
         local UpdateDisplay
-
-        local FetchDisplay, fetched
         local RenderDisplay, rendered
 
         local AddSunder, ResetSunders, ReportSunders
@@ -1123,9 +1118,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         }
 
         function UpdateDisplay()
-            if not display then
-                return
-            end
+            if not display then return end
 
             if DB.Sunders.enabled then
                 ShowDisplay()
@@ -1139,11 +1132,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 UnlockDisplay()
             end
 
-            local point, _, _, xOfs, yOfs = display:GetPoint()
-            if point ~= DB.Sunders.point or xOfs ~= DB.Sunders.xOfs or yOfs ~= DB.Sunders.yOfs then
-                display:ClearAllPoints()
-                display:SetPoint(DB.Sunders.point or "CENTER", DB.Sunders.xOfs or 0, DB.Sunders.yOfs or 0)
-            end
+            core:RestorePosition(display, DB.Sunders)
 
             display:SetScale(DB.Sunders.scale or 1)
 
@@ -1153,13 +1142,15 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 DB.Sunders.fontFlags
             )
             display.header.text:SetJustifyH(DB.Sunders.align or "LEFT")
-            if DB.Sunders.hideTitle and locked then
+            if DB.Sunders.hideTitle and display.locked then
                 display.header:Hide()
             else
                 display.header:Show()
             end
 
-            for name, _ in pairs(sunders or {}) do
+            sunders = testMode and testSunders or DB.Sunders.sunders
+
+            for name, _ in pairs(sunders) do
                 local f = _G["KPackSunderCounter" .. name]
                 if f then
                     f.text:SetFont(LSM:Fetch("font", DB.Sunders.font), DB.Sunders.fontSize, DB.Sunders.fontFlags)
@@ -1167,7 +1158,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 end
             end
 
-            sunders = testMode and testSunders or DB.Sunders.sunders
             rendered = nil
         end
 
@@ -1198,8 +1188,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             local function StopMoving(self)
                 if self.moving then
                     self:StopMovingOrSizing()
-                    DB.Sunders.point, _, _, DB.Sunders.xOfs, DB.Sunders.yOfs = self:GetPoint(1)
                     self.moving = nil
+                    core:SavePosition(self, DB.Sunders)
                 end
             end
 
@@ -1213,9 +1203,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 if display then return end
                 display = CreateFrame("Frame", "KPackSunderCounter", UIParent)
                 display:SetSize(134, 20)
-                display:SetPoint(DB.Sunders.point or "CENTER", DB.Sunders.xOfs or 0, DB.Sunders.yOfs or 0)
                 display:SetClampedToScreen(true)
                 display:SetScale(DB.Sunders.scale or 1)
+                core:RestorePosition(display, DB.Sunders)
 
                 local t = display:CreateTexture(nil, "BACKGROUND")
                 t:SetPoint("TOPLEFT", -2, 2)
@@ -1227,10 +1217,11 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 t:SetHeight(DB.Sunders.fontSize + 4)
 
                 t.text = t:CreateFontString(nil, "OVERLAY")
-                t.text:SetFont(LSM:Fetch("font", DB.Sunders.font), DB.Sunders.fontSize, DB.Sunders.fontOutline)
+                t.text:SetFont(LSM:Fetch("font", DB.Sunders.font), DB.Sunders.fontSize, DB.Sunders.fontFlags)
                 t.text:SetText(sunder)
                 t.text:SetAllPoints(t)
                 t.text:SetJustifyH(DB.Sunders.align or "LEFT")
+                t.text:SetJustifyV("BOTTOM")
                 t.text:SetTextColor(0.78, 0.61, 0.43)
                 t:SetPoint("BOTTOMLEFT", display, "TOPLEFT", 0, 5)
                 t:SetPoint("BOTTOMRIGHT", display, "TOPRIGHT", 0, 5)
@@ -1245,7 +1236,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             end
 
             function LockDisplay()
-                if locked then return end
                 if not display then
                     CreateDisplay()
                 end
@@ -1259,11 +1249,10 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 if DB.Sunders.hideTitle then
                     display.header:Hide()
                 end
-                locked = true
+                display.locked = true
             end
 
             function UnlockDisplay()
-                if not locked then return end
                 if not display then
                     CreateDisplay()
                 end
@@ -1277,7 +1266,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 if DB.Sunders.hideTitle then
                     display.header:Show()
                 end
-                locked = nil
+                display.locked = nil
             end
         end
 
@@ -1311,7 +1300,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             if #list == 0 then
                 return
             end
-            tsort(list, function(a, b) return a[2] > b[2] end)
+            tsort(list, function(a, b) return (a[2] or 0) > (b[2] or 0) end)
 
             local channel = "SAY"
             if GetNumRaidMembers() > 0 then
@@ -1347,7 +1336,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             end
 
             function ShowDisplay()
-                if shown then return end
                 if not display then
                     CreateDisplay()
                 end
@@ -1386,10 +1374,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     local f = _G[fname]
                     if not f then
                         f = CreateFrame("Frame", fname, display)
-                        f:SetHeight(20)
 
                         local t = f:CreateFontString(nil, "OVERLAY")
-                        t:SetFont(LSM:Fetch("font", DB.Sunders.font), DB.Sunders.fontSize, DB.Sunders.fontOutline)
+                        t:SetFont(LSM:Fetch("font", DB.Sunders.font), DB.Sunders.fontSize, DB.Sunders.fontFlags)
                         t:SetPoint("TOPLEFT", f, "TOPLEFT")
                         t:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT")
                         t:SetJustifyH(DB.Sunders.align or "RIGHT")
@@ -1397,6 +1384,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                         f.text = t
                     end
 
+                    f:SetHeight(20)
                     f.text:SetText(strformat("%s: %d", entry[1], entry[2]))
                     f:SetPoint("TOPLEFT", display, "TOPLEFT", 0, -((21 + (DB.Sunders.spacing or 0)) * (i - 1)))
                     f:SetPoint("RIGHT", display)
@@ -1414,7 +1402,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         options.args.Sunders = {
             type = "group",
             name = sunder,
-            order = 4,
+            order = order,
             get = function(i)
                 return DB.Sunders[i[#i]]
             end,
@@ -1501,7 +1489,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                             type = "range",
                             name = L["Font Size"],
                             order = 3,
-                            min = 6,
+                            min = 8,
                             max = 30,
                             step = 1
                         },
@@ -1551,23 +1539,20 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 }
             }
         }
+        order = order + 1
 
         core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
             SetupDatabase()
-            sunders = DB.Sunders.sunders
             if DB.Sunders.enabled then
+                sunders = DB.Sunders.sunders
                 ShowDisplay()
-                shown = true
             else
                 HideDisplay()
-                shown = nil
             end
 
             if DB.Sunders.locked then
-                locked = nil
                 LockDisplay()
             else
-                locked = true
                 UnlockDisplay()
             end
 
@@ -1585,6 +1570,604 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 else
                     core:OpenConfig("RaidUtility")
                 end
+            end
+        end)
+    end
+
+    ---------------------------------------------------------------------------
+    -- Healers Mana
+
+    do
+        defaults.Mana = {
+            enabled = true,
+            locked = false,
+            updateInterval = 0.25,
+            hideTitle = false,
+            scale = 1,
+            font = "Yanone",
+            fontSize = 14,
+            fontFlags = "OUTLINE",
+            showIcon = true,
+            iconSize = 24,
+            align = "LEFT",
+            width = 180,
+            spacing = 2
+        }
+
+        local LGT = LibStub("LibGroupTalents-1.0", true)
+        local display, CreateDisplay
+        local ShowDisplay, HideDisplay
+        local LockDisplay, UnlockDisplay
+        local UpdateDisplay
+        local RenderDisplay, rendered
+        local UpdateMana
+        local healers = {}
+        local testHealers = {
+            raid1 = {
+                name = "Name 1",
+                class = "DRUID",
+                curmana = 25000,
+                maxmana = 44000,
+                icon = "Interface\\Icons\\spell_nature_healingtouch"
+            },
+            raid2 = {
+                name = "Name 2",
+                class = "SHAMAN",
+                curmana = 18000,
+                maxmana = 36000,
+                icon = "Interface\\Icons\\spell_nature_magicimmunity"
+            },
+            raid3 = {
+                name = "Name 3",
+                class = "PRIEST",
+                spec = 2,
+                curmana = 24000,
+                maxmana = 32000,
+                icon = "Interface\\Icons\\spell_holy_guardianspirit"
+            },
+            raid4 = {
+                name = "Name 4",
+                class = "PRIEST",
+                curmana = 17000,
+                maxmana = 32000,
+                icon = "Interface\\Icons\\spell_holy_powerwordshield"
+            },
+            raid5 = {
+                name = "Name 5",
+                class = "PALADIN",
+                curmana = 17000,
+                maxmana = 45000,
+                icon = "Interface\\Icons\\spell_holy_holybolt"
+            }
+        }
+
+        local colorsTable = {
+            DRUID = {1, 0.49, 0.04},
+            PALADIN = {0.96, 0.55, 0.73},
+            PRIEST = {1, 1, 1},
+            SHAMAN = {0, 0.44, 0.87}
+        }
+
+        local function GetHealerIcon(unit, class)
+            class = class or select(2, UnitClass(unit))
+            if class == "SHAMAN" then
+                return "Interface\\Icons\\spell_nature_magicimmunity"
+            elseif class == "PALADIN" then
+                return "Interface\\Icons\\spell_holy_holybolt"
+            elseif class == "DRUID" then
+                return "Interface\\Icons\\spell_nature_healingtouch"
+            elseif class == "PRIEST" then
+                local tree = LGT.roster[UnitGUID(unit)].talents[LGT:GetActiveTalentGroup(unit)]
+                if strlen(tree[1]) > strlen(tree[2]) then
+                    return "Interface\\Icons\\spell_holy_powerwordshield"
+                else
+                    return "Interface\\Icons\\spell_holy_guardianspirit"
+                end
+            end
+            return "Interface\\Icons\\INV_Misc_QuestionMark"
+        end
+
+        local function CacheHealers()
+            if testMode then
+                return
+            end
+            local prefix, min, max = "raid", 1, GetNumRaidMembers()
+            if max == 0 then
+                prefix, min, max = "party", 0, GetNumPartyMembers()
+            end
+
+            healers = {}
+
+            for i = min, max do
+                local unit = (i == 0) and "player" or prefix .. tostring(i)
+                if UnitExists(unit) and LGT:GetUnitRole(unit) == "healer" then
+                    local class = select(2, UnitClass(unit))
+                    healers[unit] = {
+                        name = UnitName(unit),
+                        class = class,
+                        icon = GetHealerIcon(unit, class),
+                        curmana = UnitPower(unit, 0),
+                        maxmana = UnitPowerMax(unit, 0)
+                    }
+                end
+            end
+
+            rendered = nil
+        end
+
+        function UpdateMana(unit, curmana, maxmana)
+            if unit and healers[unit] then
+                healers[unit].curmana = curmana
+                healers[unit].maxmana = maxmana
+            end
+        end
+
+        function UpdateDisplay()
+            if not display then
+                return
+            end
+
+            if DB.Mana.enabled then
+                ShowDisplay()
+            else
+                HideDisplay()
+            end
+
+            if DB.Mana.locked then
+                LockDisplay()
+            else
+                UnlockDisplay()
+            end
+
+            core:RestorePosition(display, DB.Mana)
+
+            display:SetWidth(DB.Mana.width or 180)
+            display:SetScale(DB.Mana.scale or 1)
+
+            display.header:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
+            display.header:SetJustifyH(DB.Mana.align or "LEFT")
+            if DB.Mana.hideTitle and display.locked then
+                display.header:Hide()
+            else
+                display.header:Show()
+            end
+
+            if testMode then
+                healers = testHealers
+            else
+                CacheHealers()
+            end
+
+            for unit, data in pairs(healers) do
+                local f = _G["KPackHealersMana" .. data.name]
+                if f then
+                    f.icon:SetSize(DB.Mana.iconSize, DB.Mana.iconSize)
+                    f.name:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
+                    f.mana:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
+
+                    if f.align ~= DB.Mana.align then
+                        f.align = DB.Mana.align
+                        f.icon:ClearAllPoints()
+                        f.name:ClearAllPoints()
+                        f.mana:ClearAllPoints()
+                        if f.align == "RIGHT" then
+                            f.icon:SetPoint("RIGHT", f, "RIGHT", 0, 0)
+                            f.name:SetPoint("RIGHT", f.icon, "LEFT", -3, 0)
+                            f.name:SetJustifyH("RIGHT")
+                            f.mana:SetPoint("LEFT", f, "LEFT", 0, 0)
+                            f.mana:SetPoint("RIGHT", f.name, "LEFT", -1, 0)
+                            f.mana:SetJustifyH("LEFT")
+                        else
+                            f.icon:SetPoint("LEFT", f, "LEFT", 0, 0)
+                            f.name:SetPoint("LEFT", f.icon, "RIGHT", 3, 0)
+                            f.name:SetJustifyH("LEFT")
+                            f.mana:SetPoint("LEFT", f.name, "RIGHT", 1, 0)
+                            f.mana:SetPoint("RIGHT", f, "RIGHT", 0, 0)
+                            f.mana:SetJustifyH("RIGHT")
+                        end
+                    end
+                end
+            end
+
+            rendered = nil
+        end
+
+        do
+            local function StartMoving(self)
+                self.moving = true
+                self:StartMoving()
+            end
+
+            local function StopMoving(self)
+                if self.moving then
+                    self:StopMovingOrSizing()
+                    self.moving = nil
+                    core:SavePosition(self, DB.Mana)
+                end
+            end
+
+            local function OnMouseDown(self, button)
+                if button == "RightButton" then
+                    core:OpenConfig("RaidUtility")
+                end
+            end
+
+            function CreateDisplay()
+                if display then
+                    return
+                end
+                display = CreateFrame("Frame", "KPackHealersMana", UIParent)
+                display:SetSize(DB.Mana.width or 180, DB.Mana.iconSize or 24)
+                display:SetClampedToScreen(true)
+                display:SetScale(DB.Mana.scale or 1)
+                core:RestorePosition(display, DB.Mana)
+
+                local t = display:CreateTexture(nil, "BACKGROUND")
+                t:SetPoint("TOPLEFT", -2, 2)
+                t:SetPoint("BOTTOMRIGHT", 2, -2)
+                t:SetTexture(0, 0, 0, 0.5)
+                display.bg = t
+
+                t = display:CreateFontString(nil, "OVERLAY")
+                t:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
+                t:SetText(L["Healers Mana"])
+                t:SetJustifyH(DB.Mana.align or "LEFT")
+                t:SetPoint("BOTTOMLEFT", display, "TOPLEFT", 0, 5)
+                t:SetPoint("BOTTOMRIGHT", display, "TOPRIGHT", 0, 5)
+                display.header = t
+            end
+
+            function LockDisplay()
+                if not display then
+                    CreateDisplay()
+                end
+                display:EnableMouse(false)
+                display:SetMovable(false)
+                display:RegisterForDrag(nil)
+                display:SetScript("OnDragStart", nil)
+                display:SetScript("OnDragStop", nil)
+                display:SetScript("OnMouseDown", nil)
+                display.bg:SetTexture(0, 0, 0, 0)
+                if DB.Mana.hideTitle then
+                    display.header:Hide()
+                end
+                display.locked = true
+            end
+
+            function UnlockDisplay()
+                if not display then
+                    CreateDisplay()
+                end
+                display:EnableMouse(true)
+                display:SetMovable(true)
+                display:RegisterForDrag("LeftButton")
+                display:SetScript("OnDragStart", StartMoving)
+                display:SetScript("OnDragStop", StopMoving)
+                display:SetScript("OnMouseDown", OnMouseDown)
+                display.bg:SetTexture(0, 0, 0, 0.5)
+                if DB.Sunders.hideTitle then
+                    display.header:Show()
+                end
+                display.locked = nil
+            end
+        end
+
+        do
+            local function OnUpdate(self, elapsed)
+                self.lastUpdate = (self.lastUpdate or 0) + elapsed
+                if self.lastUpdate > (DB.Sunders.updateInterval or 0.25) then
+                    if not rendered then
+                        RenderDisplay()
+                    end
+                    for _, data in pairs(healers) do
+                        local f = _G["KPackHealersMana" .. data.name]
+                        if f then
+                            f.mana:SetText(strformat("%02.f%%", 100 * data.curmana / data.maxmana))
+                        end
+                    end
+                    self.lastUpdate = 0
+                end
+            end
+
+            local cacheEvents = {
+                ACTIVE_TALENT_GROUP_CHANGED = true,
+                PARTY_MEMBERS_CHANGED = true,
+                RAID_ROSTER_UPDATE = true
+            }
+
+            local function OnEvent(self, event, ...)
+                if not self or self ~= display then return end
+                if cacheEvents[event] then
+                    CacheHealers()
+                elseif arg1 and CheckUnit(arg1) and healers[arg1] then
+                    if event == "UNIT_MANA" then
+                        UpdateMana(arg1, UnitPower(arg1, 0), UnitPowerMax(arg1, 0))
+                    elseif event == "UNIT_AURA" then
+                        local f = _G["KPackHealersMana" .. UnitName(arg1)]
+                        if not f then return end
+
+                        local _, _, icon, _, _, duration, _, _, _, _, _ = UnitBuff(arg1, TUTORIAL_TITLE12)
+                        if icon then
+                            f._icon = f.icon:GetTexture()
+                            f.icon:SetTexture(icon)
+                            CooldownFrame_SetTimer(f.cooldown, GetTime(), duration, 1)
+                        elseif f.cooldown:IsShown() then
+                            f.cooldown:Hide()
+                            if f._icon then
+                                f.icon:SetTexture(f._icon)
+                                f._icon = nil
+                            end
+                        end
+                    end
+                end
+            end
+
+            function ShowDisplay()
+                if not display then
+                    CreateDisplay()
+                end
+                display:Show()
+                display:SetScript("OnUpdate", OnUpdate)
+                display:SetScript("OnEvent", OnEvent)
+                display:RegisterEvent("PARTY_MEMBERS_CHANGED")
+                display:RegisterEvent("RAID_ROSTER_UPDATE")
+                display:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+                display:RegisterEvent("UNIT_MANA")
+                display:RegisterEvent("UNIT_AURA")
+            end
+
+            function HideDisplay()
+                if display then
+                    display:Hide()
+                    display:SetScript("OnUpdate", nil)
+                    display:SetScript("OnEvent", nil)
+                    display:UnregisterAllEvents()
+                end
+            end
+        end
+
+        function RenderDisplay()
+            if rendered then
+                return
+            end
+            local size = DB.Mana.iconSize or 24
+            local height = size
+            local i = 1
+            for unit, data in pairs(healers) do
+                local fname = "KPackHealersMana" .. data.name
+                local f = _G[fname]
+                if not f then
+                    f = CreateFrame("Frame", fname, display)
+
+                    local t = f:CreateTexture(nil, "BACKGROUND")
+                    t:SetSize(size, size)
+                    t:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+                    f.icon = t
+
+                    t = CreateFrame("Cooldown", nil, display, "CooldownFrameTemplate")
+                    t:SetAllPoints(f.icon)
+                    f.cooldown = t
+
+                    t = f:CreateFontString(nil, "ARTWORK")
+                    t:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
+                    t:SetJustifyV("MIDDLE")
+                    t:SetText(data.name)
+                    t:SetTextColor(unpack(colorsTable[data.class]))
+                    f.name = t
+
+                    t = f:CreateFontString(nil, "ARTWORK")
+                    t:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
+                    t:SetJustifyV("MIDDLE")
+                    f.mana = t
+                end
+
+                f:SetHeight(size)
+                f:SetPoint("TOPLEFT", display, "TOPLEFT", 0, -((size + (DB.Mana.spacing or 0)) * (i - 1)))
+                f:SetPoint("RIGHT", display, "RIGHT", 0, 0)
+                f.icon:SetTexture(data.icon)
+                f.mana:SetText(strformat("%02.f%%", 100 * data.curmana / data.maxmana))
+                f:Show()
+
+                f.align = DB.Mana.align
+                if f.align == "RIGHT" then
+                    f.icon:SetPoint("RIGHT", f, "RIGHT", 0, 0)
+                    f.name:SetPoint("RIGHT", f.icon, "LEFT", -3, 0)
+                    f.name:SetJustifyH("RIGHT")
+                    f.mana:SetPoint("LEFT", f, "LEFT", 0, 0)
+                    f.mana:SetPoint("RIGHT", f.name, "LEFT", -1, 0)
+                    f.mana:SetJustifyH("LEFT")
+                else
+                    f.icon:SetPoint("LEFT", f, "LEFT", 0, 0)
+                    f.name:SetPoint("LEFT", f.icon, "RIGHT", 3, 0)
+                    f.name:SetJustifyH("LEFT")
+                    f.mana:SetPoint("LEFT", f.name, "RIGHT", 1, 0)
+                    f.mana:SetPoint("RIGHT", f, "RIGHT", 0, 0)
+                    f.mana:SetJustifyH("RIGHT")
+                end
+                if i > 1 then
+                    height = height + size + (DB.Mana.spacing or 0)
+                end
+                i = i + 1
+            end
+
+            display:SetHeight(height)
+            rendered = true
+        end
+
+        options.args.Mana = {
+            type = "group",
+            name = L["Healers Mana"],
+            order = order,
+            get = function(i)
+                return DB.Mana[i[#i]]
+            end,
+            set = function(i, val)
+                DB.Mana[i[#i]] = val
+                UpdateDisplay()
+            end,
+            args = {
+                enabled = {
+                    type = "toggle",
+                    name = L["Enable"],
+                    order = 1
+                },
+                testMode = {
+                    type = "toggle",
+                    name = L["Configuration Mode"],
+                    desc = L["Toggle configuration mode to allow moving frames and setting appearance options."],
+                    order = 2,
+                    get = function()
+                        return testMode
+                    end,
+                    set = function(_, val)
+                        testMode = val
+                        for unit, data in pairs(testMode and healers or testHealers) do
+                            local f = _G["KPackHealersMana" .. data.name]
+                            if f then
+                                f:Hide()
+                                f.cooldown:Hide()
+                            end
+                        end
+                        UpdateDisplay()
+                    end
+                },
+                locked = {
+                    type = "toggle",
+                    name = L["Lock"],
+                    order = 3,
+                    disabled = function()
+                        return not DB.Mana.enabled
+                    end
+                },
+                updateInterval = {
+                    type = "range",
+                    name = L["Update Frequency"],
+                    order = 4,
+                    disabled = function()
+                        return not DB.Mana.enabled
+                    end,
+                    min = 0.1,
+                    max = 1,
+                    step = 0.05,
+                    bigStep = 0.1
+                },
+                appearance = {
+                    type = "group",
+                    name = L["Appearance"],
+                    order = 5,
+                    inline = true,
+                    disabled = function()
+                        return not DB.Mana.enabled
+                    end,
+                    args = {
+                        font = {
+                            type = "select",
+                            name = L["Font"],
+                            order = 1,
+                            dialogControl = "LSM30_Font",
+                            values = AceGUIWidgetLSMlists.font
+                        },
+                        fontFlags = {
+                            type = "select",
+                            name = L["Font Outline"],
+                            order = 2,
+                            values = {
+                                [""] = NONE,
+                                ["OUTLINE"] = L["Outline"],
+                                ["THINOUTLINE"] = L["Thin outline"],
+                                ["THICKOUTLINE"] = L["Thick outline"],
+                                ["MONOCHROME"] = L["Monochrome"],
+                                ["OUTLINEMONOCHROME"] = L["Outlined monochrome"]
+                            }
+                        },
+                        fontSize = {
+                            type = "range",
+                            name = L["Font Size"],
+                            order = 3,
+                            min = 8,
+                            max = 30,
+                            step = 1
+                        },
+                        align = {
+                            type = "select",
+                            name = L["Text Alignment"],
+                            order = 4,
+                            values = {LEFT = L["Left"], RIGHT = L["Right"]}
+                        },
+                        iconSize = {
+                            type = "range",
+                            name = L["Icon Size"],
+                            order = 5,
+                            min = 8,
+                            max = 30,
+                            step = 1
+                        },
+                        width = {
+                            type = "range",
+                            name = L["Width"],
+                            order = 6,
+                            min = 120,
+                            max = 240,
+                            step = 1
+                        },
+                        spacing = {
+                            type = "range",
+                            name = L["Spacing"],
+                            order = 7,
+                            min = 0,
+                            max = 30,
+                            step = 1
+                        },
+                        scale = {
+                            type = "range",
+                            name = L["Scale"],
+                            order = 8,
+                            min = 0.5,
+                            max = 3,
+                            step = 0.01,
+                            bigStep = 0.1
+                        },
+                        hideTitle = {
+                            type = "toggle",
+                            name = L["Hide Title"],
+                            desc = L["Enable this if you want to hide the title text when locked."],
+                            order = 9
+                        }
+                    }
+                },
+                reset = {
+                    type = "execute",
+                    name = RESET,
+                    order = 99,
+                    width = "full",
+                    confirm = function()
+                        return L:F("Are you sure you want to reset %s to default?", L["Healers Mana"])
+                    end,
+                    func = function()
+                        DB.Mana = defaults.Mana
+                        UpdateDisplay()
+                    end
+                }
+            }
+        }
+        order = order + 1
+        core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
+            SetupDatabase()
+            if not LGT then
+                return
+            end
+
+            if DB.Mana.enabled then
+                ShowDisplay()
+                core.After(2, CacheHealers)
+            else
+                HideDisplay()
+            end
+
+            if DB.Mana.locked then
+                LockDisplay()
+            else
+                UnlockDisplay()
             end
         end)
     end
