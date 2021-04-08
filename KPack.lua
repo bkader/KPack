@@ -391,6 +391,36 @@ function core:IsDisabled(...)
 end
 
 -------------------------------------------------------------------------------
+-- Functions to save and restore frame positions
+--
+
+function core:SavePosition(f, db)
+    if f then
+        db = db or {}
+        local x, y = f:GetLeft(), f:GetTop()
+        local s = f:GetEffectiveScale()
+        db.xOfs, db.yOfs = x * s, y * s
+    end
+end
+
+function core:RestorePosition(f, db)
+    if f then
+        db = db or {}
+        local x, y = db.xOfs, db.yOfs
+        if not x or not y then
+            f:ClearAllPoints()
+            f:SetPoint("CENTER", UIParent)
+            return false
+        end
+
+        local s = f:GetEffectiveScale()
+        f:ClearAllPoints()
+        f:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x / s, y / s)
+        return true
+    end
+end
+
+-------------------------------------------------------------------------------
 -- Classy-1.0 mimic
 --
 
