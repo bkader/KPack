@@ -1671,7 +1671,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         local healers, healerFrames = {}, {}
         local testHealers = {
             raid1 = {
-                name = "Vlandys",
+                name = "RestoDruid",
                 class = "DRUID",
                 curmana = 25000,
                 maxmana = 44000,
@@ -1679,28 +1679,28 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 offline = true
             },
             raid2 = {
-                name = "Arhangel",
+                name = "RestoShaman",
                 class = "SHAMAN",
                 curmana = 18000,
                 maxmana = 36000,
                 icon = "Interface\\Icons\\spell_nature_magicimmunity"
             },
             raid3 = {
-                name = "Iqui",
+                name = "HolyPriest",
                 class = "PRIEST",
                 curmana = 24000,
                 maxmana = 32000,
                 icon = "Interface\\Icons\\spell_holy_guardianspirit"
             },
             raid4 = {
-                name = "Cait",
+                name = "DiscPriest",
                 class = "PRIEST",
                 curmana = 17000,
                 maxmana = 32000,
                 icon = "Interface\\Icons\\spell_holy_powerwordshield"
             },
             raid5 = {
-                name = "Lqui",
+                name = "HolyPaladin",
                 class = "PALADIN",
                 curmana = 17000,
                 maxmana = 45000,
@@ -1835,29 +1835,25 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     f.mana:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
 
                     if changeside == "RIGHT" then
-                        f.icon:ClearAllPoints()
-                        f.icon:SetPoint("RIGHT", f, "RIGHT", 0, 0)
-
-                        f.name:ClearAllPoints()
-                        f.name:SetPoint("RIGHT", f.icon, "LEFT", -3, 0)
-                        f.name:SetJustifyH("RIGHT")
-
-                        f.mana:ClearAllPoints()
-                        f.mana:SetPoint("LEFT", f, "LEFT", 0, 0)
-                        f.mana:SetPoint("RIGHT", f.name, "LEFT", -1, 0)
-                        f.mana:SetJustifyH("LEFT")
+	                    f.icon:ClearAllPoints()
+	                    f.icon:SetPoint("RIGHT", f, "RIGHT", 0, 0)
+	                    f.mana:ClearAllPoints()
+	                    f.mana:SetPoint("LEFT", f, "LEFT", 0, 0)
+	                    f.mana:SetJustifyH("LEFT")
+	                    f.name:ClearAllPoints()
+	                    f.name:SetPoint("LEFT", f.mana, "RIGHT", 1, 0)
+	                    f.name:SetPoint("RIGHT", f.icon, "LEFT", -3, 0)
+	                    f.name:SetJustifyH("RIGHT")
                     elseif changeside == "LEFT" then
-                        f.icon:ClearAllPoints()
-                        f.icon:SetPoint("LEFT", f, "LEFT", 0, 0)
-
-                        f.name:ClearAllPoints()
-                        f.name:SetPoint("LEFT", f.icon, "RIGHT", 3, 0)
-                        f.name:SetJustifyH("LEFT")
-
-                        f.mana:ClearAllPoints()
-                        f.mana:SetPoint("LEFT", f.name, "RIGHT", 1, 0)
-                        f.mana:SetPoint("RIGHT", f, "RIGHT", 0, 0)
-                        f.mana:SetJustifyH("RIGHT")
+	                    f.icon:ClearAllPoints()
+	                    f.icon:SetPoint("LEFT", f, "LEFT", 0, 0)
+	                    f.mana:ClearAllPoints()
+	                    f.mana:SetPoint("RIGHT", f, "RIGHT", 0, 0)
+	                    f.mana:SetJustifyH("RIGHT")
+	                    f.name:ClearAllPoints()
+	                    f.name:SetPoint("LEFT", f.icon, "RIGHT", 3, 0)
+	                    f.mana:SetPoint("RIGHT", f.mana, "LEFT", 1, 0)
+	                    f.name:SetJustifyH("LEFT")
                     end
                 end
             end
@@ -2084,18 +2080,18 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
                 if display.align == "RIGHT" then
                     f.icon:SetPoint("RIGHT", f, "RIGHT", 0, 0)
+                    f.mana:SetPoint("LEFT", f, "LEFT", 0, 0)
+                    f.mana:SetJustifyH("LEFT")
+                    f.name:SetPoint("LEFT", f.mana, "RIGHT", 1, 0)
                     f.name:SetPoint("RIGHT", f.icon, "LEFT", -3, 0)
                     f.name:SetJustifyH("RIGHT")
-                    f.mana:SetPoint("LEFT", f, "LEFT", 0, 0)
-                    f.mana:SetPoint("RIGHT", f.name, "LEFT", -1, 0)
-                    f.mana:SetJustifyH("LEFT")
                 else
                     f.icon:SetPoint("LEFT", f, "LEFT", 0, 0)
-                    f.name:SetPoint("LEFT", f.icon, "RIGHT", 3, 0)
-                    f.name:SetJustifyH("LEFT")
-                    f.mana:SetPoint("LEFT", f.name, "RIGHT", 1, 0)
                     f.mana:SetPoint("RIGHT", f, "RIGHT", 0, 0)
                     f.mana:SetJustifyH("RIGHT")
+                    f.name:SetPoint("LEFT", f.icon, "RIGHT", 3, 0)
+                    f.name:SetPoint("RIGHT", f.mana, "LEFT", 1, 0)
+                    f.name:SetJustifyH("LEFT")
                 end
                 if i > 1 then
                     height = height + size + (DB.Mana.spacing or 0)
