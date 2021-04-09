@@ -16,7 +16,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
     local GetNumPartyMembers = GetNumPartyMembers
     local GetSpellInfo = GetSpellInfo
     local UnitExists, UnitIsPlayer, UnitIsFriend = UnitExists, UnitIsPlayer, UnitIsFriend
-    local UnitName, UnitGUID, UnitClass, UnitIsDeadOrGhost = UnitName, UnitGUID, UnitClass, UnitIsDeadOrGhost
+    local UnitName, UnitGUID, UnitClass = UnitName, UnitGUID, UnitClass
+    local UnitIsDeadOrGhost, UnitIsConnected = UnitIsDeadOrGhost, UnitIsConnected
     local UnitInParty, UnitIsPartyLeader, IsPartyLeader = UnitInParty, UnitIsPartyLeader, IsPartyLeader
     local UnitInRaid, UnitIsRaidOfficer, IsRaidLeader = UnitInRaid, UnitIsRaidOfficer, IsRaidLeader
     local UnitPower, UnitPowerMax, UnitBuff = UnitPower, UnitPowerMax, UnitBuff
@@ -40,7 +41,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
     end
 
     local function CheckUnit(unit)
-        return (unit and (UnitInParty(unit) or UnitInRaid(unit)) and UnitIsPlayer(unit) and UnitIsFriend("player", unit))
+        return (unit and (UnitInParty(unit) or UnitInRaid(unit)) and UnitIsPlayer(unit) and
+            UnitIsFriend("player", unit))
     end
 
     ---------------------------------------------------------------------------
@@ -590,13 +592,13 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             }
 
             testAuras = {
-                [auraDevotion] = "Name1",
-                [auraRetribution] = "Name2",
-                [auraConcentration] = "Name3",
-                [auraShadow] = "Name4",
-                [auraFrost] = "Name5",
-                [auraFire] = "Name6",
-                [auraCrusader] = "Name7"
+                [auraDevotion] = auraDevotion,
+                [auraRetribution] = auraRetribution,
+                [auraConcentration] = auraConcentration,
+                [auraShadow] = auraShadow,
+                [auraFrost] = auraFrost,
+                [auraFire] = auraFire,
+                [auraCrusader] = auraCrusader
             }
         end
 
@@ -611,6 +613,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             fontSize = 14,
             fontFlags = "OUTLINE",
             iconSize = 24,
+            width = 140,
             align = "LEFT",
             spacing = 2
         }
@@ -714,19 +717,21 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                         f.name = t
                     end
 
-                    f:SetSize(134, size)
+                    f:SetSize(DB.Auras.width or 140, size)
                     f:SetPoint("TOPLEFT", display, "TOPLEFT", 0, -((size + (DB.Auras.spacing or 0)) * (i - 1)))
                     f.icon:SetTexture(spellIcons[aura[1]])
                     f.name:SetText(aura[2])
                     f:Show()
 
-                    if DB.Auras.align == "RIGHT" then
-                        f.icon:SetPoint("RIGHT", f, "RIGHT", -3, 0)
-                        f.name:SetPoint("RIGHT", f.icon, "LEFT", -(size / 3), 0)
+                    if display.align == "RIGHT" then
+                        f.icon:SetPoint("RIGHT", f, "RIGHT", 0, 0)
+                        f.name:SetPoint("RIGHT", f.icon, "LEFT", -3, 0)
+                        f.name:SetPoint("LEFT", f, "LEFT", 0, 0)
                         f.name:SetJustifyH("RIGHT")
                     else
-                        f.icon:SetPoint("LEFT", f, "LEFT", 3, 0)
-                        f.name:SetPoint("LEFT", f.icon, "RIGHT", size / 3, 0)
+                        f.icon:SetPoint("LEFT", f, "LEFT", 0, 0)
+                        f.name:SetPoint("LEFT", f.icon, "RIGHT", 3, 0)
+                        f.name:SetPoint("RIGHT", f, "RIGHT", 0, 0)
                         f.name:SetJustifyH("LEFT")
                     end
                     auraFrames[fname] = true
@@ -755,6 +760,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
             core:RestorePosition(display, DB.Auras)
 
+            display:SetWidth(DB.Auras.width or 140)
             display:SetScale(DB.Auras.scale or 1)
 
             display.header:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
@@ -775,6 +781,12 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 FetchDisplay()
             end
 
+            local changeside
+            if display.align ~= DB.Auras.align then
+                display.align = DB.Auras.align
+                changeside = display.align
+            end
+
             for _, name in pairs(auras) do
                 local f = _G["KPackPaladinAuras" .. name]
                 if f then
@@ -782,15 +794,21 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     f.name:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
                     f.icon:SetSize(iconSize, iconSize)
 
-                    f.icon:ClearAllPoints()
-                    f.name:ClearAllPoints()
-                    if DB.Auras.align == "RIGHT" then
-                        f.icon:SetPoint("TOPRIGHT", f, "TOPRIGHT", 0, 0)
-                        f.name:SetPoint("RIGHT", f.icon, "LEFT", -(iconSize / 3), 0)
+                    if changeside == "RIGHT" then
+                        f.icon:ClearAllPoints()
+                        f.icon:SetPoint("RIGHT", f, "RIGHT", 0, 0)
+
+                        f.name:ClearAllPoints()
+                        f.name:SetPoint("RIGHT", f.icon, "LEFT", -3, 0)
+                        f.name:SetPoint("LEFT", f, "LEFT", 0, 0)
                         f.name:SetJustifyH("RIGHT")
-                    else
-                        f.icon:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
-                        f.name:SetPoint("LEFT", f.icon, "RIGHT", iconSize / 3, 0)
+                    elseif changeside == "LEFT" then
+                        f.icon:ClearAllPoints()
+                        f.icon:SetPoint("LEFT", f, "LEFT", 0, 0)
+
+                        f.name:ClearAllPoints()
+                        f.name:SetPoint("LEFT", f.icon, "RIGHT", 3, 0)
+                        f.name:SetPoint("RIGHT", f, "RIGHT", 0, 0)
                         f.name:SetJustifyH("LEFT")
                     end
                 end
@@ -824,7 +842,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     return
                 end
                 display = CreateFrame("Frame", "KPackPaladinAuras", UIParent)
-                display:SetSize(134, (DB.Auras.iconSize or 24) * 7 + (DB.Auras.spacing or 0) * 6)
+                display:SetSize(DB.Auras.width or 140, (DB.Auras.iconSize or 24) * 7 + (DB.Auras.spacing or 0) * 6)
                 display:SetClampedToScreen(true)
                 display:SetScale(DB.Auras.scale or 1)
                 core:RestorePosition(display, DB.Auras)
@@ -843,6 +861,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 t:SetTextColor(0.96, 0.55, 0.73)
                 t:SetJustifyH(DB.Auras.align or "LEFT")
                 display.header = t
+                display.align = DB.Auras.align or "LEFT"
             end
 
             function LockDisplay()
@@ -1054,10 +1073,18 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                             max = 30,
                             step = 1
                         },
+                        width = {
+                            type = "range",
+                            name = L["Width"],
+                            order = 7,
+                            min = 120,
+                            max = 240,
+                            step = 1
+                        },
                         scale = {
                             type = "range",
                             name = L["Scale"],
-                            order = 7,
+                            order = 8,
                             min = 0.5,
                             max = 3,
                             step = 0.01,
@@ -1067,7 +1094,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                             type = "toggle",
                             name = L["Hide Title"],
                             desc = L["Enable this if you want to hide the title text when locked."],
-                            order = 8
+                            order = 9
                         }
                     }
                 },
@@ -1132,6 +1159,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             fontFlags = "OUTLINE",
             align = "RIGHT",
             spacing = 2,
+            width = 140,
             scale = 1,
             sunders = {}
         }
@@ -1155,6 +1183,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
             core:RestorePosition(display, DB.Sunders)
 
+            display:SetWidth(DB.Sunders.width or 140)
             display:SetScale(DB.Sunders.scale or 1)
 
             display.header.text:SetFont(
@@ -1225,7 +1254,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     return
                 end
                 display = CreateFrame("Frame", "KPackSunderCounter", UIParent)
-                display:SetSize(134, 20)
+                display:SetSize(DB.Sunders.width or 140, 20)
                 display:SetClampedToScreen(true)
                 display:SetScale(DB.Sunders.scale or 1)
                 core:RestorePosition(display, DB.Sunders)
@@ -1537,10 +1566,18 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                             max = 30,
                             step = 1
                         },
+                        width = {
+                            type = "range",
+                            name = L["Width"],
+                            order = 6,
+                            min = 120,
+                            max = 240,
+                            step = 1
+                        },
                         scale = {
                             type = "range",
                             name = L["Scale"],
-                            order = 6,
+                            order = 7,
                             min = 0.5,
                             max = 3,
                             step = 0.01,
@@ -1550,7 +1587,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                             type = "toggle",
                             name = L["Hide Title"],
                             desc = L["Enable this if you want to hide the title text when locked."],
-                            order = 7
+                            order = 8
                         }
                     }
                 },
@@ -1634,40 +1671,41 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         local healers, healerFrames = {}, {}
         local testHealers = {
             raid1 = {
-                name = "Name 1",
+                name = "Vlandys",
                 class = "DRUID",
                 curmana = 25000,
                 maxmana = 44000,
-                icon = "Interface\\Icons\\spell_nature_healingtouch"
+                icon = "Interface\\Icons\\spell_nature_healingtouch",
+                offline = true
             },
             raid2 = {
-                name = "Name 2",
+                name = "Arhangel",
                 class = "SHAMAN",
                 curmana = 18000,
                 maxmana = 36000,
                 icon = "Interface\\Icons\\spell_nature_magicimmunity"
             },
             raid3 = {
-                name = "Name 3",
+                name = "Iqui",
                 class = "PRIEST",
-                spec = 2,
                 curmana = 24000,
                 maxmana = 32000,
                 icon = "Interface\\Icons\\spell_holy_guardianspirit"
             },
             raid4 = {
-                name = "Name 4",
+                name = "Cait",
                 class = "PRIEST",
                 curmana = 17000,
                 maxmana = 32000,
                 icon = "Interface\\Icons\\spell_holy_powerwordshield"
             },
             raid5 = {
-                name = "Name 5",
+                name = "Lqui",
                 class = "PALADIN",
                 curmana = 17000,
                 maxmana = 45000,
-                icon = "Interface\\Icons\\spell_holy_holybolt"
+                icon = "Interface\\Icons\\spell_holy_holybolt",
+                dead = true
             }
         }
 
@@ -1743,6 +1781,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 healers[unit].curmana = curmana
                 healers[unit].maxmana = maxmana
                 healers[unit].dead = UnitIsDeadOrGhost(unit)
+                healers[unit].offline = not UnitIsConnected(unit)
             end
         end
 
@@ -1782,6 +1821,12 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 CacheHealers()
             end
 
+            local changeside
+            if display.align ~= DB.Mana.align then
+                display.align = DB.Mana.align
+                changeside = display.align
+            end
+
             for unit, data in pairs(healers) do
                 local f = _G["KPackHealersMana" .. data.name]
                 if f then
@@ -1789,26 +1834,30 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     f.name:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
                     f.mana:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
 
-                    if f.align ~= DB.Mana.align then
-                        f.align = DB.Mana.align
+                    if changeside == "RIGHT" then
                         f.icon:ClearAllPoints()
+                        f.icon:SetPoint("RIGHT", f, "RIGHT", 0, 0)
+
                         f.name:ClearAllPoints()
+                        f.name:SetPoint("RIGHT", f.icon, "LEFT", -3, 0)
+                        f.name:SetJustifyH("RIGHT")
+
                         f.mana:ClearAllPoints()
-                        if f.align == "RIGHT" then
-                            f.icon:SetPoint("RIGHT", f, "RIGHT", 0, 0)
-                            f.name:SetPoint("RIGHT", f.icon, "LEFT", -3, 0)
-                            f.name:SetJustifyH("RIGHT")
-                            f.mana:SetPoint("LEFT", f, "LEFT", 0, 0)
-                            f.mana:SetPoint("RIGHT", f.name, "LEFT", -1, 0)
-                            f.mana:SetJustifyH("LEFT")
-                        else
-                            f.icon:SetPoint("LEFT", f, "LEFT", 0, 0)
-                            f.name:SetPoint("LEFT", f.icon, "RIGHT", 3, 0)
-                            f.name:SetJustifyH("LEFT")
-                            f.mana:SetPoint("LEFT", f.name, "RIGHT", 1, 0)
-                            f.mana:SetPoint("RIGHT", f, "RIGHT", 0, 0)
-                            f.mana:SetJustifyH("RIGHT")
-                        end
+                        f.mana:SetPoint("LEFT", f, "LEFT", 0, 0)
+                        f.mana:SetPoint("RIGHT", f.name, "LEFT", -1, 0)
+                        f.mana:SetJustifyH("LEFT")
+                    elseif changeside == "LEFT" then
+                        f.icon:ClearAllPoints()
+                        f.icon:SetPoint("LEFT", f, "LEFT", 0, 0)
+
+                        f.name:ClearAllPoints()
+                        f.name:SetPoint("LEFT", f.icon, "RIGHT", 3, 0)
+                        f.name:SetJustifyH("LEFT")
+
+                        f.mana:ClearAllPoints()
+                        f.mana:SetPoint("LEFT", f.name, "RIGHT", 1, 0)
+                        f.mana:SetPoint("RIGHT", f, "RIGHT", 0, 0)
+                        f.mana:SetJustifyH("RIGHT")
                     end
                 end
             end
@@ -1859,6 +1908,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 t:SetPoint("BOTTOMLEFT", display, "TOPLEFT", 0, 5)
                 t:SetPoint("BOTTOMRIGHT", display, "TOPRIGHT", 0, 5)
                 display.header = t
+                display.align = DB.Mana.align or "LEFT"
             end
 
             function LockDisplay()
@@ -1909,6 +1959,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                             if data.dead then
                                 f.mana:SetText(DEAD)
                                 f:SetAlpha(0.5)
+                            elseif data.offline then
+                                f.mana:SetText(FRIENDS_LIST_OFFLINE)
+                                f:SetAlpha(0.5)
                             else
                                 f.mana:SetText(strformat("%02.f%%", 100 * data.curmana / data.maxmana))
                                 f:SetAlpha(1)
@@ -1929,8 +1982,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             local function OnEvent(self, event, ...)
                 if not self or self ~= display then
                     return
-                end
-                if cacheEvents[event] then
+                elseif cacheEvents[event] then
                     CacheHealers()
                 elseif arg1 and CheckUnit(arg1) and healers[arg1] then
                     if event == "UNIT_MANA" then
@@ -2030,8 +2082,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 f.mana:SetText(strformat("%02.f%%", 100 * data.curmana / data.maxmana))
                 f:Show()
 
-                f.align = DB.Mana.align
-                if f.align == "RIGHT" then
+                if display.align == "RIGHT" then
                     f.icon:SetPoint("RIGHT", f, "RIGHT", 0, 0)
                     f.name:SetPoint("RIGHT", f.icon, "LEFT", -3, 0)
                     f.name:SetJustifyH("RIGHT")
@@ -2168,20 +2219,20 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                             max = 30,
                             step = 1
                         },
-                        width = {
-                            type = "range",
-                            name = L["Width"],
-                            order = 6,
-                            min = 120,
-                            max = 240,
-                            step = 1
-                        },
                         spacing = {
                             type = "range",
                             name = L["Spacing"],
-                            order = 7,
+                            order = 6,
                             min = 0,
                             max = 30,
+                            step = 1
+                        },
+                        width = {
+                            type = "range",
+                            name = L["Width"],
+                            order = 7,
+                            min = 120,
+                            max = 240,
                             step = 1
                         },
                         scale = {
