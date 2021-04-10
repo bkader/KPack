@@ -45,6 +45,16 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             UnitIsFriend("player", unit))
     end
 
+    local function ShowHide(f, cond)
+        if not f or not f.Show then
+            return
+        elseif cond and not f:IsShown() then
+            f:Show()
+        elseif not cond and f:IsShown() then
+            f:Hide()
+        end
+    end
+
     ---------------------------------------------------------------------------
     -- Raid Menu
 
@@ -763,28 +773,36 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             display:SetWidth(DB.Auras.width or 140)
             display:SetScale(DB.Auras.scale or 1)
 
-            display.header:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
-            display.header:SetJustifyH(DB.Auras.align or "LEFT")
-            if DB.Auras.hideTitle and display.locked then
-                display.header:Hide()
-            else
-                display.header:Show()
-            end
-
             local iconSize = DB.Auras.iconSize or 24
             display:SetHeight(iconSize * 7 + (DB.Auras.spacing or 0) * 6)
+            ShowHide(display.header, not (DB.Auras.hideTitle and display.locked))
+
+            display.header:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
+
+            local changeside
+            if display.align ~= DB.Auras.align then
+                display.align = DB.Auras.align
+                changeside = display.align
+            end
+
+            if changeside then
+                display.header:SetJustifyH(changeside)
+                if changeside == "RIGHT" then
+                    display.header:ClearAllPoints()
+                    display.header:SetPoint("BOTTOMRIGHT", display, "TOPRIGHT", 0, 5)
+                    display.header:SetJustifyH("RIGHT")
+                else
+                    display.header:ClearAllPoints()
+                    display.header:SetPoint("BOTTOMLEFT", display, "TOPLEFT", 0, 5)
+                    display.header:SetJustifyH("LEFT")
+                end
+            end
 
             if testMode then
                 auras = testAuras
             else
                 auras, fetched = {}, nil
                 FetchDisplay()
-            end
-
-            local changeside
-            if display.align ~= DB.Auras.align then
-                display.align = DB.Auras.align
-                changeside = display.align
             end
 
             for _, name in pairs(auras) do
@@ -797,7 +815,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     if changeside == "RIGHT" then
                         f.icon:ClearAllPoints()
                         f.icon:SetPoint("RIGHT", f, "RIGHT", 0, 0)
-
                         f.name:ClearAllPoints()
                         f.name:SetPoint("RIGHT", f.icon, "LEFT", -3, 0)
                         f.name:SetPoint("LEFT", f, "LEFT", 0, 0)
@@ -805,7 +822,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     elseif changeside == "LEFT" then
                         f.icon:ClearAllPoints()
                         f.icon:SetPoint("LEFT", f, "LEFT", 0, 0)
-
                         f.name:ClearAllPoints()
                         f.name:SetPoint("LEFT", f.icon, "RIGHT", 3, 0)
                         f.name:SetPoint("RIGHT", f, "RIGHT", 0, 0)
@@ -845,6 +861,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 display:SetSize(DB.Auras.width or 140, (DB.Auras.iconSize or 24) * 7 + (DB.Auras.spacing or 0) * 6)
                 display:SetClampedToScreen(true)
                 display:SetScale(DB.Auras.scale or 1)
+                display.align = DB.Auras.align or "LEFT"
                 core:RestorePosition(display, DB.Auras)
 
                 local t = display:CreateTexture(nil, "BACKGROUND")
@@ -855,13 +872,16 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
                 t = display:CreateFontString(nil, "OVERLAY")
                 t:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
-                t:SetPoint("BOTTOMLEFT", display, "TOPLEFT", 0, 5)
-                t:SetPoint("BOTTOMRIGHT", display, "TOPRIGHT", 0, 5)
                 t:SetText(L["Paladin Auras"])
                 t:SetTextColor(0.96, 0.55, 0.73)
-                t:SetJustifyH(DB.Auras.align or "LEFT")
+                if display.align == "RIGHT" then
+                    t:SetPoint("BOTTOMRIGHT", display, "TOPRIGHT", 0, 5)
+                    t:SetJustifyH("RIGHT")
+                else
+                    t:SetPoint("BOTTOMLEFT", display, "TOPLEFT", 0, 5)
+                    t:SetJustifyH("LEFT")
+                end
                 display.header = t
-                display.align = DB.Auras.align or "LEFT"
             end
 
             function LockDisplay()
@@ -1192,11 +1212,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 DB.Sunders.fontFlags
             )
             display.header.text:SetJustifyH(DB.Sunders.align or "LEFT")
-            if DB.Sunders.hideTitle and display.locked then
-                display.header:Hide()
-            else
-                display.header:Show()
-            end
+            ShowHide(display.header, not (DB.Sunders.hideTitle and display.locked))
 
             sunders = testMode and testSunders or DB.Sunders.sunders
 
@@ -1279,7 +1295,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 t:SetPoint("BOTTOMRIGHT", display, "TOPRIGHT", 0, 5)
                 t:RegisterForClicks("RightButtonUp")
                 t:SetScript("OnMouseUp", function(self, button)
-                    if next(sunders) and not testMode and button == "RightButton" then
+                    if not testMode and next(sunders) and button == "RightButton" then
                         menuFrame = menuFrame or CreateFrame("Frame", "KPackSunderCounterMenu", display, "UIDropDownMenuTemplate")
                         EasyMenu(menu, menuFrame, "cursor", 0, 0, "MENU")
                     end
@@ -1809,11 +1825,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
             display.header:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
             display.header:SetJustifyH(DB.Mana.align or "LEFT")
-            if DB.Mana.hideTitle and display.locked then
-                display.header:Hide()
-            else
-                display.header:Show()
-            end
+            ShowHide(display.header, not (DB.Mana.hideTitle and display.locked))
 
             if testMode then
                 healers = testHealers
@@ -1835,25 +1847,25 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                     f.mana:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
 
                     if changeside == "RIGHT" then
-	                    f.icon:ClearAllPoints()
-	                    f.icon:SetPoint("RIGHT", f, "RIGHT", 0, 0)
-	                    f.mana:ClearAllPoints()
-	                    f.mana:SetPoint("LEFT", f, "LEFT", 0, 0)
-	                    f.mana:SetJustifyH("LEFT")
-	                    f.name:ClearAllPoints()
-	                    f.name:SetPoint("LEFT", f.mana, "RIGHT", 1, 0)
-	                    f.name:SetPoint("RIGHT", f.icon, "LEFT", -3, 0)
-	                    f.name:SetJustifyH("RIGHT")
+                        f.icon:ClearAllPoints()
+                        f.icon:SetPoint("RIGHT", f, "RIGHT", 0, 0)
+                        f.mana:ClearAllPoints()
+                        f.mana:SetPoint("LEFT", f, "LEFT", 0, 0)
+                        f.mana:SetJustifyH("LEFT")
+                        f.name:ClearAllPoints()
+                        f.name:SetPoint("LEFT", f.mana, "RIGHT", 1, 0)
+                        f.name:SetPoint("RIGHT", f.icon, "LEFT", -3, 0)
+                        f.name:SetJustifyH("RIGHT")
                     elseif changeside == "LEFT" then
-	                    f.icon:ClearAllPoints()
-	                    f.icon:SetPoint("LEFT", f, "LEFT", 0, 0)
-	                    f.mana:ClearAllPoints()
-	                    f.mana:SetPoint("RIGHT", f, "RIGHT", 0, 0)
-	                    f.mana:SetJustifyH("RIGHT")
-	                    f.name:ClearAllPoints()
-	                    f.name:SetPoint("LEFT", f.icon, "RIGHT", 3, 0)
-	                    f.mana:SetPoint("RIGHT", f.mana, "LEFT", 1, 0)
-	                    f.name:SetJustifyH("LEFT")
+                        f.icon:ClearAllPoints()
+                        f.icon:SetPoint("LEFT", f, "LEFT", 0, 0)
+                        f.mana:ClearAllPoints()
+                        f.mana:SetPoint("RIGHT", f, "RIGHT", 0, 0)
+                        f.mana:SetJustifyH("RIGHT")
+                        f.name:ClearAllPoints()
+                        f.name:SetPoint("LEFT", f.icon, "RIGHT", 3, 0)
+                        f.name:SetPoint("RIGHT", f.mana, "LEFT", 1, 0)
+                        f.name:SetJustifyH("LEFT")
                     end
                 end
             end
@@ -1954,10 +1966,10 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                         if f then
                             if data.dead then
                                 f.mana:SetText(DEAD)
-                                f:SetAlpha(0.5)
+                                f:SetAlpha(0.35)
                             elseif data.offline then
                                 f.mana:SetText(FRIENDS_LIST_OFFLINE)
-                                f:SetAlpha(0.5)
+                                f:SetAlpha(0.35)
                             else
                                 f.mana:SetText(strformat("%02.f%%", 100 * data.curmana / data.maxmana))
                                 f:SetAlpha(1)
@@ -2036,10 +2048,10 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         end
 
         function RenderDisplay()
-            ResetFrames()
             if rendered then
                 return
             end
+            ResetFrames()
             local size = DB.Mana.iconSize or 24
             local height = size
             local i = 1
