@@ -67,7 +67,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         groupDefaults.Icons[i] = iconDefaults
     end
 
-    local DB, _
+    local DB, SetupDatabase, _
     local defaults = {
         Locked = false,
         Groups = {}
@@ -1144,6 +1144,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
     end
 
     function TellMeWhen:Update()
+        SetupDatabase()
         for i = 1, maxGroups do
             TellMeWhen:Group_Update(i)
         end
@@ -1185,29 +1186,6 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         end
     end
 
-    core:RegisterForEvent("VARIABLES_LOADED", function()
-        if type(core.char.TMW) ~= "table" or not next(core.char.TMW) then
-            for i = 1, maxGroups do
-                defaults.Groups[i] = groupDefaults
-            end
-
-            core.char.TMW = CopyTable(defaults)
-            core.char.TMW.Groups[1].Enabled = true
-        end
-        DB = core.char.TMW
-
-        local pos = {"TOPLEFT", 100, -50}
-        for i = 1, maxGroups do
-            local g = TellMeWhen_CreateGroup("KTellMeWhen_Group" .. i, UIParent, DB.Groups[i].point or pos[1], DB.Groups[i].x or pos[2], DB.Groups[i].y or pos[3])
-            pos[3] = pos[3] - 35
-            g:SetID(i)
-        end
-
-        SLASH_KPACKTELLMEWHEN1 = "/tellmewhen"
-        SLASH_KPACKTELLMEWHEN2 = "/tmw"
-        SlashCmdList.KPACKTELLMEWHEN = SlashCommandHandler
-    end)
-
     local options = {
         type = "group",
         name = "TellMeWhen",
@@ -1242,8 +1220,34 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             }
         }
     }
+    function SetupDatabase()
+    	if not DB then
+	        if type(core.char.TMW) ~= "table" or not next(core.char.TMW) then
+	            for i = 1, maxGroups do
+	                defaults.Groups[i] = groupDefaults
+	            end
+
+	            core.char.TMW = CopyTable(defaults)
+	            core.char.TMW.Groups[1].Enabled = true
+	        end
+	        DB = core.char.TMW
+    	end
+    end
 
     core:RegisterForEvent("PLAYER_LOGIN", function()
+        SetupDatabase()
+
+        local pos = {"TOPLEFT", 100, -50}
+        for i = 1, maxGroups do
+            local g = TellMeWhen_CreateGroup("KTellMeWhen_Group" .. i, UIParent, DB.Groups[i].point or pos[1], DB.Groups[i].x or pos[2], DB.Groups[i].y or pos[3])
+            pos[3] = pos[3] - 35
+            g:SetID(i)
+        end
+
+        SLASH_KPACKTELLMEWHEN1 = "/tellmewhen"
+        SLASH_KPACKTELLMEWHEN2 = "/tmw"
+        SlashCmdList.KPACKTELLMEWHEN = SlashCommandHandler
+
         TellMeWhen:Update()
 
         for i = 1, maxGroups do
