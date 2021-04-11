@@ -2910,12 +2910,12 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 CreateDisplay()
             end
             display:Show()
-            display:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+            RaidCooldowns:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         end
 
         function HideDisplay()
             if display then
-                display:UnregisterAllEvents()
+                RaidCooldowns:UnregisterAllEvents()
                 display:Hide()
                 display = nil
             end
@@ -3081,12 +3081,18 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             end
 
             function inGroup(flags)
-                return band(flags, group) ~= 0
+                return flags and (band(flags, group) ~= 0) or nil
             end
 
             function RaidCooldowns:COMBAT_LOG_EVENT_UNFILTERED(...)
-                if arg2 and events[arg2] and arg9 and DB.spells[arg9] and inGroup(arg5) then
-                    self:StartCooldown(arg4, arg9, allSpells[arg9], arg7)
+                if arg2 and events[arg2] and inGroup(arg5) and arg9 then
+                	if (arg9 == 35079 or arg9 == 34477) and DB.Cooldowns.spells[34477] then
+                    	self:StartCooldown(arg4, 34477, allSpells[34477], arg7)
+                	elseif (arg9 == 59628 or arg9 == 57934) and DB.Cooldowns.spells[57934] then
+                    	self:StartCooldown(arg4, 57934, allSpells[57934], arg7)
+                	elseif DB.Cooldowns.spells[arg9] then
+                    	self:StartCooldown(arg4, arg9, allSpells[arg9], arg7)
+                	end
                 end
             end
         end
