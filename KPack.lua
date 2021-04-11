@@ -292,6 +292,7 @@ do
             _G.SLASH_KPACK1 = "/kp"
             _G.SLASH_KPACK2 = "/kpack"
 
+            core.faction = select(1, UnitFactionGroup("player"))
             core.name = select(1, UnitName("player"))
             core.class = select(2, UnitClass("player"))
             core.race = select(2, UnitRace("player"))
@@ -394,18 +395,25 @@ end
 -- Functions to save and restore frame positions
 --
 
-function core:SavePosition(f, db)
+function core:SavePosition(f, db, withSize)
     if f then
-        db = db or {}
         local x, y = f:GetLeft(), f:GetTop()
         local s = f:GetEffectiveScale()
         db.xOfs, db.yOfs = x * s, y * s
+
+        if withSize then
+        	if db.width then
+        		db.width = f:GetWidth()
+        	end
+        	if db.height then
+        		db.height = f:GetHeight()
+        	end
+        end
     end
 end
 
-function core:RestorePosition(f, db)
+function core:RestorePosition(f, db, withSize)
     if f then
-        db = db or {}
         local x, y = db.xOfs, db.yOfs
         if not x or not y then
             f:ClearAllPoints()
@@ -416,6 +424,15 @@ function core:RestorePosition(f, db)
         local s = f:GetEffectiveScale()
         f:ClearAllPoints()
         f:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x / s, y / s)
+
+        if withSize then
+        	if db.width then
+        		f:SetWidth(db.width)
+        	end
+        	if db.height then
+        		f:SetHeight(db.height)
+        	end
+        end
         return true
     end
 end
