@@ -110,7 +110,7 @@ function core:Print(msg, pref)
         else
             pref = "|cff33ff99" .. folder .. "|r - |caaf49141" .. pref .. "|r"
         end
-        print(format("%s: %s", pref, tostring(msg)))
+        DEFAULT_CHAT_FRAME:AddMessage(format("%s: %s", pref, tostring(msg)))
     end
 end
 

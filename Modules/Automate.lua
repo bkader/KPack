@@ -40,13 +40,6 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
         end
     end
 
-    -- mimics system messages
-    local function PrintSys(msg)
-        if msg then
-            chatFrame:AddMessage(msg, 255, 255, 0)
-        end
-    end
-
     local function SetupDatabase()
         if not DB then
             if type(core.db.Automate) ~= "table" or not next(core.db.Automate) then
@@ -354,7 +347,7 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
                 end
 
                 if i > 0 then
-                    PrintSys(L:F("You have successfully sold %d grey items.", i))
+                    core:PrintSys(L:F("You have successfully sold %d grey items.", i))
                 end
             end
         end
@@ -371,15 +364,15 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
                         local vCopper = cost % 100
                         local vSilver = floor((cost % 10000) / 100)
                         local vGold = floor(cost / 100000)
-                        PrintSys(L:F("Repair cost covered by Guild Bank: %dg %ds %dc.", tostring(vGold), tostring(vSilver), tostring(vCopper)))
+                        core:PrintSys(L:F("Repair cost covered by Guild Bank: %dg %ds %dc.", tostring(vGold), tostring(vSilver), tostring(vCopper)))
                     elseif cost < GetMoney() then
                         RepairAllItems()
                         local vCopper = cost % 100
                         local vSilver = floor((cost % 10000) / 100)
                         local vGold = floor(cost / 100000)
-                        PrintSys(L:F("Your items have been repaired for %dg %ds %dc.", tostring(vGold), tostring(vSilver), tostring(vCopper)))
+                        core:PrintSys(L:F("Your items have been repaired for %dg %ds %dc.", tostring(vGold), tostring(vSilver), tostring(vCopper)))
                     else
-                        PrintSys(L["You don't have enough money to repair items!"])
+                        core:PrintSys(L["You don't have enough money to repair items!"])
                     end
                 end
             end
