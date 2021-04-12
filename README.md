@@ -10,7 +10,7 @@ Most of the modules have slash commands, they can be enabled or disabled but the
 
 ## How to install
 
-1. Download the package.
+1. [Download the package](https://github.com/bkader/KPack/archive/refs/heads/main.zip).
 2. Extract it inside AddOns folder.
 3. Rename it to `KPack`.
 4. Enjoy!
@@ -253,6 +253,9 @@ A simple module that allows you to track paladin auras as well as Aura Mastery. 
 
 #### Sunder Armor
 A simple Sunder Armor tracker/counter that allows you as well to report the result to party/raid. Also customizable.
+
+#### Raid Cooldowns
+A lightweight and customizable raid cooldowns tracker.
 
 ## 52. Raid Target Icons:
 
