@@ -3098,6 +3098,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         end
 
         mod.options.args.Cooldowns = GetOptions()
+        order = order + 1
         core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
             SetupDatabase()
             if DB.Cooldowns.enabled then
