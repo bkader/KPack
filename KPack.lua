@@ -114,6 +114,13 @@ function core:Print(msg, pref)
     end
 end
 
+-- mimics system message output
+function core:PrintSys(msg)
+    if msg then
+        DEFAULT_CHAT_FRAME:AddMessage(tostring(msg), 255, 255, 0)
+    end
+end
+
 -- notify function to print message to raid warning frame
 function core:Notify(msg, pref)
     if msg then
