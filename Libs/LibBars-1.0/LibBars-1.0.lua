@@ -326,7 +326,7 @@ do
 	local function buttonClick(self, button)
 		self:GetParent().callbacks:Fire("AnchorClicked", self:GetParent(), button)
 	end
-	
+
 	local DEFAULT_TEXTURE = [[Interface\TARGETINGFRAME\UI-StatusBar]]
 	function lib:NewBarGroup(name, orientation, length, thickness, frameName)
 		if self == lib then
@@ -349,7 +349,7 @@ do
 		list.callbacks = list.callbacks or CallbackHandler:New(list)
 		barLists[self][name] = list
 		list.name = name
-		
+
 		-- list:SetBackdrop({
 			-- bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 			-- edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -368,7 +368,7 @@ do
 		list:SetOrientation(orientation)
 
 		list:UpdateOrientationLayout()
-		
+
 		list.button:SetScript("OnMouseDown", move)
 		list.button:SetScript("OnMouseUp", stopMove)
 		list.button:SetBackdropColor(0,0,0,1)
@@ -384,7 +384,7 @@ do
 
 		list.lastBar = list
 		list.locked = false
-		
+
 		list.texture = DEFAULT_TEXTURE
 		list.spacing = 0
 
@@ -407,7 +407,7 @@ function barListPrototype:NewBarFromPrototype(prototype, ...)
 	bar:SetTexture(self.texture)
 	bar:SetFill(self.fill)
 	-- if isNew then bar:SetValue(0) end
-	
+
 	if self.showIcon then bar:ShowIcon() else bar:HideIcon(bar) end
 	if self.showLabel then bar:ShowLabel() else bar:HideLabel(bar) end
 	if self.showTimerLabel then bar:ShowTimerLabel() else bar:HideTimerLabel(bar) end
@@ -748,7 +748,7 @@ function barListPrototype:UpdateOrientationLayout()
 		self.button:SetWidth(length)
 		self.button:SetHeight(thickness)
 	end
-	
+
 	self.button:SetText(vertical and "" or self.name)
 	self:ReverseGrowth(self.growup)
 	-- self.button:SetWidth(vertical and 15 or length)
@@ -841,7 +841,7 @@ do
 		for i = ct + 1, #values do
 			values[i] = nil
 		end
-		     
+
 		table_sort(values, self.sortFunc or sortFunc)
 
 		local orientation = self.orientation
@@ -901,14 +901,14 @@ do
 					x1, x2 = 0, 0
 				end
 			end
-			
+
 			v:ClearAllPoints()
 			if self.maxBars and i > self.maxBars then
 				v:Hide()
 			else
 				v:Show()
 				if vertical then
-					totalHeight = totalHeight + v:GetWidth() + x1			
+					totalHeight = totalHeight + v:GetWidth() + x1
 					v:SetPoint("TOP"..from, lastBar, "TOP"..to, x1, y1)
 					v:SetPoint("BOTTOM"..from, lastBar, "BOTTOM"..to, x2, y2)
 				else
@@ -1028,7 +1028,7 @@ function barPrototype:OnBarReleased()
 	self:StopTimer()
 	self:StopFlash()
 	self:StopFade()
-	
+
 	self.callbacks:Fire('BarReleased', self, self.name)
 
 	-- Reset our attributes
@@ -1480,7 +1480,7 @@ function barPrototype:IsVertical()
 	return self.orientation % 2 == 0
 end
 
-function barPrototype:SetValue(val, maxValue)        
+function barPrototype:SetValue(val, maxValue)
 	assert(val ~= nil, "Value cannot be nil!")
 	self.value = val
 	if maxValue ~= nil then
@@ -1497,7 +1497,7 @@ function barPrototype:SetValue(val, maxValue)
 		displayMax = self.maxValue
 	end
 	local amt
-	
+
 	if val == 0 then
 		amt = 0
 	else
@@ -1521,11 +1521,11 @@ function barPrototype:SetTextureValue(amt, dist)
 	if o == 1 then
 		t:SetTexCoord(0, amt, 0, 1)
 	elseif o == 2 then
-		t:SetTexCoord(1 - amt, 1, 1, 1, 1 - amt, 0, 1, 0)	
+		t:SetTexCoord(1 - amt, 1, 1, 1, 1 - amt, 0, 1, 0)
 	elseif o == 3 then
 		t:SetTexCoord(1 - amt, 1, 0, 1)
 	elseif o == 4 then
-		t:SetTexCoord(0, 1, amt, 1, 0, 0, amt, 0)	
+		t:SetTexCoord(0, 1, amt, 1, 0, 0, amt, 0)
 	end
 end
 
