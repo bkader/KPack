@@ -1163,6 +1163,10 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             else
                 UnlockDisplay()
             end
+            SLASH_KPACKAURAS1 = "/auras"
+            SlashCmdList.KPACKAURAS = function()
+            	core:OpenConfig("RaidUtility", "Auras")
+            end
         end)
     end
 
@@ -2306,6 +2310,11 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             else
                 UnlockDisplay()
             end
+            SLASH_KPACKHEALERSMANA1 = "/mana"
+            SLASH_KPACKHEALERSMANA2 = "/healersmana"
+            SlashCmdList.KPACKHEALERSMANA = function()
+            	core:OpenConfig("RaidUtility", "Mana")
+            end
         end)
     end
 
@@ -2969,23 +2978,23 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         do
             local spellList, reverseClass
             local _testUnits = {
-                Akiniann = "PRIEST",
-                Deathragex = "MAGE",
-                Etfs = "WARRIOR",
-                Fatherhigh = "PRIEST",
-                Hydragyra = "PRIEST",
-                Kadric = "DEATHKNIGHT",
-                Lazyhunt = "HUNTER",
-                Maayaa = "ROGUE",
-                Metalcown = "DEATHKNIGHT",
-                Nava = "DRUID",
-                Ominnar = "PALADIN",
-                Rifter = "WARLOCK",
-                Saraya = "SHAMAN",
-                Shuuko = "ROGUE",
-                Stances = "WARRIOR",
-                Wangnan = "PALADIN",
-                Whitewolfer = "DRUID"
+                Priest1 = "PRIEST",
+                Mage1 = "MAGE",
+                Warrior1 = "WARRIOR",
+                Priest2 = "PRIEST",
+                Priest3 = "PRIEST",
+                DeathKnight1 = "DEATHKNIGHT",
+                Hunter1 = "HUNTER",
+                Rogue1 = "ROGUE",
+                DeathKnight2 = "DEATHKNIGHT",
+                Druid1 = "DRUID",
+                Paladin1 = "PALADIN",
+                Warlock1 = "WARLOCK",
+                Shaman1 = "SHAMAN",
+                Rogue2 = "ROGUE",
+                Warrior2 = "WARRIOR",
+                Paladin2 = "PALADIN",
+                Druid2 = "DRUID"
             }
 
             function RaidCooldowns:SpawnTestBar()
@@ -3105,6 +3114,11 @@ KPack:AddModule("RaidUtility", function(_, core, L)
                 ShowDisplay()
             else
                 HideDisplay()
+            end
+
+            SLASH_KPACKCOOLDOWNS1 = "/rcd"
+            SlashCmdList.KPACKCOOLDOWNS = function()
+            	core:OpenConfig("RaidUtility", "Cooldowns")
             end
         end)
     end
