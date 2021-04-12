@@ -236,7 +236,7 @@ KPack:AddModule("BlizzBugsSuck", function(_, core)
         StaticPopupDialogs.PARTY_INVITE.hideOnEscape = nil
         StaticPopupDialogs.CONFIRM_SUMMON.hideOnEscape = nil
         -- StaticPopupDialogs.ADDON_ACTION_FORBIDDEN.button1 = nil
-        StaticPopupDialogs.TOO_MANY_LUA_ERRORS.button1 = nil
+        -- StaticPopupDialogs.TOO_MANY_LUA_ERRORS.button1 = nil
         -- StaticPopupDialogs.CONFIRM_BATTLEFIELD_ENTRY.button2 = nil
     end
 
