@@ -35,6 +35,6 @@ KPack:AddModule("Math", function(folder, core)
     end
 
     SlashCmdList["KPACKMATH"] = KPack_Math
-    _G.SLASH_KPACKMATH1 = "/math"
-    _G.SLASH_KPACKMATH2 = "/calc"
+    SLASH_KPACKMATH1 = "/math"
+    SLASH_KPACKMATH2 = "/calc"
 end)

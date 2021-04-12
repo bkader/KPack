@@ -408,9 +408,9 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 
         SLASH_KPACKABM1 = "/abm"
         SlashCmdList.KPACKABM = function()
-            return core:OpenConfig("ActionBars")
+            return core:OpenConfig("Options", "ActionBars")
         end
-        core.options.args.options.args.ActionBars = options
+        core.options.args.Options.args.ActionBars = options
     end)
 
     function LoadSettings()

@@ -174,7 +174,7 @@ KPack:AddModule("PullnBreak", function(_, core, L)
     end)
 
     SlashCmdList["KPACKPULL"] = CommandHandler_Pull
-    _G.SLASH_KPACKPULL1 = "/pull"
+    SLASH_KPACKPULL1 = "/pull"
     SlashCmdList["KPACKBREAK"] = CommandHandler_Break
-    _G.SLASH_KPACKBREAK1 = "/break"
+    SLASH_KPACKBREAK1 = "/break"
 end)

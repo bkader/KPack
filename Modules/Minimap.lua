@@ -144,6 +144,8 @@ KPack:AddModule("Minimap", function(_, core, L)
             local cmd, rest = strsplit(" ", msg, 2)
             if type(exec[cmd]) == "function" then
                 exec[cmd](rest)
+            elseif cmd == "config" or cmd == "options" then
+                core:OpenConfig("Options", "Minimap")
             else
                 Print(L:F("Acceptable commands for: |caaf49141%s|r", "/mm"))
                 print(format(help, "enable", L["enable module"]))
@@ -155,6 +157,7 @@ KPack:AddModule("Minimap", function(_, core, L)
                 print(format(help, "scale|r |cff00ffffn|r", L["change minimap scale"]))
                 print(format(help, "lock", L["lock the minimap"]))
                 print(format(help, "unlock", L["unlocks the minimap"]))
+                print(format(help, "config", L["Access module settings."]))
                 print(format(help, "reset", L["Resets module settings to default."]))
                 print(L["Once unlocked, the minimap can be moved by holding both SHIFT and ALT buttons."])
             end
@@ -174,7 +177,7 @@ KPack:AddModule("Minimap", function(_, core, L)
         SetupDatabase()
 
 		local function _disabled() return not DB.enabled end
-        core.options.args.options.args.minimap = {
+        core.options.args.Options.args.Minimap = {
             type = "group",
             name = MINIMAP_LABEL,
             get = function(i)

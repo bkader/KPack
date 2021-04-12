@@ -123,6 +123,8 @@ KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have exist
                 DB[msg] = not DB[msg]
                 local status = (DB[msg] == true)
                 Print(options[msg] .. " - " .. (status and "|cff00ff00ON|r" or "|cffff0000OFF|r"))
+            elseif msg ~= "config" or msg == "options" then
+                core:OpenConfig("Options", "CLFix")
             else
                 Print(L:F("Acceptable commands for: |caaf49141%s|r", "/logfix"))
                 print("|cffffd700toggle|r", L["Enables or disables the module."])
@@ -131,6 +133,7 @@ KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have exist
                 print("|cffffd700auto|r", L["Toggles clearing combat log when it breaks."])
                 print("|cffffd700wait|r", L["Toggles not clearing until you drop combat."])
                 print("|cffffd700report|r", L["Toggles reporting how many messages were found when it broke."])
+                print("|cffffd700config|r", L["Access module settings."])
                 print("|cffffd700reset|r", L["Resets module settings to default."])
             end
         end
@@ -138,9 +141,9 @@ KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have exist
 
     -- register our slash commands
     SlashCmdList["KPACKLOGFIXER"] = SlashCommandHandler
-    _G.SLASH_KPACKLOGFIXER1 = "/clf"
-    _G.SLASH_KPACKLOGFIXER2 = "/fixer"
-    _G.SLASH_KPACKLOGFIXER3 = "/logfix"
+    SLASH_KPACKLOGFIXER1 = "/clf"
+    SLASH_KPACKLOGFIXER2 = "/fixer"
+    SLASH_KPACKLOGFIXER3 = "/logfix"
 
     local function disabled()
         return not DB.enabled
@@ -190,7 +193,7 @@ KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have exist
     core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
         frame:SetScript("OnUpdate", DB.enabled and UpdateUIFrame or nil)
-        core.options.args.options.args.CLF = options
+        core.options.args.Options.args.CLFix = options
     end)
 
     local function CLF_ZoneCheck()

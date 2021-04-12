@@ -130,11 +130,16 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
         core:RegisterForEvent("PLAYER_LOGIN", function()
             SetupDatabase()
 
+            SLASH_KPACKBUFFFRAME1 = "/buff"
+            SLASH_KPACKBUFFFRAME2 = "/buffframe"
+            SlashCmdList["KPACKBUFFFRAME"] = function()
+            	core:OpenConfig("Options", "BuffFrame")
+            end
             local disabled = function()
                 return not DB.enabled or inCombat
             end
 
-            core.options.args.options.args.BuffFrame = {
+            core.options.args.Options.args.BuffFrame = {
                 type = "group",
                 name = L["Buff Frame"],
                 get = function(i)

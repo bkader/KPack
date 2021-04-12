@@ -199,7 +199,7 @@ KPack:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(fol
             SetMoveHandler(TradeFrame)
 
             -- create option frame
-            core.options.args.options.args.BlizzMove = {
+            core.options.args.Options.args.BlizzMove = {
                 type = "group",
                 name = "BlizzMove",
                 width = "full",

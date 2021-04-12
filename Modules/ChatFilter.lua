@@ -65,7 +65,7 @@ KPack:AddModule("ChatFilter", "Filters out words or completely removes sentences
             DB.enabled = not DB.enabled
             Print(L:F("filter is now %s", ChatFilter_StatusMessage(DB.enabled)))
         elseif cmd == "config" or cmd == "options" then
-        	core:OpenConfig("ChatFilter")
+        	core:OpenConfig("Options", "ChatFilter")
         elseif cmd == "verbose" then
             -- list words
             DB.verbose = not DB.verbose
@@ -235,9 +235,9 @@ KPack:AddModule("ChatFilter", "Filters out words or completely removes sentences
 
         -- register our slash commands handler
         SlashCmdList["KPACKCHATFILTER"] = SlashCommandHandler
-        _G.SLASH_KPACKCHATFILTER1, _G.SLASH_KPACKCHATFILTER2 = "/chatfilter", "/cf"
+        SLASH_KPACKCHATFILTER1, SLASH_KPACKCHATFILTER2 = "/chatfilter", "/cf"
 
-        core.options.args.options.args.ChatFilter = options
+        core.options.args.Options.args.ChatFilter = options
     end)
 
     core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()

@@ -95,7 +95,7 @@ KPack:AddModule("Tooltip", function(_, core, L)
             SLASH_KPACK_TOOLTIP1 = "/tip"
             SLASH_KPACK_TOOLTIP2 = "/tooltip"
             SlashCmdList["KPACK_TOOLTIP"] = function()
-                core:OpenConfig("Tooltip")
+                core:OpenConfig("Options", "Tooltip")
             end
 
             hooksecurefunc(GameTooltip, "SetUnit", Tooltip_SetUnit)
@@ -104,7 +104,7 @@ KPack:AddModule("Tooltip", function(_, core, L)
             hooksecurefunc(GameTooltip, "SetShapeshift", Tooltip_SetShapeshift)
             hooksecurefunc("GameTooltip_SetDefaultAnchor", Tooltip_ChangePosition)
 
-			core.options.args.options.args.Tooltip = {
+			core.options.args.Options.args.Tooltip = {
 			    type = "group",
 			    name = L["Tooltips"],
 			    get = function(i) return DB[i[#i]] end,

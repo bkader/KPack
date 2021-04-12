@@ -53,93 +53,6 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
         end
     end
 
-    local function disabled()
-        return not DB.enabled
-    end
-    core:RegisterForEvent("PLAYER_LOGIN", function()
-        SetupDatabase()
-        core.options.args.options.args.presources = {
-            type = "group",
-            name = "Personal Resources",
-            get = function(i)
-                return DB[i[#i]]
-            end,
-            set = function(i, val)
-                DB[i[#i]] = val
-                PLAYER_ENTERING_WORLD(true)
-            end,
-            args = {
-                enabled = {
-                    type = "toggle",
-                    name = L["Enable"],
-                    order = 1
-                },
-                combat = {
-                    type = "toggle",
-                    name = L["Show out of combat"],
-                    order = 2,
-                    disabled = disabled
-                },
-                percent = {
-                    type = "toggle",
-                    name = L["Show percentage"],
-                    order = 3,
-                    disabled = disabled
-                },
-                width = {
-                    type = "range",
-                    name = L["Width"],
-                    order = 4,
-                    min = 50,
-                    max = 300,
-                    step = 0.1,
-                    bigStep = 1,
-                    disabled = disabled
-                },
-                height = {
-                    type = "range",
-                    name = L["Height"],
-                    order = 5,
-                    min = 10,
-                    max = 80,
-                    step = 0.1,
-                    bigStep = 1,
-                    disabled = disabled
-                },
-                scale = {
-                    type = "range",
-                    name = L["Scale"],
-                    order = 6,
-                    min = 0.5,
-                    max = 3,
-                    step = 0.01,
-                    bigStep = 0.1,
-                    disabled = disabled
-                },
-                sep = {
-                    type = "description",
-                    name = " ",
-                    order = 7
-                },
-                reset = {
-                    type = "execute",
-                    name = RESET,
-                    order = 9,
-                    width = "full",
-                    confirm = function()
-                        return L:F("Are you sure you want to reset %s to default?", "Automate")
-                    end,
-                    func = function()
-                        wipe(DB)
-                        DB = defaults
-                        Print(L["module's settings reset to default."])
-                        PLAYER_ENTERING_WORLD()
-                    end
-                }
-            }
-        }
-    end)
-
     -- ///////////////////////////////////////////////////////
 
     local PersonalResources_Initialize
@@ -429,7 +342,7 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
         end
 
         commands.config = function()
-            core:OpenConfig("presources")
+            core:OpenConfig("Options", "PersonalResources")
         end
         commands.options = commands.config
 
@@ -454,12 +367,99 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
                 print(format(help, "height|r |cff00ffffn|r", L["change personal resources height"]))
                 print(format(help, "percent", L["toggle showing percentage of health and power"]))
                 print(format(help, "combat", L["toggle showing personal resources out of combat"]))
+                print(format(help, "config", L["Access module settings."]))
                 print(format(help, "reset", L["Resets module settings to default."]))
             end
         end
     end
 
-    SlashCmdList["KPACKPLAYERRESOURCES"] = SlashCommandHandler
-    _G.SLASH_KPACKPLAYERRESOURCES1 = "/ps"
-    _G.SLASH_KPACKPLAYERRESOURCES2 = "/resources"
+    core:RegisterForEvent("PLAYER_LOGIN", function()
+        SetupDatabase()
+
+	    SlashCmdList["KPACKPLAYERRESOURCES"] = SlashCommandHandler
+	    SLASH_KPACKPLAYERRESOURCES1 = "/ps"
+	    SLASH_KPACKPLAYERRESOURCES2 = "/resources"
+
+	    local function disabled() return not DB.enabled end
+        core.options.args.Options.args.PersonalResources = {
+            type = "group",
+            name = "Personal Resources",
+            get = function(i)
+                return DB[i[#i]]
+            end,
+            set = function(i, val)
+                DB[i[#i]] = val
+                PLAYER_ENTERING_WORLD(true)
+            end,
+            args = {
+                enabled = {
+                    type = "toggle",
+                    name = L["Enable"],
+                    order = 1
+                },
+                combat = {
+                    type = "toggle",
+                    name = L["Show out of combat"],
+                    order = 2,
+                    disabled = disabled
+                },
+                percent = {
+                    type = "toggle",
+                    name = L["Show percentage"],
+                    order = 3,
+                    disabled = disabled
+                },
+                width = {
+                    type = "range",
+                    name = L["Width"],
+                    order = 4,
+                    min = 50,
+                    max = 300,
+                    step = 0.1,
+                    bigStep = 1,
+                    disabled = disabled
+                },
+                height = {
+                    type = "range",
+                    name = L["Height"],
+                    order = 5,
+                    min = 10,
+                    max = 80,
+                    step = 0.1,
+                    bigStep = 1,
+                    disabled = disabled
+                },
+                scale = {
+                    type = "range",
+                    name = L["Scale"],
+                    order = 6,
+                    min = 0.5,
+                    max = 3,
+                    step = 0.01,
+                    bigStep = 0.1,
+                    disabled = disabled
+                },
+                sep = {
+                    type = "description",
+                    name = " ",
+                    order = 7
+                },
+                reset = {
+                    type = "execute",
+                    name = RESET,
+                    order = 9,
+                    width = "full",
+                    confirm = function()
+                        return L:F("Are you sure you want to reset %s to default?", "Automate")
+                    end,
+                    func = function()
+                        wipe(DB)
+                        DB = defaults
+                        Print(L["module's settings reset to default."])
+                        PLAYER_ENTERING_WORLD()
+                    end
+                }
+            }
+        }
+    end)
 end)

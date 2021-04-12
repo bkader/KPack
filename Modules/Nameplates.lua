@@ -572,7 +572,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
         commands.barWidth = commands.width
 
         commands.config = function()
-            core:OpenConfig("Nameplates")
+            core:OpenConfig("Options", "Nameplates")
         end
         commands.options = commands.config
 
@@ -596,6 +596,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
                 print(_format(help, "max", L["toggles max health text"]))
                 print(_format(help, "shorten", L["shortens health text"]))
                 print(_format(help, "percent", L["toggles health percentage"]))
+                print(_format(help, "config", L["Access module settings."]))
             end
         end
     end
@@ -639,7 +640,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
         end
 
         local function _disabled() return not DB.enabled end
-        core.options.args.options.args.Nameplates = {
+        core.options.args.Options.args.Nameplates = {
             type = "group",
             name = L["Nameplates"],
             get = function(i)
@@ -883,7 +884,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
         end
     end)
 
+    SLASH_KPACKNAMEPLATES1 = "/np"
+    SLASH_KPACKNAMEPLATES2 = "/nameplates"
     SlashCmdList["KPACKNAMEPLATES"] = SlashCommandHandler
-    _G.SLASH_KPACKNAMEPLATES1 = "/np"
-    _G.SLASH_KPACKNAMEPLATES2 = "/nameplates"
 end)

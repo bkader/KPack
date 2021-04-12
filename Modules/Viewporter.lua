@@ -75,6 +75,8 @@ KPack:AddModule("Viewporter", function(_, core, L)
             initialized = nil
             frame:Show()
             Print(L["module's settings reset to default."])
+        elseif cmd == "config" or cmd == "options" then
+            core:OpenConfig("Options", "Viewporter")
         elseif sides[cmd] then
             local size = tonumber(rest)
             size = size or 0
@@ -86,8 +88,8 @@ KPack:AddModule("Viewporter", function(_, core, L)
             print("|cffffd700toggle|r", L["toggles viewporter status"])
             print("|cffffd700enable|r", L["enable module"])
             print("|cffffd700disable|r", L["disable module"])
+            print("|cffffd700config|r", L["Access module settings."])
             print("|cffffd700reset|r", L["Resets module settings to default."])
-            print("|cffffd700side|r [|cff00ffffn|r]", L["where side is left, right, top or bottom."])
             print(L:F("|cffffd700Example|r: %s", "/vp bottom 120"))
             return
         end
@@ -136,7 +138,7 @@ KPack:AddModule("Viewporter", function(_, core, L)
         local disabled = function()
             return not DB.enabled
         end
-        core.options.args.options.args.Viewporter = {
+        core.options.args.Options.args.Viewporter = {
             type = "group",
             name = L["Viewporter"],
             get = function(i)

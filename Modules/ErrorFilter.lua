@@ -88,7 +88,7 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
         exec.default = exec.reset
 
         exec.config = function()
-            core:OpenConfig("ErrorFilter")
+            core:OpenConfig("Options", "ErrorFilter")
         end
         exec.options = exec.config
 
@@ -206,7 +206,7 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
             UIErrorsFrame:Hide()
         end
 
-        core.options.args.options.args.ErrorFilter = GetOptions()
+        core.options.args.Options.args.ErrorFilter = GetOptions()
     end)
 
     local UIErrorsFrame_OldOnEvent = UIErrorsFrame:GetScript("OnEvent")
@@ -222,6 +222,6 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
     end)
 
     SlashCmdList["KPACKERRORFILTER"] = SlashCommandHandler
-    _G.SLASH_KPACKERRORFILTER1 = "/erf"
-    _G.SLASH_KPACKERRORFILTER2 = "/errorfilter"
+    SLASH_KPACKERRORFILTER1 = "/erf"
+    SLASH_KPACKERRORFILTER2 = "/errorfilter"
 end)

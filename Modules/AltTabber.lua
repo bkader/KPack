@@ -89,7 +89,7 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 
     core:RegisterForEvent("PLAYER_LOGIN", function()
         LoadDatabase()
-        core.options.args.options.args.AltTabber = options
+        core.options.args.Options.args.AltTabber = options
     end)
 
     core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()

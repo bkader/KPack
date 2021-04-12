@@ -99,5 +99,5 @@ KPack:AddModule("LootMessageFilter", "Filters loot messages from other players i
     end)
 
     SlashCmdList["KPACKLMF"] = SlashCommandHandler
-    _G.SLASH_KPACKLMF1 = "/lmf"
+    SLASH_KPACKLMF1 = "/lmf"
 end)

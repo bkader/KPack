@@ -533,7 +533,7 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 
 	core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
-        core.options.args.options.args.gearscore = options
+        core.options.args.Options.args.GearScore = options
 
         GameTooltip:HookScript("OnTooltipSetUnit", GearScore_HookSetUnit)
         GameTooltip:HookScript("OnTooltipSetItem", GearScore_HookSetItem)

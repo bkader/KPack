@@ -189,8 +189,8 @@ KPack:AddModule("QuickButton", function(folder, core, L)
         SetupDatabase()
 
         SlashCmdList["KPACKQUICKBUTTON"] = SlashCommandHandler
-        _G.SLASH_KPACKQUICKBUTTON1 = "/qb"
-        _G.SLASH_KPACKQUICKBUTTON2 = "/quickbutton"
+        SLASH_KPACKQUICKBUTTON1 = "/qb"
+        SLASH_KPACKQUICKBUTTON2 = "/quickbutton"
         PLAYER_ENTERING_WORLD()
     end)
 

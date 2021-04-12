@@ -302,7 +302,7 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 
             SCP_RefreshDisplay()
         elseif cmd == "config" or cmd == "options" then
-        	core:OpenConfig("scp")
+        	core:OpenConfig("Options", "SCP")
         else
             Print(L:F("Acceptable commands for: |caaf49141%s|r", "/scp"))
             print("|cffffd700toggle|r", L["Enables or disables the module."])
@@ -331,7 +331,7 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
             return not DB.enabled
         end
 
-        core.options.args.options.args.scp = {
+        core.options.args.Options.args.SCP = {
             type = "group",
             name = "Simple Combo Points",
             get = function(i)

@@ -507,7 +507,7 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
             SLASH_KPACKABS1 = "/"..command
             SLASH_KPACKABS2 = "/actionbarsaver"
             SlashCmdList.KPACKABS = SlashCommandHandler
-            core.options.args.options.args.actionbarsaver = options
+            core.options.args.Options.args.ActionBarSaver = options
         end)
     end
 end)

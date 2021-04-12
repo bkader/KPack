@@ -141,17 +141,20 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
             local cmd = msg:trim():lower()
             if type(exec[cmd]) == "function" then
                 exec[cmd]()
+            elseif cmd == "config" or cmd == "options" then
+                core:OpenConfig("Options", "CombatTime")
             else
                 Print(L:F("Acceptable commands for: |caaf49141%s|r", "/ct"))
                 print(_format(help, "on", L["enable the module."]))
                 print(_format(help, "off", L["disable the module."]))
                 print(_format(help, "stopwatch", L["trigger the in-game stopwatch on combat"]))
+                print(_format(help, "config", L["Access module settings."]))
                 print(_format(help, "reset", L["Resets module settings to default."]))
             end
         end
 
         -- register our slash commands
-        _G.SLASH_KPACKCOMBATTIME1 = "/ctm"
+        SLASH_KPACKCOMBATTIME1 = "/ctm"
         SlashCmdList["KPACKCOMBATTIME"] = SlashCommandHandler
 
         function PLAYER_LOGIN()
@@ -190,7 +193,7 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
         }
         core:RegisterForEvent("PLAYER_LOGIN", function()
             PLAYER_LOGIN()
-            core.options.args.options.args.CombatTime = options
+            core.options.args.Options.args.CombatTime = options
         end)
     end
 

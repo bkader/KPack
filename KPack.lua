@@ -188,13 +188,13 @@ do
         name = "|cfff58cbaKader|r|caaf49141Pack|r",
         childGroups = "tab",
         args = {
-            options = {
+            Options = {
                 type = "group",
                 name = L["Options"],
                 order = 0,
                 args = {}
             },
-            modules = {
+            Modules = {
                 type = "group",
                 name = L["Modules"],
                 order = 99999,
@@ -204,7 +204,7 @@ do
                 end,
                 set = function(i, val)
                     KPackDB.disabled[i[#i]] = val
-                    core.options.args.modules.args.apply.disabled = false
+                    core.options.args.Modules.args.apply.disabled = false
                 end,
                 args = {
                     apply = {
@@ -273,6 +273,7 @@ do
             print(help:format("/tip", L:F("access |caaf49141%s|r module commands", "Tooltip")))
             print(help:format("/uf", L:F("access |caaf49141%s|r module commands", "UnitFrames")))
             print(help:format("/vp", L:F("access |caaf49141%s|r module commands", "Viewporter")))
+            print(help:format("/about", "about the addon."))
         elseif cmd == "about" or cmd == "info" then
             core:Print("This small addon was made with big passion by |cfff58cbaKader|r.\n If you have suggestions or you are facing issues with my addons, feel free to message me on the forums, Github, CurseForge or Discord:\n|cffffd700bkader#6361|r or |cff7289d9https://discord.gg/a8z5CyS3eW|r")
         else
@@ -385,7 +386,7 @@ function core:AddModule(name, desc, func)
     self.moduleslist = self.moduleslist or {}
     self.moduleslist[#self.moduleslist + 1] = func
 
-    self.options.args.modules.args.list.args[name] = {
+    self.options.args.Modules.args.list.args[name] = {
         type = "toggle",
         name = name,
         desc = L[desc]

@@ -108,6 +108,20 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
                     name = L["Enable"],
                     order = 1
                 },
+                reset = {
+                    type = "execute",
+                    name = RESET,
+                    order = 1.1,
+                    confirm = function()
+                        return L:F("Are you sure you want to reset %s to default?", "Automate")
+                    end,
+                    func = function()
+                        core.db.Automate = nil
+                        core.char.Automate = nil
+                        DB = nil
+                        SetupDatabase()
+                    end
+                },
                 automatic = {
                     type = "group",
                     name = L["Automatic Tasks"],
@@ -262,7 +276,13 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
         }
 
         core:RegisterForEvent("PLAYER_LOGIN", function()
-            core.options.args.options.args.Automate = options
+            core.options.args.Options.args.Automate = options
+
+            SLASH_KPACKAUTOMATE1 = "/auto"
+            SLASH_KPACKAUTOMATE2 = "/automate"
+            SlashCmdList["KPACKAUTOMATE"] = function()
+                core:OpenConfig("Options", "Automate")
+            end
         end)
         core:RegisterForEvent("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
     end

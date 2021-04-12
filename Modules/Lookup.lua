@@ -113,5 +113,5 @@ KPack:AddModule("LookUp", "A slash command that allows you to search items and s
     end
 
     SlashCmdList["KPACKLOOKUP"] = SlashCommandHandler
-    _G.SLASH_KPACKLOOKUP1, _G.SLASH_KPACKLOOKUP2 = "/lookup", "/lu"
+    SLASH_KPACKLOOKUP1, SLASH_KPACKLOOKUP2 = "/lookup", "/lu"
 end)

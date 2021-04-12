@@ -410,7 +410,7 @@ KPack:AddModule(TARGETICONS, "Allows you to quickly mark raid targets using a ra
     core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
 
-        core.options.args.options.args.RTI = {
+        core.options.args.Options.args.RTI = {
             type = "group",
             name = TARGETICONS,
             get = function(i)

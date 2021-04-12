@@ -360,12 +360,9 @@ L["Achievement ID"] = true
 -- IgnoreMore
 L["%s does not look like a valid player name."] = true
 L["Reason for ignoring this player:"] = true
-L["remove a player from ignore list"] = true
 L["wipe the ingore list"] = true
 L["ignore list wiped"] = true
-L["|cff00ffff%s|r successfully removed from the ignore list"] = true
-L["could not find a player named %|cff00ffff%s|r on the ignore list"] = true
-L["invalid player name"] = true
+L["(Ignored: %s: %s. Further attempts will not be shown.)"] = true
 -- LookUp
 L["Searching for items containing |cffffd700%s|r"] = true
 L["Searching for spells containing |cffffd700%s|r"] = true

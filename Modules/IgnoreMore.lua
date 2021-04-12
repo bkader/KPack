@@ -472,7 +472,7 @@ KPack:AddModule("IgnoreMore", "Let you ignore more than 49 players, a list share
 	            else
 	                local entry = list[player]
 	                notified[player] = true
-	                msg = msg .. "  (Ignored: " .. IgnoreMore_ShortDate(entry.time) .. ': "' .. (entry.reason or "") .. '". Further attempts will not be shown.)'
+	                msg = msg .. L:F("(Ignored: %s: %s. Further attempts will not be shown.)", IgnoreMore_ShortDate(entry.time), entry.reason or "")
 	                return false, msg, ...
 	            end
 	        end
@@ -536,9 +536,9 @@ KPack:AddModule("IgnoreMore", "Let you ignore more than 49 players, a list share
 
 	        -- register our slash commands handler
 	        SlashCmdList["KPACKIGNOREMORE"] = SlashCommandHandler
-	        _G.SLASH_KPACKIGNOREMORE1 = "/im"
-	        _G.SLASH_KPACKIGNOREMORE2 = "/ignoremore"
-	        _G.SLASH_KPACKIGNOREMORE3 = "/igmore"
+	        SLASH_KPACKIGNOREMORE1 = "/im"
+	        SLASH_KPACKIGNOREMORE2 = "/ignoremore"
+	        SLASH_KPACKIGNOREMORE3 = "/igmore"
 
 	        if DB.enabled then
 	            UIParent:UnregisterEvent("PARTY_INVITE_REQUEST")

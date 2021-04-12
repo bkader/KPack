@@ -341,14 +341,11 @@ L["Filter Enabled: %s - Frame Shown: %s"] = "Filtre activé: %s - Cadre affiché
 -- L["Quest ID"] = true
 -- L["Achievement ID"] = true
 -- IgnoreMore
--- L["%s does not look like a valid player name."] = true
--- L["Reason for ignoring this player:"] = true
--- L["remove a player from ignore list"] = true
--- L["wipe the ingore list"] = true
--- L["ignore list wiped"] = true
--- L["|cff00ffff%s|r successfully removed from the ignore list"] = true
--- L["could not find a player named %|cff00ffff%s|r on the ignore list"] = true
--- L["invalid player name"] = true
+L["%s does not look like a valid player name."] = "%s ne semble pas être un nom de joueur valide."
+L["Reason for ignoring this player:"] = "Raison pour ignorer de ce joueur:"
+L["wipe the ingore list"] = "efface la liste des ignorés"
+L["ignore list wiped"] = "liste des ignorés effacée"
+L["(Ignored: %s: %s. Further attempts will not be shown.)"] = "(Ignoré: %s: %s. Les futures tentatives ne seront pas affichées.)"
 -- LookUp
 -- L["Searching for items containing |cffffd700%s|r"] = true
 -- L["Searching for spells containing |cffffd700%s|r"] = true

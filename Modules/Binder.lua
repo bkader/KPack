@@ -73,7 +73,7 @@ KPack:AddModule("Binder", "Allows you to save your current keybinds as a profile
     core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
 
-        core.options.args.options.args.Binder = {
+        core.options.args.Options.args.Binder = {
             type = "group",
             name = "Binder",
             args = {
@@ -208,7 +208,7 @@ KPack:AddModule("Binder", "Allows you to save your current keybinds as a profile
 
         SLASH_KPACKBINDER1 = "/binder"
         SlashCmdList.KPACKBINDER = function()
-            return core:OpenConfig("Binder")
+            return core:OpenConfig("Options", "Binder")
         end
     end)
 end)

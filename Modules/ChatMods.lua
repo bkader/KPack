@@ -534,13 +534,13 @@ KPack:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removi
 
 		    -- Tell Target Command!
 		    SlashCmdList["KPACKTELLTARGET"] = ChatMods_TellTarget
-		    _G.SLASH_KPACKTELLTARGET1 = "/tt"
-		    _G.SLASH_KPACKTELLTARGET2 = "/ее"
-		    _G.SLASH_KPACKTELLTARGET3 = "/wt"
+		    SLASH_KPACKTELLTARGET1 = "/tt"
+		    SLASH_KPACKTELLTARGET2 = "/ее"
+		    SLASH_KPACKTELLTARGET3 = "/wt"
 
 		    SlashCmdList["KPACKCHATMODS"] = SlashCommandHandler
-		    _G.SLASH_KPACKCHATMODS1 = "/cm"
-		    _G.SLASH_KPACKCHATMODS2 = "/chatmods"
+		    SLASH_KPACKCHATMODS1 = "/cm"
+		    SLASH_KPACKCHATMODS2 = "/chatmods"
 
             hooksecurefunc("FloatingChatFrame_OnMouseScroll", ChatMods_FloatingChatFrame_OnMouseScroll)
         end

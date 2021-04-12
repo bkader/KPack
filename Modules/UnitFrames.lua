@@ -154,8 +154,8 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
     end
 
     -- Slashcommand stuff
-    _G.SLASH_UNITFRAMESIMPROVED1 = "/uf"
-    _G.SLASH_UNITFRAMESIMPROVED2 = "/ufi"
+    SLASH_UNITFRAMESIMPROVED1 = "/uf"
+    SLASH_UNITFRAMESIMPROVED2 = "/ufi"
     SlashCmdList["UNITFRAMESIMPROVED"] = function(msg)
         local cmd, rest = strsplit(" ", msg, 2)
         cmd = strlower(cmd)
