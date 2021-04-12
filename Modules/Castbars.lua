@@ -1207,7 +1207,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
             for i, frame in pairs(self.frames) do
                 frame:EnableMouse(true)
                 frame.text:SetText(frame.friendlyName)
-                frame.statusBar:SetStatusBarColor(unpack(self.db[frame.configName]["BarColor"] or self.backup.BarColor))
+                frame.statusBar:SetStatusBarColor(unpack(self.db[frame.configName]["BarColor"]))
                 frame.statusBar:SetAlpha(1)
                 frame.statusBar:SetValue(select(2, frame.statusBar:GetMinMaxValues()))
                 if frame.spark then
