@@ -187,6 +187,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
         OnAccept = function()
             PlayerFrame:SetUserPlaced(false)
             TargetFrame:SetUserPlaced(false)
+            core.char.UnitFrames = nil
             DB = nil
             KPack_UnitFrames_LoadDefaultSettings()
             ReloadUI()
