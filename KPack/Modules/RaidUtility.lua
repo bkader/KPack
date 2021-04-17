@@ -1183,7 +1183,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
         local AddSunder, ResetSunders, ReportSunders
 
-        local sunder = select(1, GetSpellInfo(47467))
+        local sunder = select(1, GetSpellInfo(11597))
         local sunders, sunderFrames = {}, {}
         local testSunders, testMode = {Name1 = 20, Name2 = 32, Name3 = 6, Name4 = 12}
 
