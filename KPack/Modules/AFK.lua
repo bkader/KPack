@@ -132,7 +132,7 @@ KPack:AddModule("AFK", "Shows a timer window whenever you go AFK.", function(_, 
         end
     end
 
-    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         AfkFrame = AfkFrame or CreateWindow()
     end)
 
@@ -140,9 +140,10 @@ KPack:AddModule("AFK", "Shows a timer window whenever you go AFK.", function(_, 
         if unit ~= "player" then
             return
         elseif _UnitIsAFK(unit) then
-            AfkFrame:Show()
             AFK = true
             View_MoveCamera(cameraSpeed)
+            AfkFrame = AfkFrame or CreateWindow()
+            AfkFrame:Show()
             AfkFrame:SetScript("OnUpdate", Window_OnUpdate)
         else
             AFK = false
