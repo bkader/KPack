@@ -35,7 +35,7 @@ local function SetupDatabase()
         DB = core.db.MoveAnything
     end
 end
-core:RegisterForEvent("VARIABLES_LOADED", SetupDatabase)
+core:RegisterForEvent("PLAYER_LOGIN", SetupDatabase)
 
 local function void()
 end
@@ -812,6 +812,7 @@ function MovAny:Boot()
 end
 
 function MovAny:OnPlayerLogout()
+	SetupDatabase()
 	if MAOptions:IsShown() then
 		DB.autoShowNext = true
 	end
