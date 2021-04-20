@@ -77,6 +77,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 
     function KPack_UnitFrames_ApplySettings(settings)
         settings = settings or DB
+        if InCombatLockdown() then return end
         KPack_UnitFrames_SetFrameScale(settings.scale)
 
         if settings.player.moved == true then
@@ -98,6 +99,8 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
     end
 
     function KPack_UnitFrames_Enable()
+        if InCombatLockdown() then return end
+
         -- Generic status text hook and instantly update player
         hooksecurefunc("TextStatusBar_UpdateTextString", KPack_UnitFrames_TextStatusBar_UpdateTextString)
         KPack_UnitFrames_TextStatusBar_UpdateTextString(PlayerFrameHealthBar)
@@ -130,6 +133,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
         hooksecurefunc(Boss1TargetFrame, "Show", KPack_UnitFrames_BossTargetFrame_Show)
         hooksecurefunc(Boss2TargetFrame, "Show", KPack_UnitFrames_BossTargetFrame_Show)
         hooksecurefunc(Boss3TargetFrame, "Show", KPack_UnitFrames_BossTargetFrame_Show)
+        hooksecurefunc(Boss4TargetFrame, "Show", KPack_UnitFrames_BossTargetFrame_Show)
     end
 
     function KPack_UnitFrames_Style_PlayerFrame()
@@ -143,12 +147,14 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
     end
 
     function KPack_UnitFrames_SetFrameScale(scale)
+        if InCombatLockdown() then return end
         PlayerFrame:SetScale(scale)
         TargetFrame:SetScale(scale)
         FocusFrame:SetScale(scale)
         Boss1TargetFrame:SetScale(scale * 0.9)
         Boss2TargetFrame:SetScale(scale * 0.9)
         Boss3TargetFrame:SetScale(scale * 0.9)
+        Boss4TargetFrame:SetScale(scale * 0.9)
 
         DB.scale = scale
     end
@@ -200,6 +206,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
     -- Overloaded functions from Blizzard Unitframes Code
     function KPack_UnitFrames_PlayerFrame_OnMouseDown(self, button)
         if IsShiftKeyDown() and IsAltKeyDown() and button == "LeftButton" then
+            if InCombatLockdown() then return end
             KPack_UnitFrames_PlayerFrame_IsMoving = true
             PlayerFrame:SetUserPlaced(true)
             PlayerFrame:StartMoving()
@@ -208,6 +215,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 
     function KPack_UnitFrames_PlayerFrame_OnMouseUp(self, button)
         if KPack_UnitFrames_PlayerFrame_IsMoving == true and button == "LeftButton" then
+            if InCombatLockdown() then return end
             KPack_UnitFrames_PlayerFrame_IsMoving = false
             PlayerFrame:StopMovingOrSizing()
 
@@ -223,6 +231,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
     -- Overloaded functions from Blizzard Unitframes Code
     function KPack_UnitFrames_TargetFrame_OnMouseDown(self, button)
         if IsShiftKeyDown() and IsAltKeyDown() and button == "LeftButton" then
+            if InCombatLockdown() then return end
             KPack_UnitFrames_TargetFrame_IsMoving = true
             TargetFrame:SetUserPlaced(true)
             TargetFrame:StartMoving()
@@ -231,6 +240,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 
     function KPack_UnitFrames_TargetFrame_OnMouseUp(self, button)
         if KPack_UnitFrames_TargetFrame_IsMoving == true and button == "LeftButton" then
+            if InCombatLockdown() then return end
             KPack_UnitFrames_TargetFrame_IsMoving = false
             TargetFrame:StopMovingOrSizing()
 
@@ -390,11 +400,9 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
     end
 
     function KPack_UnitFrames_BossTargetFrame_Show(self)
+        if InCombatLockdown() then return end
         self.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-UnitFrame-Boss")
-
-        if not (DB.scale == nil) then
-            self:SetScale(DB.scale * 0.9)
-        end
+        self:SetScale((DB.scale or 1) * 0.9)
     end
 
     function KPack_UnitFrames_FocusFrame_Show(self)
@@ -479,7 +487,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
     end)
 
     core:RegisterForEvent("UNIT_ENTERED_VEHICLE", function(_, unit)
-        if unit == "player" then
+        if unit == "player" and not InCombatLockdown() then
             PlayerFrame.state = "vehicle"
             UnitFrame_SetUnit(PlayerFrame, "vehicle", PlayerFrameHealthBar, PlayerFrameManaBar)
             UnitFrame_SetUnit(PetFrame, "player", PetFrameHealthBar, PetFrameManaBar)
@@ -490,7 +498,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
     end)
 
     core:RegisterForEvent("UNIT_EXITED_VEHICLE", function(_, unit)
-        if unit == "player" then
+        if unit == "player" and not InCombatLockdown() then
             PlayerFrame.state = "player"
             UnitFrame_SetUnit(PlayerFrame, "player", PlayerFrameHealthBar, PlayerFrameManaBar)
             UnitFrame_SetUnit(PetFrame, "pet", PetFrameHealthBar, PetFrameManaBar)
