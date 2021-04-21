@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("TellMeWhen", function(folder, core, L)
+KPack:AddModule("TellMeWhen", function(_, core, L)
     if core:IsDisabled("TellMeWhen") then return end
 
     local TellMeWhen = {}
@@ -54,6 +54,8 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
 
     local groupDefaults = {
         Enabled = false,
+        Width = 30,
+        Height = 30,
         Scale = 2.0,
         Rows = 1,
         Columns = 4,
@@ -131,17 +133,27 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         return group
     end
 
-    local function TellMeWhen_CreateIcon(name, parent)
+    local function TellMeWhen_CreateIcon(name, parent, width, height)
+        width = width or 30
+        height = height or 30
+
+        local left = (36 - width) / 72
+        local right = 1 - left
+        local top = (36 - height) / 72
+        local bottom = 1 - top
+
         local icon = CreateFrame("Frame", name, parent)
-        icon:SetSize(30, 30)
+        icon:SetSize(width, height)
 
         local t = icon:CreateTexture(nil, "BACKGROUND")
-        t:SetTexture([[Interface\Buttons\UI-EmptySlot-Disabled]])
-        t:SetSize(46, 46)
-        t:SetPoint("CENTER")
+        t:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background]])
+        t:SetTexCoord(left, right, top, bottom)
+        t:SetAllPoints(icon)
+        icon.bg = t
 
         t = icon:CreateTexture("$parentTexture", "ARTWORK")
         t:SetTexture([[Interface\Icons\INV_Misc_QuestionMark]])
+        t:SetTexCoord(left, right, top, bottom)
         t:SetAllPoints(icon)
         icon.texture = t
 
@@ -188,6 +200,23 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         end)
 
         return icon
+    end
+
+    local function TellMeWhen_ResizeIcon(icon, width, height)
+        if not icon then
+            return
+        end
+        width = width or 30
+        height = height or 30
+
+        local left = (36 - width) / 72
+        local right = 1 - left
+        local top = (36 - height) / 72
+        local bottom = 1 - top
+
+        icon:SetSize(width, height)
+        icon.bg:SetTexCoord(left, right, top, bottom)
+        icon.texture:SetTexCoord(left, right, top, bottom)
     end
 
     -- -------------
@@ -362,8 +391,8 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             local maxExpirationTime = 0
             local processedBuffInAuraNames = false
 
-		    local filter = icon.OnlyMine and "PLAYER"
-		    local func = (icon.BuffOrDebuff == "HELPFUL") and UnitBuff or UnitDebuff
+            local filter = icon.OnlyMine and "PLAYER"
+            local func = (icon.BuffOrDebuff == "HELPFUL") and UnitBuff or UnitDebuff
 
             for _, iName in ipairs(icon.Name) do
                 local buffName, iconTexture, count, duration, expirationTime
@@ -576,7 +605,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
     do
         local currentIcon = {groupID = 1, iconID = 1}
 
-        StaticPopupDialogs["TELLMEWHEN_CHOOSENAME_DIALOG"] = {
+        StaticPopupDialogs["KTELLMEWHEN_CHOOSENAME_DIALOG"] = {
             text = L["Enter the Name or Id of the Spell, Ability, Item, Buff, Debuff you want this icon to monitor. You can add multiple Buffs/Debuffs by seperating them with ;"],
             button1 = ACCEPT,
             button2 = CANCEL,
@@ -806,7 +835,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         end
 
         function TellMeWhen:IconMenu_ShowNameDialog()
-            local dialog = StaticPopup_Show("TELLMEWHEN_CHOOSENAME_DIALOG")
+            local dialog = StaticPopup_Show("KTELLMEWHEN_CHOOSENAME_DIALOG")
         end
 
         function TellMeWhen:IconMenu_ChooseName(text)
@@ -863,6 +892,8 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         local activePriSpec = DB.Groups[groupID].PrimarySpec
         local activeSecSpec = DB.Groups[groupID].SecondarySpec
         local iconSpacing = DB.Groups[groupID].Spacing or 1
+        local iconWidth = DB.Groups[groupID].Width or 30
+        local iconHeight = DB.Groups[groupID].Height or 30
 
         if (currentSpec == 1 and not activePriSpec) or (currentSpec == 2 and not activeSecSpec) then
             genabled = false
@@ -873,7 +904,12 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                 for column = 1, columns do
                     local iconID = (row - 1) * columns + column
                     local iconName = groupName .. "_Icon" .. iconID
-                    local icon = _G[iconName] or TellMeWhen_CreateIcon(iconName, group)
+                    local icon = _G[iconName]
+                    if not icon then
+                        icon = TellMeWhen_CreateIcon(iconName, group, iconWidth, iconHeight)
+                    elseif icon:GetHeight() ~= iconHeight or icon:GetWidth() ~= iconWidth then
+                        TellMeWhen_ResizeIcon(icon, iconWidth, iconHeight)
+                    end
                     icon:SetID(iconID)
                     icon:Show()
                     if (column > 1) then
@@ -1221,17 +1257,17 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
         }
     }
     function SetupDatabase()
-    	if not DB then
-	        if type(core.char.TMW) ~= "table" or not next(core.char.TMW) then
-	            for i = 1, maxGroups do
-	                defaults.Groups[i] = groupDefaults
-	            end
+        if not DB then
+            if type(core.char.TMW) ~= "table" or not next(core.char.TMW) then
+                for i = 1, maxGroups do
+                    defaults.Groups[i] = groupDefaults
+                end
 
-	            core.char.TMW = CopyTable(defaults)
-	            core.char.TMW.Groups[1].Enabled = true
-	        end
-	        DB = core.char.TMW
-    	end
+                core.char.TMW = CopyTable(defaults)
+                core.char.TMW.Groups[1].Enabled = true
+            end
+            DB = core.char.TMW
+        end
     end
 
     core:RegisterForEvent("PLAYER_LOGIN", function()
@@ -1244,8 +1280,12 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
             g:SetID(i)
         end
 
-        SLASH_KPACKTELLMEWHEN1 = "/tellmewhen"
-        SLASH_KPACKTELLMEWHEN2 = "/tmw"
+        SLASH_KPACKTELLMEWHEN1 = "/ktellmewhen"
+        SLASH_KPACKTELLMEWHEN2 = "/ktmw"
+        if not _G.TellMeWhen then
+            SLASH_KPACKTELLMEWHEN1 = "/tellmewhen"
+            SLASH_KPACKTELLMEWHEN2 = "/tmw"
+        end
         SlashCmdList.KPACKTELLMEWHEN = SlashCommandHandler
 
         TellMeWhen:Update()
@@ -1292,10 +1332,34 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                         desc = L["Check to only show this group of icons while in combat."],
                         order = 4
                     },
+                    Width = {
+                        type = "range",
+                        name = L["Width"],
+                        order = 5,
+                        min = 15,
+                        max = 30,
+                        step = 1,
+                        bigStep = 1,
+                        get = function()
+                            return DB.Groups[i].Width or 30
+                        end
+                    },
+                    Height = {
+                        type = "range",
+                        name = L["Height"],
+                        order = 6,
+                        min = 15,
+                        max = 30,
+                        step = 1,
+                        bigStep = 1,
+                        get = function()
+                            return DB.Groups[i].Height or 30
+                        end
+                    },
                     Scale = {
                         type = "range",
                         name = L["Scale"],
-                        order = 5,
+                        order = 7,
                         min = 0.5,
                         max = 8,
                         step = 0.01,
@@ -1305,7 +1369,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                         type = "range",
                         name = L["Columns"],
                         desc = L["Set the number of icon columns in this group."],
-                        order = 6,
+                        order = 8,
                         min = 1,
                         max = 8,
                         step = 1
@@ -1314,7 +1378,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                         type = "range",
                         name = L["Rows"],
                         desc = L["Set the number of icon rows in this group."],
-                        order = 6,
+                        order = 9,
                         min = 1,
                         max = maxRows,
                         step = 1
@@ -1322,7 +1386,7 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                     Spacing = {
                         type = "range",
                         name = L["Spacing"],
-                        order = 7,
+                        order = 10,
                         min = 0,
                         max = 50,
                         step = 1
@@ -1330,12 +1394,12 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                     sep1 = {
                         type = "description",
                         name = " ",
-                        order = 8
+                        order = 11
                     },
                     Reset = {
                         type = "execute",
                         name = RESET,
-                        order = 9,
+                        order = 99,
                         width = "full",
                         func = function()
                             local locked
@@ -1350,6 +1414,8 @@ KPack:AddModule("TellMeWhen", function(folder, core, L)
                             group:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 100, -50 - (35 * i - 1))
                             group.Scale = 2
                             DB.Groups[i].Scale = 2
+                            DB.Groups[i].Width = 30
+                            DB.Groups[i].Height = 30
                             TellMeWhen:Group_Update(i)
 
                             if locked then
