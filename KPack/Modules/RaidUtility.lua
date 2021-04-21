@@ -29,7 +29,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
     local DB, SetupDatabase, _
     local defaults, order = {}, 1
-    local CreateRaidUtilityPanel
+    local CreateRaidUtilityPanel = core.Noop
 
     -- common functions
 
@@ -57,7 +57,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
     ---------------------------------------------------------------------------
     -- Raid Menu
 
-    do
+    if not core.ElvUI then
         local InCombatLockdown = InCombatLockdown
         local DoReadyCheck = DoReadyCheck
         local ToggleFriendsFrame = ToggleFriendsFrame

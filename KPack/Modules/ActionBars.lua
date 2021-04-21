@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit of the allowed.", function(_, core, L)
-    if core:IsDisabled("ActionBars") then return end
+    if core:IsDisabled("ActionBars") or core.ElvUI then return end
 
     local mod = core.ActionBars or {}
     core.ActionBars = mod

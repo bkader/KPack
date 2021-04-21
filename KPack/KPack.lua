@@ -5,6 +5,13 @@ local L = core.L
 core.ACD = LibStub("AceConfigDialog-3.0")
 core.LSM = LibStub("LibSharedMedia-3.0")
 
+-- player's info
+core.guid = UnitGUID("player")
+core.name = select(1, UnitName("player"))
+core.class = select(2, UnitClass("player"))
+core.race = select(2, UnitRace("player"))
+core.faction = select(1, UnitFactionGroup("player"))
+
 -------------------------------------------------------------------------------
 -- C_Timer mimic
 --
@@ -138,23 +145,19 @@ function core:Notify(msg, pref)
     end
 end
 
-do
-    local function noFunc()
-    end
-    do
-        function core:Kill(frame)
-            if frame and frame.SetScript then
-                frame:UnregisterAllEvents()
-                frame:SetScript("OnEvent", nil)
-                frame:SetScript("OnUpdate", nil)
-                frame:SetScript("OnHide", nil)
-                frame:Hide()
-                frame.SetScript = noFunc
-                frame.RegisterEvent = noFunc
-                frame.RegisterAllEvents = noFunc
-                frame.Show = noFunc
-            end
-        end
+-- functions used to kill functions/frames.
+core.Noop = function() return end
+function core:Kill(frame)
+    if frame and frame.SetScript then
+        frame:UnregisterAllEvents()
+        frame:SetScript("OnEvent", nil)
+        frame:SetScript("OnUpdate", nil)
+        frame:SetScript("OnHide", nil)
+        frame:Hide()
+        frame.SetScript = core.Noop
+        frame.RegisterEvent = core.Noop
+        frame.RegisterAllEvents = core.Noop
+        frame.Show = core.Noop
     end
 end
 
@@ -306,18 +309,13 @@ do
             _G.SLASH_KPACK1 = "/kp"
             _G.SLASH_KPACK2 = "/kpack"
 
-            core.faction = select(1, UnitFactionGroup("player"))
-            core.name = select(1, UnitName("player"))
-            core.class = select(2, UnitClass("player"))
-            core.race = select(2, UnitRace("player"))
-            core.guid = UnitGUID("player")
-
 			core.LSM:Register("statusbar", "KPack", [[Interface\Addons\KPack\Media\Textures\statusbar]])
 			core.LSM:Register("font", "Hooge", [[Interface\Addons\KPack\Media\Fonts\HOOGE.ttf]])
 			core.LSM:Register("font", "Yanone", [[Interface\Addons\KPack\Media\Fonts\yanone.ttf]])
 
             core:Print(L["addon loaded. use |cffffd700/kp|r to access options."])
 
+            core.ElvUI = _G.ElvUI and select(1, unpack(ElvUI)) or false
             if core.moduleslist then
                 for i = 1, #core.moduleslist do
                     core.moduleslist[i](folder, core, L)

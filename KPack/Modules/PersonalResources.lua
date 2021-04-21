@@ -7,6 +7,7 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
     local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax
     local UnitPowerType, UnitPower, UnitPowerMax = UnitPowerType, UnitPower, UnitPowerMax
     local floor, format = math.floor, string.format
+    local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
 
     -- saved variables and default
     local DB
@@ -14,16 +15,15 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
         enabled = true,
         combat = false,
         percent = false,
+        borderless = false,
+        texture = "Blizzard",
         width = 180,
         height = 32,
-        scale = 1,
-        xOfs = 0,
-        yOfs = -120,
-        anchor = "CENTER"
+        scale = 1
     }
     local PLAYER_ENTERING_WORLD
 
-    local fname = "KPack_PersonalResources"
+    local fname = "KPersonalResources"
 
     -- module print function
     local function Print(msg)
@@ -49,6 +49,14 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
             if type(core.char.PersonalResources) ~= "table" or not next(core.char.PersonalResources) then
                 core.char.PersonalResources = CopyTable(defaults)
             end
+
+            -- to make update easy
+            for k, v in pairs(defaults) do
+                if core.char.PersonalResources[k] == nil then
+                    core.char.PersonalResources[k] = v
+                end
+            end
+
             DB = core.char.PersonalResources
         end
     end
@@ -66,17 +74,15 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 
             local bar = CreateFrame("StatusBar", nil, parent)
             bar:SetPoint("CENTER", 0, -120)
-            bar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
             bar:SetHitRectInsets(2, 2, 2, 2)
-            bar:GetStatusBarTexture():SetHorizTile(false)
-            bar:GetStatusBarTexture():SetVertTile(false)
             bar:SetMinMaxValues(0, 100)
 
             local percent = bar:CreateFontString(nil, "OVERLAY")
             percent:SetFont(PlayerFrameHealthBarText:GetFont())
-            percent:SetPoint("LEFT")
-            percent:SetPoint("RIGHT")
+            percent:SetPoint("TOPLEFT")
+            percent:SetPoint("BOTTOMRIGHT")
             percent:SetJustifyH("CENTER")
+            percent:SetJustifyV("MIDDLE")
             percent:SetText("")
             percent:Hide()
             bar.percent = percent
@@ -84,18 +90,23 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
         end
 
         local function PersonalResources_CreateBorder(bar)
-            local border = CreateFrame("Frame", nil, bar)
+            if DB.borderless then
+                if bar.border then
+                    bar.border:Hide()
+                    bar.border = nil
+                end
+                return
+            end
+            local border = bar.border or CreateFrame("Frame", nil, bar)
             border:SetBackdrop({
-                    bgFile = "Interface\\Tooltips\\UI-StatusBar-Border",
-                    tile = false,
-                    tileSize = bar:GetWidth(),
-                    edgeSize = bar:GetHeight(),
-                    insets = {left = 0, right = 0, top = 0, bottom = 0}
-                }
-            )
-            border:SetHeight(bar:GetHeight() + 5)
-            border:SetWidth(bar:GetWidth() + 5)
-            border:SetPoint("CENTER", 0, 0)
+                bgFile = "Interface\\Tooltips\\UI-StatusBar-Border",
+                tile = false,
+                tileSize = bar:GetWidth(),
+                edgeSize = bar:GetHeight(),
+                insets = {left = 0, right = 0, top = 0, bottom = 0}
+            })
+            border:SetPoint("TOPLEFT", -5, 5)
+            border:SetPoint("BOTTOMRIGHT", 5, -5)
             return border
         end
 
@@ -110,12 +121,9 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
         -- handles OnDragStop event
         local function Frame_OnDragStop(self)
             if self.moving then
-	            self.moving = false
-	            self:StopMovingOrSizing()
-	            local anchor, _, _, x, y = self:GetPoint(1)
-	            DB.anchor = anchor
-	            DB.xOfs = x
-	            DB.yOfs = y
+                self.moving = false
+                self:StopMovingOrSizing()
+                core:SavePosition(self, core.char.PersonalResources)
             end
         end
 
@@ -195,47 +203,69 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
         end
 
         -- initializes personal resources
-        function PersonalResources_Initialize(force)
-            if force and frame then
-                frame:Hide()
-                frame = nil
-            end
-
+        function PersonalResources_Initialize()
+            frame = frame or _G[fname]
             local width = DB.width or 180
             local height = DB.height or 32
             local scale = DB.scale or 1
 
-            local anchor = DB.anchor or "CENTER"
-            local xOfs = DB.xOfs or 0
-            local yOfs = DB.yOfs or -120
+            if not frame then
+                local anchor = DB.anchor or "CENTER"
+                local xOfs = DB.xOfs or 0
+                local yOfs = DB.yOfs or -120
 
-            -- create main frame
-            frame = frame or CreateFrame("Frame", fname, UIParent)
-            frame:SetSize(width, height)
-            frame:SetPoint(anchor, xOfs, yOfs)
+                -- create main frame
+                frame = CreateFrame("Frame", fname, UIParent)
+                frame:SetSize(width, height)
+                frame:SetPoint(anchor, xOfs, yOfs)
+                frame:SetBackdrop({
+                    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+                    insets = {left = 2, right = 2, top = 2, bottom = 2}
+                })
+                frame:SetBackdropColor(0, 0, 0, 0.8)
 
-            -- health bar
-            frame.health = PersonalResources_CreateBar(frame)
-            frame.health:SetPoint("TOPLEFT", 2, -2)
-            frame.health:SetPoint("RIGHT", -2, 0)
-            frame.health:SetHeight(height * 0.53)
-            frame.health:SetStatusBarColor(0, 0.65, 0)
-            frame.health.border = PersonalResources_CreateBorder(frame.health)
+                -- health bar
+                frame.health = PersonalResources_CreateBar(frame)
+                frame.health:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture))
+                frame.health:GetStatusBarTexture():SetHorizTile(false)
+                frame.health:GetStatusBarTexture():SetVertTile(false)
+                frame.health:SetPoint("TOPLEFT", 2, -2)
+                frame.health:SetPoint("BOTTOMRIGHT", -2, height * 0.4)
+                frame.health:SetStatusBarColor(0, 0.65, 0)
+                frame.health.border = PersonalResources_CreateBorder(frame.health)
 
-            -- power bar
-            frame.power = PersonalResources_CreateBar(frame)
-            frame.power:SetPoint("BOTTOMLEFT", 2, 2)
-            frame.power:SetPoint("RIGHT", -2, 0)
-            frame.power:SetHeight(height * 0.40)
-            frame.power:SetStatusBarColor(nil)
-            frame.power.border = PersonalResources_CreateBorder(frame.power)
+                -- power bar
+                frame.power = PersonalResources_CreateBar(frame)
+                frame.power:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture))
+                frame.power:GetStatusBarTexture():SetHorizTile(false)
+                frame.power:GetStatusBarTexture():SetVertTile(false)
+                frame.power:SetPoint("TOPLEFT", 2, -height * 0.6)
+                frame.power:SetPoint("BOTTOMRIGHT", -2, 2)
+                frame.power:SetStatusBarColor(nil)
+                frame.power.border = PersonalResources_CreateBorder(frame.power)
+                frame:SetScale(scale)
+
+                -- make the frame movable
+                frame:EnableMouse(true)
+                frame:SetMovable(true)
+                frame:RegisterForDrag("LeftButton")
+            else
+                frame:SetSize(width, height)
+                frame.health:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture))
+                frame.health:SetPoint("TOPLEFT", 2, -2)
+                frame.health:SetPoint("BOTTOMRIGHT", -2, height * 0.4)
+                frame.health.border = PersonalResources_CreateBorder(frame.health)
+
+                frame.power:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture))
+                frame.power:SetPoint("TOPLEFT", 2, -height * 0.6)
+                frame.power:SetPoint("BOTTOMRIGHT", -2, 2)
+                frame.power.border = PersonalResources_CreateBorder(frame.power)
+
+                frame:SetScale(scale)
+            end
+
+            core:RestorePosition(frame, DB)
             ShowHide(frame, DB.enabled and DB.combat)
-            frame:SetScale(scale)
-
-            -- make the frame movable
-            frame:EnableMouse(true)
-            frame:SetMovable(true)
-            frame:RegisterForDrag("LeftButton")
 
             -- register our frame event
             if DB.enabled then
@@ -259,7 +289,7 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
         if not cmd then
             SetupDatabase()
         end
-        PersonalResources_Initialize(cmd)
+        PersonalResources_Initialize()
     end
     core:RegisterForEvent("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
 
@@ -376,11 +406,13 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
     core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
 
-	    SlashCmdList["KPACKPLAYERRESOURCES"] = SlashCommandHandler
-	    SLASH_KPACKPLAYERRESOURCES1 = "/ps"
-	    SLASH_KPACKPLAYERRESOURCES2 = "/resources"
+        SlashCmdList["KPACKPLAYERRESOURCES"] = SlashCommandHandler
+        SLASH_KPACKPLAYERRESOURCES1 = "/ps"
+        SLASH_KPACKPLAYERRESOURCES2 = "/resources"
 
-	    local function disabled() return not DB.enabled end
+        local function disabled()
+            return not DB.enabled
+        end
         core.options.args.Options.args.PersonalResources = {
             type = "group",
             name = "Personal Resources",
@@ -409,10 +441,16 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
                     order = 3,
                     disabled = disabled
                 },
+                borderless = {
+                    type = "toggle",
+                    name = L["Hide border"],
+                    order = 4,
+                    disabled = disabled
+                },
                 width = {
                     type = "range",
                     name = L["Width"],
-                    order = 4,
+                    order = 5,
                     min = 50,
                     max = 300,
                     step = 0.1,
@@ -422,8 +460,8 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
                 height = {
                     type = "range",
                     name = L["Height"],
-                    order = 5,
-                    min = 10,
+                    order = 6,
+                    min = 30,
                     max = 80,
                     step = 0.1,
                     bigStep = 1,
@@ -432,22 +470,29 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
                 scale = {
                     type = "range",
                     name = L["Scale"],
-                    order = 6,
+                    order = 7,
                     min = 0.5,
                     max = 3,
                     step = 0.01,
                     bigStep = 0.1,
                     disabled = disabled
                 },
+                texture = {
+                    type = "select",
+                    name = L["Texture"],
+                    dialogControl = "LSM30_Statusbar",
+                    order = 8,
+                    values = AceGUIWidgetLSMlists.statusbar
+                },
                 sep = {
                     type = "description",
                     name = " ",
-                    order = 7
+                    order = 9
                 },
                 reset = {
                     type = "execute",
                     name = RESET,
-                    order = 9,
+                    order = 99,
                     width = "full",
                     confirm = function()
                         return L:F("Are you sure you want to reset %s to default?", "Automate")
@@ -461,5 +506,7 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
                 }
             }
         }
+
+        PLAYER_ENTERING_WORLD()
     end)
 end)

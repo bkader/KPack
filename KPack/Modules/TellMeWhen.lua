@@ -4,6 +4,8 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 
     local TellMeWhen = {}
     core.TellMeWhen = TellMeWhen
+    TellMeWhen.maxGroups = 8
+    TellMeWhen.maxRows = 7
 
     local GetItemCooldown = GetItemCooldown
     local GetSpellCooldown = GetSpellCooldown
@@ -32,7 +34,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
         return GetSpellTexture(spellName)
     end
 
-    local maxGroups, maxRows = 8, 7
+    local maxGroups, maxRows = TellMeWhen.maxGroups, TellMeWhen.maxRows
     local updateInterval = 0.25
     local activeSpec, _
     local highlightColor = HIGHLIGHT_FONT_COLOR
@@ -180,16 +182,11 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
             UIDropDownMenu_Initialize(self, TellMeWhen.IconMenu_Initialize, "MENU")
         end)
 
-        icon:SetScript("OnEnter", function(self, motion)
-            TellMeWhen:Icon_OnEnter(self, motion)
-        end)
-        icon:SetScript("OnLeave", function(self)
-            GameTooltip:Hide()
-        end)
+        icon:SetScript("OnEnter", function(self, motion) TellMeWhen:Icon_OnEnter(self, motion) end)
+        icon:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
+
         icon:RegisterForDrag("LeftButton")
-        icon:SetScript("OnDragStart", function(self)
-            self:GetParent():StartMoving()
-        end)
+        icon:SetScript("OnDragStart", function(self) self:GetParent():StartMoving() end)
         icon:SetScript("OnDragStop", function(self)
             self:GetParent():StopMovingOrSizing()
             local group = DB.Groups[self:GetParent():GetID()]
@@ -881,8 +878,8 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
         local groupName = "KTellMeWhen_Group" .. groupID
         local group = _G[groupName]
         if not group then return end
-        local resizeButton = group.resize
 
+        local resizeButton = group.resize
         local locked = DB.Locked
         local genabled = DB.Groups[groupID].Enabled
         local scale = DB.Groups[groupID].Scale
@@ -891,7 +888,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
         local onlyInCombat = DB.Groups[groupID].OnlyInCombat
         local activePriSpec = DB.Groups[groupID].PrimarySpec
         local activeSecSpec = DB.Groups[groupID].SecondarySpec
-        local iconSpacing = DB.Groups[groupID].Spacing or 1
+        local iconSpacing = TellMeWhen.iconSpacing or DB.Groups[groupID].Spacing or 1
         local iconWidth = DB.Groups[groupID].Width or 30
         local iconHeight = DB.Groups[groupID].Height or 30
 
@@ -912,7 +909,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
                     end
                     icon:SetID(iconID)
                     icon:Show()
-                    if (column > 1) then
+                    if column > 1 then
                         icon:SetPoint("TOPLEFT", _G[groupName .. "_Icon" .. (iconID - 1)], "TOPRIGHT", iconSpacing, 0)
                     elseif row > 1 and column == 1 then
                         icon:SetPoint("TOPLEFT", _G[groupName .. "_Icon" .. (iconID - columns)], "BOTTOMLEFT", 0, -iconSpacing)
@@ -1291,7 +1288,8 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
         TellMeWhen:Update()
 
         for i = 1, maxGroups do
-            options.args["group" .. i] = {
+            local disabled = function() return not DB.Groups[i].Enabled end
+            local opt = {
                 type = "group",
                 name = GROUP .. " " .. i,
                 order = i,
@@ -1318,48 +1316,28 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
                         type = "toggle",
                         name = L["Primary Spec"],
                         desc = L["Check to show this group of icons while in primary spec."],
-                        order = 2
+                        order = 2,
+                        disabled = disabled
                     },
                     SecondarySpec = {
                         type = "toggle",
                         name = L["Secondary Spec"],
                         desc = L["Check to show this group of icons while in secondary spec."],
-                        order = 3
+                        order = 3,
+                        disabled = disabled
                     },
                     OnlyInCombat = {
                         type = "toggle",
                         name = L["Only in combat"],
                         desc = L["Check to only show this group of icons while in combat."],
-                        order = 4
-                    },
-                    Width = {
-                        type = "range",
-                        name = L["Width"],
-                        order = 5,
-                        min = 15,
-                        max = 30,
-                        step = 1,
-                        bigStep = 1,
-                        get = function()
-                            return DB.Groups[i].Width or 30
-                        end
-                    },
-                    Height = {
-                        type = "range",
-                        name = L["Height"],
-                        order = 6,
-                        min = 15,
-                        max = 30,
-                        step = 1,
-                        bigStep = 1,
-                        get = function()
-                            return DB.Groups[i].Height or 30
-                        end
+                        order = 4,
+                        disabled = disabled
                     },
                     Scale = {
                         type = "range",
                         name = L["Scale"],
                         order = 7,
+                        disabled = disabled,
                         min = 0.5,
                         max = 8,
                         step = 0.01,
@@ -1370,6 +1348,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
                         name = L["Columns"],
                         desc = L["Set the number of icon columns in this group."],
                         order = 8,
+                        disabled = disabled,
                         min = 1,
                         max = 8,
                         step = 1
@@ -1379,16 +1358,9 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
                         name = L["Rows"],
                         desc = L["Set the number of icon rows in this group."],
                         order = 9,
+                        disabled = disabled,
                         min = 1,
                         max = maxRows,
-                        step = 1
-                    },
-                    Spacing = {
-                        type = "range",
-                        name = L["Spacing"],
-                        order = 10,
-                        min = 0,
-                        max = 50,
                         step = 1
                     },
                     sep1 = {
@@ -1427,6 +1399,45 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
                     }
                 }
             }
+
+            if not core.ElvUI then
+                opt.args.Width = {
+                    type = "range",
+                    name = L["Width"],
+                    order = 5,
+                    disabled = disabled,
+                    min = 15,
+                    max = 30,
+                    step = 1,
+                    bigStep = 1,
+                    get = function()
+                        return DB.Groups[i].Width or 30
+                    end
+                }
+                opt.args.Height = {
+                    type = "range",
+                    name = L["Height"],
+                    order = 6,
+                    disabled = disabled,
+                    min = 15,
+                    max = 30,
+                    step = 1,
+                    bigStep = 1,
+                    get = function()
+                        return DB.Groups[i].Height or 30
+                    end
+                }
+                opt.args.Spacing = {
+                    type = "range",
+                    name = L["Spacing"],
+                    order = 10,
+                    disabled = disabled,
+                    min = 0,
+                    max = 50,
+                    step = 1
+                }
+            end
+            options.args["group" .. i] = opt
         end
 
         core.options.args.TellMeWhen = options

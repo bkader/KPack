@@ -11,7 +11,7 @@ KPack:AddModule("RaidTabs", function(_, core)
             ToolTip = LOOKING_FOR_DUNGEON,
             order = 1,
             group = 1,
-            offsetX = -1,
+            offsetX = 0,
             offsetY = 0
         },
         -- looking for raid
@@ -30,7 +30,7 @@ KPack:AddModule("RaidTabs", function(_, core)
             Texture = "Interface\\BattlefieldFrame\\UI-Battlefield-Icon",
             ToolTip = BATTLEGROUNDS,
             order = 3,
-            offsetX = -31,
+            offsetX = -29,
             offsetY = 0,
             OnClickFunction = function()
                 PVPFrame:Hide()

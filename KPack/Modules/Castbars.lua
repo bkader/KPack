@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars.", function(folder, core, L)
-    if core:IsDisabled("Castbars") then return end
+    if core:IsDisabled("Castbars") or core.ElvUI then return end
 
     local Castbars = core.Castbars or {}
     core.Castbars = Castbars
@@ -980,7 +980,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
             nil
     end
 
-    core:RegisterForEvent("VARIABLES_LOADED", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         Castbars_SetupDatabase()
         core.options.args.Castbars = Castbars_GetOptionsTable()
 

@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("EnhancedColourPicker", "Adds Copy and Paste Functions to the ColorPicker.", function(folder, core)
-    if core:IsDisabled("EnhancedColourPicker") then return end
+    if core:IsDisabled("EnhancedColourPicker") or core.ElvUI then return end
 
     local mod = core.ECP or {}
     core.ECP = mod

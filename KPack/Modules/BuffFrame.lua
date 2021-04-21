@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff frames.", function(_, core, L)
-    if core:IsDisabled("BuffFrame") then return end
+    if core:IsDisabled("BuffFrame") or core.ElvUI then return end
 
     local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
     local hooksecurefunc = hooksecurefunc

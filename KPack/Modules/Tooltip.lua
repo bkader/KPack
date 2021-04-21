@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("Tooltip", function(_, core, L)
-    if core:IsDisabled("Tooltip") then return end
+    if core:IsDisabled("Tooltip") or core.ElvUI then return end
 
     -- saved variables & defaults
     local DB

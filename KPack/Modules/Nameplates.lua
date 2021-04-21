@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("Nameplates", function(_, core, L)
-    if core:IsDisabled("Nameplates") then return end
+    if core:IsDisabled("Nameplates") or core.ElvUI then return end
 
     local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
 
@@ -632,7 +632,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 
     core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
-        for _, name in ipairs({"TidyPlates", "KuiNameplates", "ElvUI"}) do
+        for _, name in ipairs({"TidyPlates", "KuiNameplates"}) do
             if _G[name] then
                 disabled = true
                 return

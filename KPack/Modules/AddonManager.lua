@@ -17,7 +17,7 @@ local menuWasShown
 
 local function CreateAddonsList()
     if AddonList then return end
-    AddonList = CreateFrame("frame", "AddonList", UIParent)
+    AddonList = CreateFrame("Frame", "AddonList", UIParent)
     tinsert(UISpecialFrames, "AddonList")
     AddonList:SetSize(385, 512)
     AddonList:SetPoint("CENTER", UIParent, 0, 24)
@@ -30,7 +30,7 @@ local function CreateAddonsList()
     AddonList:SetFrameStrata("DIALOG")
     tinsert(UISpecialFrames, "Addons")
 
-    local CloseButton = CreateFrame("Button", "CloseButton", AddonList, "UIPanelCloseButton")
+    local CloseButton = CreateFrame("Button", "AddonListCloseButton", AddonList, "UIPanelCloseButton")
     CloseButton:SetSize(30, 30)
     CloseButton:SetPoint("TOPRIGHT", AddonList, "TOPRIGHT", 5, -4)
     CloseButton:SetScript("OnClick", function() AddonList:Hide() end)
@@ -80,8 +80,8 @@ local function CreateAddonsList()
     info:SetPoint("TOPLEFT", 26, -30)
     info:SetPoint("RIGHT", -22, -30)
 
-    local ScrollFrame = CreateFrame("ScrollFrame", "AddonsScrollFrame", AddonList, "UIPanelScrollFrameTemplate")
-    local MainAddonFrame = CreateFrame("frame", "AddonsFrame", ScrollFrame)
+    local ScrollFrame = CreateFrame("ScrollFrame", "AddonListScrollFrame", AddonList, "UIPanelScrollFrameTemplate")
+    local MainAddonFrame = CreateFrame("Frame", "AddonListFrame", ScrollFrame)
 
     ScrollFrame:SetPoint("TOPLEFT", AddonList, "TOPLEFT", 5, -58)
     ScrollFrame:SetPoint("BOTTOMRIGHT", AddonList, "BOTTOMRIGHT", -32, 52)
@@ -105,10 +105,10 @@ local function CreateAddonsList()
             local name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(v)
 
             if name then
-                local CheckButtonName = v .. "_cCheckButton"
+                local CheckButtonName = "AddonListEntry"..i
                 local CheckButton = _G[CheckButtonName]
                 if not CheckButton then
-                    CheckButton = CreateFrame("CheckButton", v .. "_cCheckButton", self, "OptionsCheckButtonTemplate")
+                    CheckButton = CreateFrame("CheckButton", CheckButtonName, self, "OptionsCheckButtonTemplate")
                 end
                 if name == addonName then
                     CheckButton:EnableMouse(false)
@@ -164,7 +164,7 @@ local function CreateAddonsList()
                 end
 
                 countAll = countAll + 1
-                _G[v .. "_cCheckButtonText"]:SetText(title)
+                _G[CheckButtonName.."Text"]:SetText(title)
                 oldb = CheckButton
             end
         end
@@ -187,13 +187,13 @@ local function CreateAddonsList()
     end)
     AddonList:Hide()
 
-    local ReloadButton = CreateFrame("Button", "ReloadButton", AddonList, "KPackButtonTemplate")
+    local ReloadButton = CreateFrame("Button", "AddonListReloadButton", AddonList, "KPackButtonTemplate")
     ReloadButton:SetSize(105, 21)
     ReloadButton:SetPoint("BOTTOM", AddonList, "BOTTOM", 0, 21)
     ReloadButton:SetText(L["Reload UI"])
     ReloadButton:SetScript("OnClick", function() ReloadUI() end)
 
-    local EnableAllButton = CreateFrame("Button", "EnableAllButton", AddonList, "KPackButtonTemplate")
+    local EnableAllButton = CreateFrame("Button", "AddonListEnableAllButton", AddonList, "KPackButtonTemplate")
     EnableAllButton:SetSize(105, 21)
     EnableAllButton:SetPoint("BOTTOMLEFT", AddonList, "BOTTOMLEFT", 7, 21)
     EnableAllButton:SetText(L["Enable All"])
@@ -202,7 +202,7 @@ local function CreateAddonsList()
         UpdateAddonList()
     end)
 
-    local DisableAllButton = CreateFrame("Button", "DisableAllButton", AddonList, "KPackButtonTemplate")
+    local DisableAllButton = CreateFrame("Button", "AddonListDisableAllButton", AddonList, "KPackButtonTemplate")
     DisableAllButton:SetSize(105, 21)
     DisableAllButton:SetPoint("BOTTOMRIGHT", AddonList, "BOTTOMRIGHT", -6, 21)
     DisableAllButton:SetText(L["Disable All"])

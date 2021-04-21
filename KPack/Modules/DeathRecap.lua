@@ -435,11 +435,11 @@ KPack:AddModule("Death Recap", function(folder, core, L)
             end
         end
 
-        KPackDeathRecapFrame.CloseButton = CreateFrame("Button", nil, KPackDeathRecapFrame, "KPackButtonTemplate")
-        KPackDeathRecapFrame.CloseButton:SetSize(144, 21)
-        KPackDeathRecapFrame.CloseButton:SetPoint("BOTTOM", 0, 15)
-        KPackDeathRecapFrame.CloseButton:SetText(CLOSE)
-        KPackDeathRecapFrame.CloseButton:SetScript("OnClick", function(self) KPackDeathRecapFrame:Hide() end)
+        local closebutton = CreateFrame("Button", "KPackDeathRecapFrameCloseButton", KPackDeathRecapFrame, "KPackButtonTemplate")
+        closebutton:SetSize(144, 21)
+        closebutton:SetPoint("BOTTOM", 0, 15)
+        closebutton:SetText(CLOSE)
+        closebutton:SetScript("OnClick", function(self) KPackDeathRecapFrame:Hide() end)
 
         -- replace blizzard default
         StaticPopupDialogs["KDEATH"] = {

@@ -1,5 +1,5 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("AllStats", "moves the functionality of the stat dropdowns to a panel on the right side of the paperdoll, so that you can see all of your stats at once.", function(folder, core, L)
+KPack:AddModule("AllStats", "Moves the functionality of the stat dropdowns to a panel on the right side of the paperdoll, so that you can see all of your stats at once.", function(_, core, L)
     if core:IsDisabled("AllStats") then return end
 
     local KPackAllStats
@@ -47,24 +47,39 @@ KPack:AddModule("AllStats", "moves the functionality of the stat dropdowns to a 
         texbot:SetTexture([[Interface\PaperDollInfoFrame\UI-Character-StatBackground]])
         texbot:SetTexCoord(0, 0.8984375, 0.484375, 0.609375)
         texbot:SetPoint("TOPLEFT", texmid7, "BOTTOMLEFT")
+
+        local btn = CreateFrame("Button", "KPackAllStatsShowFrame", PaperDollFrame, "KPackButtonTemplate")
+        btn:SetSize(50, 20)
+        btn:SetPoint("BOTTOMRIGHT", -43, 86)
+        btn:SetText(L["Stats"])
+        btn:SetScript("OnClick", function(self, button)
+            if KPackAllStats and KPackAllStats:IsShown() then
+                KPackAllStats:Hide()
+                self:UnlockHighlight()
+            elseif KPackAllStats then
+                KPackAllStats:Show()
+                self:LockHighlight()
+            end
+        end)
+        KPackAllStats.button = btn
     end
 
     local AllStats_PrintStats
     do
-		local function AllStats_CreateStatFrame(name, text)
-		    local fname = "KPackAllStatsAllStatsFrame" .. name
-		    local frame = _G[fname]
-		    if not frame then
-		        frame = CreateFrame("Frame", fname, KPackAllStats, "StatFrameTemplate")
-		        frame:SetWidth(128)
-		        if text ~= nil then
-		            local t = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		            t:SetPoint("BOTTOM", frame, "TOP", 0, -1)
-		            t:SetText(text)
-		        end
-		    end
-		    return frame
-		end
+        local function AllStats_CreateStatFrame(name, text)
+            local fname = "KPackAllStatsAllStatsFrame" .. name
+            local frame = _G[fname]
+            if not frame then
+                frame = CreateFrame("Frame", fname, KPackAllStats, "StatFrameTemplate")
+                frame:SetWidth(128)
+                if text ~= nil then
+                    local t = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+                    t:SetPoint("BOTTOM", frame, "TOP", 0, -1)
+                    t:SetText(text)
+                end
+            end
+            return frame
+        end
 
         function AllStats_PrintStats()
             -- strength
@@ -217,26 +232,9 @@ KPack:AddModule("AllStats", "moves the functionality of the stat dropdowns to a 
         AllStats_PrintStats()
     end
 
-    local btn
     local function AllStats_PaperDollFrame_OnShow(self)
-        if not btn then
-            btn = CreateFrame("Button", nil, PaperDollFrame, "KPackButtonTemplate")
-            btn:SetSize(50, 20)
-            btn:SetPoint("BOTTOMRIGHT", -43, 86)
-            btn:SetText(L["Stats"])
-            btn:SetScript("OnClick", function(self, button)
-                if KPackAllStats and KPackAllStats:IsShown() then
-                    KPackAllStats:Hide()
-                    self:UnlockHighlight()
-                elseif KPackAllStats then
-                    KPackAllStats:Show()
-                    self:LockHighlight()
-                end
-            end)
-        end
-
-        if btn and KPackAllStats and KPackAllStats:IsShown() then
-            btn:LockHighlight()
+        if self.button and KPackAllStats and KPackAllStats:IsShown() then
+            self.button:LockHighlight()
         end
     end
 

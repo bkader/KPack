@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("IDs", "Adds IDs to the ingame tooltips.", function(_, core, L)
-    if core:IsDisabled("IDs") then return end
+    if core:IsDisabled("IDs") or core.ElvUI then return end
 
     local IDs = {}
     core.IDs = IDs

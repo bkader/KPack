@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("AFK", "Shows a timer window whenever you go AFK.", function(_, core, L)
-    if core:IsDisabled("AFK") then return end
+    if core:IsDisabled("AFK") or core.ElvUI then return end
 
     local _CreateFrame = CreateFrame
     local _UnitIsAFK = UnitIsAFK

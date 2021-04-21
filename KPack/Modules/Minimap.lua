@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("Minimap", function(_, core, L)
-    if core:IsDisabled("Minimap") then return end
+    if core:IsDisabled("Minimap") or core.ElvUI then return end
 
     local DB, SetupDatabase
     local defaults = {

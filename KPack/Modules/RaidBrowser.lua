@@ -1,18 +1,18 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y channels and lists any found raids in the "Browse" tab of the raid browser.', function(folder, core, L)
+KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y channels and lists any found raids in the "Browse" tab of the raid browser.', function(_, core, L)
     if core:IsDisabled("Raid Browser") then return end
 
     local RaidBrowser = core.RaidBrowser or {}
     core.RaidBrowser = RaidBrowser
 
-	local pairs, ipairs = pairs, ipairs
-	local strlower = string.lower
-	local strfind = string.find
-	local strsub = string.sub
-	local strgsub = string.gsub
-	local strformat = string.format
-	local tinsert = table.insert
-	local math_huge, math_floor = math.huge, math.floor
+    local pairs, ipairs = pairs, ipairs
+    local strlower = string.lower
+    local strfind = string.find
+    local strsub = string.sub
+    local strgsub = string.gsub
+    local strformat = string.format
+    local tinsert = table.insert
+    local math_huge, math_floor = math.huge, math.floor
 
     local DB
     local lfm_channel_listeners = {CHAT_MSG_CHANNEL = {}, CHAT_MSG_YELL = {}}
@@ -174,25 +174,37 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
                 name = "toc10hc",
                 instance_name = "Trial of the Crusader",
                 size = 10,
-                patterns = algorithm.copy_back(CreatePatternFromTemplate("toc", 10, "hc", "Trial of the Crusader"), {"togc" .. csep .. "10"})
+                patterns = algorithm.copy_back(
+                    CreatePatternFromTemplate("toc", 10, "hc", "Trial of the Crusader"),
+                    {"togc" .. csep .. "10"}
+                )
             },
             {
                 name = "toc25hc",
                 instance_name = "Trial of the Crusader",
                 size = 25,
-                patterns = algorithm.copy_back(CreatePatternFromTemplate("toc", 25, "hc", "Trial of the Crusader"), {"togc" .. csep .. "25"})
+                patterns = algorithm.copy_back(
+                    CreatePatternFromTemplate("toc", 25, "hc", "Trial of the Crusader"),
+                    {"togc" .. csep .. "25"}
+                )
             },
             {
                 name = "toc10nm",
                 instance_name = "Trial of the Crusader",
                 size = 10,
-                patterns = algorithm.copy_back(CreatePatternFromTemplate("toc", 10, "nm", "Trial of the Crusader"), {"%[call of the crusade %(10 player%)%]"})
+                patterns = algorithm.copy_back(
+                    CreatePatternFromTemplate("toc", 10, "nm", "Trial of the Crusader"),
+                    {"%[call of the crusade %(10 player%)%]"}
+                )
             },
             {
                 name = "toc25nm",
                 instance_name = "Trial of the Crusader",
                 size = 25,
-                patterns = algorithm.copy_back(CreatePatternFromTemplate("toc", 25, "nm", "Trial of the Crusader"), {"%[call of the crusade %(25 player%)%]"})
+                patterns = algorithm.copy_back(
+                    CreatePatternFromTemplate("toc", 25, "nm", "Trial of the Crusader"),
+                    {"%[call of the crusade %(25 player%)%]"}
+                )
             },
             {
                 name = "rs10hc",
@@ -450,21 +462,15 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
         end
 
         local function IsGuildRecruitment(message)
-            return algorithm.find_if(
-                guild_recruitment_patterns,
-                function(pattern)
-                    return strfind(message, pattern)
-                end
-            )
+            return algorithm.find_if(guild_recruitment_patterns, function(pattern)
+                return strfind(message, pattern)
+            end)
         end
 
         local function IsWTSMessage(message)
-            return algorithm.find_if(
-                wts_message_patterns,
-                function(pattern)
-                    return strfind(message, pattern)
-                end
-            )
+            return algorithm.find_if(wts_message_patterns, function(pattern)
+                return strfind(message, pattern)
+            end)
         end
 
         -- Basic http pattern matching for streaming sites and etc.
@@ -508,13 +514,9 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
             end
 
             -- Search for LFM announcement in the message
-            local lfm_found =
-                algorithm.find_if(
-                lfm_patterns,
-                function(pattern)
-                    return strfind(message, pattern)
-                end
-            )
+            local lfm_found = algorithm.find_if(lfm_patterns, function(pattern)
+                return strfind(message, pattern)
+            end)
 
             if not lfm_found then
                 return
@@ -596,40 +598,38 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
             end
         end
 
-        core:RegisterForEvent(
-            "VARIABLES_LOADED",
-            function()
+        local function SetupDatabase()
+            if not DB then
                 if type(core.char.LFR) ~= "table" or not next(core.char.LFR) then
-                    core.char.LFR = {
-                        currentset = "active",
-                        raidsets = {[PRIMARY] = {}, [SECONDARY] = {}}
-                    }
+                    core.char.LFR = {currentset = "active", raidsets = {[PRIMARY] = {}, [SECONDARY] = {}}}
                 end
                 DB = core.char.LFR
-                RaidBrowser.expiresin = 60
-
-                RaidBrowser.messages = {}
-                RaidBrowser.timer = core.NewTicker(10, RefreshLFMMessages)
-                for channel, listener in pairs(lfm_channel_listeners) do
-                    channel_listeners[channel] = RaidBrowser.AddEventListener(channel, EventHandler)
-                end
-
-                RaidBrowser.GUI.raidset.initialize()
             end
-        )
+        end
 
-        core:RegisterForEvent(
-            "PLAYER_LEAVING_WORLD",
-            function()
-                for channel, listener in pairs(lfm_channel_listeners) do
-                    RaidBrowser.RemoveEventListener(channel, listener)
-                end
+        core:RegisterForEvent("PLAYER_LOGIN", function()
+            SetupDatabase()
+            RaidBrowser.expiresin = 60
 
-                if RaidBrowser.timer then
-                    RaidBrowser.timer:Cancel()
-                end
+            RaidBrowser.messages = {}
+            RaidBrowser.timer = core.NewTicker(10, RefreshLFMMessages)
+            for channel, listener in pairs(lfm_channel_listeners) do
+                channel_listeners[channel] = RaidBrowser.AddEventListener(channel, EventHandler)
             end
-        )
+
+            RaidBrowser.GUI.raidset.initialize()
+        end)
+
+        core:RegisterForEvent("PLAYER_ENTERING_WORLD", SetupDatabase)
+        core:RegisterForEvent("PLAYER_LEAVING_WORLD", function()
+            for channel, listener in pairs(lfm_channel_listeners) do
+                RaidBrowser.RemoveEventListener(channel, listener)
+            end
+
+            if RaidBrowser.timer then
+                RaidBrowser.timer:Cancel()
+            end
+        end)
     end
 
     ---------------------------------------------------------------------------
@@ -940,69 +940,51 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
             return days_text .. hours_text .. minutes_text
         end
 
-        LFRBrowseFrame:SetScript(
-            "OnHide",
-            function(self)
-                self.selectedName = nil
-                ClearHighlights()
-                LFRBrowse_UpdateButtonStates()
-            end
-        )
+        LFRBrowseFrame:SetScript("OnHide", function(self)
+            self.selectedName = nil
+            ClearHighlights()
+            LFRBrowse_UpdateButtonStates()
+        end)
 
         -- Setup tooltip and LFR button entry functionality.
         for i = 1, NUM_LFR_LIST_BUTTONS do
             local button = _G["LFRBrowseFrameListButton" .. i]
             button:SetScript("OnDoubleClick", OnJoin)
-            button:SetScript(
-                "OnClick",
-                function(button)
-                    LFRBrowseFrame.selectedName = button.unitName
-                    ClearHighlights()
-                    button:LockHighlight()
-                    LFRBrowse_UpdateButtonStates()
+            button:SetScript("OnClick", function(button)
+                LFRBrowseFrame.selectedName = button.unitName
+                ClearHighlights()
+                button:LockHighlight()
+                LFRBrowse_UpdateButtonStates()
+            end)
+
+            button:SetScript("OnEnter", function(button)
+                GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
+
+                local seconds = time() - button.lfm_info.time
+                local last_sent = strformat("Last sent: %d seconds ago", seconds)
+                GameTooltip:AddLine(button.lfm_info.message, 1, 1, 1, true)
+                GameTooltip:AddLine(last_sent)
+
+                if button.raid_locked then
+                    GameTooltip:AddLine("\nYou are |cffff0000saved|cffffd100 for " .. button.raid_info.name)
+                    local _, reset_time =
+                        RaidBrowser.stats.RaidLockInfo(button.raid_info.instance_name, button.raid_info.size)
+                    GameTooltip:AddLine("Lockout expires in " .. FormatSeconds(reset_time))
+                else
+                    GameTooltip:AddLine("\nYou are |cff00ffffnot saved|cffffd100 for " .. button.raid_info.name)
                 end
-            )
 
-            button:SetScript(
-                "OnEnter",
-                function(button)
-                    GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
+                GameTooltip:Show()
+            end)
 
-                    local seconds = time() - button.lfm_info.time
-                    local last_sent = strformat("Last sent: %d seconds ago", seconds)
-                    GameTooltip:AddLine(button.lfm_info.message, 1, 1, 1, true)
-                    GameTooltip:AddLine(last_sent)
-
-                    if button.raid_locked then
-                        GameTooltip:AddLine("\nYou are |cffff0000saved|cffffd100 for " .. button.raid_info.name)
-                        local _, reset_time =
-                            RaidBrowser.stats.RaidLockInfo(button.raid_info.instance_name, button.raid_info.size)
-                        GameTooltip:AddLine("Lockout expires in " .. FormatSeconds(reset_time))
-                    else
-                        GameTooltip:AddLine("\nYou are |cff00ffffnot saved|cffffd100 for " .. button.raid_info.name)
-                    end
-
-                    GameTooltip:Show()
-                end
-            )
-
-            button:SetScript(
-                "OnLeave",
-                function(self)
-                    GameTooltip:Hide()
-                end
-            )
+            button:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
         end
 
         -- Hide unused dropdown menu
         LFRBrowseFrameRaidDropDown:Hide()
 
         search_button:SetText("Find Raid")
-        search_button:SetScript(
-            "OnClick",
-            function()
-            end
-        )
+        search_button:SetScript("OnClick", function() end)
 
         local function ClearHighlights()
             for i = 1, NUM_LFR_LIST_BUTTONS do
