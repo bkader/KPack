@@ -51,6 +51,7 @@ KPack:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's 
     do
         -- handles the frame's OnUpdate event.
         local function Model_OnUpdate(self, elapsed)
+            if not self then return end
             local currX, currY = GetCursorPosition()
             if self.rotating then
                 self:SetFacing(self:GetFacing() + ((currX - self.prevX) / 50))
@@ -63,6 +64,7 @@ KPack:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's 
 
         -- handles the frame's OnMouseDown event
         local function Model_OnMouseDown(self, button)
+            if not self then return end
             if self.pMouseDown then self.pMouseDown(button) end
             self:SetScript("OnUpdate", Model_OnUpdate)
             if button == "LeftButton" then
@@ -78,6 +80,7 @@ KPack:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's 
 
         -- handles the frame's OnMouseUp event
         local function Model_OnMouseUp(self, button)
+            if not self then return end
             if self.pMouseUp then self.pMouseUp(button) end
             self:SetScript("OnUpdate", nil)
             if button == "LeftButton" then
@@ -89,6 +92,7 @@ KPack:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's 
 
         -- handles the frame's OnMouseWheel event
         local function Model_OnMouseWheel(self, arg)
+            if not self then return end
             local cz, cx, cy = this:GetPosition()
             self:SetPosition(cz + ((arg > 0 and 0.6) or -0.6), cx, cy)
         end
