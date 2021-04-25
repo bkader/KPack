@@ -105,7 +105,7 @@ local function CreateAddonsList()
             local name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(v)
 
             if name then
-                local CheckButtonName = "AddonListEntry"..i
+                local CheckButtonName = "AddonListEntry" .. i
                 local CheckButton = _G[CheckButtonName]
                 if not CheckButton then
                     CheckButton = CreateFrame("CheckButton", CheckButtonName, self, "OptionsCheckButtonTemplate")
@@ -164,7 +164,7 @@ local function CreateAddonsList()
                 end
 
                 countAll = countAll + 1
-                _G[CheckButtonName.."Text"]:SetText(title)
+                _G[CheckButtonName .. "Text"]:SetText(title)
                 oldb = CheckButton
             end
         end
@@ -242,5 +242,15 @@ AddonListButton:SetText(ADDONS)
 AddonListButton:SetPoint("TOP", GameMenuButtonMacros, "BOTTOM", 0, -1)
 AddonListButton:SetScript("OnClick", OpenAddonList)
 
-GameMenuButtonLogout:SetPoint("TOP", AddonListButton, "BOTTOM", 0, -16)
-GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 26)
+addon:RegisterForEvent("PLAYER_LOGIN", function()
+    local offset = 26
+    if _G.GameMenuButtonMoveAnything then
+        offset = offset + 26
+        GameMenuButtonMoveAnything:ClearAllPoints()
+        GameMenuButtonMoveAnything:SetPoint("TOP", AddonListButton, "BOTTOM", 0, -1)
+        GameMenuButtonLogout:SetPoint("TOP", GameMenuButtonMoveAnything, "BOTTOM", 0, -16)
+    else
+        GameMenuButtonLogout:SetPoint("TOP", AddonListButton, "BOTTOM", 0, -16)
+    end
+    GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + offset)
+end)

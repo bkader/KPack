@@ -2,17 +2,12 @@
 ..\FrameXML\UI.xsd">
 	<Script file="MoveAnything.lua"/>
 	<Button name="GameMenuButtonMoveAnything" parent="GameMenuFrame" inherits="GameMenuButtonTemplate" text="MoveAnything">
+		<Anchors>
+			<Anchor point="TOP" relativeTo="GameMenuButtonLogout" relativePoint="BOTTOMLEFT">
+				<Offset><AbsDimension x="0" y="-16" /></Offset>
+			</Anchor>
+		</Anchors>
 		<Scripts>
-			<OnLoad>
-				this:ClearAllPoints()
-				if GameMenuButtonAddOns then
-					this:SetPoint("TOP", GameMenuButtonAddOns, "BOTTOM", 0, -1)
-				else
-					this:SetPoint("TOP", GameMenuButtonMacros, "BOTTOM", 0, -1)
-				end
-				GameMenuButtonLogout:SetPoint("TOP", this, "BOTTOM", 0, -16)
-				GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 26)
-			</OnLoad>
 			<OnClick>
 				if IsShiftKeyDown() and IsControlKeyDown() and IsAltKeyDown() then
 					ReloadUI()
