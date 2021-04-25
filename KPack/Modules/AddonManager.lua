@@ -265,32 +265,29 @@ addon:RegisterForEvent("PLAYER_LOGIN", function()
         end
 
         local old_OnClick = AddonListButton:GetScript("OnClick")
-        AddonListButton:SetScript(
-            "OnClick",
-            function(self, button)
-                old_OnClick(self, button)
-                if not AddonList.isSkinned then
-                    AddonList:SetParent(UIParent)
-                    AddonList:SetFrameStrata("HIGH")
-                    AddonList:SetHitRectInsets(0, 0, 0, 0)
-                    AddonList:StripTextures()
-                    AddonList:SetTemplate("Transparent")
+        AddonListButton:SetScript("OnClick", function(self, button)
+            old_OnClick(self, button)
+            if not AddonList.isSkinned then
+                AddonList:SetParent(UIParent)
+                AddonList:SetFrameStrata("HIGH")
+                AddonList:SetHitRectInsets(0, 0, 0, 0)
+                AddonList:StripTextures()
+                AddonList:SetTemplate("Transparent")
 
-                    S:HandleCloseButton(AddonListCloseButton, AddonList)
-                    S:HandleButton(AddonListEnableAllButton)
-                    S:HandleButton(AddonListReloadButton)
-                    S:HandleButton(AddonListDisableAllButton)
+                S:HandleCloseButton(AddonListCloseButton, AddonList)
+                S:HandleButton(AddonListEnableAllButton)
+                S:HandleButton(AddonListReloadButton)
+                S:HandleButton(AddonListDisableAllButton)
 
-                    AddonListScrollFrame:StripTextures()
-                    AddonListScrollFrame:SetTemplate("Transparent")
+                AddonListScrollFrame:StripTextures()
+                AddonListScrollFrame:SetTemplate("Transparent")
 
-                    S:HandleScrollBar(AddonListScrollFrameScrollBar)
-                    AddonListScrollFrameScrollBar:Point("TOPLEFT", AddonListScrollFrame, "TOPRIGHT", 3, -19)
-                    AddonListScrollFrameScrollBar:Point("BOTTOMLEFT", AddonListScrollFrame, "BOTTOMRIGHT", 3, 19)
+                S:HandleScrollBar(AddonListScrollFrameScrollBar)
+                AddonListScrollFrameScrollBar:Point("TOPLEFT", AddonListScrollFrame, "TOPRIGHT", 3, -19)
+                AddonListScrollFrameScrollBar:Point("BOTTOMLEFT", AddonListScrollFrame, "BOTTOMRIGHT", 3, 19)
 
-                    AddonList.isSkinned = true
-                end
+                AddonList.isSkinned = true
             end
-        )
+        end)
     end
 end)
