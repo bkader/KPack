@@ -253,4 +253,44 @@ addon:RegisterForEvent("PLAYER_LOGIN", function()
         GameMenuButtonLogout:SetPoint("TOP", AddonListButton, "BOTTOM", 0, -16)
     end
     GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + offset)
+
+    if addon.ElvUI then
+        local S = addon.ElvUI:GetModule("Skins", true)
+        if not S then
+            return
+        end
+        if not AddonListButton.isSkinned then
+            S:HandleButton(AddonListButton)
+            AddonListButton.isSkinned = true
+        end
+
+        local old_OnClick = AddonListButton:GetScript("OnClick")
+        AddonListButton:SetScript(
+            "OnClick",
+            function(self, button)
+                old_OnClick(self, button)
+                if not AddonList.isSkinned then
+                    AddonList:SetParent(UIParent)
+                    AddonList:SetFrameStrata("HIGH")
+                    AddonList:SetHitRectInsets(0, 0, 0, 0)
+                    AddonList:StripTextures()
+                    AddonList:SetTemplate("Transparent")
+
+                    S:HandleCloseButton(AddonListCloseButton, AddonList)
+                    S:HandleButton(AddonListEnableAllButton)
+                    S:HandleButton(AddonListReloadButton)
+                    S:HandleButton(AddonListDisableAllButton)
+
+                    AddonListScrollFrame:StripTextures()
+                    AddonListScrollFrame:SetTemplate("Transparent")
+
+                    S:HandleScrollBar(AddonListScrollFrameScrollBar)
+                    AddonListScrollFrameScrollBar:Point("TOPLEFT", AddonListScrollFrame, "TOPRIGHT", 3, -19)
+                    AddonListScrollFrameScrollBar:Point("BOTTOMLEFT", AddonListScrollFrame, "BOTTOMRIGHT", 3, 19)
+
+                    AddonList.isSkinned = true
+                end
+            end
+        )
+    end
 end)
