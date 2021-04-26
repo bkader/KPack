@@ -1165,7 +1165,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             end
             SLASH_KPACKAURAS1 = "/auras"
             SlashCmdList.KPACKAURAS = function()
-            	core:OpenConfig("RaidUtility", "Auras")
+                core:OpenConfig("RaidUtility", "Auras")
             end
         end)
     end
@@ -2313,7 +2313,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             SLASH_KPACKHEALERSMANA1 = "/mana"
             SLASH_KPACKHEALERSMANA2 = "/healersmana"
             SlashCmdList.KPACKHEALERSMANA = function()
-            	core:OpenConfig("RaidUtility", "Mana")
+                core:OpenConfig("RaidUtility", "Mana")
             end
         end)
     end
@@ -2576,6 +2576,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
         local CreateDisplay, UpdateDisplay, display
         local ShowDisplay, HideDisplay
         local LockDisplay, UnlockDisplay
+        local options
 
         function GetOptions()
             if not options then
@@ -3028,13 +3029,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
             local bar = display:GetBar(unit .. "_" .. spell)
             if not bar then
                 if target and target ~= unit then
-                    bar = display:NewTimerBar(
-                        unit .. "_" .. spell,
-                        unit .. " (" .. target .. ")",
-                        duration,
-                        duration,
-                        spell
-                    )
+                    bar = display:NewTimerBar(unit .. "_" .. spell, unit .. " > " .. target, duration, duration, spell)
                 else
                     bar = display:NewTimerBar(unit .. "_" .. spell, unit, duration, duration, spell)
                 end
@@ -3095,13 +3090,13 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
             function RaidCooldowns:COMBAT_LOG_EVENT_UNFILTERED(...)
                 if arg2 and events[arg2] and inGroup(arg5) and arg9 then
-                	if (arg9 == 35079 or arg9 == 34477) and DB.Cooldowns.spells[34477] then
-                    	self:StartCooldown(arg4, 34477, allSpells[34477], arg7)
-                	elseif (arg9 == 59628 or arg9 == 57934) and DB.Cooldowns.spells[57934] then
-                    	self:StartCooldown(arg4, 57934, allSpells[57934], arg7)
-                	elseif DB.Cooldowns.spells[arg9] then
-                    	self:StartCooldown(arg4, arg9, allSpells[arg9], arg7)
-                	end
+                    if (arg9 == 35079 or arg9 == 34477) and DB.Cooldowns.spells[34477] then
+                        self:StartCooldown(arg4, 34477, allSpells[34477], arg7)
+                    elseif (arg9 == 59628 or arg9 == 57934) and DB.Cooldowns.spells[57934] then
+                        self:StartCooldown(arg4, 57934, allSpells[57934], arg7)
+                    elseif DB.Cooldowns.spells[arg9] then
+                        self:StartCooldown(arg4, arg9, allSpells[arg9], arg7)
+                    end
                 end
             end
         end
@@ -3118,7 +3113,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
             SLASH_KPACKCOOLDOWNS1 = "/rcd"
             SlashCmdList.KPACKCOOLDOWNS = function()
-            	core:OpenConfig("RaidUtility", "Cooldowns")
+                core:OpenConfig("RaidUtility", "Cooldowns")
             end
         end)
     end
