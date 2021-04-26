@@ -883,7 +883,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
         local raid_list_column = LFRBrowseFrameColumnHeader3
 
         gs_list_column:SetText("GS")
-        raid_list_column:SetText("Raid")
+        raid_list_column:SetText(RAID)
 
         local function OnJoin()
             local raid_name = RaidBrowser.messages[LFRBrowseFrame.selectedName].raid_info.name
@@ -983,7 +983,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
         -- Hide unused dropdown menu
         LFRBrowseFrameRaidDropDown:Hide()
 
-        search_button:SetText("Find Raid")
+        search_button:SetText(L["Find Raid"])
         search_button:SetScript("OnClick", function() end)
 
         local function ClearHighlights()

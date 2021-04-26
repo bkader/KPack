@@ -237,7 +237,7 @@ KPack:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's 
 
     -- adds buttons to quickly show/hide helm and cloak
     local function CloseUp_Quickie()
-        print("here", type(PaperDollFrame))
+        if not PaperDollFrame then return end
         local btn
 
         -- helm
