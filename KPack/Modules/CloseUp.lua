@@ -215,7 +215,7 @@ KPack:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's 
         end)
 
         -- convert default close button into set target button
-        CloseUp_NewButton(nil, nil, "T", w, h, tb, TARGET, function()
+        CloseUp_NewButton(nil, nil, "T", w, h, tb, STATUS_TEXT_TARGET, function()
             if UnitExists("target") and UnitIsVisible("target") then
                 if UnitIsPlayer("target") then
                     tm:Hide()
@@ -235,6 +235,38 @@ KPack:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's 
         CloseUp_NewButton("CloseUpUndressButton", DressUpFrame, "U", w, h, nil, L["Undress"], function() m:Undress() end):SetPoint("LEFT", tb, "RIGHT", -2, 0)
     end
 
+    -- adds buttons to quickly show/hide helm and cloak
+    local function CloseUp_Quickie()
+        print("here", type(PaperDollFrame))
+        local btn
+
+        -- helm
+        if not PaperDollFrame.helm then
+            btn = CreateFrame("Button", nil, PaperDollFrame)
+            btn:SetToplevel(true)
+            btn:SetSize(32, 32)
+            btn:SetPoint("LEFT", CharacterHeadSlot, "RIGHT", 9, 0)
+            btn:SetScript("OnClick", function() ShowHelm(not ShowingHelm()) end)
+            btn:SetNormalTexture("Interface\\AddOns\\KPack\\Media\\Textures\\textureHead")
+            btn:SetPushedTexture("Interface\\AddOns\\KPack\\Media\\Textures\\textureHead")
+            btn:SetHighlightTexture("Interface\\AddOns\\KPack\\Media\\Textures\\textureHighlight")
+            PaperDollFrame.helm = helm
+        end
+
+        -- cloak
+        if not PaperDollFrame.cloak then
+            btn = CreateFrame("Button", nil, PaperDollFrame)
+            btn:SetToplevel(true)
+            btn:SetSize(32, 32)
+            btn:SetPoint("LEFT", CharacterBackSlot, "RIGHT", 9, 0)
+            btn:SetScript("OnClick", function() ShowCloak(not ShowingCloak()) end)
+            btn:SetNormalTexture("Interface\\AddOns\\KPack\\Media\\Textures\\textureCloak")
+            btn:SetPushedTexture("Interface\\AddOns\\KPack\\Media\\Textures\\textureCloak")
+            btn:SetHighlightTexture("Interface\\AddOns\\KPack\\Media\\Textures\\textureHighlight")
+            PaperDollFrame.cloak = cloak
+        end
+    end
+
     core:RegisterForEvent("ADDON_LOADED", function(_, name)
         if name == folder then
             SetupDatabase()
@@ -245,7 +277,7 @@ KPack:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's 
         end
     end)
 
-    core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
+    core:RegisterForEvent("PLAYER_LOGIN", function()
         SetupDatabase()
         mod:Apply("CharacterModelFrame")
         mod:Apply("TabardModel", nil, nil, nil, nil, "TabardCharacterModel")
@@ -263,5 +295,6 @@ KPack:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's 
             CloseUp_InspectUI()
         end
         CloseUp_DressingRoom()
+        CloseUp_Quickie()
     end)
 end)
