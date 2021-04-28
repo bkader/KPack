@@ -6,7 +6,7 @@ I have been collecting these modules over the last years, randomly and just incl
 
 Lots of modules/addons required lots of rewritting and others really needed to be rewrote from the group up, keeping the concept but with different code.
 
-Most of the modules have slash commands, they can be enabled or disabled but there are some that don't have an option to toggle them, so, if there is a module that you don't want to use, simply comment its line out in the `Load.xml` file or delete its file within the `Modules` folder.
+Most of the modules have either slash commands or config panels, they can be enabled or disabled but there are some that don't have an option to toggle them, so, if there is a module that you don't want to use, simply comment its line out in the `Load.xml` file or delete its file within the `Modules` folder.
 
 ## How to install
 
