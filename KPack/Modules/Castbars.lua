@@ -138,11 +138,14 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 	local function Castbars_FrameColorRestore(frame)
 		if frame.shield and frame.shield:IsShown() or frame.outOfRange then
 			frame.statusBar:SetStatusBarColor(0.6, 0.6, 0.6)
-		else
-			local r, g, b = unpack(Castbars.db[frame.configName]["BarColor"])
-			frame.statusBar:SetStatusBarColor(r, g, b)
-			frame.shade:SetTexture(r * 0.1, g * 0.1, b * 0.1, 0.5)
+			return
 		end
+		local r, g, b = unpack(Castbars.db[frame.configName]["BarColor"])
+		if Castbars.db[frame.configName]["ClassColor"] and core.mycolor then
+			r, g, b = core.mycolor.r, core.mycolor.g, core.mycolor.b
+		end
+		frame.statusBar:SetStatusBarColor(r, g, b)
+		frame.shade:SetTexture(r * 0.1, g * 0.1, b * 0.1, 0.5)
 	end
 
 	local function Castbars_FrameIconRestore(frame)
@@ -706,6 +709,19 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 				end,
 				set = function()
 					Castbars.db[frameConfigName]["ShowLatency"] = not Castbars.db[frameConfigName]["ShowLatency"]
+					Castbars_FrameLayoutRestoreAll()
+				end
+			}
+			options.args.texture.width = "double"
+			options.args.classcolor = {
+				type = "toggle",
+				name = L["Use class color"],
+				order = 14,
+				get = function()
+					return Castbars.db[frameConfigName]["ClassColor"]
+				end,
+				set = function()
+					Castbars.db[frameConfigName]["ClassColor"] = not Castbars.db[frameConfigName]["ClassColor"]
 					Castbars_FrameLayoutRestoreAll()
 				end
 			}

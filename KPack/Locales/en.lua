@@ -189,6 +189,7 @@ L["Texture"] = true
 L["Select texture to use for the %s"] = true
 L["Bar Color"] = true
 L["Set color of the %s"] = true
+L["Use class color"] = true
 L["Font"] = true
 L["Select font to use for the %s"] = true
 L["Set the font size of the %s"] = true
