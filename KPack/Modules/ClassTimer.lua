@@ -1,122 +1,122 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("ClassTimer", function(folder, core, L)
-    if core:IsDisabled("ClassTimer") then return end
+	if core:IsDisabled("ClassTimer") then return end
 
-    local ClassTimer = {}
-    core.ClassTimer = ClassTimer
+	local ClassTimer = {}
+	core.ClassTimer = ClassTimer
 
-    local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
+	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
 
-    local unpack = unpack
-    local GetTime = GetTime
-    local table_sort = table.sort
-    local math_ceil = math.ceil
-    local gsub = string.gsub
-    local pairs, ipairs = pairs, ipairs
-    local UnitIsUnit = UnitIsUnit
+	local unpack = unpack
+	local GetTime = GetTime
+	local table_sort = table.sort
+	local math_ceil = math.ceil
+	local gsub = string.gsub
+	local pairs, ipairs = pairs, ipairs
+	local UnitIsUnit = UnitIsUnit
 
-    local hasPet = (core.class == "HUNTER" or core.class == "WARLOCK" or core.class == "DEATHKNIGHT")
-    local unlocked, sticky = {}, {}
-    ClassTimer.unlocked = unlocked
+	local hasPet = (core.class == "HUNTER" or core.class == "WARLOCK" or core.class == "DEATHKNIGHT")
+	local unlocked, sticky = {}, {}
+	ClassTimer.unlocked = unlocked
 
-    local GetSpellInfo = GetSpellInfo
-    local DB, _
+	local GetSpellInfo = GetSpellInfo
+	local DB, _
 
-    local timers = {
-        DEATHKNIGHT = {
-            Misc = {51271,49039,48792,55095,49194,22744,55078,51726,59052,51123,57623,49182,63560,49222}
-        },
-        DRUID = {
-            Buffs = {2893,22812,12536,29166,33763,8936,774},
-            DOTs = {339,2637,5570,8921},
-            Feral = {50322,52610,5211,5211,99,5229,22842,33745,22570,9007,1822,1079,5217},
-            Talents = {58181,50334,16850,16857,16979,33831,33878,33876,48438,48517,48518,69369,16689},
-            Misc = {33786,770,2637,2908}
-        },
-        HUNTER = {
-            Stings = {3043,1978,3034,19386},
-            Stuns = {3385,61685,35100,5116,19306,19407,19228,19577,19503,2974},
-            Talents = {19184,19434,19574,34455,19615,34948,53302,56342,53301,63468,34692},
-            Traps = {63668,13812,3355,13810,13797},
-            Misc = {1539,53517,19263,34500,1543,1130,53480,34506,136,6150,3045,1513,34490}
-        },
-        MAGE = {
-            Buffs = {1459,61024,23028,61316,1008,604,6117,30451,30482},
-            DOTs = {22959,133,44614,2120,11119,11366,44457,11180},
-            Stuns = {11113,120,31661,168,122,11071,116,11103,11185,11175},
-            Talents = {12042,12472,48108,44401,44543,57761,31589,12536,55342,11255},
-            Misc = {31641,2139,11426,45438,118,28272,28271,61305,130}
-        },
-        PALADIN = {
-            Blessings = {1044,1022,6940,1038,20217,19740,20911,19742,25898,25782,25899,25894},
-            Buffs = {31884,498,642,20177,53601,53486,54428,20925},
-            Judgements = {53407,20271,53671,53408},
-            Seals = {20375,20164,20165,21084,31801,53736,20166},
-            Stuns = {853,20066},
-            Misc = {53380,31935,26573,31842,64205,53563,31833,53672,20127,10326,20049,20335,53380,31803,9452}
-        },
-        PRIEST = {
-            Buffs = {27811,47585,14892,14531,33206,10060,139,15270,34754,59887,47930,15257,59000,61792,63735,47788,33150},
-            DOTs = {2944,33076,589,15487,15286,14914,48301,64044,34914},
-            Stuns = {552,586,1706,453,17,8122,9484,15258,20711,6788}
-        },
-        ROGUE = {
-            Buffs = {13750,32645,13877,31224,5277,14278,14144,36554,5171,2983,51662,51713,58426,51690,1856},
-            DOTs = {703,8647,1943},
-            Poisons = {44289,41190,2818,2819,11353,11354,25349,26968,27187,57969,57970,13218,13222,13223,13224,27189,57974,57975},
-            Stuns = {31124,2094,1833,1776,408,6770},
-            Misc = {1330,18425,26679,16511,51693,51722,14251}
-        },
-        SHAMAN = {
-            Buffs = {16176,30160,29062,29206,30823,51945,55198,17364,61295,51562,30802},
-            Shocks = {8042,8050,8056},
-            Shields = {324,974,52127}
-        },
-        WARLOCK = {
-            Buffs = {34935,1098,1122,30299,17941,63321,32394,63156,47245,17794},
-            Curses = {980,603,18223,1490,1714,702},
-            DOTs = {172,44518,61290,18265,27243,30108},
-            Misc = {18288,710,48184,6789,5782,5484,29893,6358,17877,20707}
-        },
-        WARRIOR = {
-            Buffs = {6673,18499,23881,469,12292,29801,1719,20230,29834,2565,29723,12317,58363,46951,46916,56636,46856,871},
-            DOTs = {12721,1160,1715,12294,64382,6552,772,72,7386,6343},
-            Stuns = {7922,12809,30153,5530,12323},
-            Misc = {2687,1161,20243,676,46859,46924,5246,694,7384,6572}
-        }
-    }
+	local timers = {
+		DEATHKNIGHT = {
+			Misc = {51271,49039,48792,55095,49194,22744,55078,51726,59052,51123,57623,49182,63560,49222}
+		},
+		DRUID = {
+			Buffs = {2893,22812,12536,29166,33763,8936,774},
+			DOTs = {339,2637,5570,8921},
+			Feral = {50322,52610,5211,5211,99,5229,22842,33745,22570,9007,1822,1079,5217},
+			Talents = {58181,50334,16850,16857,16979,33831,33878,33876,48438,48517,48518,69369,16689},
+			Misc = {33786,770,2637,2908}
+		},
+		HUNTER = {
+			Stings = {3043,1978,3034,19386},
+			Stuns = {3385,61685,35100,5116,19306,19407,19228,19577,19503,2974},
+			Talents = {19184,19434,19574,34455,19615,34948,53302,56342,53301,63468,34692},
+			Traps = {63668,13812,3355,13810,13797},
+			Misc = {1539,53517,19263,34500,1543,1130,53480,34506,136,6150,3045,1513,34490}
+		},
+		MAGE = {
+			Buffs = {1459,61024,23028,61316,1008,604,6117,30451,30482},
+			DOTs = {22959,133,44614,2120,11119,11366,44457,11180},
+			Stuns = {11113,120,31661,168,122,11071,116,11103,11185,11175},
+			Talents = {12042,12472,48108,44401,44543,57761,31589,12536,55342,11255},
+			Misc = {31641,2139,11426,45438,118,28272,28271,61305,130}
+		},
+		PALADIN = {
+			Blessings = {1044,1022,6940,1038,20217,19740,20911,19742,25898,25782,25899,25894},
+			Buffs = {31884,498,642,20177,53601,53486,54428,20925},
+			Judgements = {53407,20271,53671,53408},
+			Seals = {20375,20164,20165,21084,31801,53736,20166},
+			Stuns = {853,20066},
+			Misc = {53380,31935,26573,31842,64205,53563,31833,53672,20127,10326,20049,20335,53380,31803,9452}
+		},
+		PRIEST = {
+			Buffs = {27811,47585,14892,14531,33206,10060,139,15270,34754,59887,47930,15257,59000,61792,63735,47788,33150},
+			DOTs = {2944,33076,589,15487,15286,14914,48301,64044,34914},
+			Stuns = {552,586,1706,453,17,8122,9484,15258,20711,6788}
+		},
+		ROGUE = {
+			Buffs = {13750,32645,13877,31224,5277,14278,14144,36554,5171,2983,51662,51713,58426,51690,1856},
+			DOTs = {703,8647,1943},
+			Poisons = {44289,41190,2818,2819,11353,11354,25349,26968,27187,57969,57970,13218,13222,13223,13224,27189,57974,57975},
+			Stuns = {31124,2094,1833,1776,408,6770},
+			Misc = {1330,18425,26679,16511,51693,51722,14251}
+		},
+		SHAMAN = {
+			Buffs = {16176,30160,29062,29206,30823,51945,55198,17364,61295,51562,30802},
+			Shocks = {8042,8050,8056},
+			Shields = {324,974,52127}
+		},
+		WARLOCK = {
+			Buffs = {34935,1098,1122,30299,17941,63321,32394,63156,47245,17794},
+			Curses = {980,603,18223,1490,1714,702},
+			DOTs = {172,44518,61290,18265,27243,30108},
+			Misc = {18288,710,48184,6789,5782,5484,29893,6358,17877,20707}
+		},
+		WARRIOR = {
+			Buffs = {6673,18499,23881,469,12292,29801,1719,20230,29834,2565,29723,12317,58363,46951,46916,56636,46856,871},
+			DOTs = {12721,1160,1715,12294,64382,6552,772,72,7386,6343},
+			Stuns = {7922,12809,30153,5530,12323},
+			Misc = {2687,1161,20243,676,46859,46924,5246,694,7384,6572}
+		}
+	}
 
 
 
-    local function Print(msg)
-    	if msg then
-    		core:Print(msg, "ClassTimer")
-    	end
-    end
+	local function Print(msg)
+		if msg then
+			core:Print(msg, "ClassTimer")
+		end
+	end
 
-    local new, del
-    do
-    	local cache = setmetatable({}, {__mode ="k"})
-    	function new()
-    		local t = next(cache)
-    		if t then
-    			cache[t] = nil
-    			return t
-    		else
-    			return {}
-    		end
-    	end
-    	function del(t)
+	local new, del
+	do
+		local cache = setmetatable({}, {__mode ="k"})
+		function new()
+			local t = next(cache)
+			if t then
+				cache[t] = nil
+				return t
+			else
+				return {}
+			end
+		end
+		function del(t)
 			for k in pairs(t) do
 				t[k] = nil
 			end
 			cache[t] = true
 			return nil
-    	end
-    end
+		end
+	end
 
-    local OnUpdate, bars
-    do
+	local OnUpdate, bars
+	do
 		local min = L["%dm"]
 		local seclong = L["%ds"]
 		local secshort = L["%.1fs"]
@@ -163,7 +163,7 @@ KPack:AddModule("ClassTimer", function(folder, core, L)
 				end
 			end
 		end
-    end
+	end
 
 	ClassTimer.options = {
 		type = "group",
@@ -269,57 +269,57 @@ KPack:AddModule("ClassTimer", function(folder, core, L)
 		}
 	}
 
-    do
-    	local function MouseUp(bar, button)
-    		if DB.Units[bar.unit].click then
-    			if button == 'RightButton' then
-    				local msg = L['%s has %s left']:format(bar.text:GetText(), bar.timetext:GetText())
-    				if UnitInRaid('player') then
-    					SendChatMessage(msg, 'RAID')
-    				elseif GetNumPartyMembers() > 0 then
-    					SendChatMessage(msg, 'PARTY')
-    				end
-    			end
-    		end
-    	end
+	do
+		local function MouseUp(bar, button)
+			if DB.Units[bar.unit].click then
+				if button == 'RightButton' then
+					local msg = L['%s has %s left']:format(bar.text:GetText(), bar.timetext:GetText())
+					if UnitInRaid('player') then
+						SendChatMessage(msg, 'RAID')
+					elseif GetNumPartyMembers() > 0 then
+						SendChatMessage(msg, 'PARTY')
+					end
+				end
+			end
+		end
 
-    	local framefactory = {
-    		__index = function(t,k)
-    			local bar = CreateFrame('StatusBar', nil, UIParent)
-    			t[k] = bar
-    			bar:SetFrameStrata('MEDIUM')
-    			bar:Hide()
-    			bar:SetClampedToScreen(true)
-    			bar:SetScript('OnUpdate', OnUpdate)
-    			bar:SetBackdrop({bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background', tile = true, tileSize = 16})
-    			bar.text = bar:CreateFontString(nil, 'OVERLAY')
-    			bar.timetext = bar:CreateFontString(nil, 'OVERLAY')
-    			bar.icon = bar:CreateTexture(nil, 'DIALOG')
-    			bar:SetScript('OnMouseUp', MouseUp)
+		local framefactory = {
+			__index = function(t,k)
+				local bar = CreateFrame('StatusBar', nil, UIParent)
+				t[k] = bar
+				bar:SetFrameStrata('MEDIUM')
+				bar:Hide()
+				bar:SetClampedToScreen(true)
+				bar:SetScript('OnUpdate', OnUpdate)
+				bar:SetBackdrop({bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background', tile = true, tileSize = 16})
+				bar.text = bar:CreateFontString(nil, 'OVERLAY')
+				bar.timetext = bar:CreateFontString(nil, 'OVERLAY')
+				bar.icon = bar:CreateTexture(nil, 'DIALOG')
+				bar:SetScript('OnMouseUp', MouseUp)
 
-    			local spark = bar:CreateTexture(nil, "OVERLAY")
-    			bar.spark = spark
-    			spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-    			spark:SetWidth(16)
-    			spark:SetBlendMode("ADD")
-    			spark:Show()
-    			ClassTimer:ApplySettings()
+				local spark = bar:CreateTexture(nil, "OVERLAY")
+				bar.spark = spark
+				spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
+				spark:SetWidth(16)
+				spark:SetBlendMode("ADD")
+				spark:Show()
+				ClassTimer:ApplySettings()
 
-    			return bar
-    		end
-    	}
+				return bar
+			end
+		}
 
-    	bars = {
-    		target = setmetatable({}, framefactory),
-    		focus  = setmetatable({}, framefactory),
-    		player = setmetatable({}, framefactory),
-    		sticky = setmetatable({}, framefactory),
-    		pet    = hasPet and setmetatable({}, framefactory) or nil
-    	}
-    	ClassTimer.bars = bars
-    end
+		bars = {
+			target = setmetatable({}, framefactory),
+			focus  = setmetatable({}, framefactory),
+			player = setmetatable({}, framefactory),
+			sticky = setmetatable({}, framefactory),
+			pet    = hasPet and setmetatable({}, framefactory) or nil
+		}
+		ClassTimer.bars = bars
+	end
 
-    ClassTimer.backup = {
+	ClassTimer.backup = {
 		enable                 = true,
 		buffs                  = true,
 		click                  = false,
@@ -353,42 +353,42 @@ KPack:AddModule("ClassTimer", function(folder, core, L)
 		alwaysshowndebuffcolor = {0.5, 0.45, 0.1, 1},
 		backgroundcolor        = {0,0, 0, 1},
 		textcolor              = {1,1,1},
-    }
-    ClassTimer.defaults = {
-    	Enabled = true,
-    	Locked = false,
-    	Abilities = {},
-    	Group     = {},
-    	Sticky    = {},
-    	Custom = {},
-    	AlwaysShown = {},
-    	Units     = {
-    		['focus']  = { click = true },
-    		['sticky'] = { enable = false },
-    		['player'] = {},
-    		['target'] = {},
-    		['pet'] = {},
-    		['general'] = {},
-    	},
-    }
+	}
+	ClassTimer.defaults = {
+		Enabled = true,
+		Locked = false,
+		Abilities = {},
+		Group     = {},
+		Sticky    = {},
+		Custom = {},
+		AlwaysShown = {},
+		Units     = {
+			['focus']  = { click = true },
+			['sticky'] = { enable = false },
+			['player'] = {},
+			['target'] = {},
+			['pet'] = {},
+			['general'] = {},
+		},
+	}
 
-    function ClassTimer:CreateTimers()
-    	return timers[core.class]
-    end
+	function ClassTimer:CreateTimers()
+		return timers[core.class]
+	end
 
-    function ClassTimer:Race()
-    	local spells = {
-    		BloodElf = {25046,28734},
-    		Draenei = {28880},
-    		Dwarf = {20594},
-    		Gnome = {20589},
-    		Orc = {20572},
-    		Scourge = {20577,7744},
-    		Tauren = {20549},
-    		Troll = {20554},
-    	}
-    	return spells[core.race]
-    end
+	function ClassTimer:Race()
+		local spells = {
+			BloodElf = {25046,28734},
+			Draenei = {28880},
+			Dwarf = {20594},
+			Gnome = {20589},
+			Orc = {20572},
+			Scourge = {20577,7744},
+			Tauren = {20549},
+			Troll = {20554},
+		}
+		return spells[core.race]
+	end
 
 	function ClassTimer:List(tbl)
 		if not tbl then return end
@@ -800,38 +800,38 @@ KPack:AddModule("ClassTimer", function(folder, core, L)
 	local values = nil
 	local values2 = nil
 
-    core:RegisterForEvent("VARIABLES_LOADED", function()
-    	if type(core.char.ClassTimer) ~= "table" or not next(core.char.ClassTimer) then
-    		core.char.ClassTimer = CopyTable(ClassTimer.defaults)
-    	end
-    	DB = core.char.ClassTimer
+	core:RegisterForEvent("VARIABLES_LOADED", function()
+		if type(core.char.ClassTimer) ~= "table" or not next(core.char.ClassTimer) then
+			core.char.ClassTimer = CopyTable(ClassTimer.defaults)
+		end
+		DB = core.char.ClassTimer
 
-    	local validate, timerargs = {}, {}
-    	local tbl = ClassTimer:CreateTimers()
-    	tbl["Race"] = ClassTimer:Race()
+		local validate, timerargs = {}, {}
+		local tbl = ClassTimer:CreateTimers()
+		tbl["Race"] = ClassTimer:Race()
 
-    	for k, v in pairs(tbl) do
-    		for i in ipairs(v) do
-    			DB.Abilities[v[i]] = true
-    		end
+		for k, v in pairs(tbl) do
+			for i in ipairs(v) do
+				DB.Abilities[v[i]] = true
+			end
 
-    		timerargs[k] = {
-    			type = "group",
-    			name = L[k],
-    			desc = L["Which buffs to show"],
-    			order = 4,
-    			args = {
-    				shown = {
-    					type = "multiselect",
-    					name = L["Show"],
-    					desc = L["Select to show"],
+			timerargs[k] = {
+				type = "group",
+				name = L[k],
+				desc = L["Which buffs to show"],
+				order = 4,
+				args = {
+					shown = {
+						type = "multiselect",
+						name = L["Show"],
+						desc = L["Select to show"],
 						get = function(_, key) return DB.Abilities[key] end,
 						set = function(_, key, value) DB.Abilities[key] = value validate[key] = value and key or nil end,
 						values = ClassTimer:List(v),
-    				}
-    			}
-    		}
-    	end
+					}
+				}
+			}
+		end
 
 		timerargs.Spacer = {
 			type = "header",
@@ -948,11 +948,11 @@ KPack:AddModule("ClassTimer", function(folder, core, L)
 			if db.buffs then
 				local i=1
 				while true do
-	                local name, _, texture, count, _, duration, endTime, caster = UnitBuff(unit, i)
-	                if not name then
+					local name, _, texture, count, _, duration, endTime, caster = UnitBuff(unit, i)
+					if not name then
 						break
 					end
-	                local isMine = whatsMine[caster]
+					local isMine = whatsMine[caster]
 					if duration and duration > 0 and (DB.Abilities[name] or DB.Custom[name]) and isMine or DB.AlwaysShown[name] then
 						local t = new()
 						if DB.Units.sticky.enable and DB.Sticky[name] then
@@ -985,11 +985,11 @@ KPack:AddModule("ClassTimer", function(folder, core, L)
 			if db.debuffs then
 				local i=1
 				while true do
-	                local name, _, texture, count, debuffType, duration, endTime, caster = UnitDebuff(unit, i)
-	                if not name then
+					local name, _, texture, count, debuffType, duration, endTime, caster = UnitDebuff(unit, i)
+					if not name then
 						break
 					end
-	                local isMine = whatsMine[caster]
+					local isMine = whatsMine[caster]
 					if duration and duration > 0 and (DB.Abilities[name] or DB.Custom[name]) and isMine or DB.AlwaysShown[name] then
 						local t = new()
 						if DB.Units.sticky.enable and DB.Sticky[name] then

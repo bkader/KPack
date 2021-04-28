@@ -24,16 +24,16 @@ local echo, decho, dechoSub
 
 local DB
 local function SetupDatabase()
-    if not DB then
-        if type(core.db.MoveAnything) ~= "table" or not next(core.db.MoveAnything) then
-            core.db.MoveAnything = {
-                CustomFrames = {},
-                CharacterSettings = {},
-                UseCharacterSettings = false
-            }
-        end
-        DB = core.db.MoveAnything
-    end
+	if not DB then
+		if type(core.db.MoveAnything) ~= "table" or not next(core.db.MoveAnything) then
+			core.db.MoveAnything = {
+				CustomFrames = {},
+				CharacterSettings = {},
+				UseCharacterSettings = false
+			}
+		end
+		DB = core.db.MoveAnything
+	end
 end
 core:RegisterForEvent("PLAYER_LOGIN", SetupDatabase)
 

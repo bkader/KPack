@@ -140,19 +140,19 @@ KPack:AddModule("Combuctor", function(_, core, L)
 		end
 
 		function SetupDatabase()
-		    if not DB then
-		        if type(core.char.Combuctor) ~= "table" or not next(core.char.Combuctor) then
-		            core.char.Combuctor = CopyTable(defaults)
-		        end
-		        DB = core.char.Combuctor
+			if not DB then
+				if type(core.char.Combuctor) ~= "table" or not next(core.char.Combuctor) then
+					core.char.Combuctor = CopyTable(defaults)
+				end
+				DB = core.char.Combuctor
 
-		        if not DB.inventory.sets or not DB.inventory.exclude then
-		            DB.inventory.sets, DB.inventory.exclude = DefaultInventorySets(core.class)
-		        end
-		        if not DB.bank.sets or not DB.bank.exclude then
-		            DB.bank.sets, DB.bank.exclude = DefaultBankSets(core.class)
-		        end
-		    end
+				if not DB.inventory.sets or not DB.inventory.exclude then
+					DB.inventory.sets, DB.inventory.exclude = DefaultInventorySets(core.class)
+				end
+				if not DB.bank.sets or not DB.bank.exclude then
+					DB.bank.sets, DB.bank.exclude = DefaultBankSets(core.class)
+				end
+			end
 		end
 
 		core:RegisterForEvent("VARIABLES_LOADED", SetupDatabase)
