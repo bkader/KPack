@@ -301,7 +301,7 @@ do
 
 	function core:OpenConfig(...)
 		self.ACD:SetDefaultSize(folder, 655, 500)
-		if select(1, ...) then
+		if ... then
 			self.ACD:Open(folder)
 			self.ACD:SelectGroup(folder, ...)
 		elseif not self.ACD:Close(folder) then

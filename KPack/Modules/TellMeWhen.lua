@@ -691,9 +691,11 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 				{value = "target", text = STATUS_TEXT_TARGET},
 				{value = "targettarget", text = L["Target of Target"]},
 				{value = "focus", text = FOCUS},
-				{value = "focustarget", text = TARGETFOCUS},
+				{value = "focustarget", text = L["Focus Target"]},
 				{value = "pet", text = PET},
-				{value = "pettarget", text = L["Pet Target"]}
+				{value = "pettarget", text = L["Pet Target"]},
+				{text = PARTY, hasArrow = true, value = "UnitParty"},
+				{text = ARENA, hasArrow = true, value = "UnitArena"}
 			},
 			BuffShowWhen = {
 				{value = "present", text = L["Present"]},
@@ -708,6 +710,19 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 			WpnEnchantType = {
 				{value = "mainhand", text = INVTYPE_WEAPONMAINHAND},
 				{value = "offhand", text = INVTYPE_WEAPONOFFHAND}
+			},
+			UnitParty = {
+				{text = PARTY .. " " .. 1, value = "party1"},
+				{text = PARTY .. " " .. 2, value = "party2"},
+				{text = PARTY .. " " .. 3, value = "party3"},
+				{text = PARTY .. " " .. 4, value = "party4"}
+			},
+			UnitArena = {
+				{text = ARENA .. " " .. 1, value = "arena1"},
+				{text = ARENA .. " " .. 2, value = "arena2"},
+				{text = ARENA .. " " .. 3, value = "arena3"},
+				{text = ARENA .. " " .. 4, value = "arena4"},
+				{text = ARENA .. " " .. 5, value = "arena5"}
 			}
 		}
 
@@ -735,12 +750,13 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 			local iconType = DB.Groups[groupID].Icons[iconID]["Type"]
 			local enabled = DB.Groups[groupID].Icons[iconID]["Enabled"]
 
-			if UIDROPDOWNMENU_MENU_LEVEL == 2 then
+			if UIDROPDOWNMENU_MENU_LEVEL >= 2 then
 				local subMenus = TellMeWhen_IconMenu_SubMenus
 				for index, value in ipairs(subMenus[UIDROPDOWNMENU_MENU_VALUE]) do
 					local info = UIDropDownMenu_CreateInfo()
 					info.text = subMenus[UIDROPDOWNMENU_MENU_VALUE][index].text
 					info.value = subMenus[UIDROPDOWNMENU_MENU_VALUE][index].value
+					info.hasArrow = subMenus[UIDROPDOWNMENU_MENU_VALUE][index].hasArrow
 					info.checked = (info.value == DB.Groups[groupID].Icons[iconID][UIDROPDOWNMENU_MENU_VALUE])
 					info.func = TellMeWhen.IconMenu_ChooseSetting
 					UIDropDownMenu_AddButton(info, UIDROPDOWNMENU_MENU_LEVEL)

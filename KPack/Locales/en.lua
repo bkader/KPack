@@ -520,6 +520,7 @@ L["Always"] = true
 L["Weapon slot to monitor"] = true
 L["Unit to watch"] = true
 L["Target of Target"] = true
+L["Focus Target"] = true
 L["Pet Target"] = true
 L["Only show if cast by self"] = true
 L["Show timer"] = true
