@@ -3401,44 +3401,46 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 		core:RegisterForEvent("PLAYER_LOGIN", function()
 			SetupDatabase()
 
-			GuildRoster()
-			inGuild = IsInGuild()
+			core.After(2, function()
+				GuildRoster()
+				inGuild = IsInGuild()
 
-			options = options or GetOptions()
-			if inGuild then
-				local ranks, numorder = ListGuildRanks(), 1
-				for i, name in ipairs(ranks) do
-					options.args.rankinvite.args[name .. i] = {
-						type = "execute",
-						name = name,
-						desc = L:F("Invite all guild members of rank %s or higher.", name),
-						order = numorder,
-						func = function()
-							InviteRank(i, name)
-						end,
-						disabled = function()
-							return not CanInvite()
-						end
-					}
-					numorder = numorder + 1
+				options = options or GetOptions()
+				if inGuild then
+					local ranks, numorder = ListGuildRanks(), 1
+					for i, name in ipairs(ranks) do
+						options.args.rankinvite.args[name .. i] = {
+							type = "execute",
+							name = name,
+							desc = L:F("Invite all guild members of rank %s or higher.", name),
+							order = numorder,
+							func = function()
+								InviteRank(i, name)
+							end,
+							disabled = function()
+								return not CanInvite()
+							end
+						}
+						numorder = numorder + 1
+					end
 				end
-			end
-			mod.options.args.Invites = options
-			order = order + 1
+				mod.options.args.Invites = options
+				order = order + 1
 
-			if DB.Invites.keyword and DB.Invites.keyword:trim() ~= "" then
-				keyword = DB.Invites.keyword
-			end
-			if DB.Invites.guidkeyword and DB.Invites.guidkeyword:trim() ~= "" then
-				guidkeyword = DB.Invites.guidkeyword
-			end
+				if DB.Invites.keyword and DB.Invites.keyword:trim() ~= "" then
+					keyword = DB.Invites.keyword
+				end
+				if DB.Invites.guidkeyword and DB.Invites.guidkeyword:trim() ~= "" then
+					guidkeyword = DB.Invites.guidkeyword
+				end
 
-			if keyword or guidkeyword then
-				inviteFrame:RegisterEvent("CHAT_MSG_BN_WHISPER")
-				inviteFrame:RegisterEvent("CHAT_MSG_WHISPER")
-			else
-				inviteFrame:UnregisterAllEvents()
-			end
+				if keyword or guidkeyword then
+					inviteFrame:RegisterEvent("CHAT_MSG_BN_WHISPER")
+					inviteFrame:RegisterEvent("CHAT_MSG_WHISPER")
+				else
+					inviteFrame:UnregisterAllEvents()
+				end
+			end)
 		end)
 		core:RegisterForEvent("GUILD_ROSTER_UPDATE", function()
 			inGuild = IsInGuild()
