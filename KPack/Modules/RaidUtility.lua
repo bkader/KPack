@@ -3306,7 +3306,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 						keywordinvite = {
 							type = "group",
 							inline = true,
-							name = L["Keyword invite"],
+							name = L["Keyword Invites"],
 							order = 2,
 							args = {
 								keyword = {
