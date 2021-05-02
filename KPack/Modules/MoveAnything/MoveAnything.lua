@@ -35,7 +35,15 @@ local function SetupDatabase()
 		DB = core.db.MoveAnything
 	end
 end
-core:RegisterForEvent("PLAYER_LOGIN", SetupDatabase)
+core:RegisterForEvent("PLAYER_LOGIN", function()
+	SetupDatabase()
+	if core:IsDisabled(ADDONS) and GameMenuButtonMoveAnything then
+		GameMenuButtonMoveAnything:ClearAllPoints()
+		GameMenuButtonMoveAnything:SetPoint("TOP", GameMenuButtonMacros, "BOTTOM", 0, -1)
+		GameMenuButtonLogout:SetPoint("TOP", GameMenuButtonMoveAnything, "BOTTOM", 0, -16)
+		GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 26)
+	end
+end)
 
 local function void()
 end
