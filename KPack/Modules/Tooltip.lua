@@ -380,7 +380,7 @@ KPack:AddModule("Tooltip", function(_, core, L)
 					end
 
 					for i = offset, lines do
-						if (type(_G["GameTooltipTextLeft" .. i]) == "table" and _G["GameTooltipTextLeft" .. i]:GetText():find(PLAYER)) then
+						if (_G["GameTooltipTextLeft" .. i] and type(_G["GameTooltipTextLeft" .. i]) == "table" and _G["GameTooltipTextLeft" .. i]:GetText():find(PLAYER)) then
 							_G["GameTooltipTextLeft" .. i]:SetFormattedText(
 								LEVEL .. " %s%s|r %s |cff%s%s|r",
 								Tooltip_Hex(diffColor.r, diffColor.g, diffColor.b),
@@ -394,7 +394,7 @@ KPack:AddModule("Tooltip", function(_, core, L)
 					end
 				else
 					for i = 2, lines do
-						if (_G["GameTooltipTextLeft" .. i]:GetText():find(LEVEL)) or (creatureType and _G["GameTooltipTextLeft" .. i]:GetText():find(creatureType)) then
+						if _G["GameTooltipTextLeft" .. i] and ((_G["GameTooltipTextLeft" .. i]:GetText():find(LEVEL)) or (creatureType and _G["GameTooltipTextLeft" .. i]:GetText():find(creatureType))) then
 							if level == -1 and classif == "elite" then classif = "worldboss" end
 							_G["GameTooltipTextLeft" .. i]:SetText(format(Tooltip_Hex(diffColor.r, diffColor.g, diffColor.b) .. "%s|r", level) .. (types[classif] or " ") .. creatureType)
 							break
