@@ -8,6 +8,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 
 	local _LoadAddOn = LoadAddOn
 	local _IsActionInRange = IsActionInRange
+	local _IsUsableAction = IsUsableAction
 	local _InCombatLockdown = InCombatLockdown
 	local _UnitAffectingCombat = UnitAffectingCombat
 	local _UnitInVehicle = UnitInVehicle
@@ -212,6 +213,8 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 			local valid = _IsActionInRange(btn.action)
 			if valid == 0 then
 				icon:SetVertexColor(1.0, 0.1, 0.1)
+			elseif not _IsUsableAction(btn.action) then
+				icon:SetVertexColor(0.5, 0.5, 1.0)
 			else
 				icon:SetVertexColor(1.0, 1.0, 1.0)
 			end
