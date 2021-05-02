@@ -34,17 +34,21 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 
 	-- prepare our functions.
 	local Print, Tokenize
-	local KPack_UnitFrames_Enable
 	local KPack_UnitFrames_BossTargetFrame_Show
 	local KPack_UnitFrames_CapDisplayOfNumericValue
+	local KPack_UnitFrames_Enable
 	local KPack_UnitFrames_FocusFrame_SetSmallSize
 	local KPack_UnitFrames_FocusFrame_Show
 	local KPack_UnitFrames_LoadDefaultSettings
+	local KPack_UnitFrames_PartyMemberFrame_ToPlayerArt
+	local KPack_UnitFrames_PartyMemberFrame_ToVehicleArt
 	local KPack_UnitFrames_PlayerFrame_OnMouseDown
 	local KPack_UnitFrames_PlayerFrame_OnMouseUp
 	local KPack_UnitFrames_PlayerFrame_ToPlayerArt
 	local KPack_UnitFrames_PlayerFrame_ToVehicleArt
 	local KPack_UnitFrames_SetFrameScale
+	local KPack_UnitFrames_Style_PartyMemberFrame
+	local KPack_UnitFrames_Style_PartyMemberFrameColor
 	local KPack_UnitFrames_Style_PlayerFrame
 	local KPack_UnitFrames_TargetFrame_CheckClassification
 	local KPack_UnitFrames_TargetFrame_CheckFaction
@@ -77,7 +81,9 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 
 	function KPack_UnitFrames_ApplySettings(settings)
 		settings = settings or DB
-		if InCombatLockdown() then return end
+		if InCombatLockdown() then
+			return
+		end
 		KPack_UnitFrames_SetFrameScale(settings.scale)
 
 		if settings.player.moved == true then
@@ -129,6 +135,14 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		hooksecurefunc("FocusFrame_SetSmallSize", KPack_UnitFrames_FocusFrame_SetSmallSize)
 		hooksecurefunc(FocusFrame, "Show", KPack_UnitFrames_FocusFrame_Show)
 
+		-- Hook PartyMember functions
+		hooksecurefunc("PartyMemberFrame_ToPlayerArt", KPack_UnitFrames_PartyMemberFrame_ToPlayerArt)
+		hooksecurefunc("PartyMemberFrame_ToVehicleArt", KPack_UnitFrames_PartyMemberFrame_ToVehicleArt)
+		hooksecurefunc("HealthBar_OnValueChanged", KPack_UnitFrames_Style_PartyMemberFrameColor)
+		hooksecurefunc("UnitFrameHealthBar_Update", KPack_UnitFrames_Style_PartyMemberFrameColor)
+		KPack_UnitFrames_Style_PartyMemberFrame()
+		core.After(0.1, KPack_UnitFrames_Style_PartyMemberFrameColor)
+
 		-- BossFrame hooks
 		hooksecurefunc(Boss1TargetFrame, "Show", KPack_UnitFrames_BossTargetFrame_Show)
 		hooksecurefunc(Boss2TargetFrame, "Show", KPack_UnitFrames_BossTargetFrame_Show)
@@ -147,16 +161,16 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	function KPack_UnitFrames_SetFrameScale(scale)
-		if InCombatLockdown() then return end
-		PlayerFrame:SetScale(scale)
-		TargetFrame:SetScale(scale)
-		FocusFrame:SetScale(scale)
-		Boss1TargetFrame:SetScale(scale * 0.9)
-		Boss2TargetFrame:SetScale(scale * 0.9)
-		Boss3TargetFrame:SetScale(scale * 0.9)
-		Boss4TargetFrame:SetScale(scale * 0.9)
-
-		DB.scale = scale
+		if not InCombatLockdown() then
+			PlayerFrame:SetScale(scale)
+			TargetFrame:SetScale(scale)
+			FocusFrame:SetScale(scale)
+			Boss1TargetFrame:SetScale(scale * 0.9)
+			Boss2TargetFrame:SetScale(scale * 0.9)
+			Boss3TargetFrame:SetScale(scale * 0.9)
+			Boss4TargetFrame:SetScale(scale * 0.9)
+			DB.scale = scale
+		end
 	end
 
 	-- Slashcommand stuff
@@ -205,8 +219,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 
 	-- Overloaded functions from Blizzard Unitframes Code
 	function KPack_UnitFrames_PlayerFrame_OnMouseDown(self, button)
-		if IsShiftKeyDown() and IsAltKeyDown() and button == "LeftButton" then
-			if InCombatLockdown() then return end
+		if not InCombatLockdown() and IsShiftKeyDown() and IsAltKeyDown() and button == "LeftButton" then
 			KPack_UnitFrames_PlayerFrame_IsMoving = true
 			PlayerFrame:SetUserPlaced(true)
 			PlayerFrame:StartMoving()
@@ -214,8 +227,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	function KPack_UnitFrames_PlayerFrame_OnMouseUp(self, button)
-		if KPack_UnitFrames_PlayerFrame_IsMoving == true and button == "LeftButton" then
-			if InCombatLockdown() then return end
+		if not InCombatLockdown() and KPack_UnitFrames_PlayerFrame_IsMoving == true and button == "LeftButton" then
 			KPack_UnitFrames_PlayerFrame_IsMoving = false
 			PlayerFrame:StopMovingOrSizing()
 
@@ -230,8 +242,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 
 	-- Overloaded functions from Blizzard Unitframes Code
 	function KPack_UnitFrames_TargetFrame_OnMouseDown(self, button)
-		if IsShiftKeyDown() and IsAltKeyDown() and button == "LeftButton" then
-			if InCombatLockdown() then return end
+		if not InCombatLockdown() and IsShiftKeyDown() and IsAltKeyDown() and button == "LeftButton" then
 			KPack_UnitFrames_TargetFrame_IsMoving = true
 			TargetFrame:SetUserPlaced(true)
 			TargetFrame:StartMoving()
@@ -239,8 +250,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	function KPack_UnitFrames_TargetFrame_OnMouseUp(self, button)
-		if KPack_UnitFrames_TargetFrame_IsMoving == true and button == "LeftButton" then
-			if InCombatLockdown() then return end
+		if not InCombatLockdown() and KPack_UnitFrames_TargetFrame_IsMoving == true and button == "LeftButton" then
 			KPack_UnitFrames_TargetFrame_IsMoving = false
 			TargetFrame:StopMovingOrSizing()
 
@@ -332,6 +342,100 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		end
 	end
 
+	do
+		local function UnitColor(unit)
+			local r, g, b
+			if not UnitIsPlayer(unit) and not UnitIsConnected(unit) or UnitIsDeadOrGhost(unit) then
+				r, g, b = 0.5, 0.5, 0.5
+			elseif UnitIsPlayer(unit) then
+				local class = select(2, UnitClass(unit))
+				local color = RAID_CLASS_COLORS[class]
+				if color then
+					r, g, b = color.r, color.g, color.b
+				else
+					if UnitIsFriend("player", unit) then
+						r, g, b = 0, 1, 0
+					else
+						r, g, b = 1, 0, 0
+					end
+				end
+			end
+
+			return r, g, b
+		end
+
+		function KPack_UnitFrames_Style_PartyMemberFrameColor()
+			if InCombatLockdown() then
+				return
+			end
+			for i = 1, GetNumPartyMembers() do
+				_G["PartyMemberFrame" .. i .. "HealthBar"]:SetStatusBarColor(UnitColor("party" .. i))
+				_G["PartyMemberFrame" .. i .. "HealthBar"].lockColor = true
+			end
+		end
+
+		function KPack_UnitFrames_Style_PartyMemberFrame()
+			if not InCombatLockdown() then
+				for i = 1, GetNumPartyMembers() do
+					-- Text
+					_G["PartyMemberFrame" .. i .. "Name"]:SetPoint("BOTTOMLEFT", 57, 35)
+					_G["PartyMemberFrame" .. i .. "HealthBarText"]:ClearAllPoints()
+					_G["PartyMemberFrame" .. i .. "HealthBarText"]:SetPoint("BOTTOM", 32, 21)
+					_G["PartyMemberFrame" .. i .. "ManaBarText"]:ClearAllPoints()
+					_G["PartyMemberFrame" .. i .. "ManaBarText"]:SetPoint("BOTTOM", 32, 9)
+					-- Border Texture
+					_G["PartyMemberFrame" .. i .. "Texture"]:SetPoint("TOPLEFT", 0, 12)
+					_G["PartyMemberFrame" .. i .. "Texture"]:SetHeight(75)
+					_G["PartyMemberFrame" .. i .. "Texture"]:SetWidth(150)
+					-- Border Flash
+					_G["PartyMemberFrame" .. i .. "Flash"]:SetPoint("TOPLEFT", 0, 12)
+					_G["PartyMemberFrame" .. i .. "Flash"]:SetHeight(75)
+					_G["PartyMemberFrame" .. i .. "Flash"]:SetWidth(150)
+					-- Health Bar
+					_G["PartyMemberFrame" .. i .. "HealthBar"]:ClearAllPoints()
+					_G["PartyMemberFrame" .. i .. "HealthBar"]:SetPoint("TOPLEFT", 55, -7)
+					_G["PartyMemberFrame" .. i .. "HealthBar"]:SetHeight(27)
+					_G["PartyMemberFrame" .. i .. "HealthBar"]:SetWidth(80)
+					-- Mana Bar
+					_G["PartyMemberFrame" .. i .. "ManaBar"]:ClearAllPoints()
+					_G["PartyMemberFrame" .. i .. "ManaBar"]:SetPoint("TOPLEFT", 54, -34)
+					_G["PartyMemberFrame" .. i .. "ManaBar"]:SetHeight(10)
+					_G["PartyMemberFrame" .. i .. "ManaBar"]:SetWidth(80)
+					-- Portrait
+					_G["PartyMemberFrame" .. i .. "Portrait"]:SetPoint("TOPLEFT", 7, -2)
+					_G["PartyMemberFrame" .. i .. "Portrait"]:SetHeight(43)
+					_G["PartyMemberFrame" .. i .. "Portrait"]:SetWidth(43)
+					-- Background
+					_G["PartyMemberFrame" .. i .. "Background"]:ClearAllPoints()
+					_G["PartyMemberFrame" .. i .. "Background"]:SetPoint("TOPLEFT", 55, -7)
+					_G["PartyMemberFrame" .. i .. "Background"]:SetHeight(35)
+					_G["PartyMemberFrame" .. i .. "Background"]:SetWidth(80)
+					_G["PartyMemberFrame" .. i .. "Texture"]:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-PartyFrame")
+					_G["PartyMemberFrame" .. i .. "Flash"]:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-Partyframe-Flash")
+				end
+			end
+		end
+
+		function KPack_UnitFrames_PartyMemberFrame_ToPlayerArt(self)
+			if not InCombatLockdown() then
+				KPack_UnitFrames_Style_PartyMemberFrame()
+			end
+		end
+
+		function KPack_UnitFrames_PartyMemberFrame_ToVehicleArt(self)
+			if not InCombatLockdown() then
+				for i = 1, GetNumPartyMembers() do
+					if UnitInVehicle("party" .. i) then
+						_G["PartyMemberFrame" .. i .. "VehicleTexture"]:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-Vehicles-Partyframe")
+						_G["PartyMemberFrame" .. i .. "VehicleTexture"]:SetPoint("TOPLEFT", 0, 12)
+						_G["PartyMemberFrame" .. i .. "VehicleTexture"]:SetHeight(75)
+						_G["PartyMemberFrame" .. i .. "VehicleTexture"]:SetWidth(150)
+					end
+				end
+			end
+		end
+	end
+
 	function KPack_UnitFrames_TargetFrame_Update(self)
 		local thisName = self:GetName()
 
@@ -387,10 +491,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		end
 
 		-- Set back color of health bar
-		if
-			not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit) and
-				not UnitIsTappedByAllThreatList(self.unit)
-		 then
+		if not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit) and not UnitIsTappedByAllThreatList(self.unit) then
 			-- Gray if npc is tapped by other player
 			self.healthbar:SetStatusBarColor(0.5, 0.5, 0.5)
 		else
@@ -400,9 +501,10 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	function KPack_UnitFrames_BossTargetFrame_Show(self)
-		if InCombatLockdown() then return end
-		self.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-UnitFrame-Boss")
-		self:SetScale((DB.scale or 1) * 0.9)
+		if not InCombatLockdown() then
+			self.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-UnitFrame-Boss")
+			self:SetScale((DB.scale or 1) * 0.9)
+		end
 	end
 
 	function KPack_UnitFrames_FocusFrame_Show(self)
@@ -463,7 +565,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	-- Event listener to make sure we've loaded our settings and thta we apply them
-	core:RegisterForEvent("VARIABLES_LOADED", function()
+	core:RegisterForEvent("PLAYER_LOGIN", function()
 		KPack_UnitFrames_LoadDefaultSettings()
 		core.ufi = true
 		KPack_UnitFrames_ApplySettings(core.char.UnitFrames)

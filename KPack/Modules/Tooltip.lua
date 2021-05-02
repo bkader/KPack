@@ -346,8 +346,16 @@ KPack:AddModule("Tooltip", function(_, core, L)
 					end
 				end
 				if not unit then
-					self:Hide()
-					return
+					if UnitExists("mouseover") then
+						unit = "mouseover"
+					end
+					if not unit then
+						self:Hide()
+						return
+					end
+				end
+				if UnitIsUnit(unit, "mouseover") then
+					unit = "mouseover"
 				end
 
 				local classif = UnitClassification(unit)
@@ -369,6 +377,7 @@ KPack:AddModule("Tooltip", function(_, core, L)
 					local guild, rank = GetGuildInfo(unit)
 					local playerGuild = GetGuildInfo("player")
 					local offset = 2
+
 					if guild then
 						_G["GameTooltipTextLeft2"]:SetFormattedText("%s |cffffffff(%s)|r", guild, rank)
 						if IsInGuild() and guild == playerGuild then
