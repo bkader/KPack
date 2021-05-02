@@ -2,6 +2,8 @@ assert(KPack, "KPack not found!")
 KPack:AddModule("Molinari", "Aids the player in processing various items throughout the game.", function(folder, core)
 	if core:IsDisabled("Molinari") then return end
 
+	local Molinari = {}
+
 	local unpack = unpack
 	local select = select
 	local pairs = pairs
@@ -90,6 +92,30 @@ KPack:AddModule("Molinari", "Aids the player in processing various items through
 		end
 	end
 
+	function Molinari:MODIFIER_STATE_CHANGED(key)
+		if not disabled and button and button:IsShown() and (key == "LALT" or key == "RALT") then
+			Disperse(button)
+		end
+	end
+
+	function Molinari:PLAYER_REGEN_ENABLED()
+		if not disabled and button and button:IsShown() then
+			Disperse(button)
+		end
+	end
+
+	function Molinari:AUCTION_HOUSE_SHOW()
+		if not disabled and _G.AUCTIONATOR_ENABLE_ALT == 1 then
+			auction = true
+		end
+	end
+
+	function Molinari:AUCTION_HOUSE_CLOSED()
+		if not disabled then
+			auction = nil
+		end
+	end
+
 	core:RegisterForEvent("PLAYER_LOGIN", function()
 		if _G.Molinari then
 			disabled = true
@@ -144,29 +170,11 @@ KPack:AddModule("Molinari", "Aids the player in processing various items through
 			CharacterFrame:HookScript("OnShow", function() flyout = true end)
 			CharacterFrame:HookScript("OnHide", function() flyout = nil end)
 		end
-	end)
 
-	core:RegisterForEvent("MODIFIER_STATE_CHANGED", function(_, key)
-		if not disabled and button and button:IsShown() and (key == "LALT" or key == "RALT") then
-			Disperse(button)
-		end
-	end)
-
-	core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()
-		if not disabled and button and button:IsShown() then
-			Disperse(button)
-		end
-	end)
-
-	core:RegisterForEvent("AUCTION_HOUSE_SHOW", function()
-		if not disabled and _G.AUCTIONATOR_ENABLE_ALT == 1 then
-			auction = true
-		end
-	end)
-
-	core:RegisterForEvent("AUCTION_HOUSE_CLOSED", function()
-		if not disabled then
-			auction = nil
-		end
+		button:RegisterEvent("MODIFIER_STATE_CHANGED")
+		button:RegisterEvent("PLAYER_REGEN_ENABLED")
+		button:RegisterEvent("AUCTION_HOUSE_SHOW")
+		button:RegisterEvent("AUCTION_HOUSE_CLOSED")
+		button:SetScript("OnEvent", function(self, event, ...) Molinari[event](self, ...) end)
 	end)
 end)
