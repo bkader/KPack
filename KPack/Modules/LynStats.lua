@@ -1,7 +1,7 @@
 --[[ Credits:  lynstats ]]
 assert(KPack, "KPack not found!")
 KPack:AddModule("LynStats", function(_, addon, L)
-	if addon:IsDisabled("LynStats") then return end
+	if addon:IsDisabled("LynStats") or addon.ElvUI then return end
 
 	-- CONFIG
 	---------------------------------------------
@@ -48,7 +48,7 @@ KPack:AddModule("LynStats", function(_, addon, L)
 	if customColor then
 		color = {r = 0, g = 1, b = 0.7}
 	else
-		color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass("player"))]
+		color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[addon.class]
 	end
 
 	local function memFormat(number)
