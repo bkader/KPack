@@ -37,11 +37,16 @@ local function SetupDatabase()
 end
 core:RegisterForEvent("PLAYER_LOGIN", function()
 	SetupDatabase()
-	if core:IsDisabled(ADDONS) and GameMenuButtonMoveAnything then
+	local hasElvui = (core.ElvUI and core.ElvUI:GetModule("ElvUI_Enhanced", true) ~= nil)
+	if core:IsDisabled(ADDONS) or hasElvui then
 		GameMenuButtonMoveAnything:ClearAllPoints()
-		GameMenuButtonMoveAnything:SetPoint("TOP", GameMenuButtonMacros, "BOTTOM", 0, -1)
-		GameMenuButtonLogout:SetPoint("TOP", GameMenuButtonMoveAnything, "BOTTOM", 0, -16)
-		GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 26)
+		if hasElvui then
+			GameMenuButtonMoveAnything:SetPoint("TOP", GameMenuFrame, "BOTTOM", 0, -5)
+		else
+			GameMenuButtonMoveAnything:SetPoint("TOP", GameMenuButtonMacros, "BOTTOM", 0, -1)
+			GameMenuButtonLogout:SetPoint("TOP", GameMenuButtonMoveAnything, "BOTTOM", 0, -16)
+			GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 26)
+		end
 	end
 end)
 

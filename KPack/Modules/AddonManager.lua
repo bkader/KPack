@@ -1,6 +1,8 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule(ADDONS, function(addonName, addon, L)
 	if addon:IsDisabled(ADDONS) then return end
+	if addon.ElvUI and addon.ElvUI:GetModule("ElvUI_Enhanced", true) then return end
+
 	local _G = _G
 	local unpack = unpack
 	local select = select
