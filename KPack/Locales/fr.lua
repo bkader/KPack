@@ -351,7 +351,6 @@ L["(Ignored: %s: %s. Further attempts will not be shown.)"] = "(Ignoré: %s: %s.
 L["LiveStream"] = "LiveStream"
 L["Start Broadcasting"] = "Commencer l'envoi"
 L["Stop Broadcasting"] = "Arrêter l'envoi"
-L["Duration"] = "Durée"
 L["Time in minutes after which the message is broadcasted."] = "Le durée en minutes après laquelle le message est diffusé."
 L["Channel"] = "Chaîne"
 L["The link to your livestream channel."] = "Le lien de votre chaîne de stream."

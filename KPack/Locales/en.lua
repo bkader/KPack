@@ -368,7 +368,6 @@ L["(Ignored: %s: %s. Further attempts will not be shown.)"] = true
 L["LiveStream"] = true
 L["Start Broadcasting"] = true
 L["Stop Broadcasting"] = true
-L["Duration"] = true
 L["Time in minutes after which the message is broadcasted."] = true
 L["Channel"] = true
 L["The link to your livestream channel."] = true
