@@ -57,13 +57,13 @@ KPack:AddModule("LiveStream", function(_, core, L)
 				return
 			end
 
-			if DB.msg and DB.msg:trim() ~= "" then
+			if DB.msg and DB.msg:find("{link}") then
 				output = DB.msg:trim():gsub("{link}", DB.url:trim())
 			else
 				output = DB.url:trim()
 			end
 
-			if DB.emote and DB.emote:trim() ~= "" then
+			if DB.emote and DB.emote:find("{link}") ~= "" then
 				emote = DB.emote:trim():gsub("{link}", DB.url:trim())
 			else
 				emote = DB.url:trim()
