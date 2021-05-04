@@ -279,7 +279,7 @@ KPack:AddModule("LiveStream", function(_, core, L)
 						type = "toggle",
 						name = L:F("Send to %s", EMOTE),
 						desc = L:F("Should send the message to the %s channel.", EMOTE),
-						order = 12
+						order = 13
 					},
 					sendToChannel = {
 						type = "toggle",
