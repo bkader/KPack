@@ -32,7 +32,7 @@ KPack:AddModule("LiveStream", function(_, core, L)
 	local OnUpdate
 	local frame, OnUpdate = CreateFrame("Frame")
 	frame:RegisterEvent("CHANNEL_UI_UPDATE")
-	frame:SetScript("OnEvent", ListChannels)
+	frame:SetScript("OnEvent", function(self, event, ...) ListChannels() end)
 
 	function ListChannels()
 		options.args.channels.args = {}
