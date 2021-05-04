@@ -347,6 +347,21 @@ L["Reason for ignoring this player:"] = "Raison pour ignorer de ce joueur:"
 L["wipe the ingore list"] = "efface la liste des ignorés"
 L["ignore list wiped"] = "liste des ignorés effacée"
 L["(Ignored: %s: %s. Further attempts will not be shown.)"] = "(Ignoré: %s: %s. Les futures tentatives ne seront pas affichées.)"
+-- LiveStream
+L["LiveStream"] = "LiveStream"
+L["Start Broadcasting"] = "Commencer l'envoi"
+L["Stop Broadcasting"] = "Arrêter l'envoi"
+L["Duration"] = "Durée"
+L["Time in minutes after which the message is broadcasted."] = "Le durée en minutes après laquelle le message est diffusé."
+L["Channel"] = "Chaîne"
+L["The link to your livestream channel."] = "Le lien de votre chaîne de stream."
+L["Message"] = "Message"
+L["The message that will be sent with your livestream channel's link."] = "Le message qui sera envoyé avec le lien de votre chaîne."
+L["The message that will be sent with your livestream channel's link via /emote."] = "Le message qui sera envoyé avec le lien de votre chaîne via /emote."
+L["Use |cffffd700{link}|r where you want your channel link to be."] = "Veuillez utiliser |cffffd700{link}|r car il sera remplacé par le lien de votre chaîne."
+L["Send to %s"] = "Envoi sur: %s"
+L["Should send the message to the %s channel."] = "Le message sera envoyé via %s"
+L["message broadcasting %s"] = "diffusion %s"
 -- LookUp
 -- L["Searching for items containing |cffffd700%s|r"] = true
 -- L["Searching for spells containing |cffffd700%s|r"] = true

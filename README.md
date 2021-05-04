@@ -1,6 +1,6 @@
-# KPack - Lots-In-One AddOn Collection! (58)
+# KPack - Lots-In-One AddOn Collection! (59)
 
-Currently, this pack contains 58 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 59 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -286,3 +286,13 @@ Provides visual, auditory, and textual notifications about cooldowns, buffs, and
 ## 58. Binder
 
 Allows you to save your current keybinds as profile that you can load whenever you want.
+
+## 59. LiveStream
+
+This module is a clone of [StreamBuddy](https://www.curseforge.com/wow/addons/streambuddy) addon and is meant for streamers.
+
+After setting your channel link, your message and the broadcast duration, choose where you want to send the message and you're good to go.
+
+You can either use the button to start or use the slash commands `/stream start` and `/stream stop`.
+
+**Note**: to avoid accidental broadcast on login, the status of the broadcast is only saved per session, so if you were broadcasting your channel link and you relog/reload, it will stop and you will have to start again.

@@ -33,6 +33,7 @@
 <Script file="IgnoreMore.lua" />
 <Script file="ImprovedLootFrame.lua" />
 <Script file="ItemLevel.lua" />
+<Script file="LiveStream.lua" />
 <Script file="Lookup.lua" />
 <Script file="LootMessageFilter.lua" />
 <Script file="LynStats.lua" />

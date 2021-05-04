@@ -364,6 +364,21 @@ L["Reason for ignoring this player:"] = true
 L["wipe the ingore list"] = true
 L["ignore list wiped"] = true
 L["(Ignored: %s: %s. Further attempts will not be shown.)"] = true
+-- LiveStream
+L["LiveStream"] = true
+L["Start Broadcasting"] = true
+L["Stop Broadcasting"] = true
+L["Duration"] = true
+L["Time in minutes after which the message is broadcasted."] = true
+L["Channel"] = true
+L["The link to your livestream channel."] = true
+L["Message"] = true
+L["The message that will be sent with your livestream channel's link."] = true
+L["The message that will be sent with your livestream channel's link via /emote."] = true
+L["Use |cffffd700{link}|r where you want your channel link to be."] = true
+L["Send to %s"] = true
+L["Should send the message to the %s channel."] = true
+L["message broadcasting %s"] = true
 -- LookUp
 L["Searching for items containing |cffffd700%s|r"] = true
 L["Searching for spells containing |cffffd700%s|r"] = true
