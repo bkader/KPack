@@ -479,14 +479,14 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		frame.bg:SetAllPoints(healthBar)
 
 		local right = frame:CreateTexture(nil, "BACKGROUND")
-		right:SetTexture([[Interface\Addons\Nameplates\arrow]])
+		right:SetTexture([[Interface\AddOns\KPack\Media\Textures\arrow]])
 		right:SetPoint("LEFT", frame.healthBar, "RIGHT", -3, 0)
 		right:SetRotation(1.57)
 		right:Hide()
 		frame.rightIndicator = right
 
 		local left = frame:CreateTexture(nil, "BACKGROUND")
-		left:SetTexture([[Interface\Addons\Nameplates\arrow]])
+		left:SetTexture([[Interface\AddOns\KPack\Media\Textures\arrow]])
 		left:SetPoint("RIGHT", frame.healthBar, "LEFT", 3, 0)
 		left:SetRotation(-1.57)
 		left:Hide()
