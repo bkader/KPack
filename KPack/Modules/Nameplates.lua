@@ -267,6 +267,18 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		end
 	end
 
+	local function Nameplate_OnEnter(self)
+		if self.highlight then
+			self.highlight:Show()
+		end
+	end
+
+	local function Nameplate_OnLeave(self)
+		if self.highlight then
+			self.highlight:Hide()
+		end
+	end
+
 	local function Nameplate_UpdateCritical(self)
 		if self.glow:IsVisible() then
 			self.glow.wasVisible = true
@@ -286,6 +298,16 @@ KPack:AddModule("Nameplates", function(_, core, L)
 				self.hasThreat = nil
 				self:SetHealthColor()
 			end
+		end
+
+		if self.oldHighlight:IsShown() then
+			if not self.highlighted then
+				self.highlighted = true
+				self:OnEnter()
+			end
+		elseif self.highlighted then
+			self.highlighted = nil
+			self:OnLeave()
 		end
 	end
 
@@ -408,7 +430,20 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		healthBar.hpGlow:SetBackdropColor(0, 0, 0)
 		healthBar.hpGlow:SetBackdropBorderColor(0, 0, 0, 1)
 
-		local text = healthBar:CreateFontString(nil, "OVERLAY")
+		frame.overlay = CreateFrame("Frame", nil, frame)
+		frame.overlay:SetAllPoints(frame.healthBar)
+		frame.overlay:SetFrameLevel(frame.healthBar:GetFrameLevel() + 1)
+
+		frame.oldHighlight = highlightRegion
+		frame.highlight = frame.overlay:CreateTexture(nil, "ARTWORK")
+		frame.highlight:SetAllPoints(frame.healthBar)
+		frame.highlight:SetTexture(LSM:Fetch("statusbar", config.barTexture))
+		frame.highlight:SetBlendMode("ADD")
+		frame.highlight:SetVertexColor(1, 1, 1)
+		frame.highlight:SetAlpha(0.4)
+		frame.highlight:Hide()
+
+		local text = frame.overlay:CreateFontString(nil, "OVERLAY")
 		text:SetFont(LSM:Fetch("font", config.textFont), config.textFontSize, config.textFontOutline)
 		text:SetPoint("CENTER", 0, 1)
 		text:SetTextColor(0.84, 0.75, 0.65)
@@ -454,10 +489,6 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		spellIconRegion:SetHeight(0.01)
 		spellIconRegion:SetWidth(0.01)
 
-		highlightRegion:SetTexture(config.barTexture)
-		highlightRegion:SetVertexColor(0.25, 0.25, 0.25)
-		frame.highlight = highlightRegion
-
 		raidIconRegion:ClearAllPoints()
 		raidIconRegion:SetPoint("BOTTOM", healthBar, "TOP", 0, config.barHeight + 3)
 		raidIconRegion:SetSize(15, 15)
@@ -469,6 +500,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		bossIconRegion:SetTexture(nil)
 		castbarOverlay:SetTexture(nil)
 		glowRegion:SetTexture(nil)
+		highlightRegion:SetTexture(nil)
 		overlayRegion:SetTexture(nil)
 		shieldedRegion:SetTexture(nil)
 		stateIconRegion:SetTexture(nil)
@@ -492,6 +524,8 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		left:Hide()
 		frame.leftIndicator = left
 
+		frame.OnEnter = Nameplate_OnEnter
+		frame.OnLeave = Nameplate_OnLeave
 		frame.CheckForChange = Nameplate_CheckForChange
 		frame.SetHealthColor = Nameplate_SetHealthColor
 		frame.UpdateCritical = Nameplate_UpdateCritical
