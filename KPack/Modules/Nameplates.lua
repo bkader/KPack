@@ -207,7 +207,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		local plate = oldbar:GetParent()
 		local minval, maxval = oldbar:GetMinMaxValues()
 		plate.healthBar:SetMinMaxValues(minval, maxval)
-		plate.healthBar:SetValue(val or oldbar:GetValue())
+		plate.healthBar:SetValue((val and val == 1 and 0 or val) or oldbar:GetValue())
 	end
 
 	local Nameplate_CheckForChange
