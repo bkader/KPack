@@ -1,52 +1,65 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are on cooldown to indicate when they will be ready to use.", function(_, core)
+KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are on cooldown to indicate when they will be ready to use.", function(_, core, L)
 	if core:IsDisabled("Cooldowns") then return end
 
-	local DAY, HOUR, MINUTE, SHORT = 86400, 3600, 60, 5
-	local ICON_SIZE = 36
-	local textFont = STANDARD_TEXT_FONT
-	local fontSize = 18
-	local minScale = 0.6
-	local minDuration = 3
-	local treshold = 5.5
-	local colors = {
-		short = {1, 0, 0, 1}, -- <= 5 seconds
-		secs = {1, 1, 0, 1}, -- < 1 minute
-		mins = {1, 1, 1, 1}, -- >= 1 minute
-		hrs = {0.7, 0.7, 0.7, 1}, -- >= 1 hr
-		days = {0.7, 0.7, 0.7, 1} -- >= 1 day
-	}
-	-- cache frequently used globals
+	local mod = {}
+	LibStub("AceHook-3.0"):Embed(mod)
+
+	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
+
 	local str_format = string.format
 	local math_floor = math.floor
 	local math_min = math.min
 	local GetTime = GetTime
 
+	local HookCooldows, changed
+	local options, GetOptions
+	local DB, SetupDatabase
+	local defaults = {
+		enabled = true,
+		font = "Friz Quadrata TT",
+		fontSize = 18,
+		fontFlags = "",
+		minScale = 0.5,
+		threshold = 5.5,
+		minDuration = 3,
+		colors = {
+			short = {1, 0, 0, 1}, -- <= 5 seconds
+			secs = {1, 1, 0, 1}, -- < 1 minute
+			mins = {1, 1, 1, 1}, -- >= 1 minute
+			hrs = {0.7, 0.7, 0.7, 1}, -- >= 1 hr
+			days = {0.7, 0.7, 0.7, 1} -- >= 1 day
+		}
+	}
+
 	local function Cooldowns_FormattedText(s)
-		if s >= DAY then
-			return str_format("%dd", math_floor(s / DAY + 0.5)), s % DAY, colors.days
-		elseif s >= HOUR then
-			return str_format("%dh", math_floor(s / HOUR + 0.5)), s % HOUR, colors.hrs
-		elseif s >= MINUTE then
-			return str_format("%dm", math_floor(s / MINUTE + 0.5)), s % MINUTE, colors.mins
+		if s >= 86400 then
+			return str_format("%dd", math_floor(s / 86400 + 0.5)), s % 86400, DB.colors.days
+		elseif s >= 3600 then
+			return str_format("%dh", math_floor(s / 3600 + 0.5)), s % 3600, DB.colors.hrs
+		elseif s >= 60 then
+			return str_format("%dm", math_floor(s / 60 + 0.5)), s % 60, DB.colors.mins
 		end
-		local color = (s >= treshold) and colors.secs or colors.short
+		local color = (s >= DB.threshold) and DB.colors.secs or DB.colors.short
 		return math_floor(s + 0.5), s - math_floor(s), color
 	end
 
 	local function Cooldowns_TimerOnUpdate(self, elapsed)
 		if self.text:IsShown() then
+			local color  -- will be used later.
+
 			if self.nextUpdate > 0 then
 				self.nextUpdate = self.nextUpdate - elapsed
 			else
-				if (self:GetEffectiveScale() / UIParent:GetEffectiveScale()) < minScale then
+				if (self:GetEffectiveScale() / UIParent:GetEffectiveScale()) < DB.minScale then
 					self.text:SetText("")
 					self.nextUpdate = 1
 				else
 					local remain = self.duration - (GetTime() - self.start)
 					if math_floor(remain + 0.5) > 0 then
-						local time, nextUpdate, color = Cooldowns_FormattedText(remain)
-						self.text:SetText(time)
+						local text, nextUpdate
+						text, nextUpdate, color = Cooldowns_FormattedText(remain)
+						self.text:SetText(text)
 						self.text:SetTextColor(unpack(color))
 						self.nextUpdate = nextUpdate
 					else
@@ -54,18 +67,27 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 					end
 				end
 			end
+
+			if changed then
+				if color then
+					local scale = math_min(self:GetParent():GetWidth() / 36, 1)
+					self.text:SetFont(LSM:Fetch("font", DB.font), DB.fontSize * scale, DB.fontFlags)
+					self.text:SetTextColor(unpack(color))
+				end
+				changed = nil
+			end
 		end
 	end
 
 	local function Cooldowns_CreateTimer(self)
-		local scale = math_min(self:GetParent():GetWidth() / ICON_SIZE, 1)
-		if scale < minScale then
+		local scale = math_min(self:GetParent():GetWidth() / 36, 1)
+		if scale < DB.minScale then
 			self.noOCC = true
 		else
 			local text = self:CreateFontString(nil, "OVERLAY")
 			text:SetPoint("CENTER", 0, 1)
-			text:SetFont(textFont, fontSize * scale, "OUTLINE")
-			text:SetTextColor(unpack(colors.days))
+			text:SetFont(LSM:Fetch("font", DB.font), DB.fontSize * scale, DB.fontFlags)
+			text:SetTextColor(unpack(DB.colors.days))
 
 			self.text = text
 			self:SetScript("OnUpdate", Cooldowns_TimerOnUpdate)
@@ -84,19 +106,221 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 		end
 	end
 
-	core:RegisterForEvent("PLAYER_LOGIN", function()
-		if not _G.OmniCC then
-			hooksecurefunc(getmetatable(ActionButton1Cooldown).__index, "SetCooldown", function(self, start, duration)
-				if self.noOCC then return end
-				if start > 0 and duration > minDuration then
-					Cooldowns_StartTimer(self, start, duration)
-				else
-					local text = self.text
-					if text then
-						text:Hide()
-					end
-				end
-			end)
+	function SetupDatabase()
+		if not DB then
+			if type(core.db.OmniCC) ~= "table" then
+				core.db.OmniCC = CopyTable(defaults)
+			end
+			DB = core.db.OmniCC
 		end
+	end
+
+	function GetOptions()
+		if not options then
+			local disabled = function()
+				return not (DB and DB.enabled)
+			end
+
+			options = {
+				type = "group",
+				name = L["Cooldown Text"],
+				get = function(i)
+					return DB[i[#i]]
+				end,
+				set = function(i, val)
+					DB[i[#i]] = val
+					changed = true
+				end,
+				args = {
+					enabled = {
+						type = "toggle",
+						name = L["Enable"],
+						order = 0,
+						set = function()
+							DB.enabled = not DB.enabled
+							HookCooldows()
+						end
+					},
+					reset = {
+						type = "execute",
+						name = RESET,
+						order = 1,
+						disabled = disabled,
+						confirm = function()
+							return L:F("Are you sure you want to reset %s to default?", L["Cooldown Text"])
+						end,
+						func = function()
+							core.db.OmniCC, DB = nil, nil
+							SetupDatabase()
+							core:Print(L["module's settings reset to default."])
+							changed = true
+						end
+					},
+					info = {
+						type = "header",
+						name = L["Some settings require UI to be reloaded."],
+						order = 2,
+						width = "full"
+					},
+					sep = {
+						type = "description",
+						name = " ",
+						order = 2.1,
+						width = "full"
+					},
+					minScale = {
+						type = "range",
+						name = L["Minimum Scale"],
+						desc = L["The minimum scale required for icons to show cooldown text."],
+						disabled = disabled,
+						order = 3,
+						min = 0.3,
+						max = 1,
+						step = 0.01,
+						bigStep = 0.05
+					},
+					minDuration = {
+						type = "range",
+						name = L["Minimum Duration"],
+						desc = L["The minimum time left required to show cooldown texts."],
+						disabled = disabled,
+						order = 4,
+						min = 0,
+						max = 60,
+						step = 1,
+						bigStep = 5
+					},
+					threshold = {
+						type = "range",
+						name = L["Threashold"],
+						desc = L["The time left at which the time left is considered short."],
+						disabled = disabled,
+						order = 5,
+						width = "double",
+						min = 0,
+						max = 30,
+						step = 1,
+						bigStep = 5,
+						get = function()
+							return math_floor(DB.threshold or 5)
+						end,
+						set = function(_, val)
+							DB.threshold = math_floor(val) + 0.5
+							changed = true
+						end
+					},
+					appearance = {
+						type = "group",
+						name = L["Font"],
+						disabled = disabled,
+						inline = true,
+						order = 6,
+						args = {
+							font = {
+								type = "select",
+								name = L["Font"],
+								dialogControl = "LSM30_Font",
+								order = 1,
+								width = "double",
+								values = AceGUIWidgetLSMlists.font
+							},
+							fontSize = {
+								type = "range",
+								name = L["Font Size"],
+								order = 2,
+								min = 6,
+								max = 30,
+								step = 1
+							},
+							fontOutline = {
+								type = "select",
+								name = L["Font Outline"],
+								order = 3,
+								values = {
+									[""] = NONE,
+									["OUTLINE"] = L["Outline"],
+									["THINOUTLINE"] = L["Thin outline"],
+									["THICKOUTLINE"] = L["Thick outline"],
+									["MONOCHROME"] = L["Monochrome"],
+									["OUTLINEMONOCHROME"] = L["Outlined monochrome"]
+								}
+							}
+						}
+					},
+					colors = {
+						type = "group",
+						name = L["Color"],
+						inline = true,
+						disabled = disabled,
+						order = 7,
+						get = function(i)
+							return unpack(DB.colors[i[#i]])
+						end,
+						set = function(i, r, g, b)
+							DB.colors[i[#i]] = {r, g, b, 1}
+							changed = true
+						end,
+						args = {
+							short = {
+								type = "color",
+								name = L["Short"],
+								order = 1
+							},
+							secs = {
+								type = "color",
+								name = L["Seconds"],
+								order = 2
+							},
+							mins = {
+								type = "color",
+								name = L["Minutes"],
+								order = 3
+							},
+							hrs = {
+								type = "color",
+								name = L["Hours"],
+								order = 4
+							},
+							days = {
+								type = "color",
+								name = L["Days"],
+								order = 5
+							}
+						}
+					}
+				}
+			}
+		end
+
+		return options
+	end
+
+	function HookCooldows()
+		local f = getmetatable(ActionButton1Cooldown).__index
+		if DB.enabled and not _G.OmniCC then
+			mod:Hook(f, "SetCooldown", true)
+		elseif mod:IsHooked(f, "SetCooldown") then
+			mod:Unhook(f, "SetCooldown")
+		end
+	end
+
+	function mod:SetCooldown(frame, start, duration)
+		if frame.noOCC then
+			return
+		end
+		if start > 0 and duration > (DB.minDuration or 3) then
+			Cooldowns_StartTimer(frame, start, duration)
+		else
+			local text = frame.text
+			if text then
+				text:Hide()
+			end
+		end
+	end
+
+	core:RegisterForEvent("PLAYER_LOGIN", function()
+		SetupDatabase()
+		core.options.args.Options.args.Cooldowns = GetOptions()
+		HookCooldows()
 	end)
 end)

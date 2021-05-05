@@ -313,6 +313,19 @@ L.Ammo = "Ammo"
 L.Shards = "Shards"
 L.SoulShard = "Soul Shard"
 L.Usable = "Usable"
+-- Cooldown Text
+L["Cooldown Text"] = true
+L["Minimum Scale"] = true
+L["The minimum scale required for icons to show cooldown text."] = true
+L["Minimum Duration"] = true
+L["The minimum time left required to show cooldown texts."] = true
+L["Threashold"] = true
+L["The time left at which the time left is considered short."] = true
+L["Short"] = true
+L["Seconds"] = true
+L["Minutes"] = true
+L["Hours"] = true
+L["Days"] = true
 -- Death Recap
 L["Death Recap"] = true
 L["Death Recap unavailable."] = true
