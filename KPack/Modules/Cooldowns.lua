@@ -70,7 +70,7 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 
 			if changed then
 				if color then
-					local scale = math_min(self:GetParent():GetWidth() / 36, 1)
+					local scale = math_min(self:GetParent():GetWidth() / 32, 1)
 					self.text:SetFont(LSM:Fetch("font", DB.font), DB.fontSize * scale, DB.fontFlags)
 					self.text:SetTextColor(unpack(color))
 				end
@@ -80,9 +80,9 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 	end
 
 	local function Cooldowns_CreateTimer(self)
-		local scale = math_min(self:GetParent():GetWidth() / 36, 1)
+		local scale = math_min(self:GetParent():GetWidth() / 32, 1)
 		if scale < DB.minScale then
-			self.noOCC = true
+			self.noCooldownCount = true
 		else
 			local text = self:CreateFontString(nil, "OVERLAY")
 			text:SetPoint("CENTER", 0, 1)
@@ -100,7 +100,7 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 		self.duration = duration
 		self.nextUpdate = 0
 
-		local text = self.text or (not self.noOCC and Cooldowns_CreateTimer(self))
+		local text = self.text or (not self.noCooldownCount and Cooldowns_CreateTimer(self))
 		if text then
 			text:Show()
 		end
@@ -152,7 +152,7 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 						func = function()
 							core.db.OmniCC, DB = nil, nil
 							SetupDatabase()
-							core:Print(L["module's settings reset to default."])
+							core:Print(L["module's settings reset to default."], L["Cooldown Text"])
 							changed = true
 						end
 					},
@@ -305,7 +305,7 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 	end
 
 	function mod:SetCooldown(frame, start, duration)
-		if frame.noOCC then
+		if frame.noCooldownCount then
 			return
 		end
 		if start > 0 and duration > (DB.minDuration or 3) then
