@@ -70,7 +70,7 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 
 			if changed then
 				if color then
-					local scale = math_min(self:GetParent():GetWidth() / 32, 1)
+					local scale = math_min(self:GetParent():GetWidth() / 36, 1)
 					self.text:SetFont(LSM:Fetch("font", DB.font), DB.fontSize * scale, DB.fontFlags)
 					self.text:SetTextColor(unpack(color))
 				end
@@ -80,7 +80,7 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 	end
 
 	local function Cooldowns_CreateTimer(self)
-		local scale = math_min(self:GetParent():GetWidth() / 32, 1)
+		local scale = math_min(self:GetParent():GetWidth() / 36, 1)
 		if scale < DB.minScale then
 			self.noCooldownCount = true
 		else
