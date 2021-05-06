@@ -10,9 +10,7 @@ KPack:AddModule("LynStats", function(_, addon, L)
 	local font = [[Interface\AddOns\KPack\Media\Fonts\HOOGE.TTF]]
 	local fontSize = 12
 	local fontFlag = "THINOUTLINE"
-	if addon.nonLatin then
-		font = [[Fonts\\FRIZQT__.ttf]]
-	end
+	if addon.nonLatin then font = [[Fonts\FRIZQT__.ttf]] end
 
 	local textAlign = "CENTER"
 	local position = {"BOTTOMLEFT", UIParent, "BOTTOMLEFT", 3, 5}
