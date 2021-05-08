@@ -34,15 +34,14 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 
 	local function Cooldowns_FormattedText(s)
 		if s >= 86400 then
-			return str_format("%dd", math_floor(s / 86400 + 0.5)), s % 86400, DB.colors.days, 0.75
+			return str_format("%dd", math_floor(s / 86400 + 0.5)), s % 86400, DB.colors.days
 		elseif s >= 3600 then
-			return str_format("%dh", math_floor(s / 3600 + 0.5)), s % 3600, DB.colors.hrs, 0.75
+			return str_format("%dh", math_floor(s / 3600 + 0.5)), s % 3600, DB.colors.hrs
 		elseif s >= 60 then
-			return str_format("%dm", math_floor(s / 60 + 0.5)), s % 60, DB.colors.mins, 1
-		elseif s >= DB.threshold then
-			return math_floor(s + 0.5), s - math_floor(s), DB.colors.secs, 1
+			return str_format("%dm", math_floor(s / 60 + 0.5)), s % 60, DB.colors.mins
 		end
-		return math_floor(s + 0.5), s - math_floor(s), DB.colors.short, 1.5
+		local color = (s >= DB.threshold) and DB.colors.secs or DB.colors.short
+		return math_floor(s + 0.5), s - math_floor(s), color
 	end
 
 	local function Cooldowns_TimerOnUpdate(self, elapsed)
@@ -59,9 +58,8 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 					local remain = self.duration - (GetTime() - self.start)
 					if math_floor(remain + 0.5) > 0 then
 						local text, nextUpdate
-						text, nextUpdate, color, scale = Cooldowns_FormattedText(remain)
+						text, nextUpdate, color = Cooldowns_FormattedText(remain)
 						self.text:SetText(text)
-						self.text:SetFont(LSM:Fetch("font", DB.font), DB.fontSize * (scale or 1), DB.fontFlags)
 						self.text:SetTextColor(unpack(color))
 						self.nextUpdate = nextUpdate
 					else
