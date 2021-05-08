@@ -174,7 +174,7 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 						desc = L["The minimum scale required for icons to show cooldown text."],
 						disabled = disabled,
 						order = 3,
-						min = 0.3,
+						min = 0.1,
 						max = 1,
 						step = 0.01,
 						bigStep = 0.05
