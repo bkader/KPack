@@ -8,6 +8,10 @@ Lots of modules/addons required lots of rewritting and others really needed to b
 
 Most of the modules have either slash commands or config panels, they can be enabled or disabled but there are some that don't have an option to toggle them, so, if there is a module that you don't want to use, simply comment its line out in the `Load.xml` file or delete its file within the `Modules` folder.
 
+## Show Love & Support
+
+Though it's not required and I have never asked for it but people keep asking for it, if you want to show love and support, your PayPal donations are most welcome to **bkader[at]email.com**.
+
 ## How to install
 
 1. [Download the package](https://github.com/bkader/KPack/archive/refs/heads/main.zip).
