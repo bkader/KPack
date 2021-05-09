@@ -1,6 +1,6 @@
-_dev
+[_dev]*
+[_bak]*
+*.[zip,rar]
 .luacheckrc
 luacheck.exe
 Makefile
-*.zip
-Modules/ClassTimer.lua
