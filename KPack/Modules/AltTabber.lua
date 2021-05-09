@@ -2,12 +2,16 @@ assert(KPack, "KPack not found!")
 KPack:AddModule("AltTabber", "Allows you to never miss important events even if you play with the game sound off.", function(_, core, L)
 	if core:IsDisabled("AltTabber") then return end
 
+	local AltTabber = CreateFrame("Frame")
+	core.AltTabber = AltTabber
+	AltTabber:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
+
 	local _GetCVar, _SetCVar = GetCVar, SetCVar
 	local _PlaySoundFile = PlaySoundFile
-	local DB
+	local DB, disabled
 
-	local function disabled()
-		return not DB.enabled
+	local function _disabled()
+		return (disabled or not DB.enabled)
 	end
 
 	local options = {
@@ -23,7 +27,10 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 			enabled = {
 				type = "toggle",
 				name = L["Enable"],
-				order = 0
+				order = 0,
+				disabled = function()
+					return disabled
+				end
 			},
 			sep = {
 				type = "description",
@@ -35,43 +42,43 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 				type = "description",
 				name = L["Tick the sounds you want AltTabber to play:"],
 				order = 1,
-				disabled = disabled,
+				disabled = _disabled,
 				width = "full"
 			},
 			ready = {
 				type = "toggle",
 				name = READY_CHECK,
 				order = 2,
-				disabled = disabled
+				disabled = _disabled
 			},
 			lfg = {
 				type = "toggle",
 				name = LFG_TYPE_RANDOM_DUNGEON,
 				order = 3,
-				disabled = disabled
+				disabled = _disabled
 			},
 			warning = {
 				type = "toggle",
 				name = RAID_WARNING,
 				order = 4,
-				disabled = disabled
+				disabled = _disabled
 			},
 			invite = {
 				type = "toggle",
 				name = GROUP_INVITE,
 				order = 5,
-				disabled = disabled
+				disabled = _disabled
 			},
 			whisper = {
 				type = "toggle",
 				name = WHISPER,
 				order = 6,
-				disabled = disabled
+				disabled = _disabled
 			}
 		}
 	}
 
-	local function LoadDatabase()
+	local function SetupDatabase()
 		if not DB then
 			if type(core.db.AltTabber) ~= "table" or not next(core.db.AltTabber) then
 				core.db.AltTabber = {
@@ -87,22 +94,55 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 		end
 	end
 
-	core:RegisterForEvent("PLAYER_LOGIN", function()
-		LoadDatabase()
-		core.options.args.Options.args.AltTabber = options
-	end)
+	local function SetupEvents(self)
+		if not self or self ~= AltTabber then
+			return
+		end
 
-	core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
-		LoadDatabase()
+		self:RegisterEvent("PLAYER_ENTERING_WORLD")
+
+		if DB.ready then
+			self:RegisterEvent("READY_CHECK")
+		else
+			self:UnregisterEvent("READY_CHECK")
+		end
+
+		if DB.lfg then
+			self:RegisterEvent("LFG_PROPOSAL_SHOW")
+		else
+			self:UnregisterEvent("LFG_PROPOSAL_SHOW")
+		end
+
+		if DB.warning then
+			self:RegisterEvent("CHAT_MSG_RAID_WARNING")
+		else
+			self:UnregisterEvent("CHAT_MSG_RAID_WARNING")
+		end
+
+		if DB.invite then
+			self:RegisterEvent("PARTY_INVITE_REQUEST")
+		else
+			self:UnregisterEvent("PARTY_INVITE_REQUEST")
+		end
+
+		if DB.whisper then
+			self:RegisterEvent("CHAT_MSG_WHISPER")
+		else
+			self:UnregisterEvent("CHAT_MSG_WHISPER")
+		end
+	end
+
+	function AltTabber:PLAYER_ENTERING_WORLD()
+		SetupDatabase()
 		if not StaticPopupDialogs["CONFIRM_BATTLEFIELD_ENTRY"].OnShow then
 			StaticPopupDialogs["CONFIRM_BATTLEFIELD_ENTRY"].OnShow = function()
 				_PlaySoundFile("Sound\\Spells\\PVPEnterQueue.wav")
 			end
 		end
-	end)
+	end
 
 	local function AltTabber_PlaySound(file, var)
-		if not DB.enabled or (var and not DB[var]) then
+		if disabled or not DB.enabled or (var and not DB[var]) then
 			return
 		end
 
@@ -123,29 +163,55 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 		end
 	end
 
-	core:RegisterForEvent("READY_CHECK", function()
+	local function AltTabber_IsIgnored(name)
+		if core.IgnoreMore and core.IgnoreMore:IsIgnored(name) then
+			return true
+		end
+
+		for i = 1, GetNumIgnores() do
+			local n = GetIgnoreName(i)
+			if n == name then
+				return true
+			end
+		end
+
+		return false
+	end
+
+	function AltTabber:READY_CHECK()
 		AltTabber_PlaySound("Sound\\Interface\\levelup2.wav", "ready")
-	end)
+	end
 
-	core:RegisterForEvent("LFG_PROPOSAL_SHOW", function()
+	function AltTabber:LFG_PROPOSAL_SHOW()
 		AltTabber_PlaySound("Sound\\Interface\\LFG_DungeonReady.wav", "lfg")
-	end)
+	end
 
-	core:RegisterForEvent("CHAT_MSG_RAID_WARNING", function()
+	function AltTabber:CHAT_MSG_RAID_WARNING()
 		AltTabber_PlaySound("Sound\\Interface\\RaidWarning.wav", "warning")
-	end)
+	end
 
-	core:RegisterForEvent("PARTY_INVITE_REQUEST", function(_, name)
-		if core.IgnoreMore and core.IgnoreMore:IsIgnored(name) then
-			return
+	function AltTabber:PARTY_INVITE_REQUEST(name)
+		if not AltTabber_IsIgnored(name) then
+			AltTabber_PlaySound("Sound\\Interface\\iPlayerInviteA.wav", "invite")
 		end
-		AltTabber_PlaySound("Sound\\Interface\\iPlayerInviteA.wav", "invite")
-	end)
+	end
 
-	core:RegisterForEvent("CHAT_MSG_WHISPER", function(_, _, name)
-		if core.IgnoreMore and core.IgnoreMore:IsIgnored(name) then
-			return
+	function AltTabber:CHAT_MSG_WHISPER(_, name)
+		if not AltTabber_IsIgnored(name) then
+			AltTabber_PlaySound("Interface\\AddOns\\KPack\\Media\\Sounds\\Whisper.ogg", "whisper")
 		end
-		AltTabber_PlaySound("Interface\\AddOns\\KPack\\Media\\Sounds\\Whisper.ogg", "whisper")
+	end
+
+	core:RegisterForEvent("PLAYER_LOGIN", function()
+		SetupDatabase()
+		core.options.args.Options.args.AltTabber = options
+
+		if _G.AltTabber or not DB.enabled then
+			AltTabber:UnregisterAllEvents()
+			disabled = true
+		else
+			SetupEvents(AltTabber)
+			disabled = nil
+		end
 	end)
 end)
