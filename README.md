@@ -1,6 +1,6 @@
-# KPack - Lots-In-One AddOn Collection! (59)
+# KPack - Lots-In-One AddOn Collection! (60)
 
-Currently, this pack contains 59 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 60 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -300,3 +300,7 @@ After setting your channel link, your message and the broadcast duration, choose
 You can either use the button to start or use the slash commands `/stream start` and `/stream stop`.
 
 **Note**: to avoid accidental broadcast on login, the status of the broadcast is only saved per session, so if you were broadcasting your channel link and you relog/reload, it will stop and you will have to start again.
+
+## 60. Postal
+
+You can read more about the original addon on [CurseForge](https://www.curseforge.com/wow/addons/postal)
