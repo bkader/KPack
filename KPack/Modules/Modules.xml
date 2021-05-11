@@ -43,6 +43,7 @@
 <Include file="MoveAnything\MoveAnything.xml" />
 <Script file="Nameplates.lua" />
 <Script file="PersonalResources.lua" />
+<Script file="Postal.lua" />
 <Script file="PullnBreak.lua" />
 <Script file="QuickButton.lua" />
 <Script file="RaidBrowser.lua" />
