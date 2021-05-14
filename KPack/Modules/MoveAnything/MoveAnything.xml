@@ -3,7 +3,7 @@
 	<Script file="MoveAnything.lua"/>
 	<Button name="GameMenuButtonMoveAnything" parent="GameMenuFrame" inherits="GameMenuButtonTemplate" text="MoveAnything">
 		<Anchors>
-			<Anchor point="TOP" relativeTo="GameMenuButtonLogout" relativePoint="BOTTOMLEFT">
+			<Anchor point="TOP" relativeTo="GameMenuButtonLogout" relativePoint="BOTTOM">
 				<Offset><AbsDimension x="0" y="-16" /></Offset>
 			</Anchor>
 		</Anchors>
