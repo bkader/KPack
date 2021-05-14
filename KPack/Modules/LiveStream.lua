@@ -35,15 +35,17 @@ KPack:AddModule("LiveStream", function(_, core, L)
 	frame:SetScript("OnEvent", function(self, event, ...) ListChannels() end)
 
 	function ListChannels()
-		options.args.channels.args = {}
-		for i = 1, 10, 1 do
-			local id, name = GetChannelName(i)
-			if id and name then
-				options.args.channels.args[tostring(id)] = {
-					type = "toggle",
-					name = name,
-					order = i
-				}
+		if options then
+			options.args.channels.args = {}
+			for i = 1, 10, 1 do
+				local id, name = GetChannelName(i)
+				if id and name then
+					options.args.channels.args[tostring(id)] = {
+						type = "toggle",
+						name = name,
+						order = i
+					}
+				end
 			end
 		end
 	end
