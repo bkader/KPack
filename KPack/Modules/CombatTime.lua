@@ -36,9 +36,9 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
 
 		if self.updated > 1 then
 			local total = _GetTime() - self.starttime
-			local _hor = math_min(math_floor(total / 3600), 99)
-			local _min = math_min(math_floor(total / 60), 60)
-			local _sec = math_min(math_floor(total), 60)
+			local _hor = math_floor(total / 3600)
+			local _min = math_floor(total / 60 - (_hor * 60))
+			local _sec = math_floor(total - _hor * 3600 - _min * 60)
 
 			self.timer:SetText(_format("%02d:%02d:%02d", _hor, _min, _sec))
 			self.updated = 0
