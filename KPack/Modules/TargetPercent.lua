@@ -55,22 +55,18 @@ KPack:AddModule("Target Percent", "Adds a health percentage to the Blizzard targ
 
 	-- called when the player enters the world
 	core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
-		-- if we are using our custom nameplates and are
-		-- showing percentage, we skip target perecntage
-		if not core.NP or not core.NP.showHealthPercent then
-			-- create target percentage
-			targetPercent = targetPercent or TargetPercent_CreateFrame("TargetPercent", TargetFrameHealthBar)
-			targetPercent:RegisterEvent("PLAYER_TARGET_CHANGED")
-			targetPercent:RegisterEvent("UNIT_HEALTH")
-			targetPercent:SetScript("OnEvent", function(frame, _, unit)
-				if unit and not UnitIsUnit(unit, "target") then
-					return
-				end
-				local hp = UnitHealth("target")
-				ShowHide(frame, (hp >= 1))
-				frame.text:SetFormattedText("%.2f", (hp / UnitHealthMax("target") * 100))
-			end)
-		end
+		-- create target percentage
+		targetPercent = targetPercent or TargetPercent_CreateFrame("TargetPercent", TargetFrameHealthBar)
+		targetPercent:RegisterEvent("PLAYER_TARGET_CHANGED")
+		targetPercent:RegisterEvent("UNIT_HEALTH")
+		targetPercent:SetScript("OnEvent", function(frame, _, unit)
+			if unit and not UnitIsUnit(unit, "target") then
+				return
+			end
+			local hp = UnitHealth("target")
+			ShowHide(frame, (hp >= 1))
+			frame.text:SetFormattedText("%.2f", (hp / UnitHealthMax("target") * 100))
+		end)
 
 		-- create focus percentage
 		focusPercent = focusPercent or TargetPercent_CreateFrame("FocusPercent", FocusFrameHealthBar)
