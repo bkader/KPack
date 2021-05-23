@@ -305,7 +305,7 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 	end
 
 	function mod:SetCooldown(frame, start, duration)
-		if frame.noCooldownCount then
+		if frame.noCooldownCount or not frame then
 			return
 		end
 		if start > 0 and duration > (DB.minDuration or 3) then
