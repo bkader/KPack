@@ -196,7 +196,7 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 						end
 						GearScore = GearScore + TempScore
 						ItemCount = ItemCount + 1
-						LevelTotal = LevelTotal + ItemLevel
+						LevelTotal = LevelTotal + (ItemLevel or 0)
 					end
 				end
 			end
