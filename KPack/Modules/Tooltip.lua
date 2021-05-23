@@ -516,7 +516,7 @@ KPack:AddModule("Tooltip", function(_, core, L)
 			end
 
 			-- hook our custom function to change the look
-			GameTooltip:HookScript("OnTooltipSetUnit", Tooltip_OnTooltipSetUnit)
+			-- GameTooltip:HookScript("OnTooltipSetUnit", Tooltip_OnTooltipSetUnit)
 
 			-- add target health and max health
 			GameTooltipStatusBar.bg = CreateFrame("Frame", nil, GameTooltipStatusBar)
