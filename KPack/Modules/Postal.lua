@@ -685,7 +685,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 			if mailIndex == 0 then return end
 
 			Postal:DisableInbox(1)
-			button:SetText(WINTERGRASP_IN_PROGRESS)
+			button:SetText(L["Processing Message"])
 
 			self:ProcessNext()
 		end
@@ -744,7 +744,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 
 				if Postal.db.OpenAll.SpamChat and attachIndex == ATTACHMENTS_MAX_RECEIVE then
 					local moneyString = msgMoney > 0 and " [" .. Postal:GetMoneyString(msgMoney) .. "]" or ""
-					Postal:Print(format("%s %d: %s%s", WINTERGRASP_IN_PROGRESS, mailIndex, msgSubject or "", moneyString))
+					Postal:Print(format("%s %d: %s%s", L["Processing Message"], mailIndex, msgSubject or "", moneyString))
 				end
 
 				while not GetInboxItemLink(mailIndex, attachIndex) and attachIndex > 0 do
@@ -1200,10 +1200,10 @@ KPack:AddModule("Postal", function(folder, core, L)
 
 			currentMode = mode
 			if currentMode then
-				openButton:SetText(WINTERGRASP_IN_PROGRESS)
+				openButton:SetText(L["Processing Message"])
 				returnButton:Hide()
 			else
-				returnButton:SetText(WINTERGRASP_IN_PROGRESS)
+				returnButton:SetText(L["Processing Message"])
 				openButton:Hide()
 			end
 

@@ -703,6 +703,7 @@ L["OpenAll"] = true
 L["Opening Speed"] = true
 L["Other options"] = true
 L["Part %d"] = true
+L["Processing Message"] = true
 L["Rake"] = true
 L["Recently Mailed"] = true
 L["Remove Contact"] = true
