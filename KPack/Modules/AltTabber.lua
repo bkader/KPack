@@ -7,7 +7,7 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 	AltTabber:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
 
 	local _GetCVar, _SetCVar = GetCVar, SetCVar
-	local _PlaySoundFile = PlaySoundFile
+	local _PlaySoundFile, _GetTime = PlaySoundFile, GetTime
 	local DB, disabled
 
 	local function _disabled()
@@ -186,19 +186,29 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 		AltTabber_PlaySound("Sound\\Interface\\LFG_DungeonReady.wav", "lfg")
 	end
 
-	function AltTabber:CHAT_MSG_RAID_WARNING()
-		AltTabber_PlaySound("Sound\\Interface\\RaidWarning.wav", "warning")
-	end
-
 	function AltTabber:PARTY_INVITE_REQUEST(name)
 		if not AltTabber_IsIgnored(name) then
 			AltTabber_PlaySound("Sound\\Interface\\iPlayerInviteA.wav", "invite")
 		end
 	end
 
-	function AltTabber:CHAT_MSG_WHISPER(_, name)
-		if not AltTabber_IsIgnored(name) then
-			AltTabber_PlaySound("Interface\\AddOns\\KPack\\Media\\Sounds\\Whisper.ogg", "whisper")
+	do
+		local prevtime = 0  -- only plays once every 1sec (default)
+		function AltTabber:CHAT_MSG_RAID_WARNING()
+			if (_GetTime() - prevtime) >= 1 then
+				AltTabber_PlaySound("Sound\\Interface\\RaidWarning.wav", "warning")
+				prevtime = _GetTime()
+			end
+		end
+	end
+
+	do
+		local prevtime = 0  -- only plays once every 5sec
+		function AltTabber:CHAT_MSG_WHISPER(_, name)
+			if (_GetTime() - prevtime) >= 5 and not AltTabber_IsIgnored(name) then
+				AltTabber_PlaySound("Interface\\AddOns\\KPack\\Media\\Sounds\\Whisper.ogg", "whisper")
+				prevtime = _GetTime()
+			end
 		end
 	end
 
