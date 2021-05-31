@@ -27,7 +27,7 @@ KPack:AddModule("PullnBreak", function(_, core, L)
 
 	-- guesses the channel to which send the message
 	local function PullnBreak_GuessChannel()
-		local channel
+		local channel = "EMOTE"
 		if GetRealNumRaidMembers() > 0 then
 			channel = (IsRaidLeader() or IsRaidOfficer()) and "RAID_WARNING" or "RAID"
 		elseif GetRealNumPartyMembers() > 0 then
