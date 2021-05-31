@@ -405,14 +405,14 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 							type = "toggle",
 							name = L["Enable"],
 							order = 1,
-							width = "full"
+							width = "double"
 						},
 						method = {
 							type = "select",
 							name = LOOT_METHOD,
 							order = 2,
 							disabled = function()
-								return not DB.Loot.party.enabled
+								return not (DB.Loot.enabled and DB.Loot.party.enabled)
 							end,
 							values = {
 								needbeforegreed = LOOT_NEED_BEFORE_GREED,
@@ -427,7 +427,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 							name = LOOT_THRESHOLD,
 							order = 3,
 							disabled = function()
-								return not DB.Loot.party.enabled
+								return not (DB.Loot.enabled and DB.Loot.party.enabled)
 							end,
 							values = {
 								[2] = "|cff1eff00" .. ITEM_QUALITY2_DESC .. "|r",
@@ -458,14 +458,14 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 							type = "toggle",
 							name = L["Enable"],
 							order = 1,
-							width = "full"
+							width = "double"
 						},
 						method = {
 							type = "select",
 							name = LOOT_METHOD,
 							order = 2,
 							disabled = function()
-								return not DB.Loot.raid.enabled
+								return not (DB.Loot.enabled and DB.Loot.raid.enabled)
 							end,
 							values = {
 								needbeforegreed = LOOT_NEED_BEFORE_GREED,
@@ -480,7 +480,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 							name = LOOT_THRESHOLD,
 							order = 3,
 							disabled = function()
-								return not DB.Loot.raid.enabled
+								return not (DB.Loot.enabled and DB.Loot.raid.enabled)
 							end,
 							values = {
 								[2] = "|cff1eff00" .. ITEM_QUALITY2_DESC .. "|r",
@@ -496,7 +496,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 					type = "execute",
 					name = RESET,
 					order = 99,
-					width = "full",
+					width = "double",
 					confirm = function()
 						return L:F("Are you sure you want to reset %s to default?", LOOT_METHOD)
 					end,
@@ -565,15 +565,15 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 		-- paladin auras
 		local aurasOrder, spellIcons
 		local testAuras, testMode
-		local auraMastery = select(1, GetSpellInfo(31821))
+		local auraMastery = GetSpellInfo(31821)
 		do
-			local auraDevotion = select(1, GetSpellInfo(48942))
-			local auraRetribution = select(1, GetSpellInfo(54043))
-			local auraConcentration = select(1, GetSpellInfo(19746))
-			local auraShadow = select(1, GetSpellInfo(48943))
-			local auraFrost = select(1, GetSpellInfo(48945))
-			local auraFire = select(1, GetSpellInfo(48947))
-			local auraCrusader = select(1, GetSpellInfo(32223))
+			local auraDevotion = GetSpellInfo(48942)
+			local auraRetribution = GetSpellInfo(54043)
+			local auraConcentration = GetSpellInfo(19746)
+			local auraShadow = GetSpellInfo(48943)
+			local auraFrost = GetSpellInfo(48945)
+			local auraFire = GetSpellInfo(48947)
+			local auraCrusader = GetSpellInfo(32223)
 
 			aurasOrder = {
 				[auraDevotion] = 1,
@@ -921,9 +921,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				display:SetScript("OnDragStop", StopMoving)
 				display:SetScript("OnMouseDown", OnMouseDown)
 				display.bg:SetTexture(0, 0, 0, 0.5)
-				if DB.Auras.hideTitle then
-					display.header:Show()
-				end
+				display.header:Show()
 				display.locked = nil
 			end
 		end
@@ -1141,7 +1139,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 					type = "execute",
 					name = RESET,
 					order = 99,
-					width = "full",
+					width = "double",
 					confirm = function()
 						return L:F("Are you sure you want to reset %s to default?", L["Paladin Auras"])
 					end,
@@ -1189,7 +1187,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
 		local AddSunder, ResetSunders, ReportSunders
 
-		local sunder = select(1, GetSpellInfo(11597))
+		local sunder = GetSpellInfo(11597)
 		local sunders, sunderFrames = {}, {}
 		local testSunders, testMode = {Name1 = 20, Name2 = 32, Name3 = 6, Name4 = 12}
 
@@ -1256,16 +1254,16 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			local menuFrame
 			local menu = {
 				{
-					text = RESET,
+					text = L["Report"],
 					func = function()
-						ResetSunders()
+						ReportSunders()
 					end,
 					notCheckable = 1
 				},
 				{
-					text = L["Report"],
+					text = RESET,
 					func = function()
-						ReportSunders()
+						ResetSunders()
 					end,
 					notCheckable = 1
 				}
@@ -1356,9 +1354,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				display:SetScript("OnDragStop", StopMoving)
 				display:SetScript("OnMouseDown", OnMouseDown)
 				display.bg:SetTexture(0, 0, 0, 0.5)
-				if DB.Sunders.hideTitle then
-					display.header:Show()
-				end
+				display.header:Show()
 				display.locked = nil
 			end
 		end
@@ -1634,7 +1630,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 					type = "execute",
 					name = RESET,
 					order = 99,
-					width = "full",
+					width = "double",
 					confirm = function()
 						return L:F("Are you sure you want to reset %s to default?", sunder)
 					end,
@@ -1970,9 +1966,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				display:SetScript("OnDragStop", StopMoving)
 				display:SetScript("OnMouseDown", OnMouseDown)
 				display.bg:SetTexture(0, 0, 0, 0.5)
-				if DB.Sunders.hideTitle then
-					display.header:Show()
-				end
+				display.header:Show()
 				display.locked = nil
 			end
 		end
@@ -1980,7 +1974,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 		do
 			local function OnUpdate(self, elapsed)
 				self.lastUpdate = (self.lastUpdate or 0) + elapsed
-				if self.lastUpdate > (DB.Sunders.updateInterval or 0.25) then
+				if self.lastUpdate > (DB.Mana.updateInterval or 0.25) then
 					if not rendered then
 						RenderDisplay()
 					end
@@ -2287,7 +2281,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 					type = "execute",
 					name = RESET,
 					order = 99,
-					width = "full",
+					width = "double",
 					confirm = function()
 						return L:F("Are you sure you want to reset %s to default?", L["Healers Mana"])
 					end,
@@ -2637,7 +2631,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 									type = "description",
 									name = " ",
 									order = 3,
-									width = "full"
+									width = "double"
 								},
 								showTest = {
 									type = "execute",
@@ -2667,7 +2661,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 									type = "description",
 									name = " ",
 									order = 6,
-									width = "full"
+									width = "double"
 								},
 								appearance = {
 									type = "group",
@@ -2781,7 +2775,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 											type = "description",
 											name = " ",
 											order = 12,
-											width = "full"
+											width = "double"
 										},
 										maxbars = {
 											type = "range",
@@ -2860,7 +2854,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 						args = {}
 					}
 					for spellid in pairs(spells) do
-						local spellname = select(1, GetSpellInfo(spellid))
+						local spellname = GetSpellInfo(spellid)
 						if spellname then
 							opt.args[spellname] = {
 								type = "toggle",
@@ -3357,7 +3351,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 								desc = {
 									type = "description",
 									name = L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."],
-									width = "full",
+									width = "double",
 									order = 0
 								}
 							}
