@@ -107,7 +107,7 @@ KPack:AddModule("LookUp", "A slash command that allows you to search items and s
 			else
 				Print(L:F("Acceptable commands for: |caaf49141%s|r", "/lookup"))
 				print("|cffffd700item|r |cff00ffffname|r | |cff00ffffID|r : ", L["Searches for item link in local cache."])
-				print("|cffffd700sspell|r |cff00ffffname|r | |cff00ffffID|r : ", L["Searches for spell link."])
+				print("|cffffd700spell|r |cff00ffffname|r | |cff00ffffID|r : ", L["Searches for spell link."])
 			end
 		end
 	end
