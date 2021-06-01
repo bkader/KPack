@@ -115,7 +115,7 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
 	local function SetupDatabase()
 		if not mod.db then
 			-- disabled by default
-			if type(core.db.CombatTime) ~= "table" or not next(core.db.CombatTime) then
+			if type(core.db.CombatTime) ~= "table" or core.db.CombatTime.scale == nil then
 				core.db.CombatTime = CopyTable(defaults)
 			end
 			mod.db = core.db.CombatTime
@@ -141,7 +141,7 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
 	end
 
 	local function CombatTime_CreateFrame()
-		local frame = CreateFrame("Frame", "coreCombatTimer")
+		local frame = CreateFrame("Frame", "KPackCombatTimer", nil, UIParent)
 		frame:SetSize(85, 25)
 		frame:SetFrameStrata("LOW")
 		frame:SetPoint("TOPLEFT", Minimap, "BOTTOMLEFT", 0, -10)
