@@ -1,19 +1,110 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(__, core, L)
+KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_, core, L)
 	if core:IsDisabled("CombatTime") then return end
 
-	local mod = core.CombatTime or {}
+	local mod = CreateFrame("Frame")
+	mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
 	core.CombatTime = mod
 
-	local PLAYER_LOGIN
+	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
+
 	local defaults = {
 		enabled = false,
-		stopwatch = false
+		stopwatch = false,
+		locked = false,
+		scale = 1,
+		font = "Friz Quadrata TT",
+		fontFlags = "OUTLINE",
+		color = {1, 1, 0}
 	}
 
-	local math_min, math_floor = math.min, math.floor
-	local _GetTime = GetTime
-	local _format = string.format
+	local floor, GetTime, format = math.floor, GetTime, string.format
+
+	local options = {
+		type = "group",
+		name = L["Combat Time"],
+		get = function(i)
+			return mod.db[i[#i]]
+		end,
+		set = function(i, val)
+			mod.db[i[#i]] = val
+			mod:ApplySettings()
+		end,
+		args = {
+			enabled = {
+				type = "toggle",
+				name = L["Enable"],
+				order = 1
+			},
+			locked = {
+				type = "toggle",
+				name = L["Lock"],
+				order = 2,
+				disabled = function()
+					return not mod.db.enabled
+				end
+			},
+			stopwatch = {
+				type = "toggle",
+				name = STOPWATCH_TITLE,
+				desc = L["Trigger the in-game stopwatch on combat."],
+				order = 3,
+				disabled = function()
+					return not mod.db.enabled
+				end
+			},
+			scale = {
+				type = "range",
+				name = L["Scale"],
+				order = 4,
+				min = 0.5,
+				max = 3,
+				step = 0.01,
+				bigStep = 0.1,
+				disabled = function()
+					return not mod.db.enabled
+				end
+			},
+			font = {
+				type = "select",
+				name = L["Font"],
+				order = 5,
+				dialogControl = "LSM30_Font",
+				values = AceGUIWidgetLSMlists.font,
+				disabled = function()
+					return not mod.db.enabled
+				end
+			},
+			fontFlags = {
+				type = "select",
+				name = L["Font Outline"],
+				order = 6,
+				values = {
+					[""] = NONE,
+					["OUTLINE"] = L["Outline"],
+					["THINOUTLINE"] = L["Thin outline"],
+					["THICKOUTLINE"] = L["Thick outline"],
+					["MONOCHROME"] = L["Monochrome"],
+					["OUTLINEMONOCHROME"] = L["Outlined monochrome"]
+				},
+				disabled = function()
+					return not mod.db.enabled
+				end
+			},
+			color = {
+				type = "color",
+				name = L["Color"],
+				order = 7,
+				get = function()
+					return unpack(mod.db.color)
+				end,
+				set = function(_, r, g, b)
+					mod.db.color = {r, g, b, 1}
+					mod:ApplySettings()
+				end
+			}
+		}
+	}
 
 	local function Print(msg)
 		if msg then
@@ -35,19 +126,19 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
 		self.updated = (self.updated or 0) + elapsed
 
 		if self.updated > 1 then
-			local total = _GetTime() - self.starttime
-			local _hor = math_floor(total / 3600)
-			local _min = math_floor(total / 60 - (_hor * 60))
-			local _sec = math_floor(total - _hor * 3600 - _min * 60)
+			local total = GetTime() - self.starttime
+			local _hor = floor(total / 3600)
+			local _min = floor(total / 60 - (_hor * 60))
+			local _sec = floor(total - _hor * 3600 - _min * 60)
 
-			self.timer:SetText(_format("%02d:%02d:%02d", _hor, _min, _sec))
+			self.timer:SetText(format("%02d:%02d:%02d", _hor, _min, _sec))
 			self.updated = 0
 		end
 	end
 
 	local function CombatTime_CreateFrame()
-		local frame = CreateFrame("Frame", "KPackCombatTime")
-		frame:SetSize(100, 40)
+		local frame = CreateFrame("Frame", "coreCombatTimer")
+		frame:SetSize(80, 25)
 		frame:SetFrameStrata("LOW")
 		frame:SetPoint("TOPLEFT", Minimap, "BOTTOMLEFT", 0, -10)
 
@@ -57,24 +148,22 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
 		frame:SetClampedToScreen(true)
 		frame:RegisterForDrag("RightButton")
 		frame:SetScript("OnDragStart", function(self)
-			self.moving = true
 			self:StartMoving()
 		end)
 		frame:SetScript("OnDragStop", function(self)
-			self.moving = false
 			self:StopMovingOrSizing()
+			core:SavePosition(self, mod.db)
+		end)
+		frame:SetScript("OnMouseUp", function(self, button)
+			if button == "RightButton" then
+				core:OpenConfig("Options", "CombatTime")
+			end
 		end)
 
-		-- frame background
-		frame:SetBackdrop({
-			bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-			tile = true,
-			tileSize = 32,
-			insets = {left = 11, right = 12, top = 12, bottom = 11}
-		})
-
 		-- timer text
-		local timer = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+		local timer = frame:CreateFontString(nil, "OVERLAY")
+		timer:SetFont(LSM:Fetch("font", mod.db.font), 12, mod.db.fontFlags)
+		timer:SetTextColor(unpack(mod.db.color))
 		timer:SetJustifyH("CENTER")
 		timer:SetAllPoints(frame)
 		timer:SetText("00:00:00")
@@ -86,9 +175,12 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
 			frame:Show()
 		end
 
+		frame.elapsed = 0
+		core:RestorePosition(frame, mod.db)
 		return frame
 	end
 
+	local SlashCommandHandler
 	do
 		local exec, help = {}, "|cffffd700%s|r: %s"
 
@@ -137,7 +229,7 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
 		end
 		exec.defaults = exec.reset
 
-		local function SlashCommandHandler(msg)
+		function SlashCommandHandler(msg)
 			local cmd = msg:trim():lower()
 			if type(exec[cmd]) == "function" then
 				exec[cmd]()
@@ -145,101 +237,100 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
 				core:OpenConfig("Options", "CombatTime")
 			else
 				Print(L:F("Acceptable commands for: |caaf49141%s|r", "/ct"))
-				print(_format(help, "on", L["enable the module."]))
-				print(_format(help, "off", L["disable the module."]))
-				print(_format(help, "stopwatch", L["trigger the in-game stopwatch on combat"]))
-				print(_format(help, "config", L["Access module settings."]))
-				print(_format(help, "reset", L["Resets module settings to default."]))
+				print(format(help, "on", L["enable the module."]))
+				print(format(help, "off", L["disable the module."]))
+				print(format(help, "stopwatch", L["Trigger the in-game stopwatch on combat."]))
+				print(format(help, "config", L["Access module settings."]))
+				print(format(help, "reset", L["Resets module settings to default."]))
 			end
 		end
+	end
 
+	function mod:ApplySettings()
+		SetupDatabase()
+		self.frame = self.frame or CombatTime_CreateFrame()
+
+		if not self.db.enabled then
+			self:UnregisterAllEvents()
+			if self.frame and self.frame:IsShown() then
+				self.frame:Hide()
+				self.frame.elapsed = 0
+				self.frame:SetScript("OnUpdate", nil)
+			end
+			return
+		end
+
+		core:RestorePosition(self.frame, self.db)
+		self.frame:SetScale(self.db.scale or 1)
+		self.frame.timer:SetFont(LSM:Fetch("font", self.db.font), 12, self.db.fontFlags)
+		self.frame.timer:SetTextColor(unpack(self.db.color))
+
+		if self.db.locked then
+			self.frame:SetBackdrop(nil)
+			self.frame:EnableMouse(false)
+		else
+			self.frame:SetBackdrop({
+				bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+				insets = {left = 1, right = 2, top = 2, bottom = 1}
+			})
+			self.frame:EnableMouse(true)
+		end
+
+		if self.db.stopwatch then
+			self.frame:Hide()
+		else
+			self.frame:Show()
+		end
+
+		self:RegisterEvent("PLAYER_REGEN_ENABLED")
+		self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	end
+
+	function mod:PLAYER_REGEN_DISABLED()
+		if self.db.enabled then
+			self.frame = self.frame or CombatTime_CreateFrame()
+
+			if self.db.stopwatch then
+				if not StopwatchFrame:IsShown() then
+					Stopwatch_Toggle()
+				end
+				Stopwatch_Clear()
+				Stopwatch_Play()
+				self.frame:Hide()
+				self.frame:SetScript("OnUpdate", nil)
+			else
+				self.frame.timer:SetTextColor(unpack(self.db.color))
+				self.frame.starttime = GetTime() - 1
+				self.frame:SetScript("OnUpdate", CombatTime_OnUpdate)
+				self.frame:Show()
+			end
+		end
+	end
+
+	function mod:PLAYER_REGEN_ENABLED()
+		if self.db.enabled then
+			self.frame = self.frame or CombatTime_CreateFrame()
+			self.frame.elapsed = 0
+			self.frame:SetScript("OnUpdate", nil)
+
+			if self.db.stopwatch and StopwatchFrame and StopwatchFrame:IsShown() then
+				Stopwatch_Pause()
+				if self.frame then
+					self.frame:Hide()
+				end
+			elseif self.frame and not self.frame:IsShown() then
+				self.frame:Show()
+			end
+		end
+	end
+
+	core:RegisterForEvent("PLAYER_LOGIN", function()
+		SetupDatabase()
+		core.options.args.Options.args.CombatTime = options
 		-- register our slash commands
 		SLASH_KPACKCOMBATTIME1 = "/ctm"
 		SlashCmdList["KPACKCOMBATTIME"] = SlashCommandHandler
 
-		function PLAYER_LOGIN()
-			SetupDatabase()
-			-- we create the combat time frame only if enabled
-			if mod.db.enabled == true then
-				mod.frame = mod.frame or CombatTime_CreateFrame()
-			end
-		end
-
-		local options = {
-			type = "group",
-			name = L["Combat Time"],
-			get = function(i)
-				return mod.db[i[#i]]
-			end,
-			set = function(i, val)
-				mod.db[i[#i]] = val
-			end,
-			args = {
-				enabled = {
-					type = "toggle",
-					name = L["Enable"],
-					order = 1
-				},
-				stopwatch = {
-					type = "toggle",
-					name = STOPWATCH_TITLE,
-					desc = L["trigger the in-game stopwatch on combat"],
-					order = 2,
-					disabled = function()
-						return not mod.db.enabled
-					end
-				}
-			}
-		}
-		core:RegisterForEvent("PLAYER_LOGIN", function()
-			PLAYER_LOGIN()
-			core.options.args.Options.args.CombatTime = options
-		end)
-	end
-
-	core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()
-		if not mod.db.enabled or not mod.frame then
-			return
-		end
-		-- change the text and color
-		mod.frame.timer:SetTextColor(0.5, 0.5, 0, 1)
-
-		-- remove the update event
-		mod.frame.updated = nil
-		mod.frame:SetScript("OnUpdate", nil)
-
-		-- are we using the stopwatch? reset it
-		if mod.db.stopwatch and StopwatchFrame and StopwatchFrame:IsShown() then
-			Stopwatch_Pause()
-			mod.frame:Hide()
-		else
-			mod.frame:Show()
-		end
-	end)
-
-	core:RegisterForEvent("PLAYER_REGEN_DISABLED", function()
-		if not mod.db.enabled then
-			return
-		end
-		mod.frame = mod.frame or CombatTime_CreateFrame()
-
-		if mod.db.stopwatch then
-			if not StopwatchFrame:IsShown() then
-				Stopwatch_Toggle()
-			end
-			Stopwatch_Clear()
-			Stopwatch_Play()
-
-			mod.frame:Hide()
-			mod.frame:SetScript("OnUpdate", nil)
-		else
-			-- change the text and color
-			mod.frame.timer:SetTextColor(1, 1, 0, 1)
-
-			-- add the update event
-			mod.frame.starttime = _GetTime() - 1
-			mod.frame:SetScript("OnUpdate", CombatTime_OnUpdate)
-			mod.frame:Show()
-		end
+		mod:ApplySettings()
 	end)
 end)

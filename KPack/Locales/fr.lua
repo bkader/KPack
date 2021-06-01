@@ -176,7 +176,7 @@ L["Use class color"] = "Couleur de classe"
 L["Font"] = "Police"
 L["Select font to use for the %s"] = "Sélectionnez la police à utiliser pour %s"
 L["Set the font size of the %s"] = "Modifie la taille de la police pour %s"
-L["Font Outline"] = "Contour de la police "
+L["Font Outline"] = "Contour de la police"
 L["Toggles outline on the font of the %s"] = "Activer le contour de la police pour %s"
 L["Border"] = "Bordure"
 L["Select border to use for the %s"] = "Sélectionnez la bordure à utiliser pour %s"
@@ -268,7 +268,8 @@ L["%s: to move and resize frames."] = "%s: pour déplacer et redimensionner les 
 L["%s: to lock frames."] = "%s: pour verrouiller les fenêtres."
 L["%s: to toggle testmode (sample xCT output)."] = "%s: activer/désactiver le mode test (données fictives)."
 -- CombatTime
-L["trigger the in-game stopwatch on combat"] = "déclencher le chronomètre du jeu au combat"
+L["Combat Time"] = "Chrono. de combat"
+L["Trigger the in-game stopwatch on combat."] = "Déclencher le chronomètre du jeu au combat"
 L["using stopwatch: %s"] = "utilisation du chronomètre: %s"
 -- Combuctor
 L["%s: toggle inventory"] = "%s: ouvre l'inventaire"

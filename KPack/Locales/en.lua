@@ -285,7 +285,7 @@ L["%s: to move and resize frames."] = true
 L["%s: to lock frames."] = true
 L["%s: to toggle testmode (sample xCT output)."] = true
 -- CombatTime
-L["trigger the in-game stopwatch on combat"] = true
+L["Trigger the in-game stopwatch on combat."] = true
 L["using stopwatch: %s"] = true
 -- Combuctor
 L["%s: toggle inventory"] = true
