@@ -3394,6 +3394,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
 		core:RegisterForEvent("PLAYER_LOGIN", function()
 			SetupDatabase()
+			if _G.KRU then return end
 
 			core.After(2, function()
 				GuildRoster()
@@ -3482,6 +3483,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
 	core:RegisterForEvent("PLAYER_LOGIN", function()
 		SetupDatabase()
+		if _G.KRU then return end
 		CreateRaidUtilityPanel()
 		core.options.args.RaidUtility = mod.options
 	end)
