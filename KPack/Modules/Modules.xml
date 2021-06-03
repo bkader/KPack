@@ -29,6 +29,7 @@
 <Script file="ErrorFilter.lua" />
 <Script file="FriendsInfo.lua" />
 <Script file="GearScoreLite.lua" />
+<Script file="HalionHelper.lua" />
 <Script file="IDs.lua" />
 <Script file="IgnoreMore.lua" />
 <Script file="ImprovedLootFrame.lua" />

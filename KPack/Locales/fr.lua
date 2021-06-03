@@ -349,6 +349,18 @@ L["Filter Enabled: %s - Frame Shown: %s"] = "Filtre activé: %s - Cadre affiché
 -- L["Item Levels: %s"] = true
 -- L["Comparisons: %s"] = true
 -- L["Item Level"] = true
+-- HalionHelper
+L["Inside"] = "Dedans"
+L["Outside"] = "Dehors"
+L["Harder! Faster!"] = "Plus fort! Plus vite!"
+L["OMG MORE DAMAGE!"] = "OMG PLUS DE DÉGÂTS!"
+L["Slow Down!"] = "Doucement!"
+L["Stop All Damage!"] = "Arrêtez tous les dégâts!"
+L["DPS Both Sides!"] = "Les deux côtés DPS!"
+L["Stop DPS Inside!"] = "Arrêtez DPS à l'intérieur!"
+L["Slow DPS Inside!"] = "DPS doucement à l'intérieur"
+L["Stop DPS Outside!"] = "Arrêtez le DPS à l'extérieur!"
+L["Slow DPS Outside!"] = "DPS doucement à l'extérieur"
 -- IDs
 -- L["Adds IDs to the ingame tooltips."] = true
 -- L["Spell ID"] = true

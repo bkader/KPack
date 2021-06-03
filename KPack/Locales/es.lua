@@ -2,6 +2,18 @@ if GetLocale() ~= "esES" and GetLocale() ~= "esMX" then return end
 local _, addon = ...
 local L = addon.L
 
+-- HalionHelper
+L["Inside"] = "Dentro"
+L["Outside"] = "Fuera"
+L["Harder! Faster!"] = "¡Más fuerte! ¡Más rápido!"
+L["OMG MORE DAMAGE!"] = "¡POR DIOS MÁS DAÑO!"
+L["Slow Down!"] = "¡Frena!"
+L["Stop All Damage!"] = "¡Para el daño!"
+L["DPS Both Sides!"] = "¡Atacad ambos sitios!"
+L["Stop DPS Inside!"] = "¡Parad el daño dentro!"
+L["Slow DPS Inside!"] = "¡Frenad el daño dentro!"
+L["Stop DPS Outside!"] = "¡Parad el daño fuera!"
+L["Slow DPS Outside!"] = "¡Frenad el daño fuera!"
 -- Postal
 L["Add Contact"] = "Añadir Contacto"
 L["Add multiple item mail tooltips"] =  "Añadir tooltips en correos con múltiples objetos"

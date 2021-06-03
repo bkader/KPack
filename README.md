@@ -1,6 +1,6 @@
-# KPack - Lots-In-One AddOn Collection! (60)
+# KPack - Lots-In-One AddOn Collection! (61)
 
-Currently, this pack contains 60 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 61 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -304,3 +304,7 @@ You can either use the button to start or use the slash commands `/stream start`
 ## 60. Postal
 
 You can read more about the original addon on [CurseForge](https://www.curseforge.com/wow/addons/postal)
+
+## 61. Halion Helper
+
+Provides a clearer visual display of the Corporeality buff during phase 3 of the Halion encounter in Ruby Sanctum.

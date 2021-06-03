@@ -365,6 +365,18 @@ L["Item Scores: %s"] = true
 L["Item Levels: %s"] = true
 L["Comparisons: %s"] = true
 L["Item Level"] = true
+-- HalionHelper
+L["Inside"] = true
+L["Outside"] = true
+L["Harder! Faster!"] = true
+L["OMG MORE DAMAGE!"] = true
+L["Slow Down!"] = true
+L["Stop All Damage!"] = true
+L["DPS Both Sides!"] = true
+L["Stop DPS Inside!"] = true
+L["Slow DPS Inside!"] = true
+L["Stop DPS Outside!"] = true
+L["Slow DPS Outside!"] = true
 -- IDs
 L["Adds IDs to the ingame tooltips."] = true
 L["Spell ID"] = true

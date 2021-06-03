@@ -2,6 +2,18 @@ if GetLocale() ~= "ruRU" then return end
 local _, addon = ...
 local L = addon.L
 
+-- HalionHelper
+-- L["Inside"] = ""
+-- L["Outside"] = ""
+-- L["Harder! Faster!"] = ""
+-- L["OMG MORE DAMAGE!"] = ""
+-- L["Slow Down!"] = ""
+-- L["Stop All Damage!"] = ""
+-- L["DPS Both Sides!"] = ""
+-- L["Stop DPS Inside!"] = ""
+-- L["Slow DPS Inside!"] = ""
+-- L["Stop DPS Outside!"] = ""
+-- L["Slow DPS Outside!"] = ""
 -- Postal
 L["Add Contact"] = "Добавить контакт"
 L["Add multiple item mail tooltips"] = "Добавить подсказку для почты с множеством вещей."

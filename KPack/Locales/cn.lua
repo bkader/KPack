@@ -2,6 +2,18 @@ if GetLocale() ~= "zhCN" then return end
 local _, addon = ...
 local L = addon.L
 
+-- HalionHelper
+L["Inside"] = "内场"
+L["Outside"] = "外场"
+L["Harder! Faster!"] = "再猛一点！再快一点！"
+L["OMG MORE DAMAGE!"] = "偶滴个神，加大输出！"
+L["Slow Down!"] = "慢一点！"
+L["Stop All Damage!"] = "全部停手！"
+L["DPS Both Sides!"] = "内外场同时输出！"
+L["Stop DPS Inside!"] = "内场停手！"
+L["Slow DPS Inside!"] = "内场输出慢一点！"
+L["Stop DPS Outside!"] = "外场停手！"
+L["Slow DPS Outside!"] = "外场输出慢一点！"
 -- Postal
 L["Add Contact"] = "添加联系人"
 L["Add multiple item mail tooltips"] = "添加多个物品的邮件提示"
