@@ -3435,6 +3435,18 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 					inviteFrame:UnregisterAllEvents()
 				end
 			end)
+
+			SLASH_KPACKAUTOINVITES1 = "/invites"
+			SlashCmdList.KPACKAUTOINVITES = function(cmd)
+				cmd = cmd and cmd:lower():trim()
+				if cmd == "guild" then
+					InviteGuild()
+				elseif cmd == "zone" then
+					InviteZone()
+				else
+					core:OpenConfig("RaidUtility", "Invites")
+				end
+			end
 		end)
 		core:RegisterForEvent("GUILD_ROSTER_UPDATE", function()
 			inGuild = IsInGuild()
