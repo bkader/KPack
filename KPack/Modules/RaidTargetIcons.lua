@@ -324,6 +324,7 @@ KPack:AddModule(TARGETICONS, "Allows you to quickly mark raid targets using a ra
 	end
 
 	function RTI.AreModifiersDown()
+		SetupDatabase()
 		if not DB.ctrl and not DB.alt and not DB.shift then
 			return false
 		elseif DB.ctrl ~= (IsControlKeyDown() == 1) then
