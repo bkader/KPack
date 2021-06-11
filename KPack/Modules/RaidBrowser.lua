@@ -104,10 +104,8 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 			}
 		}
 
-		local function CreatePatternFromTemplate(name, size, diff, fullname)
-			if not name or not size or not diff or not fullname then
-				return
-			end
+		local function CreatePatternFromTemplate(name, size, diff)
+			diff = diff or "nm"
 
 			if size == 10 then
 				size = "1[0o]"
@@ -116,7 +114,6 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 			end
 
 			return algorithm.transform(raidpatterns[diff], function(pattern)
-				pattern = strgsub(pattern, "<fullraid>", strlower(fullname))
 				pattern = strgsub(pattern, "<raid>", name)
 				pattern = strgsub(pattern, "<size>", size)
 				return pattern
@@ -133,7 +130,9 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 				size = 25,
 				patterns = {
 					"icc" .. csep .. "25" .. csep .. "m?a?n?" .. csep .. "repu?t?a?t?i?o?n?" .. csep,
-					"icc" .. csep .. "repu?t?a?t?i?o?n?" .. csep .. "25" .. csep .. "m?a?n?"
+					"icc" .. csep .. "repu?t?a?t?i?o?n?" .. csep .. "25" .. csep .. "m?a?n?",
+					"icc" .. csep .. "25" .. csep .. "nm?" .. csep .. "farm",
+					"rep" .. csep .. "farm" .. csep .. "icc" .. csep .. 25
 				}
 			},
 			{
@@ -143,104 +142,95 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 				patterns = {
 					"icc" .. csep .. "10" .. csep .. "m?a?n?" .. csep .. "repu?t?a?t?i?o?n?" .. csep,
 					"icc" .. csep .. "repu?t?a?t?i?o?n?" .. csep .. "10",
-					"icc" .. csep .. "repu?t?a?t?i?o?n?"
+					"icc" .. csep .. "10" .. csep .. "nm?" .. csep .. "farm",
+					"icc" .. csep .. "nm?" .. csep .. "farm",
+					"icc" .. csep .. "repu?t?a?t?i?o?n?",
+					"rep" .. csep .. "farm" .. csep .. "icc" .. csep .. 10
 				}
 			},
 			{
 				name = "icc10hc",
 				instance_name = "Icecrown Citadel",
 				size = 10,
-				patterns = CreatePatternFromTemplate("icc", 10, "hc", "Icecrown Citadel")
+				patterns = algorithm.copy_back(CreatePatternFromTemplate("icc", 10, "hc"), {"bane of the fallen king"})
 			},
 			{
 				name = "icc25hc",
 				instance_name = "Icecrown Citadel",
 				size = 25,
-				patterns = CreatePatternFromTemplate("icc", 25, "hc", "Icecrown Citadel")
+				patterns = algorithm.copy_back(CreatePatternFromTemplate("icc", 25, "hc"), {"the light of dawn"})
 			},
 			{
 				name = "icc10nm",
 				instance_name = "Icecrown Citadel",
 				size = 10,
-				patterns = CreatePatternFromTemplate("icc", 10, "nm", "Icecrown Citadel")
+				patterns = CreatePatternFromTemplate("icc", 10, "nm")
 			},
 			{
 				name = "icc25nm",
 				instance_name = "Icecrown Citadel",
 				size = 25,
-				patterns = CreatePatternFromTemplate("icc", 25, "nm", "Icecrown Citadel")
+				patterns = CreatePatternFromTemplate("icc", 25, "nm")
 			},
 			{
 				name = "toc10hc",
 				instance_name = "Trial of the Crusader",
 				size = 10,
-				patterns = algorithm.copy_back(
-					CreatePatternFromTemplate("toc", 10, "hc", "Trial of the Crusader"),
-					{"togc" .. csep .. "10"}
-				)
+				patterns = algorithm.copy_back(CreatePatternFromTemplate("toc", 10, "hc"), {"togc" .. csep .. "10"})
 			},
 			{
 				name = "toc25hc",
 				instance_name = "Trial of the Crusader",
 				size = 25,
-				patterns = algorithm.copy_back(
-					CreatePatternFromTemplate("toc", 25, "hc", "Trial of the Crusader"),
-					{"togc" .. csep .. "25"}
-				)
+				patterns = algorithm.copy_back(CreatePatternFromTemplate("toc", 25, "hc"), {"togc" .. csep .. "25"})
 			},
 			{
 				name = "toc10nm",
 				instance_name = "Trial of the Crusader",
 				size = 10,
-				patterns = algorithm.copy_back(
-					CreatePatternFromTemplate("toc", 10, "nm", "Trial of the Crusader"),
-					{"%[call of the crusade %(10 player%)%]"}
-				)
+				patterns = algorithm.copy_back(CreatePatternFromTemplate("toc", 10, "nm"), {"%[call of the crusade %(10 player%)%]"})
 			},
 			{
 				name = "toc25nm",
 				instance_name = "Trial of the Crusader",
 				size = 25,
-				patterns = algorithm.copy_back(
-					CreatePatternFromTemplate("toc", 25, "nm", "Trial of the Crusader"),
-					{"%[call of the crusade %(25 player%)%]"}
-				)
+				patterns = algorithm.copy_back(CreatePatternFromTemplate("toc", 25, "nm"), {"%[call of the crusade %(25 player%)%]"})
 			},
 			{
 				name = "rs10hc",
 				instance_name = "The Ruby Sanctum",
 				size = 10,
-				patterns = CreatePatternFromTemplate("rs", 10, "hc", "The Ruby Sanctum")
+				patterns = CreatePatternFromTemplate("rs", 10, "hc")
 			},
 			{
 				name = "rs25hc",
 				instance_name = "The Ruby Sanctum",
 				size = 25,
-				patterns = CreatePatternFromTemplate("rs", 25, "hc", "The Ruby Sanctum")
+				patterns = algorithm.copy_back(CreatePatternFromTemplate("rs", 25, "hc"), {"ruby" .. csep .. "sanctum" .. csep .. 25})
 			},
 			{
 				name = "rs10nm",
 				instance_name = "The Ruby Sanctum",
 				size = 10,
-				patterns = CreatePatternFromTemplate("rs", 10, "nm", "The Ruby Sanctum")
+				patterns = algorithm.copy_back(CreatePatternFromTemplate("rs", 10, "nm"), {"ruby" .. csep .. "sanctum" .. csep .. 10})
 			},
 			{
 				name = "rs25nm",
 				instance_name = "The Ruby Sanctum",
 				size = 25,
-				patterns = CreatePatternFromTemplate("rs", 25, "nm", "The Ruby Sanctum")
+				patterns = algorithm.copy_back({" rs 25n "}, CreatePatternFromTemplate("rs", 25, "nm"))
 			},
 			{
 				name = "voa10",
 				instance_name = "Vault of Archavon",
 				size = 10,
-				patterns = {"voa" .. csep .. "10"}
+				patterns = CreatePatternFromTemplate("voa", 10, "simple")
 			},
 			{
 				name = "voa25",
 				instance_name = "Vault of Archavon",
 				size = 25,
-				patterns = {"voa" .. csep .. "25"}
+				patterns = CreatePatternFromTemplate("voa", 25, "simple")
 			},
 			{
 				name = "ulduar10",
@@ -258,47 +248,57 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 				name = "os10",
 				instance_name = "The Obsidian Sanctum",
 				size = 10,
-				patterns = CreatePatternFromTemplate("os", 10, "simple", "The Obsidian Sanctum")
+				patterns = algorithm.copy_back(CreatePatternFromTemplate("os", 10, "simple"), {"sartharion must die!"})
 			},
 			{
 				name = "os25",
 				instance_name = "The Obsidian Sanctum",
 				size = 25,
-				patterns = CreatePatternFromTemplate("os", 25, "simple", "The Obsidian Sanctum")
+				patterns = algorithm.copy_back(CreatePatternFromTemplate("os", 25, "simple"), {"%[sartharion must die!%]" .. csep .. "25", csep .. "25" .. "%[sartharion must die%!%]"})
 			},
 			{
 				name = "naxx10",
 				instance_name = "Naxxramas",
 				size = 10,
 				patterns = {
-					"nax?x?r?a?m?m?a?s?" .. csep .. "10",
-					"nax?x" .. sep .. "weekly",
-					"patchwerk" .. sep .. "must" .. sep .. "die!"
+					"the fall of naxxramas %(10 player%)",
+					"noth" .. csep .. "the" .. csep .. "plaguebringer" .. csep .. "must" .. csep .. "die!",
+					"instructor" .. csep .. "razuvious" .. csep .. "must" .. csep .. "die!",
+					"naxx?ramm?as" .. csep .. "10",
+					"anub\"rekhan" .. csep .. "must" .. csep .. "die!",
+					"patchwerk must die!",
+					"naxx?" .. csep .. "10",
+					"naxx" .. sep .. "weekly",
+					"patchwerk" .. csep .. "must" .. csep .. "die!"
 				}
 			},
 			{
 				name = "naxx25",
 				instance_name = "Naxxramas",
 				size = 25,
-				patterns = {"nax?x?r?a?m?m?a?s?" .. csep .. "25"}
-			},
-			{
-				name = "onyxia25",
-				instance_name = "Onyxia's Lair",
-				size = 25,
-				patterns = {"ony?x?i?a?" .. csep .. "25"}
+				patterns = {
+					"the fall of naxxramas %(25 player%)",
+					"naxx?ramm?as" .. csep .. "25",
+					"naxx?" .. csep .. "25",
+				}
 			},
 			{
 				name = "onyxia10",
 				instance_name = "Onyxia's Lair",
 				size = 10,
-				patterns = {"onyx?i?a?" .. csep .. "10"}
+				patterns = {"onyxia's lair (10 player)", "onyx?i?a?" .. csep .. "10"}
 			},
 			{
-				name = "karazhan",
+				name = "onyxia25",
+				instance_name = "Onyxia's Lair",
+				size = 25,
+				patterns = {"onyxia's lair (25 player)", "onyx?i?a?" .. csep .. "25"}
+			},
+			{
+				name = "karazhan10",
 				instance_name = "Karazhan",
 				size = 10,
-				patterns = {"kar?a?z?h?a?n?" .. csep .. "1?0?"}
+				patterns = {"kar?a?z?h?a?n?" .. csep .. "1?0?", "^kz" .. csep .. "10", sep .. "kz" .. csep .. "10"}
 			},
 			{
 				name = "molten core",
@@ -319,8 +319,26 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 				}
 			},
 			{
+				name = "sunwell25",
+				instance_name = "The Sunwell",
+				size = 25,
+				patterns = {"sunwell" .. csep .. "plateau", "swp" .. sep, sep .. "swp"}
+			},
+			{
+				name = "ssc25",
+				instance_name = "Coilfang: Serpentshrine Cavern",
+				size = 25,
+				patterns = {
+					"^ssc",
+					sep .. "ssc",
+					"ssc" .. sep,
+					"ssc" .. csep .. "$",
+					"serpent" .. csep .. "shrine" .. csep .. "cavern"
+				}
+			},
+			{
 				name = "aq40",
-				instance_name = "Temple of Ahn'Qiraj",
+				instance_name = "Ahn'Qiraj Temple",
 				size = 40,
 				patterns = {
 					"temple?" .. csep .. "of?" .. csep .. "ahn'?" .. csep .. "qiraj",
@@ -333,7 +351,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 				size = 20,
 				patterns = {
 					"ruins?" .. csep .. "of?" .. csep .. "ahn'?" .. csep .. "qiraj",
-					sep .. "*aq" .. csep .. "20" .. csep
+					"aq" .. csep .. "20"
 				}
 			}
 		}
@@ -793,9 +811,9 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 		function stats.RaidLockInfo(instance_name, size)
 			RequestRaidInfo()
 			for i = 1, GetNumSavedInstances() do
-				local saved_name, _, reset, _, _, _, _, _, saved_size = GetSavedInstanceInfo(i)
+				local saved_name, _, reset, _, locked, _, _, _, saved_size = GetSavedInstanceInfo(i)
 
-				if saved_name == instance_name and saved_size == size then
+				if saved_name == instance_name and saved_size == size and locked then
 					return true, reset
 				end
 			end
