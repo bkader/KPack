@@ -54,7 +54,10 @@ KPack:AddModule("Postal", function(folder, core, L)
 			AutoSend = true,
 			MouseWheel = true,
 			MultiItemTooltip = true
-		},
+		}
+	}
+
+	local defaultsChar = {
 		BlackBook = {
 			AutoFill = true,
 			contacts = {},
@@ -299,7 +302,11 @@ KPack:AddModule("Postal", function(folder, core, L)
 		end
 
 		function Postal.SaveOption(_, arg1, arg2, checked)
-			Postal.db[arg1][arg2] = checked
+			if arg1 == "BlackBook" then
+				Postal.char.BlackBook[arg2] = checked
+			else
+				Postal.db[arg1][arg2] = checked
+			end
 		end
 
 		function Postal.ToggleModule(_, arg1, arg2, checked)
@@ -322,10 +329,21 @@ KPack:AddModule("Postal", function(folder, core, L)
 
 		function Postal:SetupDatabase()
 			if not self.db then
-				if type(core.db.Postal) ~= "table" or not next(core.db.Postal) then
+				if type(core.db.Postal) ~= "table" then
 					core.db.Postal = CopyTable(defaults)
 				end
+				if type(core.char.Postal) ~= "table" then
+					core.char.Postal = CopyTable(defaultsChar)
+				end
+
 				self.db = core.db.Postal
+				self.char = core.char.Postal
+
+				-- restore old data
+				if self.db.BlackBook then
+					self.char.BlackBook = CopyTable(self.db.BlackBook)
+					self.db.BlackBook = nil
+				end
 			end
 		end
 
@@ -1586,7 +1604,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 		local Postal_BlackBook_Autocomplete_Flags = {include = AUTOCOMPLETE_FLAG_ALL, exclude = AUTOCOMPLETE_FLAG_NONE}
 
 		function Postal_BlackBook:OnEnable()
-			Postal.db.BlackBook.alts = Postal.db.BlackBook.alts or {}
+			Postal.char.BlackBook.alts = Postal.char.BlackBook.alts or {}
 			if not Postal_BlackBookButton then
 				Postal_BlackBookButton = CreateFrame("Button", "Postal_BlackBookButton", SendMailFrame)
 				Postal_BlackBookButton:SetWidth(25)
@@ -1609,13 +1627,13 @@ KPack:AddModule("Postal", function(folder, core, L)
 			SendMailNameEditBox:SetHistoryLines(15)
 			self:RawHook("SendMailFrame_Reset", true)
 			self:RawHook("MailFrameTab_OnClick", true)
-			if Postal.db.BlackBook.UseAutoComplete then
+			if Postal.char.BlackBook.UseAutoComplete then
 				self:RawHookScript(SendMailNameEditBox, "OnChar")
 			end
 			self:HookScript(SendMailNameEditBox, "OnEditFocusGained")
 			self:RawHook("AutoComplete_Update", true)
 
-			local db = Postal.db.BlackBook
+			local db = Postal.char.BlackBook
 			local exclude = bit.bor(db.AutoCompleteFriends and AUTOCOMPLETE_FLAG_NONE or AUTOCOMPLETE_FLAG_FRIEND, db.AutoCompleteGuild and AUTOCOMPLETE_FLAG_NONE or AUTOCOMPLETE_FLAG_IN_GUILD)
 			Postal_BlackBook_Autocomplete_Flags.include = bit.bxor(db.ExcludeRandoms and (bit.bor(AUTOCOMPLETE_FLAG_FRIEND, AUTOCOMPLETE_FLAG_IN_GUILD)) or AUTOCOMPLETE_FLAG_ALL, exclude)
 			SendMailNameEditBox.autoCompleteParams = Postal_BlackBook_Autocomplete_Flags
@@ -1641,7 +1659,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 			local player = UnitName("player")
 			local namestring = UnitName("player") .. "|" .. GetRealmName() .. "|" .. UnitFactionGroup("player")
 			local flag = true
-			local db = Postal.db.BlackBook.alts
+			local db = Postal.char.BlackBook.alts
 			for i = 1, #db do
 				if namestring == db[i] then
 					flag = false
@@ -1663,7 +1681,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 			local realm = GetRealmName()
 			local faction = UnitFactionGroup("player")
 			local player = UnitName("player")
-			local db = Postal.db.BlackBook.alts
+			local db = Postal.char.BlackBook.alts
 			enableAltsMenu = false
 			for i = #db, 1, -1 do
 				if arg1 == db[i] then
@@ -1685,7 +1703,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 				return self.hooks["SendMailFrame_Reset"]()
 			end
 			SendMailNameEditBox:AddHistoryLine(name)
-			local db = Postal.db.BlackBook.recent
+			local db = Postal.char.BlackBook.recent
 			for k = 1, #db do
 				if name == db[k] then
 					tremove(db, k)
@@ -1697,21 +1715,21 @@ KPack:AddModule("Postal", function(folder, core, L)
 				tremove(db, k)
 			end
 			self.hooks["SendMailFrame_Reset"]()
-			if Postal.db.BlackBook.AutoFill then
+			if Postal.char.BlackBook.AutoFill then
 				SendMailNameEditBox:SetText(name)
 				SendMailNameEditBox:HighlightText()
 			end
 		end
 
 		function Postal_BlackBook.ClearRecent(dropdownbutton, arg1, arg2, checked)
-			wipe(Postal.db.BlackBook.recent)
+			wipe(Postal.char.BlackBook.recent)
 			CloseDropDownMenus()
 		end
 
 		function Postal_BlackBook:MailFrameTab_OnClick(button, tab)
 			self.hooks["MailFrameTab_OnClick"](button, tab)
-			if Postal.db.BlackBook.AutoFill and tab == 2 then
-				local name = Postal.db.BlackBook.recent[1]
+			if Postal.char.BlackBook.AutoFill and tab == 2 then
+				local name = Postal.char.BlackBook.recent[1]
 				if name and SendMailNameEditBox:GetText() == "" then
 					SendMailNameEditBox:SetText(name)
 					SendMailNameEditBox:HighlightText()
@@ -1724,7 +1742,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 		end
 
 		function Postal_BlackBook:AutoComplete_Update(editBox, editBoxText, utf8Position, ...)
-			if editBox ~= SendMailNameEditBox or not Postal.db.BlackBook.DisableBlizzardAutoComplete then
+			if editBox ~= SendMailNameEditBox or not Postal.char.BlackBook.DisableBlizzardAutoComplete then
 				self.hooks["AutoComplete_Update"](editBox, editBoxText, utf8Position, ...)
 			end
 		end
@@ -1732,13 +1750,13 @@ KPack:AddModule("Postal", function(folder, core, L)
 		function Postal_BlackBook:OnChar(editbox, ...)
 			if editbox:GetUTF8CursorPosition() ~= strlenutf8(editbox:GetText()) then return end
 
-			local db = Postal.db.BlackBook
+			local db = Postal.char.BlackBook
 			local text = strupper(editbox:GetText())
 			local textlen = strlen(text)
 			local newname
 
 			if db.AutoCompleteAlts then
-				local db = Postal.db.BlackBook.alts
+				local db = Postal.char.BlackBook.alts
 				local realm = GetRealmName()
 				local faction = UnitFactionGroup("player")
 				local player = UnitName("player")
@@ -1795,7 +1813,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 		function Postal_BlackBook.AddContact(dropdownbutton, arg1, arg2, checked)
 			local name = strtrim(SendMailNameEditBox:GetText())
 			if name == "" then return end
-			local db = Postal.db.BlackBook.contacts
+			local db = Postal.char.BlackBook.contacts
 			for k = 1, #db do
 				if name == db[k] then
 					return
@@ -1808,7 +1826,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 		function Postal_BlackBook.RemoveContact(dropdownbutton, arg1, arg2, checked)
 			local name = strtrim(SendMailNameEditBox:GetText())
 			if name == "" then return end
-			local db = Postal.db.BlackBook.contacts
+			local db = Postal.char.BlackBook.contacts
 			for k = 1, #db do
 				if name == db[k] then
 					tremove(db, k)
@@ -1819,6 +1837,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 
 		function Postal_BlackBook.BlackBookMenu(self, level)
 			if not level then return end
+			Postal.char.BlackBook.contacts = Postal.char.BlackBook.contacts or {}
 			local info = self.info
 			wipe(info)
 			if level == 1 then
@@ -1830,7 +1849,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 				info.disabled = nil
 				info.isTitle = nil
 
-				local db = Postal.db.BlackBook.contacts
+				local db = Postal.char.BlackBook.contacts
 				for i = 1, #db do
 					info.text = db[i]
 					info.func = Postal_BlackBook.SetSendMailName
@@ -1864,7 +1883,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 				info.keepShownOnClick = 1
 				info.func = self.UncheckHack
 
-				info.disabled = #Postal.db.BlackBook.recent == 0
+				info.disabled = #Postal.char.BlackBook.recent == 0
 				info.text = L["Recently Mailed"]
 				info.value = "recent"
 				UIDropDownMenu_AddButton(info, level)
@@ -1896,7 +1915,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 			elseif level == 2 then
 				info.notCheckable = 1
 				if UIDROPDOWNMENU_MENU_VALUE == "recent" then
-					local db = Postal.db.BlackBook.recent
+					local db = Postal.char.BlackBook.recent
 					if #db == 0 then return end
 
 					for i = 1, #db do
@@ -1920,7 +1939,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 				elseif UIDROPDOWNMENU_MENU_VALUE == "alt" then
 					if not enableAltsMenu then return end
 
-					local db = Postal.db.BlackBook.alts
+					local db = Postal.char.BlackBook.alts
 					local realm = GetRealmName()
 					local faction = UnitFactionGroup("player")
 					local player = UnitName("player")
@@ -2038,7 +2057,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 			elseif level == 3 then
 				info.notCheckable = 1
 				if UIDROPDOWNMENU_MENU_VALUE == "deletealt" then
-					local db = Postal.db.BlackBook.alts
+					local db = Postal.char.BlackBook.alts
 					local realm = GetRealmName()
 					local faction = UnitFactionGroup("player")
 					local player = UnitName("player")
@@ -2077,14 +2096,14 @@ KPack:AddModule("Postal", function(folder, core, L)
 
 		function Postal_BlackBook.SaveFriendGuildOption(dropdownbutton, arg1, arg2, checked)
 			Postal.SaveOption(dropdownbutton, arg1, arg2, checked)
-			local db = Postal.db.BlackBook
+			local db = Postal.char.BlackBook
 			local exclude = bit.bor(db.AutoCompleteFriends and AUTOCOMPLETE_FLAG_NONE or AUTOCOMPLETE_FLAG_FRIEND, db.AutoCompleteGuild and AUTOCOMPLETE_FLAG_NONE or AUTOCOMPLETE_FLAG_IN_GUILD)
 			Postal_BlackBook_Autocomplete_Flags.include = bit.bxor(db.ExcludeRandoms and (bit.bor(AUTOCOMPLETE_FLAG_FRIEND, AUTOCOMPLETE_FLAG_IN_GUILD)) or AUTOCOMPLETE_FLAG_ALL, exclude)
 		end
 
 		function Postal_BlackBook.SetAutoComplete(dropdownbutton, arg1, arg2, checked)
 			local self = Postal_BlackBook
-			Postal.db.BlackBook.UseAutoComplete = not checked
+			Postal.char.BlackBook.UseAutoComplete = not checked
 			if checked then
 				if self:IsHooked(SendMailNameEditBox, "OnChar") then
 					self:Unhook(SendMailNameEditBox, "OnChar")
@@ -2106,7 +2125,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 				info.func = Postal.SaveOption
 				info.arg1 = "BlackBook"
 				info.arg2 = "AutoFill"
-				info.checked = Postal.db.BlackBook.AutoFill
+				info.checked = Postal.char.BlackBook.AutoFill
 				UIDropDownMenu_AddButton(info, level)
 
 				info.hasArrow = 1
@@ -2119,7 +2138,7 @@ KPack:AddModule("Postal", function(folder, core, L)
 				info.value = "AutoComplete"
 				UIDropDownMenu_AddButton(info, level)
 			elseif level == 2 + self.levelAdjust then
-				local db = Postal.db.BlackBook
+				local db = Postal.char.BlackBook
 				info.arg1 = "BlackBook"
 
 				if UIDROPDOWNMENU_MENU_VALUE == "AutoComplete" then
