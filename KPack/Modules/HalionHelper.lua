@@ -26,7 +26,7 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 		raid = true
 	}
 
-	local halion = {[40142] = true, [39863] = true}
+	local halion, cached = {[40142] = true, [39863] = true}, {}
 	local combustion = GetSpellInfo(74562)
 	local consumption = GetSpellInfo(74792)
 	local texture = [[Interface\BUTTONS\WHITE8X8]]
@@ -284,7 +284,10 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 
 	function HalionHelper:ApplySettings()
 		if not self.db.enabled then
-			self:UnregisterAllEvents()
+			self:UnregisterEvent("PLAYER_TARGET_CHANGED")
+			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+			self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+			self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
 			configmode = nil
 
@@ -307,19 +310,30 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 		end
 	end
 
-	function HalionHelper:UNIT_AURA(unit)
-		if unit == "player" then
-			local spellid = select(11, UnitBuff("player", insideBuff))
-			self.isInside = (spellid == 74807)
+	function HalionHelper:PLAYER_ENTERING_WORLD()
+		self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+		self:ZONE_CHANGED_NEW_AREA()
+	end
+
+	function HalionHelper:PLAYER_TARGET_CHANGED()
+		if UnitExists("target") and self:IsHalion(UnitGUID("target")) then
+			isInside = (cached[UnitGUID("target")] == 40142)
+			if HalionBar and isInside then
+				HalionBar.here:SetText(L["Inside"])
+				HalionBar.there:SetText(L["Outside"])
+			elseif HalionBar then
+				HalionBar.here:SetText(L["Outside"])
+				HalionBar.there:SetText(L["Inside"])
+			end
 		end
 	end
 
 	function HalionHelper:PLAYER_REGEN_DISABLED()
-		self.inCombat = true
+		self.inCombat, cached = true, {}
 	end
 
 	function HalionHelper:PLAYER_REGEN_ENABLED()
-		self.inCombat = false
+		self.inCombat, cached = false, {}
 		if HalionBar and HalionBar:IsShown() then
 			HalionBar:Hide()
 		end
@@ -327,13 +341,19 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 
 	function HalionHelper:ZONE_CHANGED_NEW_AREA()
 		if not self.db.enabled then
-			self:UnregisterAllEvents()
+			self:UnregisterEvent("PLAYER_TARGET_CHANGED")
+			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+			self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+			self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 			return
 		end
 
 		local inInstance, instanceType = IsInInstance()
 		if not inInstance or instanceType ~= "raid" then
-			self:UnregisterAllEvents()
+			self:UnregisterEvent("PLAYER_TARGET_CHANGED")
+			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+			self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+			self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 			self.enabled = false
 			return
 		end
@@ -342,12 +362,15 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 		self.enabled = (mapID == 610)
 
 		if self.enabled then
-			self:RegisterEvent("UNIT_AURA")
+			self:RegisterEvent("PLAYER_TARGET_CHANGED")
 			self:RegisterEvent("PLAYER_REGEN_ENABLED")
 			self:RegisterEvent("PLAYER_REGEN_DISABLED")
 			self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		else
-			self:UnregisterAllEvents()
+			self:UnregisterEvent("PLAYER_TARGET_CHANGED")
+			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+			self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+			self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		end
 
 		self:ApplySettings()
@@ -355,28 +378,62 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 
 	function HalionHelper:IsHalion(guid)
 		if tonumber(guid) then
+			if cached[guid] then
+				return cached[guid]
+			end
+
 			local id = tonumber(guid:sub(9, 12), 16)
-			return id and halion[id]
+			if id and halion[id] then
+				cached[guid] = id
+				return id
+			end
 		end
 	end
 
-	function HalionHelper:COMBAT_LOG_EVENT_UNFILTERED(_, event, srcGUID, _, _, dstGUID, dstName, _, spellid, spellname, _, _)
-		if not (self:IsHalion(srcGUID) or self:IsHalion(dstGUID)) or not self.enabled or not self.inCombat then
+	function HalionHelper:COMBAT_LOG_EVENT_UNFILTERED(_, event, srcGUID, _, _, dstGUID, dstName, _, spellid, spellname)
+		if not self.enabled or not self.inCombat then
 			return
 		end
 
 		-- create the bar if not created
 		self:CreateHalionBar()
 
+		if self:IsHalion(srcGUID) == 40142 and not self.isInside then
+			self.isInside = true
+			if HalionBar then
+				HalionBar.here:SetText(L["Inside"])
+				HalionBar.there:SetText(L["Outside"])
+			end
+		elseif self:IsHalion(srcGUID) == 39863 and self.isInside then
+			self.isInside = false
+			if HalionBar then
+				HalionBar.here:SetText(L["Outside"])
+				HalionBar.there:SetText(L["Inside"])
+			end
+		end
+
 		if event == "SPELL_AURA_APPLIED" then
-			if spellname == combustion and dstGUID == core.guid then -- combustion
-				self:AlertPlayer("combustion")
-			elseif spellname == consumption and dstGUID == core.guid then -- consumption
-				self:AlertPlayer("consumption")
+			-- combustion/consumption
+			if spellname == combustion then
+				if dstGUID == core.guid then
+					self:AlertPlayer("combustion")
+				end
+
+				if self.isInside then
+					self.isInside = false
+				end
+			elseif spellname == consumption then
+				if dstGUID == core.guid then
+					self:AlertPlayer("consumption")
+				end
+
+				if not self.isInside then
+					self.isInside = true
+				end
 			end
 
 			-- corporeality
-			if self:IsHalion(dstGUID) and corporeality[spellid] then
+			if (self:IsHalion(dstGUID) or self:IsHalion(srcGUID)) and corporeality[spellid] then
 				if not HalionBar:IsShown() then
 					HalionBar:Show()
 				end
@@ -399,11 +456,7 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 			core:OpenConfig("Options", "HalionHelper")
 		end
 
-		if not self.db.enabled then
-			self:UnregisterAllEvents()
-			return
-		end
-
-		self:ZONE_CHANGED_NEW_AREA()
+		self:RegisterEvent("PLAYER_ENTERING_WORLD")
+		self:PLAYER_ENTERING_WORLD()
 	end)
 end)
