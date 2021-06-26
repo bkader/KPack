@@ -242,7 +242,7 @@ KPack:AddModule("BlizzBugsSuck", function(_, core)
 
 	-- ///////////////////////////////////////////////////////
 
-	function GetTexCoordsForRole(role)
+	_G.GetTexCoordsForRole = function(role)
 		local textureHeight, textureWidth = 256, 256
 		local roleHeight, roleWidth = 67, 67
 
@@ -259,7 +259,7 @@ KPack:AddModule("BlizzBugsSuck", function(_, core)
 		end
 	end
 
-	function GetBackgroundTexCoordsForRole(role)
+	_G.GetBackgroundTexCoordsForRole = function(role)
 		local textureHeight, textureWidth = 128, 256
 		local roleHeight, roleWidth = 75, 75
 

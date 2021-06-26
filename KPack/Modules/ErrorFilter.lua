@@ -15,7 +15,7 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
 		end
 	end
 
-	local options = {enabled = true, shown = true}
+	local defaults = {enabled = true, shown = true}
 
 	local filters = {
 		[ERR_ABILITY_COOLDOWN] = true,
@@ -113,7 +113,7 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
 		if not DB then
 			if type(core.db.ErrorFilter) ~= "table" or not next(core.db.ErrorFilter) then
 				core.db.ErrorFilter = {
-					options = CopyTable(options),
+					options = CopyTable(defaults),
 					filters = CopyTable(filters)
 				}
 			end

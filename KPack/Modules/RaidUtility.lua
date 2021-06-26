@@ -3379,12 +3379,12 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			if (keyword and msg == keyword) or (guidkeyword and msg == guidkeyword and IsGuildMember(sender) and CanInvite()) then
 				local inInstance, instanceType = IsInInstance()
 				local numparty, numraid = GetNumPartyMembers(), GetNumRaidMembers()
-				if inInstance and instanceType == "party" and party == 4 then
+				if inInstance and instanceType == "party" and numparty == 4 then
 					SendChatMessage(L["Sorry, the group is full."], "WHISPER", nil, sender)
-				elseif party == 4 and raid == 0 then
+				elseif numparty == 4 and numraid == 0 then
 					inviteQueue[#inviteQueue + 1] = sender
 					DoActualInvites()
-				elseif raid == 40 then
+				elseif numraid == 40 then
 					SendChatMessage(L["Sorry, the group is full."], "WHISPER", nil, sender)
 				else
 					InviteUnit(sender)

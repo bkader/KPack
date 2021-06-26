@@ -1,8 +1,9 @@
 local _, core = ...
 
 local setmetatable = setmetatable
-local tostring, format = tostring, string.format
-local rawset, rawget = rawset, rawget
+local format = string.format
+local rawset = rawset
+
 local L = setmetatable({}, {
 	__newindex = function(self, key, value)
 		rawset(self, key, value == true and key or value)

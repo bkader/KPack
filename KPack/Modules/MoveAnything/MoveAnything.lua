@@ -2186,7 +2186,7 @@ function MovAny:AttachMoverToFrame(mover, f)
 	f:ClearAllPoints()
 	f:SetPoint("BOTTOMLEFT", mover, "BOTTOMLEFT", 0, 0)
 
-	if not self.NoMove[fn] then
+	if not self.NoMove[f:GetName()] then
 		f.orgX = x
 		f.orgY = y
 	end

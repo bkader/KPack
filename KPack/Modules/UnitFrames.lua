@@ -343,7 +343,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	do
-		local function UnitColor(unit)
+		function UnitColor(unit)
 			local r, g, b
 			if not UnitIsPlayer(unit) and not UnitIsConnected(unit) or UnitIsDeadOrGhost(unit) then
 				r, g, b = 0.5, 0.5, 0.5
@@ -359,6 +359,8 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 						r, g, b = 1, 0, 0
 					end
 				end
+			else
+				r, g, b = UnitSelectionColor(unit)
 			end
 
 			return r, g, b
@@ -521,32 +523,6 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		elseif not smallSize and FocusFrame.smallSize then
 			FocusFrame.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-TargetingFrame")
 		end
-	end
-
-	-- Utility functions
-	function UnitColor(unit)
-		local r, g, b
-		if (not UnitIsPlayer(unit)) and ((not UnitIsConnected(unit)) or (UnitIsDeadOrGhost(unit))) then
-			--Color it gray
-			r, g, b = 0.5, 0.5, 0.5
-		elseif UnitIsPlayer(unit) then
-			--Try to color it by class.
-			local localizedClass, englishClass = UnitClass(unit)
-			local classColor = RAID_CLASS_COLORS[englishClass]
-			if classColor then
-				r, g, b = classColor.r, classColor.g, classColor.b
-			else
-				if UnitIsFriend("player", unit) then
-					r, g, b = 0.0, 1.0, 0.0
-				else
-					r, g, b = 1.0, 0.0, 0.0
-				end
-			end
-		else
-			r, g, b = UnitSelectionColor(unit)
-		end
-
-		return r, g, b
 	end
 
 	function KPack_UnitFrames_CapDisplayOfNumericValue(value)

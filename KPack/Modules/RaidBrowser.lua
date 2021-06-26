@@ -927,7 +927,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 		end
 
 		local function FormatSeconds(seconds)
-			local seconds = tonumber(seconds)
+			seconds = tonumber(seconds) or 0
 
 			if seconds <= 0 then
 				return "00 seconds"
@@ -1003,12 +1003,6 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 
 		search_button:SetText(L["Find Raid"])
 		search_button:SetScript("OnClick", function() end)
-
-		local function ClearHighlights()
-			for i = 1, NUM_LFR_LIST_BUTTONS do
-				_G["LFRBrowseFrameListButton" .. i]:UnlockHighlight()
-			end
-		end
 
 		-- Assignment operator for LFR buttons
 		local function AssignLFRButton(button, host_name, lfm_info, index)

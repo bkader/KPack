@@ -165,10 +165,10 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
 				local lowerSpell = strlower(spellName)
 				for spell, linked in pairs(DB.spellSubs) do
 					if lowerSpell == spell and spellCache[linked] then
-						RestoreAction(i, atype, actionID, binding, linked, nil, arg3)
+						RestoreAction(i, atype, actionID, binding, linked, nil, _G.arg3)
 						return
 					elseif lowerSpell == linked and spellCache[spell] then
-						RestoreAction(i, atype, actionID, binding, spell, nil, arg3)
+						RestoreAction(i, atype, actionID, binding, spell, nil, _G.arg3)
 						return
 					end
 				end

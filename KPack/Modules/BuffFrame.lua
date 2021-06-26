@@ -91,7 +91,7 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 			end
 		end
 
-		local function SetupDatabase()
+		function SetupDatabase()
 			if not DB then
 				if type(core.db.BuffFrame) ~= "table" or not next(core.db.BuffFrame) then
 					core.db.BuffFrame = CopyTable(defaults)

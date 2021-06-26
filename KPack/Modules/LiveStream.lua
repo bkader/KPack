@@ -29,7 +29,6 @@ KPack:AddModule("LiveStream", function(_, core, L)
 	local Start, Stop, Broadcast
 	local started, output, emote
 	local channels, ListChannels = {}
-	local OnUpdate
 	local frame, OnUpdate = CreateFrame("Frame")
 	frame:RegisterEvent("CHANNEL_UI_UPDATE")
 	frame:SetScript("OnEvent", function(self, event, ...) ListChannels() end)

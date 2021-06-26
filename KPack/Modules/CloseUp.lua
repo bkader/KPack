@@ -250,7 +250,7 @@ KPack:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's 
 			btn:SetNormalTexture("Interface\\AddOns\\KPack\\Media\\Textures\\textureHead")
 			btn:SetPushedTexture("Interface\\AddOns\\KPack\\Media\\Textures\\textureHead")
 			btn:SetHighlightTexture("Interface\\AddOns\\KPack\\Media\\Textures\\textureHighlight")
-			PaperDollFrame.helm = helm
+			PaperDollFrame.helm = btn
 		end
 
 		-- cloak
@@ -263,7 +263,7 @@ KPack:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's 
 			btn:SetNormalTexture("Interface\\AddOns\\KPack\\Media\\Textures\\textureCloak")
 			btn:SetPushedTexture("Interface\\AddOns\\KPack\\Media\\Textures\\textureCloak")
 			btn:SetHighlightTexture("Interface\\AddOns\\KPack\\Media\\Textures\\textureHighlight")
-			PaperDollFrame.cloak = cloak
+			PaperDollFrame.cloak = btn
 		end
 	end
 

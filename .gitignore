@@ -1,6 +1,5 @@
 _dev
-_bak
-*.zip
-.luacheckrc
-luacheck.exe
 Makefile
+*.zip
+*.sublime-project
+*.sublime-workspace

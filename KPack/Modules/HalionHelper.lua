@@ -376,6 +376,18 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 		self:ApplySettings()
 	end
 
+	function HalionHelper:UpdateCorporeality()
+		if UnitExists("boss1") then
+			for id, _ in pairs(corporeality) do
+				local spellid = select(11, UnitBuff("boss1", GetSpellInfo(id)))
+				if spellid and HalionBar then
+					HalionBar:MoveIndicator(corporeality[spellid])
+					break
+				end
+			end
+		end
+	end
+
 	function HalionHelper:IsHalion(guid)
 		if tonumber(guid) then
 			if cached[guid] then
@@ -403,12 +415,14 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 			if HalionBar then
 				HalionBar.here:SetText(L["Inside"])
 				HalionBar.there:SetText(L["Outside"])
+				self:UpdateCorporeality()
 			end
 		elseif self:IsHalion(srcGUID) == 39863 and self.isInside then
 			self.isInside = false
 			if HalionBar then
 				HalionBar.here:SetText(L["Outside"])
 				HalionBar.there:SetText(L["Inside"])
+				self:UpdateCorporeality()
 			end
 		end
 
