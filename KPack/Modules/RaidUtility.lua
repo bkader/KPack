@@ -655,7 +655,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				for name in pairs(aurasOrder) do
 					local unit = select(8, UnitBuff("player", name))
 					if unit then
-						AddAura(name, select(1, UnitName(unit)) or UNKNOWN)
+						AddAura(name, UnitName(unit) or UNKNOWN)
 					end
 				end
 				fetched = true
@@ -666,18 +666,17 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			local function SortAuras(a, b)
 				if not aurasOrder[a[1]] then
 					return true
-				elseif not aurasOrder[b[1]] then
-					return false
-				else
-					return aurasOrder[a[1]] < aurasOrder[b[1]]
 				end
+				if not aurasOrder[b[1]] then
+					return false
+				end
+				return aurasOrder[a[1]] < aurasOrder[b[1]]
 			end
 
 			function ResetFrames()
 				for k, v in pairs(auraFrames) do
 					if _G[k] then
 						_G[k]:Hide()
-						_G[k] = nil
 					end
 				end
 			end
@@ -1441,7 +1440,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			for k, v in pairs(sunderFrames) do
 				if _G[k] then
 					_G[k]:Hide()
-					_G[k] = nil
 				end
 			end
 		end
@@ -1775,7 +1773,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			for k, v in pairs(healerFrames) do
 				if _G[k] then
 					_G[k]:Hide()
-					_G[k] = nil
 				end
 			end
 		end
