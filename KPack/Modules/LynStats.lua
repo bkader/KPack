@@ -157,6 +157,8 @@ KPack:AddModule("LynStats", function(_, addon, L)
 	end
 
 	local function addonTooltip(self)
+		if InCombatLockdown() then return end
+
 		GameTooltip:ClearLines()
 		GameTooltip:SetOwner(self, tooltipAnchor)
 		local blizz = collectgarbage("count")
