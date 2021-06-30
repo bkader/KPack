@@ -4,6 +4,7 @@ local L = core.L
 
 core.ACD = LibStub("AceConfigDialog-3.0")
 core.LSM = LibStub("LibSharedMedia-3.0")
+local LBF = LibStub("LibButtonFacade", true)
 
 -- player & class
 core.guid = UnitGUID("player")
@@ -337,6 +338,7 @@ do
 				end
 				core.moduleslist = nil
 			end
+			if LBF then LBF:RegisterSkinCallback("KPack", core.OnSkin, core) end
 		end
 	end)
 
@@ -384,6 +386,24 @@ do
 			SendAddonMessage(prefix, msg, "PARTY")
 		end
 	end
+end
+
+-- LibButtonFacade
+function core:OnSkin(skin, glossAlpha, gloss, group, _, color)
+    local styleDB
+    if group == L["Buff Frame"] and self.db.BuffFrame then
+        if not self.db.BuffFrame.style then
+            self.db.BuffFrame.style = {}
+        end
+        styleDB = self.db.BuffFrame.style
+    end
+
+    if styleDB then
+        styleDB[1] = skin
+        styleDB[2] = glossAlpha
+        styleDB[3] = gloss
+        styleDB[4] = colors
+    end
 end
 
 -------------------------------------------------------------------------------

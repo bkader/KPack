@@ -4,6 +4,7 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 
 	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
 	local hooksecurefunc = hooksecurefunc
+	local LBF = LibStub("LibButtonFacade", true)
 
 	do
 		local DB, SetupDatabase, inCombat
@@ -94,6 +95,10 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 				buff.duration:SetFont(LSM:Fetch("font", DB.durationFont), DB.debuffFontSize, "THINOUTLINE")
 				buff.count:SetFont(LSM:Fetch("font", DB.countFont), DB.debuffCountSize, "THINOUTLINE")
 			end
+
+			if LBF then
+				LBF:Group("KPack", L["Buff Frame"]):AddButton(buff)
+			end
 		end
 
 		function SetupDatabase()
@@ -127,9 +132,16 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 					duration:SetFont(LSM:Fetch("font", DB.durationFont), DB.buffFontSize, "THINOUTLINE")
 					duration:SetShadowOffset(0, 0)
 					duration:SetDrawLayer("OVERLAY")
+					if LBF then
+						LBF:Group("KPack", L["Buff Frame"]):AddButton(buff)
+					end
 				end
 			end
 			hooksecurefunc("AuraButton_Update", Our_AuraButton_Update)
+
+			if LBF then
+				LBF:Group("KPack", L["Buff Frame"]):Skin(unpack(DB.style))
+			end
 		end
 
 		core:RegisterForEvent("PLAYER_LOGIN", function()
