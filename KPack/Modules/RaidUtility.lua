@@ -1782,27 +1782,40 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				return
 			end
 
-			local prefix, min, max = "raid", 1, GetNumRaidMembers()
-			if max == 0 then
-				prefix, min, max = "party", 0, GetNumPartyMembers()
+			local prefix, start, stop = "raid", 1, GetNumRaidMembers()
+			if stop == 0 then
+				prefix, start, stop = "party", 0, GetNumPartyMembers()
 			end
 
 			healers = {}
 
-			for i = min, max do
-				local unit = (i == 0) and "player" or prefix .. tostring(i)
-				if UnitExists(unit) and LGT:GetUnitRole(unit) == "healer" then
-					local class = select(2, UnitClass(unit))
-					healers[unit] = {
-						name = UnitName(unit),
-						class = class,
-						icon = GetHealerIcon(unit, class),
-						curmana = UnitPower(unit, 0),
-						maxmana = UnitPowerMax(unit, 0)
-					}
-				elseif healers[unit] then
-					healers[unit] = nil
+			if prefix then
+				for i = start, stop do
+					local unit = (i == 0) and "player" or prefix .. tostring(i)
+					if UnitExists(unit) and LGT:GetUnitRole(unit) == "healer" then
+						local class = select(2, UnitClass(unit))
+						healers[unit] = {
+							name = UnitName(unit),
+							class = class,
+							icon = GetHealerIcon(unit, class),
+							curmana = UnitPower(unit, 0),
+							maxmana = UnitPowerMax(unit, 0)
+						}
+					elseif healers[unit] then
+						healers[unit] = nil
+					end
 				end
+			elseif LGT:GetUnitRole("player") == "healer" then
+				local class = select(2, UnitClass("player"))
+				healers["player"] = {
+					name = UnitName("player"),
+					class = select(2, UnitClass("player")),
+					icon = GetHealerIcon("player", class),
+					curmana = UnitPower("player", 0),
+					maxmana = UnitPowerMax("player", 0)
+				}
+			elseif healers["player"] then
+				healers["player"] = nil
 			end
 
 			rendered = nil
@@ -2002,7 +2015,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			}
 
 			local function OnEvent(self, event, ...)
-				if not self or self ~= display then
+				if not self or self ~= display or not DB.Mana.enabled then
 					return
 				elseif cacheEvents[event] then
 					CacheHealers()
@@ -2295,7 +2308,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			if not LGT then
 				return
 			end
-			core.After(5, CacheHealers)
 
 			if DB.Mana.locked then
 				LockDisplay()
@@ -2304,6 +2316,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			end
 
 			if DB.Mana.enabled then
+				core.After(3, CacheHealers)
 				ShowDisplay()
 			else
 				HideDisplay()
