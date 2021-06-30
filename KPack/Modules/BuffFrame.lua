@@ -66,14 +66,19 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 				return
 			end
 
+			_G[buffName .. "Icon"]:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
 			-- position the duration
-			buff.duration:ClearAllPoints()
+			-- buff.duration:ClearAllPoints()
 			buff.duration:SetPoint("BOTTOM", buff, "BOTTOM", 0, -2)
+			buff.duration:SetJustifyV("BOTTOM")
 			buff.duration:SetShadowOffset(0, 0)
 			buff.duration:SetDrawLayer("OVERLAY")
 
 			-- position the stack count
 			buff.count:ClearAllPoints()
+			buff.count:SetJustifyH("RIGHT")
+			buff.count:SetJustifyV("TOP")
 			buff.count:SetPoint("TOPRIGHT", buff)
 			buff.count:SetShadowOffset(0, 0)
 			buff.count:SetDrawLayer("OVERLAY")
@@ -114,7 +119,7 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 					buff:SetScript("OnHide", function() CheckFirstButton() end)
 
 					local icon = _G["TempEnchant" .. i .. "Icon"]
-					icon:SetTexCoord(0.04, 0.96, 0.04, 0.96)
+					icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 					local duration = _G["TempEnchant" .. i .. "Duration"]
 					duration:ClearAllPoints()

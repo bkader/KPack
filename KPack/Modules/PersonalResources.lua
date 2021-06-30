@@ -249,7 +249,7 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 				frame:EnableMouse(true)
 				frame:SetMovable(true)
 				frame:RegisterForDrag("LeftButton")
-			else
+			elseif frame then
 				frame:SetSize(width, height)
 				frame.health:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture))
 				frame.health:SetPoint("TOPLEFT", 2, -2)

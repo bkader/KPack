@@ -450,7 +450,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 			Minimap:SetMaskTexture([[Interface\ChatFrame\ChatFrameBackground]])
 			Minimap:SetBackdrop({
 				bgFile = [[Interface\ChatFrame\ChatFrameBackground]],
-				insets = {top = -2, bottom = -2, left = -2, right = -2}
+				insets = {top = -2, bottom = -1, left = -2, right = -1}
 			})
 			Minimap:SetBackdropColor(0, 0, 0, 1)
 			MinimapCluster:SetScale(DB.scale or 1)
