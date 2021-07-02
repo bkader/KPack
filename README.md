@@ -1,6 +1,6 @@
-# KPack - Lots-In-One AddOn Collection! (61)
+# KPack - Lots-In-One AddOn Collection! (62)
 
-Currently, this pack contains 61 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 62 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -308,3 +308,7 @@ You can read more about the original addon on [CurseForge](https://www.curseforg
 ## 61. Halion Helper
 
 Provides a clearer visual display of the Corporeality buff during phase 3 of the Halion encounter in Ruby Sanctum.
+
+## 62. Reflux
+
+A small lightweight profile manager. Its goal it to allow you to quickly switch all your addon profiles in one fair swoop. For addons that don't support profiles it emulates a profile. All emulations are done by the user and none come pre-configured out of the box. The user chooses if they wish to emulate a profile for any addon. Emulation is not needed for any addon that uses Ace2/3DB as profiles are built in.

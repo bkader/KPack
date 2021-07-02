@@ -51,6 +51,7 @@
 <Script file="RaidTabs.lua" />
 <Script file="RaidTargetIcons.lua" />
 <Script file="RaidUtility.lua" />
+<Script file="Reflux.lua" />
 <Script file="SimpleComboPoints.lua" />
 <Script file="Simplified.lua" />
 <Script file="SlashIn.lua" />

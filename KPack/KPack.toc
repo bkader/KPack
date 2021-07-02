@@ -1,5 +1,4 @@
 ## Interface: 30300
-## Version: 1.0.0
 ## Title: |cfff58cbaKader|r|caaf49141Pack|r
 ## Notes: A collection of useful and tiny scripts and addons, All-In-One.
 ## Author: Kader @ Novus Ordo
@@ -8,5 +7,8 @@
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## RequiredDeps: Blizzard_CombatText
+## Version: 1.2.0
+## X-Website: https://github.com/bkader/KPack
+## X-Email: bkader@email.com
 
 KPack.xml

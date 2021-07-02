@@ -1,6 +1,7 @@
 local folder, core = ...
 _G.KPack = core
 core.callbacks = core.callbacks or LibStub("CallbackHandler-1.0"):New(core)
+core.version = GetAddOnMetadata("KPack", "Version")
 
 local L = core.L
 core.ACD = LibStub("AceConfigDialog-3.0")
@@ -203,7 +204,7 @@ end
 do
 	local options = {
 		type = "group",
-		name = "|cfff58cbaKader|r|caaf49141Pack|r",
+		name = "|cfff58cbaKader|r|caaf49141Pack|r " .. core.version,
 		childGroups = "tab",
 		args = {
 			Options = {
@@ -398,11 +399,13 @@ end
 -- LibButtonFacade
 function core:OnSkin(skin, glossAlpha, gloss, group, _, colors)
 	local styleDB
-	if group == L["Buff Frame"] and self.db.BuffFrame then
-		if not self.db.BuffFrame.style then
-			self.db.BuffFrame.style = {}
+	if group == L["Buff Frame"] then
+		if not self:IsDisabled("BuffFrame") then
+			if not self.db.BuffFrame.style then
+				self.db.BuffFrame.style = {}
+			end
+			styleDB = self.db.BuffFrame.style
 		end
-		styleDB = self.db.BuffFrame.style
 	end
 
 	if styleDB then
