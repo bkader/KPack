@@ -22,6 +22,7 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
 		[ERR_BADATTACKPOS] = true,
 		[ERR_GENERIC_NO_TARGET] = true,
 		[ERR_INVALID_ATTACK_TARGET] = true,
+		[ERR_ITEM_COOLDOWN] = true,
 		[ERR_NO_ATTACK_TARGET] = true,
 		[ERR_OUT_OF_ENERGY] = true,
 		[ERR_OUT_OF_FOCUS] = true,
@@ -160,7 +161,7 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
 							DB.filters[i[#i]] = val
 						end,
 						order = 3,
-						width = "full",
+						width = "double",
 						inline = true,
 						disabled = disabled,
 						args = {}
@@ -170,7 +171,7 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
 						name = RESET,
 						order = 9,
 						disabled = disabled,
-						width = "full",
+						width = "double",
 						confirm = function()
 							return L:F("Are you sure you want to reset %s to default?", L["Error Filter"])
 						end,
@@ -189,7 +190,6 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
 				options.args.messages.args[k] = {
 					type = "toggle",
 					name = k,
-					width = "full",
 					order = numorder
 				}
 				numorder = numorder + 1
