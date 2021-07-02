@@ -57,20 +57,11 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
 			return
 		end
 
-		local defaults = {
-			macro = false,
-			count = false,
-			rank = true,
-			spellSubs = {},
-			sets = {}
-		}
-
-		if type(core.db.ABS) ~= "table" or not next(core.db.ABS) then
-			core.db.ABS = CopyTable(defaults)
-		end
-
-		for class in pairs(RAID_CLASS_COLORS) do
-			core.db.ABS.sets[class] = core.db.ABS.sets[class] or {}
+		if type(core.db.ABS) ~= "table" then
+			core.db.ABS = {macro = false, count = false, rank = true, spellSubs = {}, sets = {}}
+			for class in pairs(RAID_CLASS_COLORS) do
+				core.db.ABS.sets[class] = core.db.ABS.sets[class] or {}
+			end
 		end
 
 		DB = core.db.ABS
@@ -209,8 +200,40 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
 			end
 
 			PlaceAction(i)
+		elseif atype == "equipmentset" then
+			for n = 1, GetNumEquipmentSets() do
+				local name, icon = GetEquipmentSetInfo(n)
+				if name == ... then
+					PickupEquipmentSet(n)
+
+					if GetCursorInfo() ~= atype then
+						local itemName = ...
+						itemName = ((itemName and itemName ~= "") and itemName or actionID) .. " (equipmentset)"
+						tinsert(errorsCache, L:F('Unable to restore item "%s" to slot #%d, cannot be found in inventory.', itemName, i))
+						ClearCursor()
+						return
+					end
+
+					PlaceAction(i)
+					return
+				end
+			end
+
+			local name, icon = ...
+			local iconIndex
+			for n = 1, GetNumMacroIcons() do
+				if GetMacroIconInfo(n):gsub("(.+)\\(.+)\\", ""):lower() == icon then
+					iconIndex = n
+					break
+				end
+			end
+			if iconIndex then
+				SaveEquipmentSet(name, iconIndex)
+				RestoreAction(i, "equipmentset", actionID, binding, ...)
+			end
 		end
 	end
+
 
 	function ABS:SaveProfile(name)
 		DB.sets[myclass][name] = DB.sets[myclass][name] or {}
@@ -225,6 +248,11 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
 					set[i] = strformat("%s|%s|%s|%s|%s|%s", atype, id, "", name, subtype, extraid)
 				elseif atype == "item" then
 					set[i] = strformat("%s|%d|%s|%s", atype, id, "", GetItemInfo(id) or "")
+				elseif atype == "equipmentset" then
+					local icon = GetEquipmentSetInfoByName(id)
+					if icon then
+						set[i] = strformat("%s|%d|%s|%s|%s", atype, i, "", id, icon)
+					end
 				elseif atype == "spell" and id > 0 then
 					local spell, rank = GetSpellName(id, BOOKTYPE_SPELL)
 					if spell then
