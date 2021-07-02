@@ -2,6 +2,14 @@ assert(KPack, "KPack not found!")
 KPack:AddModule("Minimap", function(_, core, L)
 	if core:IsDisabled("Minimap") or core.ElvUI then return end
 
+	-- list of addons for which the module is disabled
+	-- add as many addons as you want, i just added few.
+	local disabled, reason = core:AddOnIsLoaded("SexyMap", "MinimapBar")
+
+	if not disabled and core:AddOnHasModule("Dominos", "minimap") then
+		disabled, reason = true, "Dominos"
+	end
+
 	local DB, SetupDatabase
 	local defaults = {
 		enabled = true,
@@ -15,7 +23,6 @@ KPack:AddModule("Minimap", function(_, core, L)
 		x = 0,
 		y = 0
 	}
-	local disabled
 
 	-- cache frequently used globals
 	local ToggleCharacter = ToggleCharacter
@@ -25,7 +32,6 @@ KPack:AddModule("Minimap", function(_, core, L)
 	local ToggleFriendsFrame = ToggleFriendsFrame
 	local ToggleHelpFrame = ToggleHelpFrame
 	local ToggleFrame = ToggleFrame
-	local inCombat
 
 	local PLAYER_ENTERING_WORLD
 
@@ -176,7 +182,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 	core:RegisterForEvent("PLAYER_LOGIN", function()
 		SetupDatabase()
 
-		local function _disabled() return not DB.enabled end
+		local function _disabled() return not DB.enabled or disabled end
 		core.options.args.Options.args.Minimap = {
 			type = "group",
 			name = MINIMAP_LABEL,
@@ -188,11 +194,19 @@ KPack:AddModule("Minimap", function(_, core, L)
 				PLAYER_ENTERING_WORLD()
 			end,
 			args = {
+				status = {
+					type = "description",
+					name = L:F("This module is disabled because you are using: |cffffd700%s|r", reason or UNKNOWN),
+					fontSize = "medium",
+					order = 0,
+					hidden = not disabled
+				},
 				enabled = {
 					type = "toggle",
 					name = L["Enable"],
 					order = 1,
-					width = "full"
+					width = "full",
+					disabled = disabled
 				},
 				locked = {
 					type = "toggle",
@@ -248,7 +262,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 			}
 		}
 
-		if _G.SexyMap or _G.MinimapBar or not DB.enabled then
+		if not DB.enabled then
 			disabled = true
 			return
 		end
@@ -457,7 +471,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 
 			if DB.hide then
 				MinimapCluster:Hide()
-			elseif not DB.combat and not inCombat then
+			elseif not DB.combat and not core.InCombat then
 				MinimapCluster:Show()
 			end
 
@@ -487,14 +501,12 @@ KPack:AddModule("Minimap", function(_, core, L)
 	end
 
 	core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()
-		inCombat = false
 		if not disabled and DB.enabled and DB.combat and not MinimapCluster:IsShown() and not DB.hide then
 			MinimapCluster:Show()
 		end
 	end)
 
 	core:RegisterForEvent("PLAYER_REGEN_DISABLED", function()
-		inCombat = true
 		if not disabled and DB.enabled and DB.combat and MinimapCluster:IsShown() then
 			MinimapCluster:Hide()
 		end

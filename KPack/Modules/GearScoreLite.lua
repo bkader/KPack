@@ -26,8 +26,6 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 	local GearScore_OnEnter
 	local MyPaperDoll
 	local GS_MANSET
-
-	local inCombat
 	local unitName
 
 	local DB
@@ -322,12 +320,12 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 
 	----------------------------- Hook Set Unit -----------------------------------
 	function GearScore_HookSetUnit(arg1, arg2)
-		if inCombat then
+		if core.InCombat then
 			return
 		end
 		local Name = GameTooltip:GetUnit()
 		local MouseOverGearScore, MouseOverAverage = 0, 0
-		if CanInspect("mouseover") and UnitName("mouseover") == Name and not inCombat and UnitIsUnit("target", "mouseover") then
+		if CanInspect("mouseover") and UnitName("mouseover") == Name and not core.InCombat and UnitIsUnit("target", "mouseover") then
 			NotifyInspect("mouseover")
 			MouseOverGearScore, MouseOverAverage = GearScore_GetScore(Name, "mouseover")
 		end
@@ -370,7 +368,7 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 		GearScore_HookItem(ItemName, ItemLink, ShoppingTooltip2)
 	end
 	function GearScore_HookItem(ItemName, ItemLink, Tooltip)
-		if inCombat then
+		if core.InCombat then
 			return
 		end
 		local PlayerClass, PlayerEnglishClass = UnitClass("player")
@@ -427,7 +425,7 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 		return OriginalOnEnter
 	end
 	function MyPaperDoll()
-		if inCombat then return end
+		if core.InCombat then return end
 		local MyGearScore = GearScore_GetScore(UnitName("player"), "player")
 		local Red, Blue, Green = GearScore_GetQuality(MyGearScore)
 		PersonalGearScore:SetText(MyGearScore)
@@ -545,13 +543,13 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 		PersonalGearScore = CharacterModelFrame:CreateFontString("PersonalGearScore")
 		PersonalGearScore:SetFont("Fonts\\FRIZQT__.TTF", 10)
 		PersonalGearScore:SetText("GS: 0")
-		PersonalGearScore:SetPoint("BOTTOMLEFT", CharacterModelFrame, "TOPLEFT", 6, -176)
+		PersonalGearScore:SetPoint("BOTTOMLEFT", CharacterModelFrame, "BOTTOMLEFT", 6, 35)
 		PersonalGearScore:Show()
 
 		local gs2 = CharacterModelFrame:CreateFontString("GearScore2")
 		gs2:SetFont("Fonts\\FRIZQT__.TTF", 10)
 		gs2:SetText("GearScore")
-		gs2:SetPoint("BOTTOMLEFT", CharacterModelFrame, "TOPLEFT", 5, -186)
+		gs2:SetPoint("BOTTOMLEFT", CharacterModelFrame, "BOTTOMLEFT", 6, 25)
 		gs2:Show()
 		GearScore_Original_SetInventoryItem = GameTooltip.SetInventoryItem
 		GameTooltip.SetInventoryItem = GearScore_OnEnter
@@ -564,9 +562,6 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 		PersonalGearScore:SetText(MyGearScore)
 		PersonalGearScore:SetTextColor(Red, Green, Blue, 1)
 	end)
-
-	core:RegisterForEvent("PLAYER_REGEN_ENABLED", function() inCombat = false end)
-	core:RegisterForEvent("PLAYER_REGEN_DISABLED", function() inCombat = true end)
 
 	SlashCmdList["KPACKGEARSCORE"] = GS_MANSET
 	SLASH_KPACKGEARSCORE1 = "/gset"

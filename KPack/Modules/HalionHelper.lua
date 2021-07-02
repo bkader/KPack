@@ -329,11 +329,11 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 	end
 
 	function HalionHelper:PLAYER_REGEN_DISABLED()
-		self.inCombat, cached = true, {}
+		cached = {}
 	end
 
 	function HalionHelper:PLAYER_REGEN_ENABLED()
-		self.inCombat, cached = false, {}
+		cached = {}
 		if HalionBar and HalionBar:IsShown() then
 			HalionBar:Hide()
 		end
@@ -403,7 +403,7 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 	end
 
 	function HalionHelper:COMBAT_LOG_EVENT_UNFILTERED(_, event, srcGUID, _, _, dstGUID, dstName, _, spellid, spellname)
-		if not self.enabled or not self.inCombat then
+		if not self.enabled or not core.InCombat then
 			return
 		end
 

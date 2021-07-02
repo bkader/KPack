@@ -1,6 +1,7 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit of the allowed.", function(_, core, L)
 	if core:IsDisabled("ActionBars") or core.ElvUI then return end
+	local disabled, reason = core:AddOnIsLoaded("Dominos", "Bartender4", "MiniMainBar", "ElvUI", "KActionBars")
 
 	local mod = core.ActionBars or {}
 	core.ActionBars = mod
@@ -34,7 +35,6 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 		hotkeys = 1,
 		hover = false
 	}
-	local disabled
 	local LoadSettings
 
 	-- module's print function
@@ -339,6 +339,13 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 			LoadSettings()
 		end,
 		args = {
+			status = {
+				type = "description",
+				name = L:F("This module is disabled because you are using: |cffffd700%s|r", reason or UNKNOWN),
+				fontSize = "medium",
+				order = 0,
+				hidden = not disabled
+			},
 			art = {
 				type = "toggle",
 				name = L["Hide Gryphons"],
@@ -359,6 +366,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 			dark = {
 				type = "toggle",
 				name = L["Dark Mode"],
+				disabled = function() return disabled end,
 				order = 3
 			},
 			hover = {
@@ -421,11 +429,6 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 
 	core:RegisterForEvent("PLAYER_LOGIN", function()
 		SetupDatabase()
-
-		-- if we are using an action bars addon, better skip.
-		for _, n in _ipairs({"Dominos", "Bartender4", "MiniMainBar", "ElvUI", "KActionBars"}) do
-			if _G[n] then disabled = true end
-		end
 
 		SLASH_KPACKABM1 = "/abm"
 		SlashCmdList.KPACKABM = function()

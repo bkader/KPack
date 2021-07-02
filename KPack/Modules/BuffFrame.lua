@@ -7,7 +7,13 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 	local LBF = LibStub("LibButtonFacade", true)
 
 	do
-		local DB, SetupDatabase, inCombat
+		local disabled, reason
+		if core:AddOnHasModule("Dominos", "Buffs") then
+			disabled = true
+			reason = "Dominos Buffs"
+		end
+
+		local DB, SetupDatabase
 		local defaults = {
 			enabled = true,
 			buffSize = 30,
@@ -19,7 +25,25 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 			debuffFontSize = 14,
 			debuffCountSize = 16,
 			durationFont = "Yanone",
-			countFont = "Yanone"
+			countFont = "Yanone",
+			durationAnchor = "BOTTOM",
+			durationOffsetX = 0,
+			durationOffsetY = -2,
+			stackAnchor = "TOPRIGHT",
+			stackOffsetX = 0,
+			stackOffsetY = 0
+		}
+
+		local anchors = {
+			TOP = L["Top"],
+			BOTTOM = L["Bottom"],
+			LEFT = L["Left"],
+			RIGHT = L["Right"],
+			CENTER = L["Center"],
+			TOPLEFT = L["Top Left"],
+			TOPRIGHT = L["Top Right"],
+			BOTTOMLEFT = L["Bottom Left"],
+			BOTTOMRIGHT = L["Bottom Right"]
 		}
 
 		-- we makd sure to change the way duration looks.
@@ -70,17 +94,41 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 			_G[buffName .. "Icon"]:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 			-- position the duration
-			-- buff.duration:ClearAllPoints()
-			buff.duration:SetPoint("BOTTOM", buff, "BOTTOM", 0, -2)
-			buff.duration:SetJustifyV("BOTTOM")
+			buff.duration:ClearAllPoints()
 			buff.duration:SetShadowOffset(0, 0)
 			buff.duration:SetDrawLayer("OVERLAY")
+			buff.duration:SetPoint(
+				DB.durationAnchor or "BOTTOM",
+				buff,
+				DB.durationAnchor or "BOTTOM",
+				DB.durationOffsetX or 0,
+				DB.durationOffsetY or -2
+			)
+			if DB.durationAnchor and DB.durationAnchor:find("LEFT") then
+				buff.duration:SetJustifyH("LEFT")
+			elseif DB.durationAnchor and DB.durationAnchor:find("RIGHT") then
+				buff.duration:SetJustifyH("RIGHT")
+			else
+				buff.duration:SetJustifyH("CENTER")
+			end
 
 			-- position the stack count
 			buff.count:ClearAllPoints()
-			buff.count:SetJustifyH("RIGHT")
 			buff.count:SetJustifyV("TOP")
-			buff.count:SetPoint("TOPRIGHT", buff)
+			buff.count:SetPoint(
+				DB.stackAnchor or "TOPRIGHT",
+				buff,
+				DB.stackAnchor or "TOPRIGHT",
+				DB.stackOffsetX or 0,
+				DB.stackOffsetY or 0
+			)
+			if DB.stackAnchor and DB.stackAnchor:find("RIGHT") then
+				buff.count:SetJustifyH("RIGHT")
+			elseif DB.stackAnchor and DB.stackAnchor:find("LEFT") then
+				buff.count:SetJustifyH("LEFT")
+			else
+				buff.count:SetJustifyH("CENTER")
+			end
 			buff.count:SetShadowOffset(0, 0)
 			buff.count:SetDrawLayer("OVERLAY")
 
@@ -101,6 +149,16 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 			end
 		end
 
+		local Old_BuffFrame_UpdateAllBuffAnchors = BuffFrame_UpdateAllBuffAnchors
+		function BuffFrame_UpdateAllBuffAnchors()
+			_G.BUFF_ROW_SPACING = 5
+			Old_BuffFrame_UpdateAllBuffAnchors()
+		end
+
+		local function Our_TempEnchantButton_OnUpdate(self, elapsed)
+			TemporaryEnchantFrame:SetWidth((DB.buffSize * 2) + 5)
+		end
+
 		function SetupDatabase()
 			if not DB then
 				if type(core.db.BuffFrame) ~= "table" or not next(core.db.BuffFrame) then
@@ -115,6 +173,9 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 				return
 			end
 
+			-- change its size for better position
+			ConsolidatedBuffs:SetSize(DB.buffSize, DB.buffSize)
+
 			for i = 1, 2 do
 				local buff = _G["TempEnchant" .. i]
 				if buff then
@@ -128,18 +189,26 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 
 					local duration = _G["TempEnchant" .. i .. "Duration"]
 					duration:ClearAllPoints()
-					duration:SetPoint("BOTTOM", buff, "BOTTOM", 0, -2)
+					duration:SetPoint(
+						DB.durationAnchor or "BOTTOM",
+						buff,
+						DB.durationAnchor or "BOTTOM",
+						DB.durationOffsetX or 0,
+						DB.durationOffsetY or -2
+					)
 					duration:SetFont(LSM:Fetch("font", DB.durationFont), DB.buffFontSize, "THINOUTLINE")
 					duration:SetShadowOffset(0, 0)
 					duration:SetDrawLayer("OVERLAY")
+					_G["TempEnchant" .. i .. "Border"]:SetTexture(nil)
 					if LBF then
 						LBF:Group("KPack", L["Buff Frame"]):AddButton(buff)
 					end
 				end
 			end
 			hooksecurefunc("AuraButton_Update", Our_AuraButton_Update)
+			hooksecurefunc("TempEnchantButton_OnUpdate", Our_TempEnchantButton_OnUpdate)
 
-			if LBF then
+			if LBF and DB.style then
 				LBF:Group("KPack", L["Buff Frame"]):Skin(unpack(DB.style))
 			end
 		end
@@ -152,8 +221,8 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 			SlashCmdList["KPACKBUFFFRAME"] = function()
 				core:OpenConfig("Options", "BuffFrame")
 			end
-			local disabled = function()
-				return not DB.enabled or inCombat
+			local _disabled = function()
+				return not DB.enabled or core.InCombat or disabled
 			end
 
 			core.options.args.Options.args.BuffFrame = {
@@ -167,16 +236,31 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 					PLAYER_ENTERING_WORLD()
 				end,
 				args = {
+					status = {
+						type = "description",
+						name = L:F("This module is disabled because you are using: |cffffd700%s|r", reason or UNKNOWN),
+						fontSize = "medium",
+						order = 0,
+						hidden = not disabled
+					},
+					notice = {
+						type = "description",
+						name = L["Some settings require UI to be reloaded."],
+						fontSize = "medium",
+						order = 0.1,
+						width = "double"
+					},
 					enabled = {
 						type = "toggle",
 						name = L["Enable"],
-						order = 0
+						order = 0.2,
+						disabled = function() return core.InCombat or disabled end
 					},
 					reset = {
 						type = "execute",
 						name = RESET,
 						order = 1,
-						disabled = disabled,
+						disabled = _disabled,
 						confirm = function()
 							return L:F("Are you sure you want to reset %s to default?", L["Buff Frame"])
 						end,
@@ -187,12 +271,67 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 							core:Print(L["module's settings reset to default."], "BuffFrame")
 						end
 					},
+					common = {
+						type = "group",
+						name = L["Common"],
+						inline = true,
+						order = 2,
+						disabled = _disabled,
+						args = {
+							durationAnchor = {
+								type = "select",
+								name = L["Duration Anchor"],
+								order = 1,
+								width = "double",
+								values = anchors
+							},
+							durationOffsetX = {
+								type = "range",
+								name = L["X Offset"],
+								order = 2,
+								min = -50,
+								max = 50,
+								step = 1
+							},
+							durationOffsetY = {
+								type = "range",
+								name = L["Y Offset"],
+								order = 3,
+								min = -50,
+								max = 50,
+								step = 1
+							},
+							stackAnchor = {
+								type = "select",
+								name = L["Stack Anchor"],
+								order = 5,
+								width = "double",
+								values = anchors
+							},
+							stackOffsetX = {
+								type = "range",
+								name = L["X Offset"],
+								order = 6,
+								min = -50,
+								max = 50,
+								step = 1
+							},
+							stackOffsetY = {
+								type = "range",
+								name = L["Y Offset"],
+								order = 7,
+								min = -50,
+								max = 50,
+								step = 1
+							}
+						}
+					},
 					buffs = {
 						type = "group",
 						name = L["Buffs"],
 						inline = true,
-						order = 2,
-						disabled = disabled,
+						order = 3,
+						disabled = _disabled,
 						args = {
 							buffSize = {
 								type = "range",
@@ -233,8 +372,8 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 						type = "group",
 						name = L["Debuffs"],
 						inline = true,
-						order = 3,
-						disabled = disabled,
+						order = 4,
+						disabled = _disabled,
 						args = {
 							debuffSize = {
 								type = "range",
@@ -274,9 +413,9 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 					fonts = {
 						type = "group",
 						name = L["Font"],
-						order = 4,
+						order = 5,
 						inline = true,
-						disabled = disabled,
+						disabled = _disabled,
 						args = {
 							durationFont = {
 								type = "select",
@@ -299,16 +438,19 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 
 			PLAYER_ENTERING_WORLD()
 		end)
+
 		core:RegisterForEvent("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
-		core:RegisterForEvent("PLAYER_REGEN_ENABLED", function() inCombat = nil end)
-		core:RegisterForEvent("PLAYER_REGEN_DISABLED", function() inCombat = true end)
 	end
 
 	-- ----------------------------------------------------------------------------
 
 	do
 		local select, pairs, match, format = select, pairs, string.match, string.format
-		local GetUnitName, UnitIsPlayer, UnitClass, UnitReaction = GetUnitName, UnitIsPlayer, UnitClass, UnitReaction
+		local GetUnitName, UnitIsPlayer, UnitClass, UnitReaction =
+			GetUnitName,
+			UnitIsPlayer,
+			UnitClass,
+			UnitReaction
 		local UnitAura, UnitBuff, UnitDebuff = UnitAura, UnitBuff, UnitDebuff
 
 		local BETTER_FACTION_BAR_COLORS = {

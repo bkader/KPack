@@ -31,8 +31,7 @@ KPack:AddModule("Tooltip", function(_, core, L)
 	local IsInGuild, GetGuildInfo = IsInGuild, GetGuildInfo
 
 	-- needed locals
-	local iconFrame, inCombat
-	local PLAYER_ENTERING_WORLD
+	local iconFrame, PLAYER_ENTERING_WORLD
 
 	-- module's print function
 	local function Print(msg)
@@ -52,25 +51,25 @@ KPack:AddModule("Tooltip", function(_, core, L)
 
 	do
 		local function Tooltip_SetUnit()
-			if DB.unit and inCombat then
+			if DB.unit and core.InCombat then
 				GameTooltip:Hide()
 			end
 		end
 
 		local function Tooltip_SetAction()
-			if DB.spell and inCombat then
+			if DB.spell and core.InCombat then
 				GameTooltip:Hide()
 			end
 		end
 
 		local function Tooltip_SetPetAction()
-			if DB.petspell and inCombat then
+			if DB.petspell and core.InCombat then
 				GameTooltip:Hide()
 			end
 		end
 
 		local function Tooltip_SetShapeshift()
-			if DB.class and inCombat then
+			if DB.class and core.InCombat then
 				GameTooltip:Hide()
 			end
 		end
@@ -149,7 +148,7 @@ KPack:AddModule("Tooltip", function(_, core, L)
 							TOP = L["Top"],
 							BOTTOMLEFT = L["Bottom Left"],
 							BOTTOMRIGHT = L["Bottom Right"],
-							BOTTON = L["Bottom"],
+							BOTTOM = L["Bottom"],
 							LEFT = L["Left"],
 							RIGHT = L["Right"],
 							CENTER = L["Center"]
@@ -159,8 +158,8 @@ KPack:AddModule("Tooltip", function(_, core, L)
 						type = "range",
 						name = L["X Offset"],
 						order = 6,
-						min = -150,
-						max = 150,
+						min = -350,
+						max = 350,
 						step = 0.1,
 						bigStep = 1
 					},
@@ -168,8 +167,8 @@ KPack:AddModule("Tooltip", function(_, core, L)
 						type = "range",
 						name = L["Y Offset"],
 						order = 7,
-						min = -150,
-						max = 150,
+						min = -350,
+						max = 350,
 						step = 0.1,
 						bigStep = 1
 					},
@@ -551,20 +550,8 @@ KPack:AddModule("Tooltip", function(_, core, L)
 	end
 
 	core:RegisterForEvent("UPDATE_MOUSEOVER_UNIT", function()
-		if not disabled and DB and DB.unit and inCombat then
+		if not disabled and DB and DB.unit and core.InCombat then
 			GameTooltip:Hide()
-		end
-	end)
-
-	core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()
-		if not disabled then
-			inCombat = nil
-		end
-	end)
-
-	core:RegisterForEvent("PLAYER_REGEN_DISABLED", function()
-		if not disabled then
-			inCombat = true
 		end
 	end)
 end)

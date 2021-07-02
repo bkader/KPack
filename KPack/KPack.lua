@@ -1,17 +1,18 @@
 local folder, core = ...
-_G[folder] = core
-local L = core.L
+_G.KPack = core
+core.callbacks = core.callbacks or LibStub("CallbackHandler-1.0"):New(core)
 
+local L = core.L
 core.ACD = LibStub("AceConfigDialog-3.0")
 core.LSM = LibStub("LibSharedMedia-3.0")
 local LBF = LibStub("LibButtonFacade", true)
 
 -- player & class
 core.guid = UnitGUID("player")
-core.name = select(1, UnitName("player"))
+core.name = UnitName("player")
 core.class = select(2, UnitClass("player"))
 core.race = select(2, UnitRace("player"))
-core.faction = select(1, UnitFactionGroup("player"))
+core.faction = UnitFactionGroup("player")
 core.classcolors = {
 	DEATHKNIGHT = {r = 0.77, g = 0.12, b = 0.23, colorStr = "ffc41f3b"},
 	DRUID = {r = 1, g = 0.49, b = 0.04, colorStr = "ffff7d0a"},
@@ -160,9 +161,7 @@ function core:Notify(msg, pref)
 end
 
 -- functions used to kill functions/frames.
-core.Noop = function()
-	return
-end
+core.Noop = function() return end
 function core:Kill(frame)
 	if frame and frame.SetScript then
 		frame:UnregisterAllEvents()
@@ -338,7 +337,9 @@ do
 				end
 				core.moduleslist = nil
 			end
-			if LBF then LBF:RegisterSkinCallback("KPack", core.OnSkin, core) end
+			if LBF then
+				LBF:RegisterSkinCallback("KPack", core.OnSkin, core)
+			end
 		end
 	end)
 
@@ -360,6 +361,11 @@ do
 					collectgarbage("collect")
 					eventcount = 0
 				end)
+				core.InCombat = false
+				core.callbacks:Fire("PLAYER_COMBAT_LEAVE")
+			elseif event == "PLAYER_REGEN_DISABLED" then
+				core.InCombat = true
+				core.callbacks:Fire("PLAYER_COMBAT_ENTER")
 			else
 				if arg1 ~= "player" then
 					return
@@ -373,6 +379,7 @@ do
 		f:RegisterEvent("PLAYER_ENTERING_WORLD")
 		f:RegisterEvent("PLAYER_FLAGS_CHANGED")
 		f:RegisterEvent("PLAYER_REGEN_ENABLED")
+		f:RegisterEvent("PLAYER_REGEN_DISABLED")
 	end
 
 	-- Addon sync
@@ -389,21 +396,21 @@ do
 end
 
 -- LibButtonFacade
-function core:OnSkin(skin, glossAlpha, gloss, group, _, color)
-    local styleDB
-    if group == L["Buff Frame"] and self.db.BuffFrame then
-        if not self.db.BuffFrame.style then
-            self.db.BuffFrame.style = {}
-        end
-        styleDB = self.db.BuffFrame.style
-    end
+function core:OnSkin(skin, glossAlpha, gloss, group, _, colors)
+	local styleDB
+	if group == L["Buff Frame"] and self.db.BuffFrame then
+		if not self.db.BuffFrame.style then
+			self.db.BuffFrame.style = {}
+		end
+		styleDB = self.db.BuffFrame.style
+	end
 
-    if styleDB then
-        styleDB[1] = skin
-        styleDB[2] = glossAlpha
-        styleDB[3] = gloss
-        styleDB[4] = colors
-    end
+	if styleDB then
+		styleDB[1] = skin
+		styleDB[2] = glossAlpha
+		styleDB[3] = gloss
+		styleDB[4] = colors
+	end
 end
 
 -------------------------------------------------------------------------------
@@ -432,6 +439,35 @@ function core:IsDisabled(...)
 		local name = select(i, ...)
 		if KPackDB.disabled[name] == true then
 			name = nil
+			return true
+		end
+	end
+	return false
+end
+
+-- checks if addon(s) is (are) loaded
+function core:AddOnIsLoaded(...)
+	for i = 1, select("#", ...) do
+		local name = select(i, ...)
+		if IsAddOnLoaded(name) then
+			return true, name
+		end
+	end
+	return false, nil
+end
+
+-- check if an addon is loaded and has module.
+function core:AddOnHasModule(name, modname)
+	local loaded = self:AddOnIsLoaded(name)
+	if loaded and _G[name] then
+		-- using AceAddon
+		if _G[name].GetModule then
+			local mod = _G[name]:GetModule(modname, true)
+			-- print("here", modname, mod:IsEnabled())
+			return (mod and mod:IsEnabled())
+		end
+		-- using custom
+		if _G[name].modules and _G[name].modules[modname] then
 			return true
 		end
 	end

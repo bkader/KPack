@@ -24,6 +24,7 @@ L["Enable"] = true
 L["Type |cffffd700/%s|r in chat for more."] = true
 L["module enabled."] = true
 L["module disabled."] = true
+L["This module is disabled because you are using: |cffffd700%s|r"] = true
 L["Some settings require UI to be reloaded."] = true
 L["enable the module."] = true
 L["disable the module."] = true
@@ -168,6 +169,7 @@ L["Flying Mount"] = true
 L["Auto Mount/Dismount"] = true
 -- BuffFrame
 L["Buff Frame"] = true
+L["Common"] = true
 L["Lightweight, it modifies your buff and debuff frames."] = true
 L["Buffs"] = true
 L["Debuffs"] = true
@@ -175,8 +177,11 @@ L["Buff Size"] = true
 L["Debuff Size"] = true
 L["Duration Font"] = true
 L["Duration Font Size"] = true
+L["Duration Anchor"] = true
+L["Stack"] = true
 L["Stack Font"] = true
 L["Stack Font Size"] = true
+L["Stack Anchor"] = true
 -- Castbars
 L["Castbars"] = true
 L["Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars."] = true
