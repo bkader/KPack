@@ -164,7 +164,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		if not InCombatLockdown() then
 			PlayerFrame:SetScale(scale)
 			TargetFrame:SetScale(scale)
-			FocusFrame:SetScale(scale)
+			FocusFrame:SetScale((FocusFrame.smallSize and 0.75 or 1) * scale)
 			Boss1TargetFrame:SetScale(scale * 0.9)
 			Boss2TargetFrame:SetScale(scale * 0.9)
 			Boss3TargetFrame:SetScale(scale * 0.9)
