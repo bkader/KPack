@@ -26,6 +26,7 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 			debuffCountSize = 16,
 			durationFont = "Yanone",
 			countFont = "Yanone",
+			iconPerRow = 8,
 			durationAnchor = "BOTTOM",
 			durationOffsetX = 0,
 			durationOffsetY = -2,
@@ -33,7 +34,6 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 			stackOffsetX = 0,
 			stackOffsetY = 0
 		}
-
 		local anchors = {
 			TOP = L["Top"],
 			BOTTOM = L["Bottom"],
@@ -45,6 +45,9 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 			BOTTOMLEFT = L["Bottom Left"],
 			BOTTOMRIGHT = L["Bottom Right"]
 		}
+
+		-- flag used so we don't hook again
+		local hooked
 
 		-- we makd sure to change the way duration looks.
 		local ceil, mod = math.ceil, mod
@@ -152,11 +155,14 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 		local Old_BuffFrame_UpdateAllBuffAnchors = BuffFrame_UpdateAllBuffAnchors
 		function BuffFrame_UpdateAllBuffAnchors()
 			_G.BUFF_ROW_SPACING = 5
+			_G.BUFFS_PER_ROW = DB.iconPerRow or 8
 			Old_BuffFrame_UpdateAllBuffAnchors()
 		end
 
 		local function Our_TempEnchantButton_OnUpdate(self, elapsed)
-			TemporaryEnchantFrame:SetWidth((DB.buffSize * 2) + 5)
+			if BuffFrame.numEnchants > 0 then
+				TemporaryEnchantFrame:SetWidth((DB.buffSize * BuffFrame.numEnchants) + (BUFF_ROW_SPACING * (BuffFrame.numEnchants - 1)))
+			end
 		end
 
 		function SetupDatabase()
@@ -205,8 +211,11 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 					end
 				end
 			end
-			hooksecurefunc("AuraButton_Update", Our_AuraButton_Update)
-			hooksecurefunc("TempEnchantButton_OnUpdate", Our_TempEnchantButton_OnUpdate)
+			if not hooked then
+				hooksecurefunc("AuraButton_Update", Our_AuraButton_Update)
+				hooksecurefunc("TempEnchantButton_OnUpdate", Our_TempEnchantButton_OnUpdate)
+				hooked = true
+			end
 
 			if LBF and DB.style then
 				LBF:Group("KPack", L["Buff Frame"]):Skin(unpack(DB.style))
@@ -229,11 +238,14 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 				type = "group",
 				name = L["Buff Frame"],
 				get = function(i)
-					return DB[i[#i]]
+					return (DB[i[#i]] == nil) and defaults[i[#i]] or DB[i[#i]]
 				end,
 				set = function(i, val)
 					DB[i[#i]] = val
-					PLAYER_ENTERING_WORLD()
+					PLAYER_ENTERING_WORLD(i[#i])
+					if i[#i] == "iconPerRow" then
+						BuffFrame_UpdateAllBuffAnchors()
+					end
 				end,
 				args = {
 					status = {
@@ -278,6 +290,13 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 						order = 2,
 						disabled = _disabled,
 						args = {
+							iconPerRow = {
+								type = "range",
+								name = L["Icon Per Row"],
+								order = 0,
+								min = 6, max = 12, step = 1,
+								width = "double"
+							},
 							durationAnchor = {
 								type = "select",
 								name = L["Duration Anchor"],
@@ -446,12 +465,9 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 
 	do
 		local select, pairs, match, format = select, pairs, string.match, string.format
-		local GetUnitName, UnitIsPlayer, UnitClass, UnitReaction =
-			GetUnitName,
-			UnitIsPlayer,
-			UnitClass,
-			UnitReaction
+		local GetUnitName, UnitIsPlayer, UnitClass, UnitReaction = GetUnitName, UnitIsPlayer, UnitClass, UnitReaction
 		local UnitAura, UnitBuff, UnitDebuff = UnitAura, UnitBuff, UnitDebuff
+		local hooked
 
 		local BETTER_FACTION_BAR_COLORS = {
 			[1] = {r = 217 / 255, g = 69 / 255, b = 69 / 255},
@@ -497,16 +513,15 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 				self:Show()
 			end
 		end
-		local funcs = {
-			SetUnitAura = UnitAura,
-			SetUnitBuff = UnitBuff,
-			SetUnitDebuff = UnitDebuff
-		}
+		local funcs = {SetUnitAura = UnitAura, SetUnitBuff = UnitBuff, SetUnitDebuff = UnitDebuff}
 
-		for k, v in pairs(funcs) do
-			hooksecurefunc(GameTooltip, k, function(self, unit, index, filter)
-				KPack_AddAuraSource(self, v, unit, index, filter)
-			end)
+		if not hooked then
+			for k, v in pairs(funcs) do
+				hooksecurefunc(GameTooltip, k, function(self, unit, index, filter)
+					KPack_AddAuraSource(self, v, unit, index, filter)
+				end)
+			end
+			hooked = true
 		end
 	end
 end)

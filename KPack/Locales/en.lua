@@ -169,8 +169,9 @@ L["Flying Mount"] = true
 L["Auto Mount/Dismount"] = true
 -- BuffFrame
 L["Buff Frame"] = true
-L["Common"] = true
 L["Lightweight, it modifies your buff and debuff frames."] = true
+L["Common"] = true
+L["Icon Per Row"] = true
 L["Buffs"] = true
 L["Debuffs"] = true
 L["Buff Size"] = true
