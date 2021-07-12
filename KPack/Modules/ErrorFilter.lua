@@ -37,6 +37,7 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
 		[SPELL_FAILED_AURA_BOUNCED] = true,
 		[SPELL_FAILED_BAD_TARGETS] = true,
 		[SPELL_FAILED_CASTER_AURASTATE] = true,
+		[SPELL_FAILED_ITEM_NOT_READY] = true,
 		[SPELL_FAILED_NO_COMBO_POINTS] = true,
 		[SPELL_FAILED_SPELL_IN_PROGRESS] = true,
 		[SPELL_FAILED_TARGETS_DEAD] = true
