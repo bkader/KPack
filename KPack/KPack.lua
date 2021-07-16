@@ -325,7 +325,10 @@ do
 			_G.SLASH_KPACK1 = "/kp"
 			_G.SLASH_KPACK2 = "/kpack"
 
-			core.LSM:Register("statusbar", "KPack", [[Interface\Addons\KPack\Media\Textures\statusbar]])
+			core.LSM:Register("statusbar", "KPack", [[Interface\Addons\KPack\Media\Statusbar\statusbar]])
+			core.LSM:Register("statusbar", "KPack Blank", [[Interface\Addons\KPack\Media\Textures\blank]])
+			core.LSM:Register("statusbar", "KPack Gloss", [[Interface\Addons\KPack\Media\Statusbar\gloss]])
+			core.LSM:Register("statusbar", "KPack Norm", [[Interface\Addons\KPack\Media\Statusbar\norm]])
 			core.LSM:Register("font", "Hooge", [[Interface\Addons\KPack\Media\Fonts\HOOGE.ttf]])
 			core.LSM:Register("font", "Yanone", [[Interface\Addons\KPack\Media\Fonts\yanone.ttf]])
 

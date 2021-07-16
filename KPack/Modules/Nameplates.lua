@@ -32,7 +32,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	-- ::::::::::::::::::::::::: START of Configuration ::::::::::::::::::::::::: --
 
 	local config = {
-		glowTexture = [[Interface\AddOns\KPack\Media\Textures\glowTex]],
+		glowTexture = [[Interface\AddOns\KPack\Media\StatusBar\glowTex]],
 		solidTexture = [[Interface\Buttons\WHITE8X8]],
 		tankMode = false,
 		tankColor = {0.2, 0.9, 0.1, 1}

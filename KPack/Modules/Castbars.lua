@@ -1031,7 +1031,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 		end
 
 		-- Register Texture and Listen to LibSharedMedia-3.0 callbacks
-		Castbars.LSM:Register("statusbar", "Castbars", [[Interface\AddOns\KPack\Media\Textures\Castbars]])
+		Castbars.LSM:Register("statusbar", "Castbars", [[Interface\AddOns\KPack\Media\Statusbar\castbars]])
 		Castbars.LSM.RegisterCallback(Castbars, "LibSharedMedia_Registered", "FrameMediaRestoreAll")
 		Castbars.LSM.RegisterCallback(Castbars, "LibSharedMedia_SetGlobal", "FrameMediaRestoreAll")
 

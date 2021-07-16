@@ -23,11 +23,9 @@ exclude_files = {
 ignore = {
 	"11./SLASH_.*", -- Setting an undefined (Slash handler) global variable
 	"11./BINDING_.*", -- Setting an undefined (Keybinding header) global variable
-	"11./DBM_.*", -- Setting an undefined (DBM) global variable
 	"11./KPack.*", -- Setting an undefined (KPack) global variable
 	"113/LE_.*", -- Accessing an undefined (Lua ENUM type) global variable
 	"113/NUM_LE_.*", -- Accessing an undefined (Lua ENUM type) global variable
-	"113/DBM_.*", -- Accessing an undefined (DBM) global variable
 	"113/KPack.*", -- Accessing an undefined (KPack) global variable
 	"111/[A-Z][A-Z0-9_]+",	-- Setting an undefined global variable
 	"113/[A-Z][A-Z0-9_]+",	-- Accessing an undefined global variable (GlobalStrings and Constants 2char+)
@@ -46,6 +44,7 @@ ignore = {
 globals = {
 	"_G",
 	"bit",
+	"KPack",
 
 	-- misc custom
 	"CUSTOM_CLASS_COLORS",
@@ -66,71 +65,7 @@ globals = {
 	"BigBrother",
 	"Transcriptor",
 	"KuiNameplates",
-	"TidyPlatesThreatDBM",
 	"Plater",
-	"DBMLichKingFrameDrag",
-	"DBMKalFrameDrag",
-	-- DBM
-	"DBM_ADD",
-	"DBM_ADDS",
-	"DBM_ALLY",
-	"DBM_BIG_ADD",
-	"DBM_BOSS",
-	"DBM_BossPreview",
-	"DBM_CORE_ALLY",
-	"DBM_CORE_AUTO_ANNOUNCE_OPTIONS",
-	"DBM_CORE_AUTO_ANNOUNCE_TEXTS",
-	"DBM_CORE_AUTO_SPEC_WARN_OPTIONS",
-	"DBM_CORE_AUTO_SPEC_WARN_TEXTS",
-	"DBM_CORE_AUTO_TIMER_OPTIONS",
-	"DBM_CORE_AUTO_TIMER_TEXTS",
-	"DBM_CORE_AUTO_YELL_CUSTOM_FADE",
-	"DBM_CORE_BACK",
-	"DBM_CORE_BOSS_DOWN",
-	"DBM_CORE_BOTH",
-	"DBM_CORE_BREAK_LOS",
-	"DBM_CORE_CURSE_ICON",
-	"DBM_CORE_DAMAGE_ICON",
-	"DBM_CORE_DEADLY_ICON",
-	"DBM_CORE_DISEASE_ICON",
-	"DBM_CORE_HEALER_ICON",
-	"DBM_CORE_HEROIC_ICON",
-	"DBM_CORE_IMPORTANT_ICON",
-	"DBM_CORE_INFOFRAME_POWER",
-	"DBM_CORE_INTERMISSION",
-	"DBM_CORE_INTERRUPT_ICON",
-	"DBM_CORE_LEFT",
-	"DBM_CORE_MAGIC_ICON",
-	"DBM_CORE_MOVABLE_BAR",
-	"DBM_CORE_MOVE_WARNING_MESSAGE",
-	"DBM_CORE_OPTION_CATEGORY_DROPDOWNS",
-	"DBM_CORE_ORB",
-	"DBM_CORE_POISON_ICON",
-	"DBM_CORE_RIGHT",
-	"DBM_CORE_ROOM_EDGE",
-	"DBM_CORE_SHIELD",
-	"DBM_CORE_SIDE",
-	"DBM_CORE_TANK_ICON",
-	"DBM_CORE_TOP",
-	"DBM_CORE_UNKNOWN",
-	"DBM_DISABLE_ZONE_DETECTION",
-	"DBM_GUI_Bosses",
-	"DBM_GUI_Frame",
-	"DBM_GUI_Options",
-	"DBM_GUI_OptionsFrame",
-	"DBM_GUI_OptionsFrameBossMods",
-	"DBM_GUI_OptionsFramePanelContainer",
-	"DBM_GUI_OptionsFramePanelContainerFOV",
-	"DBM_GUI_Translations",
-	"DBM_GUI",
-	"DBM_INCOMING",
-	"DBM",
-	"DBMHudMap",
-	"DBMInfoFrame",
-	"DBMRangeCheck",
-	"DBMRangeCheckRadar",
-	"DBMVPSMGPack",
-	"DBMVPSoundEventsPack",
 	"DBT_AllPersistentOptions",
 	"DBT_PersistentOptions",
 	"DBT",
@@ -138,10 +73,6 @@ globals = {
 	"LOCALE_ruRU",
 	"LOCALE_zhCN",
 	"LOCALE_zhTW",
-	-- Temp DBM
-	"DBMBurningCrusade_SavedModOptions",
-	"DBMBC",
-	"DBM_SBT",
 
 	-- Sirus
 	"AnimationsToggle_STARTNUMBERS",
