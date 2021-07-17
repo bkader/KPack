@@ -205,7 +205,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 					type = "toggle",
 					name = L["Enable"],
 					order = 1,
-					width = "full",
+					width = "double",
 					disabled = disabled
 				},
 				locked = {
@@ -237,7 +237,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 					name = L["Scale"],
 					order = 6,
 					disabled = _disabled,
-					width = "full",
+					width = "double",
 					min = 0.5,
 					max = 3,
 					step = 0.01,
@@ -248,7 +248,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 					name = RESET,
 					order = 9,
 					disabled = _disabled,
-					width = "full",
+					width = "double",
 					confirm = function()
 						return L:F("Are you sure you want to reset %s to default?", MINIMAP_LABEL)
 					end,

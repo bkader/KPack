@@ -513,6 +513,7 @@ L["Shorten Health Text"] = true
 L["Show Health Percent"] = true
 L["Tank Mode"] = true
 L["Bar color when you have threat."] = true
+L["Target Highlight"] = true
 -- Personal Resources
 L['Mimics the retail feature named "Personal Resource Display".'] = true
 L["Show Percentage"] = true

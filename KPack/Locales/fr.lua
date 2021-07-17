@@ -496,6 +496,7 @@ L["Shorten Health Text"] = "Raccourcir le texte de santé"
 L["Show Health Percent"] = "Afficher les pourcentages"
 L["Tank Mode"] = "Mode Tank"
 L["Bar color when you have threat."] = "Couleur de la barre d'info en fonction de la menace."
+L["Target Highlight"] = "Flèche de cible"
 -- Personal Resources
 -- L['Mimics the retail feature named "Personal Resource Display".'] = true
 L["Show Percentage"] = "Afficher le pourcentage"

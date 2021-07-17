@@ -1,11 +1,12 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("Nameplates", function(_, core, L)
 	if core:IsDisabled("Nameplates") or core.ElvUI then return end
-
+	local disabled, reason = core:AddOnIsLoaded("TidyPlates", "KuiNameplates")
 	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
 
 	-- SavedVariables
-	local DB, CharDB, changed, disabled
+	local options, GetOptions
+	local DB, CharDB, changed
 	local defaults = {
 		enabled = true,
 		barTexture = "KPack",
@@ -22,17 +23,19 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		showHealthPercent = false,
 		textFont = "Yanone",
 		textFontSize = 11,
-		textFontOutline = "THINOUTLINE"
+		textFontOutline = "THINOUTLINE",
+		arrow = "arrow0"
 	}
 	local defaultsChar = {
 		tankMode = false,
 		tankColor = {0.2, 0.9, 0.1, 1}
 	}
+	local path = "Interface\\AddOns\\KPack\\Media\\"
 
 	-- ::::::::::::::::::::::::: START of Configuration ::::::::::::::::::::::::: --
 
 	local config = {
-		glowTexture = [[Interface\AddOns\KPack\Media\StatusBar\glowTex]],
+		glowTexture = path .. "StatusBar\\glowTex",
 		solidTexture = [[Interface\Buttons\WHITE8X8]],
 		tankMode = false,
 		tankColor = {0.2, 0.9, 0.1, 1}
@@ -42,6 +45,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	if core.nonLatin then
 		config.font = NAMEPLATE_FONT -- here goes the path
 	end
+	core.NP = config
 
 	-- :::::::::::::::::::::::::: END of Configuration ::::::::::::::::::::::::: --
 
@@ -62,13 +66,15 @@ KPack:AddModule("Nameplates", function(_, core, L)
 
 	-- events frame
 	local frame = CreateFrame("Frame")
-	core.NP = config
+	frame:SetScript("OnEvent", function(self, event, ...)
+		if DB.enabled and event == "PLAYER_TARGET_CHANGED" then
+			targetExists = (UnitExists("target") ~= nil)
+		end
+	end)
 
 	-- module's print function
 	local function Print(msg)
-		if msg then
-			core:Print(msg, "Nameplates")
-		end
+		core:Print(msg, L["Nameplates"])
 	end
 
 	-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -244,6 +250,10 @@ KPack:AddModule("Nameplates", function(_, core, L)
 					ShowHide(self.level, not config.hideLevel)
 				elseif changed == "showHealthText" or changed == "showHealthPercent" then
 					ShowHide(self.text, config.showHealthText or config.showHealthPercent)
+				elseif changed == "arrow" then
+					local texture = config.arrow and path .. "Textures\\Arrows\\" .. config.arrow or nil
+					self.leftIndicator:SetTexture(texture)
+					self.rightIndicator:SetTexture(texture)
 				end
 
 				changed = nil
@@ -511,17 +521,23 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		frame.bg:SetAllPoints(healthBar)
 
 		local right = frame:CreateTexture(nil, "BACKGROUND")
-		right:SetTexture([[Interface\AddOns\KPack\Media\Textures\arrow]])
-		right:SetPoint("LEFT", frame.healthBar, "RIGHT", -3, 0)
+		right:SetPoint("LEFT", frame.healthBar, "RIGHT")
 		right:SetRotation(1.57)
+		right:SetSize(32, 32)
 		right:Hide()
-		frame.rightIndicator = right
 
 		local left = frame:CreateTexture(nil, "BACKGROUND")
-		left:SetTexture([[Interface\AddOns\KPack\Media\Textures\arrow]])
-		left:SetPoint("RIGHT", frame.healthBar, "LEFT", 3, 0)
+		left:SetPoint("RIGHT", frame.healthBar, "LEFT")
 		left:SetRotation(-1.57)
+		left:SetSize(32, 32)
 		left:Hide()
+
+		if config.arrow then
+			right:SetTexture(path .. "Textures\\Arrows\\" .. config.arrow)
+			left:SetTexture(path .. "Textures\\Arrows\\" .. config.arrow)
+		end
+
+		frame.rightIndicator = right
 		frame.leftIndicator = left
 
 		frame.OnEnter = Nameplate_OnEnter
@@ -664,220 +680,259 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		end
 	end
 
-	core:RegisterForEvent("PLAYER_LOGIN", function()
-		SetupDatabase()
-		for _, name in ipairs({"TidyPlates", "KuiNameplates"}) do
-			if _G[name] then
-				disabled = true
-				return
+	function GetOptions()
+		if not options then
+			local _disabled = function()
+				return not DB.enabled
 			end
-		end
 
-		local function _disabled() return not DB.enabled end
-		core.options.args.Options.args.Nameplates = {
-			type = "group",
-			name = L["Nameplates"],
-			get = function(i)
-				return DB[i[#i]] or config[i[#i]]
-			end,
-			set = function(i, val)
-				DB[i[#i]] = val
-				config[i[#i]] = val
-				changed = i[#i]
-			end,
-			args = {
-				desc = {
-					type = "description",
-					name = L["Some settings require UI to be reloaded."],
-					order = 0,
-					width = "full"
-				},
-				enabled = {
-					type = "toggle",
-					name = L["Enable"],
-					order = 1
-				},
-				reset = {
-					type = "execute",
-					name = RESET,
-					order = 2,
-					disabled = _disabled,
-					confirm = function()
-						return L:F("Are you sure you want to reset %s to default?", "Nameplates")
-					end,
-					func = function()
-						wipe(DB)
-						DB = defaults
-						for k, v in pairs(DB) do
-							config[k] = v
+			options = {
+				type = "group",
+				name = L["Nameplates"],
+				get = function(i)
+					return config[i[#i]]
+				end,
+				set = function(i, val)
+					DB[i[#i]] = val
+					config[i[#i]] = val
+					changed = i[#i]
+				end,
+				args = {
+					status = {
+						type = "description",
+						name = L:F("This module is disabled because you are using: |cffffd700%s|r", reason or UNKNOWN),
+						fontSize = "medium",
+						order = 0,
+						hidden = not disabled
+					},
+					desc = {
+						type = "description",
+						name = L["Some settings require UI to be reloaded."],
+						order = 0.1,
+						width = "full"
+					},
+					enabled = {
+						type = "toggle",
+						name = L["Enable"],
+						order = 1
+					},
+					reset = {
+						type = "execute",
+						name = RESET,
+						order = 2,
+						disabled = _disabled,
+						confirm = function()
+							return L:F("Are you sure you want to reset %s to default?", "Nameplates")
+						end,
+						func = function()
+							wipe(DB)
+							DB = defaults
+							for k, v in pairs(DB) do
+								config[k] = v
+							end
+							Print(L["module's settings reset to default."])
+							ReloadUI()
 						end
-						Print(L["module's settings reset to default."])
-						ReloadUI()
-					end
-				},
-				appearance = {
-					type = "group",
-					name = L["Appearance"],
-					order = 3,
-					inline = true,
-					disabled = _disabled,
-					args = {
-						barWidth = {
-							type = "range",
-							name = L["Width"],
-							order = 1,
-							min = 80,
-							max = 250,
-							step = 1
-						},
-						barHeight = {
-							type = "range",
-							name = L["Height"],
-							order = 2,
-							min = 6,
-							max = 30,
-							step = 1
-						},
-						barTexture = {
-							type = "select",
-							name = L["Texture"],
-							dialogControl = "LSM30_Statusbar",
-							order = 3,
-							values = AceGUIWidgetLSMlists.statusbar
-						},
-						font = {
-							type = "select",
-							name = L["Font"],
-							dialogControl = "LSM30_Font",
-							order = 4,
-							values = AceGUIWidgetLSMlists.font
-						},
-						fontSize = {
-							type = "range",
-							name = L["Font Size"],
-							order = 5,
-							min = 6,
-							max = 30,
-							step = 1
-						},
-						fontOutline = {
-							type = "select",
-							name = L["Font Outline"],
-							order = 6,
-							values = {
-								[""] = NONE,
-								["OUTLINE"] = L["Outline"],
-								["THINOUTLINE"] = L["Thin outline"],
-								["THICKOUTLINE"] = L["Thick outline"],
-								["MONOCHROME"] = L["Monochrome"],
-								["OUTLINEMONOCHROME"] = L["Outlined monochrome"]
-							}
-						},
-						hideName = {
-							type = "toggle",
-							name = L["Hide Name"],
-							order = 7
-						},
-						hideLevel = {
-							type = "toggle",
-							name = L["Hide Level"],
-							order = 9
-						}
-					}
-				},
-				healthtext = {
-					type = "group",
-					name = L["Health Text"],
-					order = 4,
-					inline = true,
-					disabled = _disabled,
-					args = {
-						showHealthText = {
-							type = "toggle",
-							name = L["Show Health Text"],
-							order = 1
-						},
-						showHealthMax = {
-							type = "toggle",
-							name = L["Show Max Health"],
-							order = 2
-						},
-						shortenNumbers = {
-							type = "toggle",
-							name = L["Shorten Health Text"],
-							order = 3
-						},
-						showHealthPercent = {
-							type = "toggle",
-							name = L["Show Health Percent"],
-							order = 4
-						},
-						textFont = {
-							type = "select",
-							name = L["Font"],
-							dialogControl = "LSM30_Font",
-							values = AceGUIWidgetLSMlists.font,
-							order = 5
-						},
-						textFontSize = {
-							type = "range",
-							name = L["Font Size"],
-							order = 6,
-							min = 6,
-							max = 30,
-							step = 1
-						},
-						textFontOutline = {
-							type = "select",
-							name = L["Font Outline"],
-							order = 7,
-							values = {
-								[""] = NONE,
-								["OUTLINE"] = L["Outline"],
-								["THINOUTLINE"] = L["Thin outline"],
-								["THICKOUTLINE"] = L["Thick outline"],
-								["MONOCHROME"] = L["Monochrome"],
-								["OUTLINEMONOCHROME"] = L["Outlined monochrome"]
+					},
+					appearance = {
+						type = "group",
+						name = L["Appearance"],
+						order = 3,
+						inline = true,
+						disabled = _disabled,
+						args = {
+							barWidth = {
+								type = "range",
+								name = L["Width"],
+								order = 1,
+								min = 80,
+								max = 250,
+								step = 0.01,
+								bigStep = 1
+							},
+							barHeight = {
+								type = "range",
+								name = L["Height"],
+								order = 2,
+								min = 6,
+								max = 30,
+								step = 0.01,
+								bigStep = 1
+							},
+							barTexture = {
+								type = "select",
+								name = L["Texture"],
+								dialogControl = "LSM30_Statusbar",
+								order = 3,
+								values = AceGUIWidgetLSMlists.statusbar
+							},
+							font = {
+								type = "select",
+								name = L["Font"],
+								dialogControl = "LSM30_Font",
+								order = 4,
+								values = AceGUIWidgetLSMlists.font
+							},
+							fontSize = {
+								type = "range",
+								name = L["Font Size"],
+								order = 5,
+								min = 6,
+								max = 30,
+								step = 1
+							},
+							fontOutline = {
+								type = "select",
+								name = L["Font Outline"],
+								order = 6,
+								values = {
+									[""] = NONE,
+									["OUTLINE"] = L["Outline"],
+									["THINOUTLINE"] = L["Thin outline"],
+									["THICKOUTLINE"] = L["Thick outline"],
+									["MONOCHROME"] = L["Monochrome"],
+									["OUTLINEMONOCHROME"] = L["Outlined monochrome"]
+								}
+							},
+							hideName = {
+								type = "toggle",
+								name = L["Hide Name"],
+								order = 7
+							},
+							hideLevel = {
+								type = "toggle",
+								name = L["Hide Level"],
+								order = 9
 							}
 						}
-					}
-				},
-				tank = {
-					type = "group",
-					name = L["Tank Mode"],
-					order = 99,
-					inline = true,
-					disabled = _disabled,
-					args = {
-						tankMode = {
-							type = "toggle",
-							name = L["Enable"],
-							order = 1,
-							disabled = _disabled,
-							get = function()
-								return CharDB.tankMode
-							end,
-							set = function(_, val)
-								CharDB.tankMode = val
-							end
-						},
-						tankColor = {
-							type = "color",
-							name = L["Bar Color"],
-							desc = L["Bar color when you have threat."],
-							order = 2,
-							disabled = _disabled,
-							get = function()
-								return unpack(CharDB.tankColor or config.tankColor)
-							end,
-							set = function(_, r, g, b, a)
-								CharDB.tankColor = {r, g, b, a}
-							end
+					},
+					healthtext = {
+						type = "group",
+						name = L["Health Text"],
+						order = 4,
+						inline = true,
+						disabled = _disabled,
+						args = {
+							showHealthText = {
+								type = "toggle",
+								name = L["Show Health Text"],
+								order = 1
+							},
+							showHealthMax = {
+								type = "toggle",
+								name = L["Show Max Health"],
+								order = 2
+							},
+							shortenNumbers = {
+								type = "toggle",
+								name = L["Shorten Health Text"],
+								order = 3
+							},
+							showHealthPercent = {
+								type = "toggle",
+								name = L["Show Health Percent"],
+								order = 4
+							},
+							textFont = {
+								type = "select",
+								name = L["Font"],
+								dialogControl = "LSM30_Font",
+								values = AceGUIWidgetLSMlists.font,
+								order = 5
+							},
+							textFontSize = {
+								type = "range",
+								name = L["Font Size"],
+								order = 6,
+								min = 6,
+								max = 30,
+								step = 1
+							},
+							textFontOutline = {
+								type = "select",
+								name = L["Font Outline"],
+								order = 7,
+								values = {
+									[""] = NONE,
+									["OUTLINE"] = L["Outline"],
+									["THINOUTLINE"] = L["Thin outline"],
+									["THICKOUTLINE"] = L["Thick outline"],
+									["MONOCHROME"] = L["Monochrome"],
+									["OUTLINEMONOCHROME"] = L["Outlined monochrome"]
+								}
+							}
 						}
+					},
+					tank = {
+						type = "group",
+						name = L["Tank Mode"],
+						order = 98,
+						inline = true,
+						disabled = _disabled,
+						args = {
+							tankMode = {
+								type = "toggle",
+								name = L["Enable"],
+								order = 1,
+								disabled = _disabled,
+								get = function()
+									return CharDB.tankMode
+								end,
+								set = function(_, val)
+									CharDB.tankMode = val
+								end
+							},
+							tankColor = {
+								type = "color",
+								name = L["Bar Color"],
+								desc = L["Bar color when you have threat."],
+								order = 2,
+								disabled = _disabled,
+								get = function()
+									return unpack(CharDB.tankColor or config.tankColor)
+								end,
+								set = function(_, r, g, b, a)
+									CharDB.tankColor = {r, g, b, a}
+								end
+							}
+						}
+					},
+					arrow = {
+						type = "multiselect",
+						name = L["Target Highlight"],
+						order = 99,
+						width = "half",
+						disabled = _disabled,
+						get = function(_, key)
+							return (config.arrow == key) or (key == "NONE" and config.arrow == nil)
+						end,
+						set = function(_, val)
+							if val == "NONE" then
+								DB.arrow = nil
+								config.arrow = nil
+							else
+								DB.arrow = val
+								config.arrow = val
+							end
+							changed = "arrow"
+						end,
+						values = {}
 					}
 				}
 			}
-		}
+		end
+
+		options.args.arrow.values.NONE = NONE
+		for i = 0, 73 do
+			options.args.arrow.values["arrow" .. i] = "|T" .. path .. "Textures\\Arrows\\arrow" .. i .. ".tga:32:32|t"
+		end
+
+		return options
+	end
+
+	core:RegisterForEvent("PLAYER_LOGIN", function()
+		SetupDatabase()
+		core.options.args.Options.args.Nameplates = GetOptions()
 	end)
 
 	do
@@ -899,24 +954,25 @@ KPack:AddModule("Nameplates", function(_, core, L)
 
 		-- on mod loaded.
 		core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
-			if disabled then return end
+			if disabled then
+				frame:UnregisterAllEvents()
+				frame:SetScript("OnUpdate", nil)
+				frame:Hide()
+				return
+			end
 
 			SetupDatabase()
-			if DB.enabled and not disabled then
+			if DB.enabled then
+				frame:RegisterEvent("PLAYER_TARGET_CHANGED")
 				frame:SetScript("OnUpdate", Nameplates_OnUpdate)
 				frame:Show()
 			else
+				frame:UnregisterAllEvents()
 				frame:SetScript("OnUpdate", nil)
 				frame:Hide()
 			end
 		end)
 	end
-
-	core:RegisterForEvent("PLAYER_TARGET_CHANGED", function()
-		if not disabled and DB.enabled then
-			targetExists = UnitExists("target")
-		end
-	end)
 
 	SLASH_KPACKNAMEPLATES1 = "/np"
 	SLASH_KPACKNAMEPLATES2 = "/nameplates"
