@@ -1,7 +1,7 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("Nameplates", function(_, core, L)
 	if core:IsDisabled("Nameplates") or core.ElvUI then return end
-	local disabled, reason = core:AddOnIsLoaded("TidyPlates", "KuiNameplates")
+	local disabled, reason
 	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
 
 	-- SavedVariables
@@ -78,6 +78,28 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	end
 
 	-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+	local ClassReference = {}
+	local RaidIconCoordinate = {
+		[0] = {[0] = "STAR", [0.25] = "MOON"},
+		[0.25] = {[0] = "CIRCLE", [0.25] = "SQUARE"},
+		[0.5] = {[0] = "DIAMOND", [0.25] = "CROSS"},
+		[0.75] = {[0] = "TRIANGLE", [0.25] = "SKULL"}
+	}
+	local RaidIconColors = {
+		STAR = {0.85, 0.81, 0.27},
+		MOON = {0.60, 0.75, 0.85},
+		CIRCLE = {0.93, 0.51, 0.06},
+		SQUARE = {0, 0.64, 1},
+		DIAMOND = {0.7, 0.06, 0.84},
+		CROSS = {0.82, 0.18, 0.18},
+		TRIANGLE = {0.14, 0.66, 0.14},
+		SKULL = {0.89, 0.83, 0.74}
+	}
+
+	local function ColorToString(r, g, b)
+		return "C" .. math_floor((100 * r) + 0.5) .. math_floor((100 * g) + 0.5) .. math_floor((100 * b) + 0.5)
+	end
 
 	-- makes sure the frame is a valid one
 	local function NameplateIsValid(frame)
@@ -256,7 +278,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 					self.rightIndicator:SetTexture(texture)
 				end
 
-				changed = nil
+				core.After(0.1, function() changed = nil end)
 			end
 		end
 	end
@@ -268,11 +290,24 @@ KPack:AddModule("Nameplates", function(_, core, L)
 			return
 		end
 
-		local r, g, b = self.oldHealth:GetStatusBarColor()
+		self.marked = (self.raidicon:IsShown() == 1)
+		local r, g, b
+
+		if self.marked then
+			local x, y = self.raidicon:GetTexCoord()
+			self.raidIcon = RaidIconCoordinate[x][y]
+			if config.raidIconColor and RaidIconColors[self.raidIcon] then
+				r, g, b = unpack(RaidIconColors[self.raidIcon])
+			end
+		end
+
+		if not (r and g and b) then
+			r, g, b = self.oldHealth:GetStatusBarColor()
+		end
+
 		if self.healthBar.reset or r ~= self.healthBar.r or g ~= self.healthBar.g or b ~= self.healthBar.b then
 			self.healthBar.r, self.healthBar.g, self.healthBar.b = r, g, b
 			self.healthBar.reset = nil
-
 			self.healthBar:SetStatusBarColor(r, g, b)
 		end
 	end
@@ -502,6 +537,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		raidIconRegion:ClearAllPoints()
 		raidIconRegion:SetPoint("BOTTOM", healthBar, "TOP", 0, config.barHeight + 3)
 		raidIconRegion:SetSize(15, 15)
+		frame.raidicon = raidIconRegion
 
 		frame.glow = glowRegion
 		frame.elite = stateIconRegion
@@ -545,6 +581,10 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		frame.CheckForChange = Nameplate_CheckForChange
 		frame.SetHealthColor = Nameplate_SetHealthColor
 		frame.UpdateCritical = Nameplate_UpdateCritical
+
+		frame.r, frame.g, frame.g = health:GetStatusBarColor()
+		frame.reaction, frame.type = NameplateReaction(frame.r, frame.g, frame.g)
+		frame.class = ClassReference[ColorToString(frame.r, frame.g, frame.g)]
 
 		frame:SetScript("OnShow", Nameplate_OnShow)
 		frame:SetScript("OnHide", Nameplate_OnHide)
@@ -683,7 +723,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	function GetOptions()
 		if not options then
 			local _disabled = function()
-				return not DB.enabled
+				return (not DB.enabled or disabled)
 			end
 
 			options = {
@@ -714,7 +754,8 @@ KPack:AddModule("Nameplates", function(_, core, L)
 					enabled = {
 						type = "toggle",
 						name = L["Enable"],
-						order = 1
+						order = 1,
+						disabled = disabled
 					},
 					reset = {
 						type = "execute",
@@ -803,6 +844,11 @@ KPack:AddModule("Nameplates", function(_, core, L)
 								type = "toggle",
 								name = L["Hide Level"],
 								order = 9
+							},
+							raidIconColor = {
+								type = "toggle",
+								name = L["Raid Icon Color"],
+								order = 10
 							}
 						}
 					},
@@ -931,8 +977,14 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	end
 
 	core:RegisterForEvent("PLAYER_LOGIN", function()
+		disabled, reason = core:AddOnIsLoaded("TidyPlates", "KuiNameplates")
 		SetupDatabase()
 		core.options.args.Options.args.Nameplates = GetOptions()
+
+		-- class references
+		for class, ctable in pairs(core.classcolors) do
+			ClassReference[ColorToString(ctable.r, ctable.g, ctable.b)] = class
+		end
 	end)
 
 	do

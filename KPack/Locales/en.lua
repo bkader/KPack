@@ -506,6 +506,7 @@ L["Monochrome"] = true
 L["Outlined monochrome"] = true
 L["Hide Name"] = true
 L["Hide Level"] = true
+L["Raid Icon Color"] = true
 L["Health Text"] = true
 L["Show Health Text"] = true
 L["Show Max Health"] = true
