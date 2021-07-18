@@ -313,8 +313,8 @@ KPack:AddModule(TARGETICONS, "Allows you to quickly mark raid targets using a ra
 					end
 
 					-- default nameplates
-					local _, r = f:GetRegions()
-					if not f:GetName() and r and r:GetObjectType("Texture") and r:GetTexture() == "Interface\\Tooltips\\Nameplate-Border" then
+					local r = select(2, f:GetRegions())
+					if not f:GetName() and r and r:GetObjectType("Texture") and (r.GetTexture and r:GetTexture() == "Interface\\Tooltips\\Nameplate-Border") then
 						return true
 					end
 				end
