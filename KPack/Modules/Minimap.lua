@@ -10,9 +10,14 @@ KPack:AddModule("Minimap", function(_, core, L)
 		disabled, reason = true, "Dominos"
 	end
 
+	local pairs, ipairs, select = pairs, ipairs, select
+	local UnitName, UnitClass = UnitName, UnitClass
+	local UIFrameFlash = UIFrameFlash
+
 	local DB, SetupDatabase
 	local defaults = {
 		enabled = true,
+		grabber = true,
 		locked = true,
 		hide = false,
 		zone = false,
@@ -33,17 +38,22 @@ KPack:AddModule("Minimap", function(_, core, L)
 	local ToggleHelpFrame = ToggleHelpFrame
 	local ToggleFrame = ToggleFrame
 
-	local PLAYER_ENTERING_WORLD
-
-	-- function used to kill or replace other functions.
-	local function noFunc()
-	end
+	local PLAYER_ENTERING_WORLD, Minimap_GrabButtons
 
 	local function Print(msg)
-		if msg then
-			core:Print(msg, "Minimap")
+		core:Print(msg, "Minimap")
+	end
+
+	function SetupDatabase()
+		if not DB then
+			if type(core.db.Minimap) ~= "table" or not next(core.db.Minimap) then
+				core.db.Minimap = CopyTable(defaults)
+			end
+			DB = core.db.Minimap
 		end
 	end
+
+	--------------------------------------------------------------------------------
 
 	local SlashCommandHandler
 	do
@@ -170,19 +180,14 @@ KPack:AddModule("Minimap", function(_, core, L)
 		end
 	end
 
-	function SetupDatabase()
-		if not DB then
-			if type(core.db.Minimap) ~= "table" or not next(core.db.Minimap) then
-				core.db.Minimap = CopyTable(defaults)
-			end
-			DB = core.db.Minimap
-		end
-	end
+	--------------------------------------------------------------------------------
 
 	core:RegisterForEvent("PLAYER_LOGIN", function()
 		SetupDatabase()
 
-		local function _disabled() return not DB.enabled or disabled end
+		local function _disabled()
+			return not DB.enabled or disabled
+		end
 		core.options.args.Options.args.Minimap = {
 			type = "group",
 			name = MINIMAP_LABEL,
@@ -205,37 +210,42 @@ KPack:AddModule("Minimap", function(_, core, L)
 					type = "toggle",
 					name = L["Enable"],
 					order = 1,
-					width = "double",
 					disabled = disabled
+				},
+				grabber = {
+					type = "toggle",
+					name = L["Button Grabber"],
+					order = 2,
+					disabled = _disabled
 				},
 				locked = {
 					type = "toggle",
 					name = L["Lock Minimap"],
-					order = 2,
+					order = 3,
 					disabled = _disabled
 				},
 				hide = {
 					type = "toggle",
 					name = L["Hide Minimap"],
-					order = 3,
+					order = 4,
 					disabled = _disabled
 				},
 				zone = {
 					type = "toggle",
 					name = L["Hide Zone Text"],
-					order = 4,
+					order = 5,
 					disabled = _disabled
 				},
 				combat = {
 					type = "toggle",
 					name = L["Hide in combat"],
-					order = 5,
+					order = 6,
 					disabled = _disabled
 				},
 				scale = {
 					type = "range",
 					name = L["Scale"],
-					order = 6,
+					order = 7,
 					disabled = _disabled,
 					width = "double",
 					min = 0.5,
@@ -246,7 +256,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 				reset = {
 					type = "execute",
 					name = RESET,
-					order = 9,
+					order = 99,
 					disabled = _disabled,
 					width = "double",
 					confirm = function()
@@ -267,6 +277,287 @@ KPack:AddModule("Minimap", function(_, core, L)
 			return
 		end
 	end)
+
+	--------------------------------------------------------------------------------
+
+	do
+		local find, len, sub = string.find, string.len, string.sub
+		local ceil, unpack, tinsert = math.ceil, unpack, table.insert
+
+		local LockButton, UnlockButton
+		local CheckVisibility, GetVisibleList
+		local GrabMinimapButtons, SkinMinimapButton, UpdateLayout
+
+		local ignoreButtons = {
+			"BattlefieldMinimap",
+			"ButtonCollectFrame",
+			"GameTimeFrame",
+			"MiniMapBattlefieldFrame",
+			"MiniMapLFGFrame",
+			"MiniMapMailFrame",
+			"MiniMapPing",
+			"MiniMapRecordingButton",
+			"MiniMapTracking",
+			"MiniMapTrackingButton",
+			"MiniMapVoiceChatFrame",
+			"MiniMapWorldMapButton",
+			"Minimap",
+			"MinimapBackdrop",
+			"MinimapToggleButton",
+			"MinimapZoneTextButton",
+			"MinimapZoomIn",
+			"MinimapZoomOut",
+			"TimeManagerClockButton"
+		}
+
+		local genericIgnores = {
+			"GuildInstance",
+			"GatherMatePin",
+			"GatherNote",
+			"GuildMap3Mini",
+			"HandyNotesPin",
+			"LibRockConfig-1.0_MinimapButton",
+			"NauticusMiniIcon",
+			"WestPointer",
+			"poiMinimap",
+			"Spy_MapNoteList_mini"
+		}
+
+		local partialIgnores = {"Node", "Note", "Pin"}
+		local whiteList = {"LibDBIcon"}
+		local buttonFunctions = {
+			"SetParent",
+			"SetFrameStrata",
+			"SetFrameLevel",
+			"ClearAllPoints",
+			"SetPoint",
+			"SetScale",
+			"SetSize",
+			"SetWidth",
+			"SetHeight"
+		}
+
+		local grabberFrame, needUpdate
+		local minimapFrames = {}
+		local skinnedButtons = {}
+
+		function LockButton(btn)
+			for _, func in ipairs(buttonFunctions) do
+				btn[func] = core.Noop
+			end
+		end
+
+		function UnlockButton(btn)
+			for _, func in ipairs(buttonFunctions) do
+				btn[func] = nil
+			end
+		end
+
+		function CheckVisibility()
+			local updateLayout
+
+			for _, button in ipairs(skinnedButtons) do
+				if button:IsVisible() and button.__hidden then
+					button.__hidden = false
+					updateLayout = true
+				elseif not button:IsVisible() and not button.__hidden then
+					button.__hidden = true
+					updateLayout = true
+				end
+			end
+
+			return updateLayout
+		end
+
+		function GetVisibleList()
+			local t = {}
+
+			for _, button in ipairs(skinnedButtons) do
+				if button:IsVisible() then
+					tinsert(t, button)
+				end
+			end
+
+			return t
+		end
+
+		function GrabMinimapButtons()
+			for _, frame in ipairs(minimapFrames) do
+				for i = 1, frame:GetNumChildren() do
+					local object = select(i, frame:GetChildren())
+
+					if object and object:IsObjectType("Button") then
+						SkinMinimapButton(object)
+					end
+				end
+			end
+
+			if _G.AtlasButtonFrame then
+				SkinMinimapButton(_G.AtlasButton)
+			end
+			if _G.FishingBuddyMinimapFrame then
+				SkinMinimapButton(_G.FishingBuddyMinimapButton)
+			end
+			if _G.HealBot_MMButton then
+				SkinMinimapButton(_G.HealBot_MMButton)
+			end
+
+			if needUpdate or CheckVisibility() then
+				UpdateLayout()
+			end
+		end
+
+		function SkinMinimapButton(button)
+			if not button or button.__skinned then return end
+
+			local name = button:GetName()
+			if not name then return end
+
+			if button:IsObjectType("Button") then
+				local validIcon
+
+				for i = 1, #whiteList do
+					if sub(name, 1, len(whiteList[i])) == whiteList[i] then
+						validIcon = true
+						break
+					end
+				end
+
+				if not validIcon then
+					if tContains(ignoreButtons, name) then
+						return
+					end
+
+					for i = 1, #genericIgnores do
+						if sub(name, 1, len(genericIgnores[i])) == genericIgnores[i] then
+							return
+						end
+					end
+
+					for i = 1, #partialIgnores do
+						if find(name, partialIgnores[i]) then
+							return
+						end
+					end
+				end
+
+				button:SetPushedTexture(nil)
+				button:SetHighlightTexture(nil)
+				button:SetDisabledTexture(nil)
+			end
+
+			for i = 1, button:GetNumRegions() do
+				local region = select(i, button:GetRegions())
+
+				if region:GetObjectType() == "Texture" then
+					local texture = region:GetTexture()
+
+					if texture and (find(texture, "Border") or find(texture, "Background") or find(texture, "AlphaMask")) then
+						region:SetTexture(nil)
+					else
+						if name == "BagSync_MinimapButton" then
+							region:SetTexture("Interface\\AddOns\\BagSync\\media\\icon")
+						elseif name == "DBMMinimapButton" then
+							region:SetTexture("Interface\\Icons\\INV_Helmet_87")
+						elseif name == "OutfitterMinimapButton" then
+							if region:GetTexture() == "Interface\\Addons\\Outfitter\\Textures\\MinimapButton" then
+								region:SetTexture(nil)
+							end
+						elseif name == "SmartBuff_MiniMapButton" then
+							region:SetTexture("Interface\\Icons\\Spell_Nature_Purge")
+						elseif name == "VendomaticButtonFrame" then
+							region:SetTexture("Interface\\Icons\\INV_Misc_Rabbit_2")
+						end
+
+						region:ClearAllPoints()
+						region:SetPoint("TOPLEFT", 2, -2)
+						region:SetPoint("BOTTOMRIGHT", -2, 2)
+						region:SetDrawLayer("ARTWORK")
+						region.SetPoint = core.Noop
+					end
+				end
+			end
+
+			button:SetParent(grabberFrame)
+			button:SetFrameLevel(grabberFrame:GetFrameLevel() + 5)
+			button:SetBackdrop({
+				bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+				insets = {left = 0, right = 0, top = 0, bottom = 0}
+			})
+
+			LockButton(button)
+
+			button:SetScript("OnDragStart", nil)
+			button:SetScript("OnDragStop", nil)
+
+			button.__hidden = button:IsVisible() and true or false
+			button.__skinned = true
+			tinsert(skinnedButtons, button)
+
+			needUpdate = true
+		end
+
+		function UpdateLayout()
+			if #skinnedButtons == 0 then return end
+
+			local spacing = 2
+			local visibleButtons = GetVisibleList()
+
+			if #visibleButtons == 0 then
+				grabberFrame:SetSize(21 + (spacing * 2), 21 + (spacing * 2))
+				return
+			end
+
+			local numButtons = #visibleButtons
+			local buttonsPerRow = 6
+			local numColumns = ceil(numButtons / buttonsPerRow)
+
+			if buttonsPerRow > numButtons then
+				buttonsPerRow = numButtons
+			end
+
+			local barWidth = (21 * numColumns) + (1 * (numColumns - 1)) + spacing * 2
+			local barHeight = (21 * buttonsPerRow) + (1 * (buttonsPerRow - 1)) + spacing * 2
+
+			grabberFrame:SetSize(barWidth, barHeight)
+
+			for i, button in ipairs(visibleButtons) do
+				UnlockButton(button)
+
+				button:SetSize(21, 21)
+				button:ClearAllPoints()
+
+				if i == 1 then
+					button:SetPoint("TOPRIGHT", grabberFrame, "TOPRIGHT")
+				elseif (i - 1) % buttonsPerRow == 0 then
+					button:SetPoint("RIGHT", visibleButtons[i - buttonsPerRow], "LEFT", -spacing, 0)
+				else
+					button:SetPoint("TOP", visibleButtons[i - 1], "BOTTOM", 0, -spacing)
+				end
+
+				LockButton(button)
+			end
+
+			needUpdate = nil
+		end
+
+		function Minimap_GrabButtons()
+			if not DB.grabber then return end
+			skinnedButtons = {}
+			minimapFrames = {Minimap, MinimapBackdrop}
+
+			grabberFrame = CreateFrame("Frame", "KPack_MinimapButtonGrabber", Minimap)
+			grabberFrame:SetSize(21, 21)
+			grabberFrame:SetPoint("TOPRIGHT", Minimap, "TOPRIGHT", -2, -2)
+			grabberFrame:SetFrameStrata("LOW")
+			grabberFrame:SetClampedToScreen(true)
+
+			GrabMinimapButtons()
+			core.NewTicker(5, GrabMinimapButtons)
+		end
+	end
+
+	--------------------------------------------------------------------------------
 
 	do
 		-- the dopdown menu frame
@@ -390,9 +681,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 		end
 
 		local function Cluster_OnMouseUp(self, button)
-			if DB.lock then
-				return
-			end
+			if DB.lock then return end
 			if button == "LeftButton" then
 				self:StopMovingOrSizing()
 				local point, _, _, xOfs, yOfs = self:GetPoint(1)
@@ -406,8 +695,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 		-- handle mouse clicks on minimap
 		local function Minimap_OnMouseUp(self, button)
 			-- create the menu frame
-			menuFrame =
-				menuFrame or CreateFrame("Frame", "KPack_MinimapRightClickMenu", UIParent, "UIDropDownMenuTemplate")
+			menuFrame = menuFrame or CreateFrame("Frame", "KPack_MinimapRightClickMenu", UIParent, "UIDropDownMenuTemplate")
 
 			if button == "RightButton" then
 				EasyMenu(menuList, menuFrame, "cursor", 0, 0, "MENU", 2)
@@ -427,7 +715,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 				ConsolidatedBuffs:SetParent(UIParent)
 				ConsolidatedBuffs:ClearAllPoints()
 				ConsolidatedBuffs:SetPoint("TOPRIGHT", -205, -13)
-				ConsolidatedBuffs.SetPoint = noFunc
+				ConsolidatedBuffs.SetPoint = core.Noop
 			end
 
 			for i, v in pairs({
@@ -496,6 +784,8 @@ KPack:AddModule("Minimap", function(_, core, L)
 				MinimapCluster.SetPoint = function()
 				end
 			end
+
+			Minimap_GrabButtons()
 		end
 		core:RegisterForEvent("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
 	end
