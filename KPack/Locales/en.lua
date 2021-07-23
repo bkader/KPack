@@ -79,6 +79,17 @@ L["Move/Lock a Frame"] = true
 L["%s will be saved."] = true
 L["%s will not be saved."] = true
 L["%s will move with handler %s"] = true
+-- Bubblicious
+L["Chat bubble related customizations."] = true
+L["Shorten Bubbles"] = true
+L["Shorten the chat bubbles down to a single line each. Mouse over the bubble to expand the text."] = true
+L["Color Bubbles"] = true
+L["Color the chat bubble border the same as the chat type."] = true
+L["Show Raid Icons"] = true
+L["Show raid icons in the chat bubbles."] = true
+L["Use Chat Font"] = true
+L["Use the same font you are using on the chatframe."] = true
+L["Set the chat bubble font size."] = true
 -- ActionBars
 L["Allows you to tweak your action bars in the limit of the allowed."] = true
 L["Hide Gryphons"] = true

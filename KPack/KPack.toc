@@ -7,7 +7,7 @@
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## RequiredDeps: Blizzard_CombatText
-## Version: 1.2.0
+## Version: 1.2.1
 ## X-Website: https://github.com/bkader/KPack
 ## X-Email: bkader@email.com
 

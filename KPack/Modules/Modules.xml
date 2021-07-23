@@ -12,6 +12,7 @@
 <Script file="AltTabber.lua" />
 <Script file="Automate.lua" />
 <Script file="Binder.lua" />
+<Script file="Bubblicious.lua" />
 <Script file="BuffFrame.lua" />
 <Script file="Castbars.lua" />
 <Script file="ChatFilter.lua" />
