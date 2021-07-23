@@ -24,6 +24,9 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		textFont = "Yanone",
 		textFontSize = 11,
 		textFontOutline = "THINOUTLINE",
+		decimals = 1,
+		textOfsX = 0,
+		textOfsY = 0,
 		arrow = "arrow0"
 	}
 	local defaultsChar = {
@@ -129,11 +132,11 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		local function Nameplate_Shorten(num)
 			local res
 			if num > 1000000000 then
-				res = format("%02.3fB", num / 1000000000)
+				res = format("%.3fB", num / 1000000000)
 			elseif num > 1000000 then
-				res = format("%02.2fM", num / 1000000)
+				res = format("%.2fM", num / 1000000)
 			elseif num > 1000 then
-				res = format("%02.1fK", num / 1000)
+				res = format("%.1fK", num / 1000)
 			else
 				res = math_floor(num)
 			end
@@ -159,9 +162,9 @@ KPack:AddModule("Nameplates", function(_, core, L)
 
 				if config.showHealthPercent then
 					if text == "" then
-						text = _format("%02.1f%%", 100 * curval / math_max(1, maxval))
+						text = _format("%." .. (config.decimals or 1) .. "f%%", 100 * curval / math_max(1, maxval))
 					else
-						text = text .. "  -  " .. _format("%02.1f%%", 100 * curval / math_max(1, maxval))
+						text = text .. "  -  " .. _format("%." .. (config.decimals or 1) .. "f%%", 100 * curval / math_max(1, maxval))
 					end
 				end
 
@@ -276,6 +279,8 @@ KPack:AddModule("Nameplates", function(_, core, L)
 					local texture = config.arrow and path .. "Textures\\Arrows\\" .. config.arrow or nil
 					self.leftIndicator:SetTexture(texture)
 					self.rightIndicator:SetTexture(texture)
+				elseif changed == "textOfsX" or changed == "textOfsY" then
+					self.text:SetPoint("CENTER", config.textOfsX or 0, config.textOfsY or 0)
 				end
 
 				core.After(0.1, function() changed = nil end)
@@ -484,13 +489,12 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		frame.highlight:SetAllPoints(frame.healthBar)
 		frame.highlight:SetTexture(LSM:Fetch("statusbar", config.barTexture))
 		frame.highlight:SetBlendMode("ADD")
-		frame.highlight:SetVertexColor(1, 1, 1)
-		frame.highlight:SetAlpha(0.4)
+		frame.highlight:SetVertexColor(1, 1, 1, 0.35)
 		frame.highlight:Hide()
 
 		local text = frame.overlay:CreateFontString(nil, "OVERLAY")
 		text:SetFont(LSM:Fetch("font", config.textFont), config.textFontSize, config.textFontOutline)
-		text:SetPoint("CENTER", 0, 1)
+		text:SetPoint("CENTER", config.textOfsX or 0, config.textOfsY or 1)
 		text:SetTextColor(0.84, 0.75, 0.65)
 		text:SetJustifyH("CENTER")
 		text:SetJustifyV("MIDDLE")
@@ -553,7 +557,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 
 		frame.bg = frame:CreateTexture(nil, "BACKGROUND")
 		frame.bg:SetTexture(config.solidTexture)
-		frame.bg:SetVertexColor(0, 0, 0, 0.85)
+		frame.bg:SetVertexColor(0, 0, 0, 0.75)
 		frame.bg:SetAllPoints(healthBar)
 
 		local right = frame:CreateTexture(nil, "BACKGROUND")
@@ -838,7 +842,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 							hideName = {
 								type = "toggle",
 								name = L["Hide Name"],
-								order = 7
+								order = 8
 							},
 							hideLevel = {
 								type = "toggle",
@@ -906,6 +910,32 @@ KPack:AddModule("Nameplates", function(_, core, L)
 									["MONOCHROME"] = L["Monochrome"],
 									["OUTLINEMONOCHROME"] = L["Outlined monochrome"]
 								}
+							},
+							decimals = {
+								type = "range",
+								name = L["Decimals"],
+								order = 8,
+								min = 0,
+								max = 3,
+								step = 1
+							},
+							textOfsX = {
+								type = "range",
+								name = L["X Offset"],
+								order = 9,
+								min = -125,
+								max = 125,
+								step = 0.01,
+								bigStep = 1
+							},
+							textOfsY = {
+								type = "range",
+								name = L["Y Offset"],
+								order = 9,
+								min = -15,
+								max = 15,
+								step = 0.01,
+								bigStep = 0.1
 							}
 						}
 					},
