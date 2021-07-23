@@ -2564,23 +2564,23 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			maxbars = 30,
 			orientation = 1,
 			spells = {
+				[6203] = true,
+				[6940] = true,
 				[10278] = true,
 				[12323] = true,
 				[20608] = true,
-				[27239] = true,
 				[29166] = true,
 				[31821] = true,
 				[33206] = true,
 				[34477] = true,
 				[47788] = true,
+				[47883] = true,
 				[48477] = true,
 				[48788] = true,
 				[57934] = true,
-				[6203] = true,
 				[64205] = true,
 				[64843] = true,
 				[64901] = true,
-				[6940] = true,
 				[heroism] = true
 			}
 		}
