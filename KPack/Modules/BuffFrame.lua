@@ -8,10 +8,6 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 
 	do
 		local disabled, reason
-		if core:AddOnHasModule("Dominos", "Buffs") then
-			disabled = true
-			reason = "Dominos Buffs"
-		end
 
 		local DB, SetupDatabase
 		local defaults = {
@@ -175,7 +171,7 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 		end
 
 		local function PLAYER_ENTERING_WORLD()
-			if not DB.enabled then
+			if not DB.enabled or disabled then
 				return
 			end
 
@@ -230,6 +226,15 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 			SlashCmdList["KPACKBUFFFRAME"] = function()
 				core:OpenConfig("Options", "BuffFrame")
 			end
+
+			if _G.SBF then
+				disabled, reason = true, "Satrina Buff Frames"
+			end
+
+			if not disabled and core:AddOnHasModule("Dominos", "Buffs") then
+				disabled, reason = true, "Dominos Buffs"
+			end
+
 			local _disabled = function()
 				return not DB.enabled or core.InCombat or disabled
 			end
@@ -467,7 +472,7 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 		local select, pairs, match, format = select, pairs, string.match, string.format
 		local GetUnitName, UnitIsPlayer, UnitClass, UnitReaction = GetUnitName, UnitIsPlayer, UnitClass, UnitReaction
 		local UnitAura, UnitBuff, UnitDebuff = UnitAura, UnitBuff, UnitDebuff
-		local hooked
+		local hooked = nil
 
 		local BETTER_FACTION_BAR_COLORS = {
 			[1] = {r = 217 / 255, g = 69 / 255, b = 69 / 255},
