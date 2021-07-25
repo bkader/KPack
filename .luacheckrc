@@ -45,6 +45,12 @@ globals = {
 	"_G",
 	"bit",
 	"KPack",
+	"MovAny",
+
+	-- MoveAnything
+	"numfor",
+	"MovAny_Print",
+	"MAOptionsToggleCategories",
 
 	-- misc custom
 	"CUSTOM_CLASS_COLORS",

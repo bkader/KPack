@@ -1,13 +1,91 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
-	<Script file="MoveAnything.lua"/>
-	<Button name="GameMenuButtonMoveAnything" parent="GameMenuFrame" inherits="GameMenuButtonTemplate" text="MoveAnything">
-		<Anchors>
-			<Anchor point="TOP" relativeTo="GameMenuButtonLogout" relativePoint="BOTTOM">
-				<Offset><AbsDimension x="0" y="-16" /></Offset>
-			</Anchor>
-		</Anchors>
+	<Frame name="MovableBagFrame" virtual="true" enableMouse="false">
+		<Size>
+			<AbsDimension x="1" y="1"/>
+		</Size>
 		<Scripts>
+			<OnLoad>
+				self.OnMACreateVM = function(self)
+					self:ClearAllPoints()
+					self:SetPoint("BOTTOMRIGHT", "UIParent", "BOTTOMRIGHT", -90, 125)
+
+					self.realID = self:GetID()
+					if self:GetName() == "KeyRingFrame" then
+						self.realID = KEYRING_CONTAINER
+					end
+					MovAny:SetBag(self.realID, self)
+				end
+				self.OnMAHook = function(self)
+					if self.realID == KEYRING_CONTAINER then
+						self.size = GetKeyRingSize()
+					else
+						self.size = GetContainerNumSlots(self.realID)
+					end
+					local conSettings = self.realID == 0 and MovAny.CONTAINER_FRAME_TABLE[0] or MovAny.CONTAINER_FRAME_TABLE[self.size ~= 0 and self.size or 8]
+					self:SetWidth(CONTAINER_WIDTH)
+					self:SetHeight(conSettings[4])
+					local container = MovAny:GetContainerFrame(self.realID)
+					if container then
+						self:ClearAllPoints()
+						self:SetPoint("BOTTOMLEFT", "UIParent", "BOTTOMLEFT", container:GetLeft(), container:GetBottom())
+						MovAny:GrabContainerFrame(container, MovAny:GetBag(self.realID))
+						container.MAParent = self
+					end
+				end
+				local posFunc = function(self)
+					local container = MovAny:GetContainerFrame(self.realID)
+					if container then
+						MovAny:UnlockPoint(container)
+						container:ClearAllPoints()
+						container:SetPoint("CENTER", self, "CENTER", 0, 0)
+						MovAny:LockPoint(container)
+					end
+				end
+				self.OnMAPosition = posFunc
+				self.OnMAPreReset = posFunc
+
+				self.OnMAPostReset = function(self)
+					local container = MovAny:GetContainerFrame(self.realID)
+					if container then
+						MovAny:UnlockPoint(container)
+						MovAny:UnlockScale(container)
+						container:ClearAllPoints()
+					end
+					updateContainerFrameAnchors()
+				end
+
+				self.OnMAPostAttach = function(self)
+					posFunc(self)
+					updateContainerFrameAnchors()
+				end
+
+				self.OnMAAlpha = function(ref, alpha)
+					local con = MovAny:GetContainerFrame(ref.realID)
+					if con then
+						con:SetAlpha(alpha)
+					end
+				end
+
+				self.OnMAScale = function(ref, scale)
+					local con = MovAny:GetContainerFrame(ref.realID)
+					if con and scale and scale >= 0 then
+						MovAny:UnlockScale(con)
+						con:SetScale(scale)
+						MovAny:LockScale(con)
+						posFunc(ref)
+					end
+				end
+			</OnLoad>
+		</Scripts>
+	</Frame>
+
+	<Button name="GameMenuButtonMoveAnything" parent="GameMenuFrame" inherits="GameMenuButtonTemplate" text="MoveAnything">
+		<Scripts>
+			<OnLoad>
+				self:ClearAllPoints()
+				self:SetPoint("TOP", GameMenuButtonContinue, "BOTTOM", 0, -25)
+			</OnLoad>
 			<OnClick>
 				if IsShiftKeyDown() and IsControlKeyDown() and IsAltKeyDown() then
 					ReloadUI()
@@ -18,6 +96,7 @@
 			</OnClick>
 		</Scripts>
 	</Button>
+
 	<Button name="MAResizeButton" virtual="true">
 		<Size>
 			<AbsDimension x="8" y="8"/>
@@ -27,23 +106,26 @@
 				<AbsValue val="4"/>
 			</EdgeSize>
 			<TileSize>
-				<AbsValue val="8"/>
+				<AbsValue val="4"/>
 			</TileSize>
 			<BackgroundInsets>
-				<AbsInset left="2" right="2" top="2" bottom="2"/>
+				<AbsInset left="1" right="1" top="1" bottom="1"/>
 			</BackgroundInsets>
 		</Backdrop>
 		<Scripts>
 			<OnLoad>
-				local anchorto, anchor = KPack.MA:SizingAnchor(this)
-				this:SetPoint(anchor, this:GetParent(), anchorto, 0, 0)
+				local anchorto, anchor = MovAny:SizingAnchor(self)
+				self:SetPoint(anchor, self:GetParent(), anchorto, 0, 0)
+				self:SetBackdropColor(0, 0, 0, 1)
+				self:SetBackdropBorderColor(.8, .8, .8, 1)
 			</OnLoad>
 			<OnShow>
-				this:SetFrameLevel(this:GetParent():GetFrameLevel()+2)
+				self:SetFrameLevel(self:GetParent():GetFrameLevel()+2)
 			</OnShow>
 			<OnMouseDown>
-				if arg1 == "RightButton" then
-					local t = _G[ this:GetParent():GetName().."Backdrop" ]
+				local button = GetMouseButtonClicked()
+				if button == "RightButton" then
+					local t = _G[ self:GetParent():GetName().."Backdrop" ]
 					if IsShiftKeyDown() then
 						if t:IsVisible() then
 							t:Hide()
@@ -51,28 +133,30 @@
 							t:Show()
 						end
 					else
-						this:GetParent():StartMoving()
+						self:GetParent():SetMovable(true)
+						self:GetParent():StartMoving()
 					end
 				else
-					if KPack.MA:ErrorNotInCombat(this:GetParent().tagged, true) then
+					if MovAny:ErrorNotInCombat(self:GetParent().tagged, true) then
 						return
 					end
-					local anchor = KPack.MA:SizingAnchor(this)
-					this:GetParent().MASizingAnchor = anchor
-					this:GetParent():StartSizing(anchor)
+					anchor = MovAny:SizingAnchor(self)
+					self:GetParent().MASizingAnchor = anchor
+					self:GetParent():StartSizing(anchor)
 				end
 			</OnMouseDown>
 			<OnMouseUp>
-				if KPack.MA:ErrorNotInCombat(this:GetParent().tagged, arg1 == "RightButton") then
-					if arg1 == "RightButton" then
-						this:GetParent():StopMovingOrSizing()
+				local button = GetMouseButtonClicked()
+				if MovAny:ErrorNotInCombat(self:GetParent().tagged, button == "RightButton") then
+					if button == "RightButton" then
+						self:GetParent():StopMovingOrSizing()
 					end
 					return
 				end
-				this:GetParent():StopMovingOrSizing()
-				this:GetParent().MASizingAnchor = nil
-				if arg1 == "RightButton" and not IsShiftKeyDown() then
-					KPack.MA:StopMoving(this:GetParent().tagged:GetName())
+				self:GetParent():StopMovingOrSizing()
+				self:GetParent().MASizingAnchor = nil
+				if button == "RightButton" and not IsShiftKeyDown() then
+					MovAny:StopMoving(self:GetParent().tagged:GetName())
 				end
 			</OnMouseUp>
 		</Scripts>
@@ -92,84 +176,108 @@
 		</Anchors>
 		<Scripts>
 			<OnLoad>
-				_G[ this:GetName().."Backdrop" ]:SetBackdropColor(1,1,1,0.25)
-				_G[ this:GetName().."Backdrop" ]:SetBackdropBorderColor(1,1,1,0.15)
-				this.createdTagged = nil
+				self.neverShowTooltip = true
+				_G[ self:GetName().."Backdrop" ]:SetBackdropColor(.8, .8, .8, .7)
+				_G[ self:GetName().."Backdrop" ]:SetBackdropBorderColor(1, 1, 1, 1)
 			</OnLoad>
 			<OnUpdate>
-				if this.tagged then
-					local f = this.tagged
-					if not KPack.MA:IsProtected(f) or not InCombatLockdown() then
-						KPack.MA:UnlockPoint(f)
-						f:ClearAllPoints()
-						f:SetPoint("BOTTOMLEFT", this, "BOTTOMLEFT", 0, 0)
-						KPack.MA:LockPoint(f)
-					end
-					if this.infoShown then
-						local str = numfor(f:GetLeft()).." , "..numfor(f:GetBottom())
-						local label = _G[this:GetName().."BackdropInfoLabel"]
-						label:Show()
-						label:SetText(str)
+				if self.tagged and self.infoShown then
+					local f = self.tagged
+					local str = numfor(f:GetLeft()).." , "..numfor(f:GetBottom())
+					local label = _G[self:GetName().."BackdropInfoLabel"]
+					label:Show()
+					label:SetText(str)
 
-						if this:GetName() == KPack.MA.moverPrefix..KPack.MA.currentMover then
-							_G["MANudgerInfoLabel"]:Show()
-							_G["MANudgerInfoLabel"]:SetText(str)
-						end
+					if self == MovAny.currentMover then
+						_G["MANudgerInfoLabel"]:Show()
+						_G["MANudgerInfoLabel"]:SetText(str)
 					end
 				end
 			</OnUpdate>
 			<OnMouseDown>
-				if arg1 == "LeftButton" and this.tagged and not KPack.MA.NoMove[ this.tagged:GetName() ] then
-					local str = numfor(this.tagged:GetLeft()).." , "..numfor(this.tagged:GetBottom())
-					_G[this:GetName().."BackdropInfoLabel"]:SetText(str)
-					if this:GetName() == KPack.MA.moverPrefix..KPack.MA.currentMover then
-						_G["MANudgerInfoLabel"]:SetText(str)
-						_G["MANudgerInfoLabel"]:Show()
+				local button = GetMouseButtonClicked()
+				if self.tagged then
+					if not IsControlKeyDown() then
+						local f = self.tagged
+						if not MovAny.NoMove[self.tagged:GetName()] then
+							if not MovAny:IsProtected(f) or not InCombatLockdown() then
+								MovAny:UnlockPoint(f)
+								f:ClearAllPoints()
+								if f.MASetPoint then
+									f:MASetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, 0)
+								else
+									f:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, 0)
+								end
+								MovAny:LockPoint(f)
+							end
+							if button == "LeftButton" then
+								local str = numfor(f:GetLeft()).." , "..numfor(f:GetBottom())
+								_G[self:GetName().."BackdropInfoLabel"]:SetText(str)
+								if self == MovAny.currentMover then
+									_G["MANudgerInfoLabel"]:SetText(str)
+									_G["MANudgerInfoLabel"]:Show()
+								end
+								self.infoShown = true
+								if f.OnMAPosition then
+									f:OnMAPosition(f)
+								end
+
+								self:SetMovable(true)
+								self:StartMoving()
+							end
+						end
 					end
-					this.infoShown = true
-					if this.tagged.OnMAPosition then
-						this.tagged:OnMAPosition(this.tagged)
-					end
-					this:StartMoving()
 				end
 			</OnMouseDown>
 			<OnMouseUp>
-				if this.tagged and not KPack.MA.NoMove[ this.tagged:GetName() ] then
-					if arg1 ~= "RightButton" then
-						KPack.MA:UpdatePosition(this)
+				local button = GetMouseButtonClicked()
+				if self.tagged and not MovAny.NoMove[ self.tagged:GetName() ] then
+					if button ~= "RightButton" then
+						MovAny:MoverUpdatePosition(self)
 					end
-					this:StopMovingOrSizing()
+					self:StopMovingOrSizing()
 				end
-				if arg1 == "RightButton" and this.tagged and not KPack.MA:ErrorNotInCombat(this.tagged) then
-					local t = _G[this:GetName().."Backdrop"]
-					if IsShiftKeyDown() then
-						if t:IsVisible() then
-							t:Hide()
+				if IsControlKeyDown() then
+					MovAny:FrameEditor(self.tagged:GetName())
+				else
+					if button == "RightButton" and self.tagged and not MovAny:ErrorNotInCombat(self.tagged) then
+						if IsShiftKeyDown() then
+							local t = _G[self:GetName().."Backdrop"]
+							if t:IsVisible() then
+								t:Hide()
+							else
+								t:Show()
+							end
 						else
-							t:Show()
+							MovAny:StopMoving(self.tagged:GetName())
 						end
-					else
-						KPack.MA:StopMoving(this.tagged:GetName())
 					end
 				end
-				KPack.MA:TooltipHide()
-				this.infoShown = nil
 			</OnMouseUp>
-			<OnMouseWheel>
-				KPack.MA:MoverOnMouseWheel(this)
-			</OnMouseWheel>
+			<OnMouseWheel function="MAMoverTemplate_OnMouseWheel"/>
 			<OnSizeChanged>
-				KPack.MA:MoverOnSizeChanged(this)
+				MovAny:MoverOnSizeChanged(self)
 			</OnSizeChanged>
 			<OnShow>
-				KPack.MA:MoverOnShow(this)
+				MovAny:MoverOnShow(self)
 			</OnShow>
 			<OnHide>
-				KPack.MA:MoverOnHide()
-				if this:GetName() == KPack.MA.moverPrefix..KPack.MA.currentMover then
+				MovAny:MoverOnHide()
+				if self == MovAny.currentMover then
 					_G[ "MANudgerInfoLabel"]:Hide()
 				end
 			</OnHide>
+			<OnEnter>
+				if self.tagged then
+					if self.alwaysShowTooltip or (self.neverShowTooltip and IsShiftKeyDown()) or (MADB.tooltips and not IsShiftKeyDown() and not self.neverShowTooltip) or (not MADB.tooltips and IsShiftKeyDown()) then
+						self.tooltipLines = MovAny:GetFrameTooltipLines(self.tagged:GetName())
+						MovAny:TooltipShowMultiline(self)
+					end
+				end
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide()
+			</OnLeave>
 		</Scripts>
 		<Frames>
 			<Frame name="$parentBackdrop" setAllPoints="true" enableMouse="false">
@@ -207,1035 +315,47 @@
 			<Button name="$parentResize_RIGHT" inherits="MAResizeButton"/>
 		</Frames>
 	</Frame>
-	<Frame name="MAMover1" inherits="MAMoverTemplate" parent="UIParent" id="1"/>
-	<Frame name="MAMover2" inherits="MAMoverTemplate" parent="UIParent" id="2"/>
-	<Frame name="MAMover3" inherits="MAMoverTemplate" parent="UIParent" id="3"/>
-	<Frame name="MAMover4" inherits="MAMoverTemplate" parent="UIParent" id="4"/>
-	<Frame name="MAMover5" inherits="MAMoverTemplate" parent="UIParent" id="5"/>
-	<Frame name="MAMover6" inherits="MAMoverTemplate" parent="UIParent" id="6"/>
-	<Frame name="MAMover7" inherits="MAMoverTemplate" parent="UIParent" id="7"/>
-	<Frame name="MAMover8" inherits="MAMoverTemplate" parent="UIParent" id="8"/>
-	<Frame name="MAMover9" inherits="MAMoverTemplate" parent="UIParent" id="9"/>
-	<Frame name="MAMover10" inherits="MAMoverTemplate" parent="UIParent" id="10"/>
-	<Frame name="MAMover11" inherits="MAMoverTemplate" parent="UIParent" id="11"/>
-	<Frame name="MAMover12" inherits="MAMoverTemplate" parent="UIParent" id="12"/>
-	<Frame name="MAMover13" inherits="MAMoverTemplate" parent="UIParent" id="13"/>
-	<Frame name="MAMover14" inherits="MAMoverTemplate" parent="UIParent" id="14"/>
-	<Frame name="MAMover15" inherits="MAMoverTemplate" parent="UIParent" id="15"/>
-	<Frame name="MAMover16" inherits="MAMoverTemplate" parent="UIParent" id="16"/>
-	<Frame name="MAMover17" inherits="MAMoverTemplate" parent="UIParent" id="17"/>
-	<Frame name="MAMover18" inherits="MAMoverTemplate" parent="UIParent" id="18"/>
-	<Frame name="MAMover19" inherits="MAMoverTemplate" parent="UIParent" id="19"/>
-	<Frame name="MAMover20" inherits="MAMoverTemplate" parent="UIParent" id="20"/>
 
-	<Frame name="UIPanelMover1" parent="UIParent" hidden="false" enableMouse="false">
+	<Button name="MAButtonTemplate" inherits="UIPanelButtonTemplate" virtual="true">
 		<Size>
-			<AbsDimension x="384" y="512"/>
-		</Size>
-		<Anchors>
-			<Anchor point="TOPLEFT">
-				<Offset>
-					<AbsDimension x="0" y="-104"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				local updFunc = function()
-					KPack.MA:SetLeftFrameLocation()
-					KPack.MA:SetCenterFrameLocation()
-				end
-				this.OnMAOnAttach = updFunc
-				this.OnMAPosition = updFunc
-				this.OnMAAlpha = updFunc
-				this.OnMAScale = updFunc
-			</OnLoad>
-		</Scripts>
-	</Frame>
-
-	<Frame name="UIPanelMover2" parent="UIParent" hidden="false" enableMouse="false">
-		<Size>
-			<AbsDimension x="384" y="512"/>
-		</Size>
-		<Anchors>
-			<Anchor point="TOPLEFT">
-				<Offset>
-					<AbsDimension x="384" y="-104"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				local updFunc = function()
-					KPack.MA:SetLeftFrameLocation()
-					KPack.MA:SetCenterFrameLocation()
-				end
-				this.OnMAOnAttach = updFunc
-				this.OnMAPosition = updFunc
-				this.OnMAAlpha = updFunc
-				this.OnMAScale = updFunc
-			</OnLoad>
-		</Scripts>
-	</Frame>
-
-	<Frame name="TooltipMover" frameStrata="TOOLTIP"  parent="UIParent" hidden="false" enableMouse="false">
-		<Size>
-			<AbsDimension x="150" y="80"/>
-		</Size>
-		<Anchors>
-			<Anchor point="TOP"/>
-		</Anchors>
-		<Scripts>
-			<OnShow>
-				this:SetFrameLevel(GameTooltip:GetFrameLevel() + 1)
-			</OnShow>
-			<OnLoad>
-				this.OnMAPostHook = function(this)
-					KPack.MA:HookTooltip(this)
-				end
-				this.OnMAPosition = function(this)
-					KPack.MA:HookTooltip(this)
-				end
-				this.OnMAPreReset = function(this, opt)
-					local tooltip = GameTooltip
-					KPack.MA:UnlockPoint(tooltip)
-					KPack.MA:ResetScale(tooltip, opt, true)
-					KPack.MA:ResetAlpha(tooltip, opt, true)
-					KPack.MA:ResetHide(tooltip, opt, true)
-					this.attachedChildren = nil
-				end
-			</OnLoad>
-		</Scripts>
-	</Frame>
-
-	<Frame name="BagItemTooltipMover" frameStrata="TOOLTIP"  parent="UIParent" hidden="false" enableMouse="false">
-		<Size>
-			<AbsDimension x="150" y="80"/>
-		</Size>
-		<Anchors>
-			<Anchor point="TOP"/>
-		</Anchors>
-		<Scripts>
-			<OnShow>
-				this:SetFrameLevel(GameTooltip:GetFrameLevel() + 1)
-			</OnShow>
-		</Scripts>
-	</Frame>
-
-	<Frame name="BagButtonsMover" parent="UIParent" hidden="true" enableMouse="false">
-		<Size>
-			<AbsDimension x="196" y="44"/>
-		</Size>
-		<Anchors>
-			<Anchor point="BOTTOMRIGHT" relativeTo="MainMenuBarArtFrame">
-				<Offset>
-					<AbsDimension x="-6" y="-2"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				MainMenuBarBackpackButton.MAParent = this
-
-				this.OnMAHook = function(this)
-					if KPack.MA:IsFrameHooked("BagButtonsVerticalMover") then
-						KPack.MA:ResetFrame("BagButtonsVerticalMover")
-					end
-					this.attachedChildren = {}
-					if not KPack.MA:IsFrameHooked("MainMenuBarBackpackButton") then
-						MainMenuBarBackpackButton:ClearAllPoints()
-						MainMenuBarBackpackButton:SetPoint("RIGHT", this, "RIGHT", 0, 0)
-						table.insert(this.attachedChildren, MainMenuBarBackpackButton)
-					end
-					if not KPack.MA:IsFrameHooked("CharacterBag0Slot") then
-						KPack.MA:UnlockPoint(CharacterBag0Slot)
-						CharacterBag0Slot:ClearAllPoints()
-						CharacterBag0Slot:SetPoint("RIGHT", "MainMenuBarBackpackButton", "LEFT", -4, 0)
-						table.insert(this.attachedChildren, CharacterBag0Slot)
-					end
-					if not KPack.MA:IsFrameHooked("CharacterBag1Slot") then
-						KPack.MA:UnlockPoint(CharacterBag1Slot)
-						CharacterBag1Slot:ClearAllPoints()
-						CharacterBag1Slot:SetPoint("RIGHT", "CharacterBag0Slot", "LEFT", -4, 0)
-						table.insert(this.attachedChildren, CharacterBag1Slot)
-					end
-					if not KPack.MA:IsFrameHooked("CharacterBag2Slot") then
-						KPack.MA:UnlockPoint(CharacterBag2Slot)
-						CharacterBag2Slot:ClearAllPoints()
-						CharacterBag2Slot:SetPoint("RIGHT", "CharacterBag1Slot", "LEFT", -4, 0)
-						table.insert(this.attachedChildren, CharacterBag2Slot)
-					end
-					if not KPack.MA:IsFrameHooked("CharacterBag3Slot") then
-						KPack.MA:UnlockPoint(CharacterBag3Slot)
-						CharacterBag3Slot:ClearAllPoints()
-						CharacterBag3Slot:SetPoint("RIGHT", "CharacterBag2Slot", "LEFT", -4, 0)
-						table.insert(this.attachedChildren, CharacterBag3Slot)
-					end
-					this:Show()
-				end
-				this.OnMAPosition = function(this)
-					local last = this
-					if not KPack.MA:IsFrameHooked("MainMenuBarBackpackButton") then
-						MainMenuBarBackpackButton:ClearAllPoints()
-						MainMenuBarBackpackButton:SetPoint("RIGHT", last, "RIGHT", 0, 0)
-						last = MainMenuBarBackpackButton
-					end
-					if not KPack.MA:IsFrameHooked("CharacterBag0Slot") then
-						CharacterBag0Slot:ClearAllPoints()
-						CharacterBag0Slot:SetPoint("RIGHT", last, "LEFT", -4, 0)
-						last = CharacterBag0Slot
-					end
-					if not KPack.MA:IsFrameHooked("CharacterBag1Slot") then
-						CharacterBag1Slot:ClearAllPoints()
-						CharacterBag1Slot:SetPoint("RIGHT", last, "LEFT", -4, 0)
-						last = CharacterBag1Slot
-					end
-					if not KPack.MA:IsFrameHooked("CharacterBag2Slot") then
-						CharacterBag2Slot:ClearAllPoints()
-						CharacterBag2Slot:SetPoint("RIGHT", last, "LEFT", -4, 0)
-						last = CharacterBag2Slot
-					end
-					if not KPack.MA:IsFrameHooked("CharacterBag3Slot") then
-						CharacterBag3Slot:ClearAllPoints()
-						CharacterBag3Slot:SetPoint("RIGHT", last, "LEFT", -4, 0)
-						last = CharacterBag3Slot
-					end
-				end
-				this.OnMAPostReset = function(this)
-					MainMenuBarBackpackButton:ClearAllPoints()
-					MainMenuBarBackpackButton:SetPoint("BOTTOMRIGHT", "MainMenuBarArtFrame", "BOTTOMRIGHT", -6, 2)
-					CharacterBag0Slot:ClearAllPoints()
-					CharacterBag0Slot:SetPoint("RIGHT", "MainMenuBarBackpackButton", "LEFT", -4, 0)
-					CharacterBag1Slot:ClearAllPoints()
-					CharacterBag1Slot:SetPoint("RIGHT", "CharacterBag0Slot", "LEFT", -4, 0)
-					CharacterBag2Slot:ClearAllPoints()
-					CharacterBag2Slot:SetPoint("RIGHT", "CharacterBag1Slot", "LEFT", -4, 0)
-					CharacterBag3Slot:ClearAllPoints()
-					CharacterBag3Slot:SetPoint("RIGHT", "CharacterBag2Slot", "LEFT", -4, 0)
-					this:Hide()
-				end
-			</OnLoad>
-		</Scripts>
-	</Frame>
-	<Frame name="BagButtonsVerticalMover" parent="UIParent" hidden="true" enableMouse="false">
-		<Size>
-			<AbsDimension x="32" y="172"/>
-		</Size>
-		<Anchors>
-			<Anchor point="BOTTOMRIGHT" relativeTo="MainMenuBarArtFrame">
-				<Offset>
-					<AbsDimension x="-6" y="2"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				this.OnMAHook = function(this)
-					if KPack.MA:IsFrameHooked("BagButtonsMover") then
-						KPack.MA:ResetFrame("BagButtonsMover")
-					end
-					MainMenuBarBackpackButton:ClearAllPoints()
-					MainMenuBarBackpackButton:SetPoint("BOTTOM", this, "BOTTOM", 0, 0)
-					CharacterBag0Slot:ClearAllPoints()
-					CharacterBag0Slot:SetPoint("BOTTOM", "MainMenuBarBackpackButton", "TOP", 0, 3)
-					CharacterBag1Slot:ClearAllPoints()
-					CharacterBag1Slot:SetPoint("BOTTOM", "CharacterBag0Slot", "TOP", 0, 3)
-					CharacterBag2Slot:ClearAllPoints()
-					CharacterBag2Slot:SetPoint("BOTTOM", "CharacterBag1Slot", "TOP", 0, 3)
-					CharacterBag3Slot:ClearAllPoints()
-					CharacterBag3Slot:SetPoint("BOTTOM", "CharacterBag2Slot", "TOP", 0, 3)
-					MainMenuBarBackpackButton.MAParent = this
-					CharacterBag0Slot.MAParent = this
-					CharacterBag1Slot.MAParent = this
-					CharacterBag2Slot.MAParent = this
-					CharacterBag3Slot.MAParent = this
-					this.attachedChildren = {}
-					table.insert(this.attachedChildren, _G["MainMenuBarBackpackButton"])
-					for i = 0, 3, 1 do
-						table.insert(this.attachedChildren, _G[ "CharacterBag"..i.."Slot" ])
-					end
-					this:Show()
-				end
-				this.OnMAPostReset = function(this)
-					MainMenuBarBackpackButton:ClearAllPoints()
-					MainMenuBarBackpackButton:SetPoint("BOTTOMRIGHT", "MainMenuBarArtFrame", "BOTTOMRIGHT", -6, 0)
-					CharacterBag0Slot:ClearAllPoints()
-					CharacterBag0Slot:SetPoint("RIGHT", "MainMenuBarBackpackButton", "LEFT", -4, 0)
-					CharacterBag1Slot:ClearAllPoints()
-					CharacterBag1Slot:SetPoint("RIGHT", "CharacterBag0Slot", "LEFT", -4, 0)
-					CharacterBag2Slot:ClearAllPoints()
-					CharacterBag2Slot:SetPoint("RIGHT", "CharacterBag1Slot", "LEFT", -4, 0)
-					CharacterBag3Slot:ClearAllPoints()
-					CharacterBag3Slot:SetPoint("RIGHT", "CharacterBag2Slot", "LEFT", -4, 0)
-					MainMenuBarBackpackButton.MAParent = this
-					CharacterBag0Slot.MAParent = BagButtonsMover
-					CharacterBag1Slot.MAParent = BagButtonsMover
-					CharacterBag2Slot.MAParent = BagButtonsMover
-					CharacterBag3Slot.MAParent = BagButtonsMover
-					this:Hide()
-				end
-			</OnLoad>
-		</Scripts>
-	</Frame>
-
-	<Frame name="MovableBagFrame" virtual="true" enableMouse="false">
-		<Size>
-			<AbsDimension x="1" y="1"/>
-		</Size>
-		<Scripts>
-			<OnLoad>
-				local x,y
-				x = -50 - (this:GetID() * 50)
-				y = 50 + (this:GetID() * 50)
-				this:SetPoint("BOTTOMRIGHT", "UIParent", "BOTTOMRIGHT", x, y)
-
-				local CONTAINER_FRAME_TABLE = {
-					[0] = {"Interface\\ContainerFrame\\UI-BackpackBackground", 256, 256, 239},
-					[1] = {"Interface\\ContainerFrame\\UI-Bag-1x4", 256, 128, 96},
-					[2] = {"Interface\\ContainerFrame\\UI-Bag-1x4", 256, 128, 96},
-					[3] = {"Interface\\ContainerFrame\\UI-Bag-1x4", 256, 128, 96},
-					[4] = {"Interface\\ContainerFrame\\UI-Bag-1x4", 256, 128, 96},
-					[5] = {"Interface\\ContainerFrame\\UI-Bag-1x4+2", 256, 128, 116},
-					[6] = {"Interface\\ContainerFrame\\UI-Bag-1x4+2", 256, 128, 116},
-					[7] = {"Interface\\ContainerFrame\\UI-Bag-1x4+2", 256, 128, 116},
-					[8] = {"Interface\\ContainerFrame\\UI-Bag-2x4", 256, 256, 137},
-					[9] = {"Interface\\ContainerFrame\\UI-Bag-2x4+2", 256, 256, 157},
-					[10] = {"Interface\\ContainerFrame\\UI-Bag-2x4+2", 256, 256, 157},
-					[11] = {"Interface\\ContainerFrame\\UI-Bag-2x4+2", 256, 256, 157},
-					[12] = {"Interface\\ContainerFrame\\UI-Bag-3x4", 256, 256, 178},
-					[13] = {"Interface\\ContainerFrame\\UI-Bag-3x4+2", 256, 256, 198},
-					[14] = {"Interface\\ContainerFrame\\UI-Bag-3x4+2", 256, 256, 198},
-					[15] = {"Interface\\ContainerFrame\\UI-Bag-3x4+2", 256, 256, 198},
-					[16] = {"Interface\\ContainerFrame\\UI-Bag-4x4", 256, 256, 219},
-					[18] = {"Interface\\ContainerFrame\\UI-Bag-4x4+2", 256, 256, 239},
-					[20] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 259},
-					[22] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 279},
-					[24] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 299},
-					[26] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 319},
-					[28] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 339},
-					[30] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 359},
-					[32] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 379},
-					[34] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 399},
-					[36] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 419},
-					[38] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 439},
-					[40] = {"Interface\\ContainerFrame\\UI-Bag-5x4", 256, 256, 459},
-				}
-				this.realID = this:GetID()
-				if this:GetName() == "KeyRingFrame" then
-					this.realID = KEYRING_CONTAINER
-				end
-				KPack.MA:SetBag(this.realID, this)
-
-				this.OnMAHook = function(this)
-					if this.realID == KEYRING_CONTAINER then
-						this.size = GetKeyRingSize()
-					else
-						this.size = GetContainerNumSlots(this.realID)
-					end
-					local conSettings = this.realID == 0 and CONTAINER_FRAME_TABLE[0] or CONTAINER_FRAME_TABLE[this.size ~= 0 and this.size or 8]
-					this:SetWidth(CONTAINER_WIDTH)
-					this:SetHeight(conSettings[4])
-					local container = KPack.MA:GetContainerFrame(this.realID)
-					if container then
-						this:SetPoint("BOTTOMLEFT", "UIParent", "BOTTOMLEFT", container:GetLeft(), container:GetBottom())
-						KPack.MA:GrabContainerFrame(container, KPack.MA:GetBag(this.realID))
-					end
-				end
-
-				local posFunc = function(this)
-					local container = KPack.MA:GetContainerFrame(this.realID)
-					if container then
-						KPack.MA:UnlockPoint(container)
-						container:ClearAllPoints()
-						container:SetPoint("CENTER", this, "CENTER", 0, 0)
-						KPack.MA:LockPoint(container)
-					end
-				end
-				this.OnMAPosition = posFunc
-				this.OnMAPreReset = posFunc
-
-				this.OnMAPostReset = function(this)
-					local container = KPack.MA:GetContainerFrame(this.realID)
-					if container then
-						KPack.MA:UnlockPoint(container)
-						KPack.MA:UnlockScale(container)
-						container:ClearAllPoints()
-					end
-					updateContainerFrameAnchors()
-				end
-
-				this.OnMAPostAttach = function(this)
-					posFunc(this)
-					updateContainerFrameAnchors()
-				end
-
-				local alphaer = function(ref, alpha)
-					local con = KPack.MA:GetContainerFrame(ref.realID)
-					if con then
-						con:SetAlpha(alpha)
-					end
-				end
-				this.OnMAAlpha = alphaer
-
-				local scaler = function(ref, scale)
-					local con = KPack.MA:GetContainerFrame(ref.realID)
-					if con and scale and scale >= 0 then
-						KPack.MA:UnlockScale(con)
-						con:SetScale(scale)
-						KPack.MA:LockScale(con)
-						posFunc(ref)
-					end
-				end
-				this.OnMAScale = scaler
-			</OnLoad>
-		</Scripts>
-	</Frame>
-	<Frame name="BagFrame1" inherits="MovableBagFrame" parent="UIParent" hidden="false" id="0"/>
-	<Frame name="BagFrame2" inherits="MovableBagFrame" parent="UIParent" hidden="false" id="1"/>
-	<Frame name="BagFrame3" inherits="MovableBagFrame" parent="UIParent" hidden="false" id="2"/>
-	<Frame name="BagFrame4" inherits="MovableBagFrame" parent="UIParent" hidden="false" id="3"/>
-	<Frame name="BagFrame5" inherits="MovableBagFrame" parent="UIParent" hidden="false" id="4"/>
-	<Frame name="BankBagFrame1" inherits="MovableBagFrame" parent="UIParent" hidden="false" id="5"/>
-	<Frame name="BankBagFrame2" inherits="MovableBagFrame" parent="UIParent" hidden="false" id="6"/>
-	<Frame name="BankBagFrame3" inherits="MovableBagFrame" parent="UIParent" hidden="false" id="7"/>
-	<Frame name="BankBagFrame4" inherits="MovableBagFrame" parent="UIParent" hidden="false" id="8"/>
-	<Frame name="BankBagFrame5" inherits="MovableBagFrame" parent="UIParent" hidden="false" id="9"/>
-	<Frame name="BankBagFrame6" inherits="MovableBagFrame" parent="UIParent" hidden="false" id="10"/>
-	<Frame name="BankBagFrame7" inherits="MovableBagFrame" parent="UIParent" hidden="false" id="11"/>
-	<Frame name="KeyRingFrame" inherits="MovableBagFrame" parent="UIParent" hidden="false" id="-2"/>
-
-	<Frame name="MicroButtonsMover" parent="UIParent" hidden="true" enableMouse="false">
-		<Size>
-			<AbsDimension x="254" y="36"/>
-		</Size>
-		<Anchors>
-			<Anchor point="BOTTOMLEFT" relativeTo="MainMenuBarArtFrame">
-				<Offset>
-					<AbsDimension x="549" y="2"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				local grab = { CharacterMicroButton, SpellbookMicroButton,
-							TalentMicroButton, AchievementMicroButton, QuestLogMicroButton,
-							SocialsMicroButton, PVPMicroButton, LFDMicroButton,
-							MainMenuMicroButton, HelpMicroButton }
-				for i, v in pairs(grab) do
-					v.MAParent = this
-				end
-
-				this.OnMAHook = function(this)
-					if KPack.MA:IsFrameHooked("MicroButtonsVerticalMover") then
-						KPack.MA:ResetFrame("MicroButtonsVerticalMover")
-					end
-					this.attachedChildren = {}
-					for i in pairs(grab) do
-						local b, pb
-						b = grab[i]
-
-						if i == 1 then
-							b:ClearAllPoints()
-							b:SetPoint("BOTTOMLEFT", this, "BOTTOMLEFT")
-							pb = nil
-						else
-							pb = grab[i-1]
-						end
-						b.MAParent = this
-						table.insert(this.attachedChildren, b)
-					end
-					this:Show()
-				end
-				this.OnMAPostReset = function(this)
-					CharacterMicroButton:ClearAllPoints()
-					CharacterMicroButton:SetPoint("BOTTOMLEFT", "MainMenuBarArtFrame", "BOTTOMLEFT", 548, 2)
-					this:Hide()
-				end
-			</OnLoad>
-		</Scripts>
-	</Frame>
-	<Frame name="MicroButtonsVerticalMover" parent="UIParent" hidden="true" enableMouse="false">
-		<Size>
-			<AbsDimension x="28" y="340"/>
-		</Size>
-		<Anchors>
-			<Anchor point="BOTTOMLEFT" relativeTo="MainMenuBarArtFrame">
-				<Offset>
-					<AbsDimension x="546" y="2"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				local grab = { CharacterMicroButton, SpellbookMicroButton,
-							TalentMicroButton, AchievementMicroButton, QuestLogMicroButton,
-							SocialsMicroButton, PVPMicroButton, LFDMicroButton,
-							MainMenuMicroButton, HelpMicroButton }
-
-				this.OnMAHook = function(this)
-					if KPack.MA:IsFrameHooked("MicroButtonsMover") then
-						KPack.MA:ResetFrame("MicroButtonsMover")
-					end
-					this.attachedChildren = {}
-
-					--KPack.MA:LockPoint(CharacterMicroButton)
-
-					local b, pb
-					for i in pairs(grab) do
-						b = grab[i]
-
-						b:ClearAllPoints()
-						if i == 1 then
-							b:SetPoint("TOPLEFT", this, "TOPLEFT", 0, 24)
-						else
-							grab[i]:SetPoint("TOPLEFT", pb, "BOTTOMLEFT", 0, 24)
-						end
-						b.MAParent = this
-						KPack.MA:LockPoint(b)
-						table.insert(this.attachedChildren, b)
-						pb = b
-					end
-					this:Show()
-				end
-				this.OnMAPreReset = function (this)
-					--KPack.MA:UnlockPoint(CharacterMicroButton)
-					local p = _G["MicroButtonsMover"]
-					if this.attachedChildren then
-						for i, b in pairs(this.attachedChildren) do
-							b.MAParent = p
-							KPack.MA:UnlockPoint(b)
-						end
-					end
-				end
-				this.OnMAPostReset = function(this)
-					CharacterMicroButton:ClearAllPoints()
-					CharacterMicroButton:SetPoint("BOTTOMLEFT", "MainMenuBarArtFrame", "BOTTOMLEFT", 546, 2)
-
-					local b, pb
-					for i in pairs(grab) do
-						b = grab[i]
-						if i > 1 then
-							b:ClearAllPoints()
-							b:SetPoint("BOTTOMLEFT", pb, "BOTTOMRIGHT", -2, 0)
-						end
-						pb = b
-					end
-					this:Hide()
-				end
-			</OnLoad>
-		</Scripts>
-	</Frame>
-
-	<Frame name="BasicActionButtonsMover" parent="UIParent" hidden="true" enableMouse="false">
-		<Size>
-			<AbsDimension x="498" y="38"/>
-		</Size>
-		<Anchors>
-			<Anchor point="BOTTOMLEFT" relativeTo="MainMenuBarArtFrame">
-				<Offset>
-					<AbsDimension x="8" y="3"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				local i, b
-				for i = 1, 12 do
-					b = _G[ "ActionButton"..i ]
-					b.MAParent = this
-				end
-				this.MAProtected = true
-				this.OnMAHook = function(this)
-					local b
-					if KPack.MA:IsFrameHooked("BasicActionButtonsVerticalMover") then
-						KPack.MA:ResetFrame("BasicActionButtonsVerticalMover")
-					end
-					ActionButton1:ClearAllPoints()
-					ActionButton1:SetPoint("LEFT", this, "LEFT")
-					ActionBarUpButton:ClearAllPoints()
-					ActionBarUpButton:SetPoint("TOPLEFT", "ActionButton12", "TOPRIGHT", 0, 7)
-					ActionBarDownButton:ClearAllPoints()
-					ActionBarDownButton:SetPoint("BOTTOMLEFT", "ActionButton12", "BOTTOMRIGHT", 0, -9)
-					this.attachedChildren = {}
-					for i = 1, 12, 1 do
-						b = _G["ActionButton"..i]
-						if i > 1 then
-							b:ClearAllPoints()
-							b:SetPoint("LEFT", "ActionButton"..(i-1), "RIGHT", 6, 0)
-						end
-						_G[ "BonusActionButton"..i ]:ClearAllPoints()
-						_G[ "BonusActionButton"..i ]:SetPoint("CENTER", b, "CENTER")
-						table.insert(this.attachedChildren, _G["ActionButton"..i])
-						table.insert(this.attachedChildren, _G["BonusActionButton"..i])
-					end
-					table.insert(this.attachedChildren, ActionBarUpButton)
-					table.insert(this.attachedChildren, ActionBarDownButton)
-
-					--KPack.MA:UnanchorRelatives(ActionButton1)
-
-					this:Show()
-				end
-				this.OnMAPostReset = function(this)
-					local b
-					ActionButton1:ClearAllPoints()
-					ActionButton1:SetPoint("BOTTOMLEFT", "MainMenuBarArtFrame", "BOTTOMLEFT", 8, 4)
-					ActionBarUpButton:ClearAllPoints()
-					ActionBarUpButton:SetPoint("CENTER", "MainMenuBarArtFrame", "TOPLEFT", 522, -22)
-					ActionBarDownButton:ClearAllPoints()
-					ActionBarDownButton:SetPoint("CENTER", "MainMenuBarArtFrame", "TOPLEFT", 522, -42)
-					for i = 1, 12, 1 do
-						b = _G[ "ActionButton"..i ]
-						if i > 1 then
-							b:ClearAllPoints()
-							b:SetPoint("LEFT", "ActionButton"..(i-1), "RIGHT", 6, 0)
-						end
-						_G[ "BonusActionButton"..i ]:ClearAllPoints()
-						_G[ "BonusActionButton"..i ]:SetPoint("CENTER", b, "CENTER")
-					end
-					this:Hide()
-				end
-			</OnLoad>
-		</Scripts>
-	</Frame>
-	<Frame name="BasicActionButtonsVerticalMover" parent="UIParent" hidden="true" enableMouse="false">
-		<Size>
-			<AbsDimension x="38" y="475"/>
-		</Size>
-		<Anchors>
-			<Anchor point="BOTTOMLEFT" relativeTo="MainMenuBarArtFrame">
-				<Offset>
-					<AbsDimension x="8" y="4"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				this.MAProtected = true
-				this.OnMAHook = function(this)
-					local b, pb
-					if KPack.MA:IsFrameHooked("BasicActionButtonsMover") then
-						KPack.MA:ResetFrame("BasicActionButtonsMover")
-					end
-					ActionButton1:ClearAllPoints()
-					ActionButton1:SetPoint("TOP", this, "TOP", 0, 0)
-					this.attachedChildren = {}
-					for i = 1, 12, 1 do
-						b = _G[ "ActionButton"..i ]
-						table.insert(this.attachedChildren, _G[ "ActionButton"..i ])
-						table.insert(this.attachedChildren, _G[ "BonusActionButton"..i ])
-						if i > 1 then
-							pb = _G[ "ActionButton"..(i-1) ]
-							b:ClearAllPoints()
-							b:SetPoint("TOP", pb, "BOTTOM", 0, -2)
-						end
-						b.MAParent = this
-						_G[ "BonusActionButton"..i ]:ClearAllPoints()
-						_G[ "BonusActionButton"..i ]:SetPoint("CENTER", b, "CENTER")
-					end
-					table.insert(this.attachedChildren, ActionBarUpButton)
-					table.insert(this.attachedChildren, ActionBarDownButton)
-					ActionBarUpButton:ClearAllPoints()
-					ActionBarUpButton:SetPoint("TOPLEFT", "ActionButton12", "BOTTOMLEFT", -8, 4)
-					ActionBarDownButton:ClearAllPoints()
-					ActionBarDownButton:SetPoint("TOPRIGHT", "ActionButton12", "BOTTOMRIGHT", 8, 4)
-					this:Show()
-				end
-				this.OnMAPostReset = function(this)
-					local b, pb
-					ActionButton1:ClearAllPoints()
-					ActionButton1:SetPoint("BOTTOMLEFT", "MainMenuBarArtFrame", "BOTTOMLEFT", 8, 4)
-					ActionBarUpButton:ClearAllPoints()
-					ActionBarUpButton:SetPoint("CENTER", "MainMenuBarArtFrame", "TOPLEFT", 522, -22)
-					ActionBarDownButton:ClearAllPoints()
-					ActionBarDownButton:SetPoint("CENTER", "MainMenuBarArtFrame", "TOPLEFT", 522, -42)
-					for i = 1, 12, 1 do
-						b = _G[ "ActionButton"..i ]
-						b.MAParent = BasicActionButtonsMover
-						if i > 1 then
-							pb = _G[ "ActionButton"..(i-1) ]
-							b:ClearAllPoints()
-							b:SetPoint("LEFT", pb, "RIGHT", 6, 0)
-						end
-						_G[ "BonusActionButton"..i ]:ClearAllPoints()
-						_G[ "BonusActionButton"..i ]:SetPoint("CENTER", b, "CENTER")
-					end
-					this:Hide()
-				end
-			</OnLoad>
-		</Scripts>
-	</Frame>
-
-	<Frame name="PetActionButtonsMover" parent="UIParent" hidden="true" enableMouse="false">
-		<Size>
-			<AbsDimension x="370" y="32"/>
-		</Size>
-		<Anchors>
-			<Anchor point="BOTTOMLEFT" relativeTo="PetActionBarFrame">
-				<Offset>
-					<AbsDimension x="36" y="1"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				this.MAProtected = true
-				for i = 1, 10 do
-					_G["PetActionButton"..i].MAParent = this
-				end
-				this.OnMAHook = function(this)
-					if KPack.MA:IsFrameHooked("PetActionButtonsVerticalMover") then
-						KPack.MA:ResetFrame("PetActionButtonsVerticalMover")
-					end
-					PetActionButton1:ClearAllPoints()
-					PetActionButton1:SetPoint("LEFT", this, "LEFT", 0, 0)
-					this.attachedChildren = {}
-					for i = 1, 10, 1 do
-						table.insert(this.attachedChildren, _G[ "PetActionButton"..i ])
-						b = _G[ "PetActionButton"..i ]
-						if i > 1 then
-							pb = _G[ "PetActionButton"..(i-1) ]
-							b:ClearAllPoints()
-							b:SetPoint("LEFT", pb, "RIGHT", 4, 0)
-						end
-						b.MAParent = this
-					end
-					this:Show()
-				end
-				this.OnMAPostReset = function(this)
-					PetActionButton1:ClearAllPoints()
-					PetActionButton1:SetPoint("BOTTOMLEFT", "PetActionBarFrame", "BOTTOMLEFT", 36, 1)
-					for i = 2, 10, 1 do
-						b = _G[ "PetActionButton"..i ]
-						pb = _G[ "PetActionButton"..(i-1) ]
-						b:ClearAllPoints()
-						b:SetPoint("LEFT", pb, "RIGHT", 8, 0)
-					end
-					this.attachedChildren = nil
-					this:Hide()
-				end
-			</OnLoad>
-		</Scripts>
-	</Frame>
-	<Frame name="PetActionButtonsVerticalMover" parent="UIParent" hidden="true" enableMouse="false">
-		<Size>
-			<AbsDimension x="32" y="370"/>
-		</Size>
-		<Anchors>
-			<Anchor point="BOTTOMLEFT" relativeTo="PetActionBarFrame">
-				<Offset>
-					<AbsDimension x="36" y="1"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				this.MAProtected = true
-				this.OnMAHook = function(this)
-					if KPack.MA:IsFrameHooked("PetActionButtonsMover") then
-						KPack.MA:ResetFrame("PetActionButtonsMover")
-					end
-					local b, pb
-					PetActionButton1:ClearAllPoints()
-					PetActionButton1:SetPoint("TOP", this, "TOP", 0, 0)
-					--this:SetFrameLevel(PetActionButton1:GetFrameLevel() + 1)
-					this.attachedChildren = {}
-					for i = 1, 10, 1 do
-						b = _G[ "PetActionButton"..i ]
-						table.insert(this.attachedChildren, b)
-						if i > 1 then
-							pb = _G[ "PetActionButton"..(i-1) ]
-							b:ClearAllPoints()
-							b:SetPoint("TOP", pb, "BOTTOM", 0, -3)
-						end
-						b.MAParent = this
-					end
-					this:Show()
-				end
-				this.OnMAPostReset = function(this)
-					local b, pb
-					PetActionButton1:ClearAllPoints()
-					PetActionButton1:SetPoint("BOTTOMLEFT", "PetActionBarFrame", "BOTTOMLEFT", 36, 1)
-					for i = 2, 10, 1 do
-						b = _G[ "PetActionButton"..i ]
-						pb = _G[ "PetActionButton"..(i-1) ]
-						b:ClearAllPoints()
-						b:SetPoint("LEFT", pb, "RIGHT", 8, 0)
-						b.MAParent = PetActionButtonsMover
-					end
-					this.attachedChildren = nil
-					this:Hide()
-				end
-			</OnLoad>
-		</Scripts>
-	</Frame>
-
-	<Frame name="ShapeshiftButtonsMover" parent="UIParent" hidden="true" enableMouse="false">
-		<Size>
-			<AbsDimension x="225" y="32"/>
-		</Size>
-		<Anchors>
-			<Anchor point="BOTTOMLEFT" relativeTo="MainMenuBar" relativePoint="TOPLEFT">
-				<Offset>
-					<AbsDimension x="30" y="0"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				this.MAProtected = true
-				for i = 1, 10 do
-					_G["ShapeshiftButton"..i].MAParent = this
-				end
-				this.OnMAHook = function(this)
-					if KPack.MA:IsFrameHooked("ShapeshiftButtonsVerticalMover") then
-						KPack.MA:ResetFrame("ShapeshiftButtonsVerticalMover")
-					end
-
-					ShapeshiftBarFrame.MAParent = this
-					for i = 1, 10 do
-						_G["ShapeshiftButton"..i].MAParent = this
-					end
-					ShapeshiftBarFrame:DisableDrawLayer("BACKGROUND")
-					ShapeshiftBarFrame:DisableDrawLayer("BORDER")
-					this.attachedChildren = {ShapeshiftBarFrame}
-					this:Show()
-				end
-				this.OnMAPosition = function(this)
-					KPack.MA:UnlockPoint(ShapeshiftBarFrame)
-					ShapeshiftBarFrame:ClearAllPoints()
-					ShapeshiftBarFrame:SetPoint("LEFT", this, "LEFT", 0, 0)
-					KPack.MA:LockPoint(ShapeshiftBarFrame)
-				end
-				this.OnMAOnAttach = function(this, mover)
-					KPack.MA:UnlockPoint(ShapeshiftBarFrame)
-
-					--this:ClearAllPoints()
-					--this:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", ShapeshiftBarFrame:GetLeft(), ShapeshiftBarFrame:GetBottom())
-
-					ShapeshiftBarFrame:ClearAllPoints()
-					ShapeshiftBarFrame:SetPoint("LEFT", this, "LEFT", 0, 0)
-
-					KPack.MA:LockPoint(ShapeshiftBarFrame)
-				end
-
-				this.OnMAOnDetach = function(this)
-				end
-				this.OnMAPreReset = function(this)
-					KPack.MA:UnlockPoint(ShapeshiftBarFrame)
-					--ShapeshiftBarFrame:ClearAllPoints()
-					--KPack.MA:ResetPosition(ShapeshiftBarFrame, KPack.MA:GetFrameOptions("ShapeshiftButtonsMover"), true)
-				end
-				this.OnMAPostReset = function(this)
-					this.attachedChildren = nil
-					this:Hide()
-					ShapeshiftBarFrame:EnableDrawLayer("BACKGROUND")
-					ShapeshiftBarFrame:EnableDrawLayer("BORDER")
-				end
-				this.OnMAHide = function(this, hidden)
-					if hidden then
-						KPack.MA:LockVisibility(ShapeshiftBarFrame)
-					else
-						KPack.MA:UnlockVisibility(ShapeshiftBarFrame)
-					end
-				end
-			</OnLoad>
-		</Scripts>
-	</Frame>
-	<Frame name="ShapeshiftButtonsVerticalMover" parent="UIParent" hidden="true" enableMouse="false">
-		<Size>
-			<AbsDimension x="32" y="225"/>
-		</Size>
-		<Anchors>
-			<Anchor point="BOTTOMLEFT" relativeTo="ShapeshiftBarFrame">
-				<Offset>
-					<AbsDimension x="11" y="3"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				this.MAProtected = true
-				this.OnMAHook = function(this)
-					if KPack.MA:IsFrameHooked("ShapeshiftButtonsMover") then
-						KPack.MA:ResetFrame("ShapeshiftButtonsMover")
-					end
-					ShapeshiftBarFrame:DisableDrawLayer("BACKGROUND")
-					ShapeshiftBarFrame:DisableDrawLayer("BORDER")
-					ShapeshiftBarFrame.MAParent = this
-					local b, pb
-					ShapeshiftButton1:ClearAllPoints()
-					ShapeshiftButton1:SetPoint("TOP", this, "TOP", 0, -7)
-					this.attachedChildren = {}
-					for i = 1, 10, 1 do
-					   table.insert(this.attachedChildren, _G[ "ShapeshiftButton"..i ])
-						if i > 1 then
-							b = _G[ "ShapeshiftButton"..i ]
-							b.MAParent = this
-							pb = _G[ "ShapeshiftButton"..(i-1) ]
-							b:ClearAllPoints()
-							b:SetPoint("TOP", pb, "BOTTOM", 0, -7)
-							KPack.MA:LockPoint(b)
-						end
-					end
-					this:Show()
-				end
-				this.OnMAPostReset = function(this)
-					local b, pb
-					ShapeshiftButton1:ClearAllPoints()
-					ShapeshiftButton1:SetPoint("BOTTOMLEFT", "ShapeshiftBarFrame", "BOTTOMLEFT", 11, 3)
-					for i = 2, 10, 1 do
-						b = _G[ "ShapeshiftButton"..i ]
-						pb = _G[ "ShapeshiftButton"..(i-1) ]
-						b:ClearAllPoints()
-						b:SetPoint("LEFT", pb, "RIGHT", 7, 0)
-						b.MAParent = _G[ "ShapeshiftButtonsMover" ]
-						KPack.MA:UnlockPoint(b)
-					end
-					this.attachedChildren = nil
-					this:Hide()
-					ShapeshiftBarFrame:EnableDrawLayer("BACKGROUND")
-					ShapeshiftBarFrame:EnableDrawLayer("BORDER")
-				end
-			</OnLoad>
-		</Scripts>
-	</Frame>
-
-	<Frame name="MultiBarRightHorizontalMover" parent="UIParent" hidden="true" enableMouse="false">
-		<Size>
-			<AbsDimension x="498" y="38"/>
-		</Size>
-		<Anchors>
-			<Anchor point="BOTTOM" relativeTo="UIParent">
-				<Offset>
-					<AbsDimension x="0" y="250"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				this.MAProtected = true
-				this.OnMAHook = function(this)
-					if KPack.MA:IsFrameHooked("MultiBarRight") then
-						KPack.MA:ResetFrame("MultiBarRight")
-					end
-					local b, pb
-					this.attachedChildren = {}
-					for i = 1, 12, 1 do
-						b = _G[ "MultiBarRightButton"..i ]
-						table.insert(this.attachedChildren, b)
-						b:ClearAllPoints()
-						if i > 1 then
-							b:SetPoint("LEFT", pb, "RIGHT", 6, 0)
-						else
-							b:SetPoint("TOPLEFT", this)
-						end
-						pb = b
-						b.MAParent = this
-						--b:SetParent(this)
-						--b:SetFrameLevel(4)
-					end
-					this:Show()
-				end
-				this.OnMAPreReset = function (this)
-					if this.attachedChildren then
-						for i, v in pairs(this.attachedChildren) do
-							v.MAParent = nil
-						end
-					end
-				end
-				this.OnMAPostReset = function(this)
-					local b, pb
-					MultiBarRightButton1:ClearAllPoints()
-					MultiBarRightButton1:SetPoint("TOPRIGHT", "MultiBarRight")
-					for i = 2, 12, 1 do
-						b = _G[ "MultiBarRightButton"..i ]
-						pb = _G[ "MultiBarRightButton"..(i-1) ]
-						b:ClearAllPoints()
-						b:SetPoint("TOP", pb, "BOTTOM", 0, -6)
-					end
-					this:Hide()
-				end
-			</OnLoad>
-		</Scripts>
-	</Frame>
-
-	<Frame name="MultiBarLeftHorizontalMover" parent="UIParent" hidden="true" enableMouse="false">
-		<Size>
-			<AbsDimension x="498" y="38"/>
-		</Size>
-		<Anchors>
-			<Anchor point="BOTTOM" relativeTo="UIParent">
-				<Offset>
-					<AbsDimension x="0" y="285"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				this.MAProtected = true
-				this.OnMAHook = function(this)
-					if KPack.MA:IsFrameHooked("MultiBarLeft") then
-						KPack.MA:ResetFrame("MultiBarLeft")
-					end
-					local b, pb
-					this.attachedChildren = {}
-					for i = 1, 12, 1 do
-						b = _G[ "MultiBarLeftButton"..i ]
-						table.insert(this.attachedChildren, b)
-						b:ClearAllPoints()
-						if i > 1 then
-							b:SetPoint("LEFT", pb, "RIGHT", 6, 0)
-						else
-							b:SetPoint("TOPLEFT", this)
-						end
-						pb = b
-						b.MAParent = this
-						--b:SetParent(this)
-						--b:SetFrameLevel(4)
-					end
-					this:Show()
-				end
-				this.OnMAPreReset = function (this)
-					if this.attachedChildren then
-						for i, v in pairs(this.attachedChildren) do
-							v.MAParent = nil
-						end
-					end
-				end
-				this.OnMAPostReset = function(this)
-					local b, pb
-					MultiBarLeftButton1:ClearAllPoints()
-					MultiBarLeftButton1:SetPoint("TOPRIGHT", "MultiBarLeft")
-					pb = MultiBarLeftButton1
-					for i = 2, 12, 1 do
-						b = _G[ "MultiBarLeftButton"..i ]
-						b:ClearAllPoints()
-						b:SetPoint("TOP", pb, "BOTTOM", 0, -6)
-						pb = b
-					end
-					this:Hide()
-				end
-			</OnLoad>
-		</Scripts>
-	</Frame>
-
-	<Button name="MAOptionsButtonTemplate" inherits="KPackButtonTemplate" virtual="true">
-		<Size>
-			<AbsDimension x="70" y="22"/>
+			<AbsDimension x="20" y="20"/>
 		</Size>
 		<NormalText inherits="GameFontHighlight"/>
 		<DisabledText inherits="GameFontDisable"/>
 		<HighlightText inherits="GameFontHighlight"/>
+		<Scripts>
+			<OnEnter function="MovAny_TooltipShow"/>
+			<OnLeave function="MovAny_TooltipHide"/>
+		</Scripts>
 	</Button>
 
-	<Frame name="MAMovableFrameTemplate" virtual="true">
+	<CheckButton name="MACheckButtonTemplate" inherits="UICheckButtonTemplate" virtual="true">
 		<Size>
-			<AbsDimension x="300" y="24"/>
+			<AbsDimension x="20" y="20"/>
+		</Size>
+		<NormalText inherits="GameFontHighlight"/>
+		<DisabledText inherits="GameFontDisable"/>
+		<HighlightText inherits="GameFontHighlight"/>
+		<Scripts>
+			<OnEnter function="MovAny_TooltipShow"/>
+			<OnLeave function="MovAny_TooltipHide"/>
+		</Scripts>
+	</CheckButton>
+
+	<CheckButton name="MAListCheckButtonTemplate" inherits="MACheckButtonTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="30" y="30"/>
+		</Size>
+	</CheckButton>
+
+	<Frame name="MAListRowTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="309" y="24"/>
 		</Size>
 		<Frames>
 			<Frame name="$parentBackdrop">
 				<Size>
-					<AbsDimension x="250" y="24"/>
+					<AbsDimension x="329" y="24"/>
 				</Size>
 				<Anchors>
 					<Anchor point="LEFT"/>
@@ -1253,14 +373,14 @@
 				</Backdrop>
 				<Scripts>
 					<OnLoad>
-						this:SetBackdropColor(0.03, 0.03, 0.03)
-						this:SetBackdropBorderColor(0.4, 0.4, 0.4)
+						self:SetBackdropColor(.03, .03, .03)
+						self:SetBackdropBorderColor(.4, .4, .4)
 					</OnLoad>
 				</Scripts>
 			</Frame>
 			<Frame name="$parentFrameName">
 				<Size>
-					<AbsDimension x="250" y="24"/>
+					<AbsDimension x="327" y="24"/>
 				</Size>
 				<Anchors>
 					<Anchor point="LEFT"/>
@@ -1289,13 +409,11 @@
 				</Layers>
 				<Scripts>
 					<OnMouseUp>
-						if arg1 == "LeftButton" then
-							KPack.MA:RowTitleClicked(this)
-						end
+						MovAny:RowTitleClicked(self)
 					</OnMouseUp>
 				</Scripts>
 			</Frame>
-			<CheckButton name="$parentMove" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentMove" inherits="MAListCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentFrameName">
 						<Offset>
@@ -1305,11 +423,11 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						KPack.MA:OnMoveCheck(this)
+						MovAny:OnMoveCheck(self)
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentHide" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentHide" inherits="MAListCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentMove">
 						<Offset>
@@ -1319,11 +437,11 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						KPack.MA:OnHideCheck(this)
+						MovAny:OnHideCheck(self)
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<Button name="$parentReset" inherits="KPackButtonTemplate" text="Reset">
+			<Button name="$parentReset" inherits="UIPanelButtonTemplate" text="Reset">
 				<Size>
 					<AbsDimension x="44" y="20"/>
 				</Size>
@@ -1337,17 +455,17 @@
 				<NormalText inherits="GameFontHighlight"/>
 				<Scripts>
 					<OnClick>
-						KPack.MA:OnResetCheck(this)
+						MovAny:OnResetCheck(self)
 					</OnClick>
 				</Scripts>
 			</Button>
 		</Frames>
 	</Frame>
 
-	<Frame name="MAOptions" toplevel="true" frameStrata="DIALOG" movable="true" enableMouse="true" hidden="true" parent="UIParent">
+	<Frame name="MAOptions" toplevel="true" frameStrata="HIGH" movable="true" enableMouse="true" hidden="true" parent="UIParent">
 		<TitleRegion setAllPoints="true"/>
 		<Size>
-			<AbsDimension x="420" y="500"/>
+			<AbsDimension x="497" y="513"/>
 		</Size>
 		<Anchors>
 			<Anchor point="CENTER"/>
@@ -1367,7 +485,7 @@
 			<Layer level="ARTWORK">
 				<Texture name="$parentFrameHeader" file="Interface\DialogFrame\UI-DialogBox-Header">
 					<Size>
-						<AbsDimension x="370" y="64"/>
+						<AbsDimension x="329" y="64"/>
 					</Size>
 					<Anchors>
 						<Anchor point="TOP">
@@ -1386,7 +504,9 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentFrameNameHeader" inherits="GameFontHighlightSmall" text="Categories and Frames">
+			</Layer>
+			<Layer level="BACKGROUND">
+				<FontString name="$parentFrameNameHeader" inherits="GameFontHighlightSmall">
 					<Anchors>
 						<Anchor point="TOPLEFT">
 							<Offset>
@@ -1395,16 +515,16 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentMoveHeader" inherits="GameFontHighlightSmall" text="Modify">
+				<FontString name="$parentMoveHeader" inherits="GameFontHighlightSmall">
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="LEFT" relativeTo="$parentFrameNameHeader">
 							<Offset>
-								<AbsDimension x="238" y="0"/>
+								<AbsDimension x="316" y="0"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentHideHeader" inherits="GameFontHighlightSmallOutline" text="Hide">
+				<FontString name="$parentHideHeader" inherits="GameFontHighlightSmallOutline">
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="LEFT" relativeTo="$parentMoveHeader">
 							<Offset>
@@ -1416,305 +536,260 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<CheckButton name="$parentCharacterSpecific" inherits="UICheckButtonTemplate">
-				<Anchors>
-					<Anchor point="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="10" y="7"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnLoad>
-						_G[this:GetName().."Text"]:SetText("UCS")
-					</OnLoad>
-					<OnClick>
-						KPack.MA:OnCheckCharacterSpecific(this)
-					</OnClick>
-				</Scripts>
-			</CheckButton>
-			<CheckButton name="$parentToggleTooltips" inherits="UICheckButtonTemplate">
-				<Anchors>
-					<Anchor point="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="67" y="7"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnLoad>
-						_G[this:GetName().."Text"]:SetText("TT")
-						this.tooltipText = KPack.L.MATTHelp
-					</OnLoad>
-					<OnClick>
-						KPack.MA:OnCheckToggleTooltips(this)
-					</OnClick>
-				</Scripts>
-			</CheckButton>
-			<CheckButton name="$parentToggleModifiedFramesOnly" inherits="UICheckButtonTemplate">
-				<Anchors>
-					<Anchor point="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="114" y="7"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnLoad>
-						_G[this:GetName().."Text"]:SetText("MF")
-						this.tooltipText = KPack.L.MAMFHelp
-					</OnLoad>
-					<OnClick>
-						KPack.MA:OnCheckToggleModifiedFramesOnly(this)
-					</OnClick>
-				</Scripts>
-			</CheckButton>
-			<CheckButton name="$parentToggleCategories" inherits="UICheckButtonTemplate">
-				<Anchors>
-					<Anchor point="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="162" y="7"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnLoad>
-						_G[this:GetName().."Text"]:SetText("CE")
-						this.tooltipText = KPack.L.MACEHelp
-					</OnLoad>
-					<OnClick>
-						KPack.MA:OnCheckToggleCategories(this)
-					</OnClick>
-				</Scripts>
-			</CheckButton>
-			<Button name="MAOptionsResetAll" inherits="MAOptionsButtonTemplate" text="Reset All">
-				<Anchors>
-					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT">
-						<Offset>
-							<AbsDimension x="-14" y="14"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnLoad>this.tooltipText = KPack.L.MAResetHelp</OnLoad>
-					<OnClick>
-						PlaySound("igMainMenuOption")
-						StaticPopup_Show("MOVEANYTHING_RESET_CONFIRM")
-					</OnClick>
-				</Scripts>
-			</Button>
-			<Button name="MAOptionsClose" inherits="MAOptionsButtonTemplate" text="Close">
+			<Button name="$parentClose" inherits="MAButtonTemplate" text="X">
 				<Size>
-					<AbsDimension x="50" y="22"/>
+					<AbsDimension x="20" y="20"/>
 				</Size>
 				<Anchors>
-					<Anchor point="RIGHT" relativePoint="LEFT" relativeTo="MAOptionsResetAll">
+					<Anchor point="TOPRIGHT">
 						<Offset>
-							<AbsDimension x="-4" y="0"/>
+							<AbsDimension x="-13" y="-11"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
 				<Scripts>
-					<OnLoad>this.tooltipText = KPack.L.MACloseHelp</OnLoad>
+					<OnLoad>
+						self.tooltipText = "Closes this window\n\nCtrl-Shift-Alt click reloads the interface"
+					</OnLoad>
 					<OnClick>
 						if IsShiftKeyDown() and IsControlKeyDown() and IsAltKeyDown() then
 							ReloadUI()
 						else
-							KPack.MA.db.autoShowNext = nil
+							MADB.autoShowNext = nil
 							MAOptions:Hide()
 						end
 					</OnClick>
 				</Scripts>
 			</Button>
-			<Button name="MAOptionsSync" inherits="MAOptionsButtonTemplate" text="Sync">
-				<Size>
-					<AbsDimension x="50" y="22"/>
-				</Size>
+
+			<Button name="$parentOpenOptionsMenu" inherits="MAButtonTemplate" text="O">
 				<Anchors>
-					<Anchor point="RIGHT" relativePoint="LEFT" relativeTo="MAOptionsClose">
+					<Anchor point="TOPRIGHT" relativePoint="TOPLEFT" relativeTo="MAOptionsClose">
 						<Offset>
-							<AbsDimension x="-4" y="0"/>
+							<AbsDimension x="0" y="0"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
 				<Scripts>
-					<OnLoad>this.tooltipText = KPack.L.MASyncHelp</OnLoad>
-					<OnClick>KPack.MA:SyncAllFrames()</OnClick>
+					<OnLoad>
+						self.tooltipText = "Options Menu"
+					</OnLoad>
+					<OnClick>
+						MovAny:OpenMenu()
+					</OnClick>
 				</Scripts>
 			</Button>
-			<Frame name="MAMove1" inherits="MAMovableFrameTemplate">
+
+			<Button name="$parentSync" inherits="MAButtonTemplate" text="S">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAOptionsFrameNameHeader">
-						<Offset>
-							<AbsDimension x="-8" y="-4"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Frame>
-			<Frame name="MAMove2" inherits="MAMovableFrameTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove1">
+					<Anchor point="TOPRIGHT" relativePoint="TOPLEFT" relativeTo="MAOptionsOpenOptionsMenu">
 						<Offset>
 							<AbsDimension x="0" y="0"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
-			</Frame>
-			<Frame name="MAMove3" inherits="MAMovableFrameTemplate">
+				<Scripts>
+					<OnLoad>
+						self.tooltipText = "Synchronize elements modified by MoveAnything"
+					</OnLoad>
+					<OnClick>
+						MovAny:SyncAllFrames()
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			<CheckButton name="$parentToggleFrameEditors" inherits="MACheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove2">
+					<Anchor point="TOPRIGHT" relativeTo="MAOptionsSync" relativePoint="TOPLEFT">
 						<Offset>
-							<AbsDimension x="0" y="0"/>
+							<AbsDimension x="-15" y="0"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
-			</Frame>
-			<Frame name="MAMove4" inherits="MAMovableFrameTemplate">
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("FE")
+						self.tooltipText = "Toggle visibility on frame editors"
+					</OnLoad>
+					<OnClick>
+						if IsShiftKeyDown() then
+							for i,fe in pairs(MovAny.frameEditors) do
+								fe:CloseDialog()
+							end
+						end
+						if MovAny.ToggleFrameEditors then
+							MovAny:ToggleFrameEditors()
+						end
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+
+			<CheckButton name="$parentToggleMovers" inherits="MACheckButtonTemplate" checked="true">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove3">
+					<Anchor point="TOPRIGHT" relativeTo="MAOptionsToggleFrameEditors" relativePoint="TOPLEFT">
 						<Offset>
-							<AbsDimension x="0" y="0"/>
+							<AbsDimension x="-12" y="0"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
-			</Frame>
-			<Frame name="MAMove5" inherits="MAMovableFrameTemplate">
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("M")
+						self.tooltipText = "Toggles all movers"
+					</OnLoad>
+					<OnClick>
+						if IsShiftKeyDown() then
+							table.wipe(MovAny.minimizedMovers)
+						end
+						MovAny:ToggleMovers()
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+
+			<CheckButton name="$parentToggleModifiedFramesOnly" inherits="MACheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove4">
+					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="0" y="0"/>
+							<AbsDimension x="12" y="-12"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
-			</Frame>
-			<Frame name="MAMove6" inherits="MAMovableFrameTemplate">
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("MF")
+						self.tooltipText = "Show only modified frames"
+					</OnLoad>
+					<OnClick>
+						MovAny:OnCheckToggleModifiedFramesOnly(self)
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+
+			<CheckButton name="$parentToggleCategories" inherits="MACheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove5">
+					<Anchor point="TOPLEFT" relativeTo="MAOptionsToggleModifiedFramesOnly" relativePoint="TOPRIGHT">
 						<Offset>
-							<AbsDimension x="0" y="0"/>
+							<AbsDimension x="25" y="0"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
-			</Frame>
-			<Frame name="MAMove7" inherits="MAMovableFrameTemplate">
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("CE")
+						self.tooltipText = "Toggle all categories"
+					</OnLoad>
+					<OnClick>
+						MovAny:OnCheckToggleCategories(self)
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+
+			<CheckButton name="$parentToggleFrameStack" inherits="MACheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove6">
+					<Anchor point="TOPLEFT" relativeTo="MAOptionsToggleCategories" relativePoint="TOPRIGHT">
 						<Offset>
-							<AbsDimension x="0" y="0"/>
+							<AbsDimension x="60" y="0"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
-			</Frame>
-			<Frame name="MAMove8" inherits="MAMovableFrameTemplate">
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("FS")
+						self.tooltipText = "Toggle Blizzard's framestack tooltip\n\n A very helpful tool for finding frame names for use with /move or /hide"
+					</OnLoad>
+					<OnClick>
+						UIParentLoadAddOn("Blizzard_DebugTools")
+						FrameStackTooltip_Toggle()
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+
+			<EditBox name="MA_Search" inherits="InputBoxTemplate" hidden="false" virtual="true" autoFocus="false">
+				<Size>
+					<AbsDimension x="464" y="18"/>
+				</Size>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove7">
+					<Anchor point="BOTTOMLEFT" relativeTo="MAOptions" relativePoint="BOTTOMLEFT">
 						<Offset>
-							<AbsDimension x="0" y="0"/>
+							<AbsDimension x="19" y="14"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
-			</Frame>
-			<Frame name="MAMove9" inherits="MAMovableFrameTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove8">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Frame>
-			<Frame name="MAMove10" inherits="MAMovableFrameTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove9">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Frame>
-			<Frame name="MAMove11" inherits="MAMovableFrameTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove10">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Frame>
-			<Frame name="MAMove12" inherits="MAMovableFrameTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove11">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Frame>
-			<Frame name="MAMove13" inherits="MAMovableFrameTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove12">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Frame>
-			<Frame name="MAMove14" inherits="MAMovableFrameTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove13">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Frame>
-			<Frame name="MAMove15" inherits="MAMovableFrameTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove14">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Frame>
-			<Frame name="MAMove16" inherits="MAMovableFrameTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove15">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Frame>
-			<Frame name="MAMove17" inherits="MAMovableFrameTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="MAMove16">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Frame>
+				<Scripts>
+					<OnLoad>
+						self:SetText(SEARCH)
+					</OnLoad>
+					<OnEditFocusGained>
+						self:HighlightText(0, 0)
+						if self:GetText() == SEARCH then
+							self:SetText("")
+						end
+					</OnEditFocusGained>
+					<OnEditFocusLost>
+						self:HighlightText(0, 0)
+						if self:GetText() == "" or self:GetText() == nil then
+							self:SetText(SEARCH)
+						end
+						MovAny:Search(self:GetText())
+					</OnEditFocusLost>
+					<OnTabPressed>
+						self:ClearFocus()
+					</OnTabPressed>
+					<OnEscapePressed>
+						MovAny:Search(self:GetText())
+						self:ClearFocus()
+					</OnEscapePressed>
+					<OnTextChanged>
+						if self:GetText() ~= SEARCH then
+							MovAny:Search(self:GetText())
+						end
+					</OnTextChanged>
+					<OnEnterPressed>
+						if self:GetText() == "" or self:GetText() == nil then
+							self:SetText(SEARCH)
+						elseif self:GetText() ~= SEARCH then
+							MovAny:Search(self:GetText())
+						end
+						self:ClearFocus()
+					</OnEnterPressed>
+				</Scripts>
+			  </EditBox>
+
 			<ScrollFrame name="MAScrollFrame" inherits="FauxScrollFrameTemplate">
 				<Size>
-					<AbsDimension x="380" y="442"/>
+					<AbsDimension x="380" y="443"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPRIGHT">
 						<Offset>
-							<AbsDimension x="-34" y="-13"/>
+							<AbsDimension x="-37" y="-34"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
 				<Scripts>
 					<OnVerticalScroll>
-						FauxScrollFrame_OnVerticalScroll(self, offset, KPack.MA.SCROLL_HEIGHT, KPack.MA.UpdateGUI)
+						FauxScrollFrame_OnVerticalScroll(self, offset, MovAny.SCROLL_HEIGHT, MovAny.UpdateGUI)
 					</OnVerticalScroll>
 				</Scripts>
 				<Frames>
 					<Frame name="MAScrollBorder">
 						<Size>
-							<AbsDimension x="20" y="431"/>
+							<AbsDimension x="20" y="410"/>
 						</Size>
 						<Anchors>
 							<Anchor point="TOPRIGHT">
@@ -1736,8 +811,8 @@
 						</Backdrop>
 						<Scripts>
 							<OnLoad>
-								this:SetBackdropColor(0.1, 0.1, 0.1)
-								this:SetBackdropBorderColor(0.4, 0.4, 0.4)
+								self:SetBackdropColor(.1, .1, .1)
+								self:SetBackdropBorderColor(.4, .4, .4)
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -1746,54 +821,34 @@
 		</Frames>
 		<Scripts>
 			<OnLoad>
-				this:RegisterEvent("ADDON_LOADED")
-				this:RegisterEvent("PLAYER_LOGOUT")
-				this:RegisterEvent("PLAYER_ENTERING_WORLD")
-				this:RegisterEvent("PLAYER_REGEN_ENABLED")
-				this:RegisterEvent("RAID_ROSTER_UPDATE")
-				tinsert(UISpecialFrames, this:GetName())
+				self:RegisterEvent("ADDON_LOADED")
+				self:RegisterEvent("PLAYER_LOGOUT")
+				self:RegisterEvent("PLAYER_ENTERING_WORLD")
+				self:RegisterEvent("PLAYER_REGEN_ENABLED")
+				self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+				self:RegisterEvent("PLAYER_FOCUS_CHANGED")
+				self:RegisterEvent("PLAYER_ENTER_COMBAT")
 			</OnLoad>
 			<OnShow>
-				KPack.MA:OnShow()
+				MovAny:OnShow()
 			</OnShow>
 			<OnHide>
-				KPack.MA:OnHide()
+				MovAny:OnHide()
 			</OnHide>
-			<OnEvent>
-				if event == "PLAYER_REGEN_ENABLED" then
-					KPack.MA:SyncFrames()
-				elseif event == "ADDON_LOADED" or event == "RAID_ROSTER_UPDATE" then
-					if KPack.MA.inited then
-						KPack.MA:SyncFrames()
-					end
-				elseif event == "PLAYER_LOGOUT" then
-					KPack.MA.OnPlayerLogout()
-				elseif event == "PLAYER_ENTERING_WORLD" then
-					if KPack.MA.Boot ~= nil then
-						KPack.MA:Boot()
-						KPack.MA.Boot = nil
-						KPack.MA.ParseData = nil
-					end
-					KPack.MA:SyncAllFrames()
-				else
-					KPack.MA:SyncAllFrames()
-				end
-			</OnEvent>
+			<OnEvent function="MovAny_OnEvent"/>
 		</Scripts>
 	</Frame>
-	<Button name="MA_NudgeButton" inherits="KPackButtonTemplate" virtual="true" hidden="false">
+	<Button name="MA_NudgeButton" inherits="UIPanelButtonTemplate" virtual="true" hidden="false">
 		<Size><AbsDimension x="24" y="24"/></Size>
 		<Scripts>
-			<OnClick>
-				KPack.MA:Nudge(this.dir, arg1)
-			</OnClick>
+			<OnClick function="MANudgeButton_OnClick"/>
 		</Scripts>
 	</Button>
-	<Button name="MA_MoverButton" inherits="KPackButtonTemplate" virtual="true" hidden="false">
+	<Button name="MA_MoverButton" inherits="UIPanelButtonTemplate" virtual="true" hidden="false">
 		<Size><AbsDimension x="15" y="15"/></Size>
 		<Scripts>
 			<OnLoad>
-				this:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+				self:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 			</OnLoad>
 		</Scripts>
 	</Button>
@@ -1851,13 +906,13 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						this:SetText("^")
-						this.dir = 1
-						this:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+						self:SetText("^")
+						self.dir = 1
+						self:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 					</OnLoad>
 				</Scripts>
 			</Button>
-			<Button name="$parent_CenterMe" inherits="KPackButtonTemplate" hidden="false">
+			<Button name="$parent_CenterMe" inherits="UIPanelButtonTemplate" hidden="false">
 				<Size><AbsDimension x="24" y="24"/></Size>
 				<Anchors>
 					<Anchor point="TOP" relativeTo="$parent_NudgeUp" relativePoint="BOTTOM">
@@ -1866,11 +921,11 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						this:SetText("C")
-						this:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+						self:SetText("C")
+						self:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 					</OnLoad>
 					<OnClick>
-						KPack.MA:Center(0)
+						MovAny:Center(0)
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -1882,9 +937,9 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						this:SetText("v")
-						this.dir = 2
-						this:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+						self:SetText("v")
+						self.dir = 2
+						self:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 					</OnLoad>
 				</Scripts>
 			</Button>
@@ -1896,9 +951,9 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						this:SetText("&lt;")
-						this.dir = 3
-						this:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+						self:SetText("&lt;")
+						self.dir = 3
+						self:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 					</OnLoad>
 				</Scripts>
 			</Button>
@@ -1910,13 +965,13 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						this:SetText("&gt;")
-						this.dir = 4
-						this:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+						self:SetText("&gt;")
+						self.dir = 4
+						self:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 					</OnLoad>
 				</Scripts>
 			</Button>
-			<Button name="$parent_CenterH" inherits="KPackButtonTemplate" hidden="false">
+			<Button name="$parent_CenterH" inherits="UIPanelButtonTemplate" hidden="false">
 				<Size><AbsDimension x="32" y="24"/></Size>
 				<Anchors>
 					<Anchor point="RIGHT" relativeTo="$parent_NudgeLeft" relativePoint="LEFT">
@@ -1925,15 +980,15 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						this:SetText("C H")
-						this:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+						self:SetText("C H")
+						self:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 					</OnLoad>
 					<OnClick>
-						KPack.MA:Center(1)
+						MovAny:Center(1)
 					</OnClick>
 				</Scripts>
 			</Button>
-			<Button name="$parent_CenterV" inherits="KPackButtonTemplate" hidden="false">
+			<Button name="$parent_CenterV" inherits="UIPanelButtonTemplate" hidden="false">
 				<Size><AbsDimension x="32" y="24"/></Size>
 				<Anchors>
 					<Anchor point="TOP" relativeTo="$parent_CenterH" relativePoint="BOTTOM">
@@ -1942,15 +997,15 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						this:SetText("C V")
-						this:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+						self:SetText("C V")
+						self:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 					</OnLoad>
 					<OnClick>
-						KPack.MA:Center(2)
+						MovAny:Center(2)
 					</OnClick>
 				</Scripts>
 			</Button>
-			<Button name="$parent_Detach" inherits="KPackButtonTemplate" hidden="false">
+			<Button name="$parent_Detach" inherits="UIPanelButtonTemplate" hidden="false">
 				<Size><AbsDimension x="32" y="24"/></Size>
 				<Anchors>
 					<Anchor point="LEFT" relativeTo="$parent_NudgeRight" relativePoint="RIGHT">
@@ -1959,12 +1014,12 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						this:SetText("X")
-						this:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+						self:SetText("X")
+						self:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 					</OnLoad>
 					<OnClick>
-						local m = _G[ KPack.MA.moverPrefix..KPack.MA.currentMover ]
-						if not m or not m.tagged or KPack.MA:ErrorNotInCombat(m.tagged) then
+						local m = MovAny.currentMover
+						if not m or not m.tagged or MovAny:ErrorNotInCombat(m.tagged) then
 							return
 						end
 						if IsShiftKeyDown() then
@@ -1975,13 +1030,13 @@
 								t:Show()
 							end
 						else
-							KPack.MA:DetachMover(m)
-							KPack.MA:UpdateGUIIfShown(true)
+							MovAny:DetachMover(m)
+							MovAny:UpdateGUIIfShown(true)
 						end
 					</OnClick>
 				</Scripts>
 			</Button>
-			<Button name="$parent_Hide" inherits="KPackButtonTemplate" hidden="false" text="H">
+			<Button name="$parent_Hide" inherits="UIPanelButtonTemplate" hidden="false">
 				<Size><AbsDimension x="32" y="24"/></Size>
 				<Anchors>
 					<Anchor point="TOP" relativeTo="$parent_Detach" relativePoint="BOTTOM">
@@ -1990,11 +1045,12 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						this:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+						self:SetText("H")
+						self:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 					</OnLoad>
 					<OnClick>
-						if _G[ KPack.MA.moverPrefix..KPack.MA.currentMover ].tagged then
-							KPack.MA:ToggleHide(_G[ KPack.MA.moverPrefix..KPack.MA.currentMover ].tagged:GetName())
+						if MovAny.currentMover and MovAny.currentMover.tagged then
+							MovAny:ToggleHide(MovAny.currentMover.tagged:GetName())
 						end
 					</OnClick>
 				</Scripts>
@@ -2007,7 +1063,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						KPack.MA:Mover(1)
+						MovAny:NudgerChangeMover(1)
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -2019,43 +1075,50 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						KPack.MA:Mover(0)
+						MovAny:NudgerChangeMover(-1)
 					</OnClick>
 				</Scripts>
 			</Button>
 		</Frames>
 		<Scripts>
 			<OnLoad>
-				this:RegisterForDrag("LeftButton")
-				this:SetBackdropColor(0,0,0,0.75)
-				this:SetBackdropBorderColor(0,0,0,0.75)
-				_G[ this:GetName().."InfoLabel"]:SetAlpha(0.8)
+				self.neverShowTooltip = true
+				self:RegisterForDrag("LeftButton")
+				self:SetBackdropColor(0,0,0,.75)
+				self:SetBackdropBorderColor(0,0,0,.75)
+				_G[ self:GetName().."InfoLabel"]:SetAlpha(.8)
 			</OnLoad>
 			<OnDragStart>
-				this:StartMoving()
+				self:SetMovable(true)
+				self:StartMoving()
 			</OnDragStart>
 			<OnDragStop>
-				this:StopMovingOrSizing()
+				self:StopMovingOrSizing()
 			</OnDragStop>
 			<OnShow>
-				KPack.MA:NudgerOnShow()
+				MovAny:NudgerOnShow()
 			</OnShow>
 			<OnHide>
-				this:StopMovingOrSizing()
+				self:StopMovingOrSizing()
 			</OnHide>
 			<OnMouseDown>
-				if arg1 == "RightButton" then
-					this:Hide()
+				if IsControlKeyDown() then
+					if MovAny.FrameEditor and MovAny.currentMover and MovAny.currentMover.tagged then
+						MovAny:FrameEditor(MovAny.currentMover.tagged:GetName())
+					end
+				else
+					local button = GetMouseButtonClicked()
+					if button == "RightButton" then
+						self:Hide()
+					end
 				end
 			</OnMouseDown>
-			<OnMouseWheel>
-				KPack.MA:Mover(arg1)
-			</OnMouseWheel>
+			<OnMouseWheel function="MANudger_OnMouseWheel"/>
 			<OnEnter>
-				if KPack.MA.currentMover > 0 and _G[ KPack.MA.moverPrefix..KPack.MA.currentMover ].tagged then
-					if  (KPack.MA.db.tooltips and not IsShiftKeyDown()) or (not KPack.MA.db.tooltips and IsShiftKeyDown()) then
-						this.tooltipLines = KPack.MA:GetFrameTooltipLines(_G[ KPack.MA.moverPrefix..KPack.MA.currentMover ].tagged:GetName())
-						KPack.MA.TooltipShowMultiline(0, this)
+				if MovAny.currentMover ~= nil and MovAny.currentMover.tagged then
+					if self.alwaysShowTooltip or (self.neverShowTooltip and IsShiftKeyDown()) or (MADB.tooltips and not IsShiftKeyDown() and not self.neverShowTooltip) or (not MADB.tooltips and IsShiftKeyDown()) then
+						self.tooltipLines = MovAny:GetFrameTooltipLines(MovAny.currentMover.tagged:GetName())
+						MovAny:TooltipShowMultiline(self)
 					end
 				end
 			</OnEnter>
@@ -2063,7 +1126,7 @@
 				GameTooltip:Hide()
 			</OnLeave>
 			<OnUpdate>
-				KPack.MA:NudgerOnUpdate()
+				MovAny:NudgerOnUpdate()
 			</OnUpdate>
 		</Scripts>
 	</Button>

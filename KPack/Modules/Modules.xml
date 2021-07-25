@@ -42,7 +42,7 @@
 <Script file="Math.lua" />
 <Script file="Minimap.lua" />
 <Script file="Molinari.lua" />
-<Include file="MoveAnything\MoveAnything.xml" />
+<Include file="MoveAnything\Load.xml" />
 <Script file="Nameplates.lua" />
 <Script file="PersonalResources.lua" />
 <Script file="Postal.lua" />

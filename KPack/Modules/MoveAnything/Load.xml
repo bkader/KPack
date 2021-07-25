@@ -1,0 +1,8 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+<Script file="MoveAnything.lua" />
+<Include file="MoveAnything.xml" />
+<Script file="MoveAnythingFrameEditor.lua" />
+<Script file="MoveAnythingPortDialog.lua" />
+<Script file="MoveAnythingVirtualMovers.lua" />
+</Ui>

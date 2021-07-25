@@ -19,31 +19,31 @@
 
 	<!-- MoveAnything -->
 	<Binding name="Toggle MA window" header="KPACKMOVEANYTHING">
-		if KPack.MA then KPack.MA:ToggleOptionsMenu() end
+		if MovAny then MovAny:ToggleGUI() end
 	</Binding>
 	<Binding name="Move frame - Safe">
-		if KPack.MA then KPack.MA:SafeMoveFrameAtCursor() end
+		if MovAny then MovAny:SafeMoveFrameAtCursor() end
 	</Binding>
 	<Binding name="Hide frame - Safe">
-		if KPack.MA then KPack.MA:SafeHideFrameAtCursor() end
+		if MovAny then MovAny:SafeHideFrameAtCursor() end
 	</Binding>
 	<Binding name="Reset frame - Safe">
-		if KPack.MA then KPack.MA:SafeResetFrameAtCursor() end
+		if MovAny then MovAny:SafeResetFrameAtCursor() end
 	</Binding>
 	<Binding name="Move frame - Exact">
-		if KPack.MA then KPack.MA:MoveFrameAtCursor() end
+		if MovAny then MovAny:MoveFrameAtCursor() end
 	</Binding>
 	<Binding name="Hide frame - Exact">
-		if KPack.MA then KPack.MA:HideFrameAtCursor() end
+		if MovAny then MovAny:HideFrameAtCursor() end
 	</Binding>
 	<Binding name="Reset frame - Exact">
-		if KPack.MA then KPack.MA:ResetFrameAtCursor() end
+		if MovAny then MovAny:ResetFrameAtCursor() end
 	</Binding>
 	<Binding name="Update positions">
-		if KPack.MA then KPack.MA:SyncAllFrames() end
+		if MovAny then MovAny:SyncAllFrames() end
 	</Binding>
 	<Binding name="Show frame info">
-		if KPack.MA then KPack.MA:DebugFrameAtCursor() end
+		if MovAny then MovAny:DebugFrameAtCursor() end
 	</Binding>
 
 	<!-- Combuctor -->
