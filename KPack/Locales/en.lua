@@ -607,6 +607,7 @@ L["Focus Target"] = true
 L["Pet Target"] = true
 L["Only show if cast by self"] = true
 L["Show timer"] = true
+L["Disable OmniCC"] = true
 L["More options"] = true
 L["Clear settings"] = true
 L["These options allow you to change the number, arrangement, and behavior of reminder icons."] = true

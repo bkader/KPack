@@ -641,12 +641,14 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 		local TellMeWhen_IconMenu_CooldownOptions = {
 			{value = "CooldownType", text = L["Cooldown type"], hasArrow = true},
 			{value = "CooldownShowWhen", text = L["Show icon when"], hasArrow = true},
-			{value = "ShowTimer", text = L["Show timer"]}
+			{value = "ShowTimer", text = L["Show timer"]},
+			{value = "noCooldownCount", text = L["Disable OmniCC"]}
 		}
 
 		local TellMeWhen_IconMenu_ReactiveOptions = {
 			{value = "CooldownShowWhen", text = L["Show icon when"], hasArrow = true},
-			{value = "ShowTimer", text = L["Show timer"]}
+			{value = "ShowTimer", text = L["Show timer"]},
+			{value = "noCooldownCount", text = L["Disable OmniCC"]}
 		}
 
 		local TellMeWhen_IconMenu_BuffOptions = {
@@ -654,19 +656,22 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 			{value = "Unit", text = L["Unit to watch"], hasArrow = true},
 			{value = "BuffShowWhen", text = L["Show icon when"], hasArrow = true},
 			{value = "ShowTimer", text = L["Show timer"]},
+			{value = "noCooldownCount", text = L["Disable OmniCC"]},
 			{value = "OnlyMine", text = L["Only show if cast by self"]}
 		}
 
 		local TellMeWhen_IconMenu_WpnEnchantOptions = {
 			{value = "WpnEnchantType", text = L["Weapon slot to monitor"], hasArrow = true},
 			{value = "BuffShowWhen", text = L["Show icon when"], hasArrow = true},
-			{value = "ShowTimer", text = L["Show timer"]}
+			{value = "ShowTimer", text = L["Show timer"]},
+			{value = "noCooldownCount", text = L["Disable OmniCC"]}
 		}
 
 		local TellMeWhen_IconMenu_TotemOptions = {
 			{value = "Unit", text = L["Unit to watch"], hasArrow = true},
 			{value = "BuffShowWhen", text = L["Show icon when"], hasArrow = true},
-			{value = "ShowTimer", text = L["Show timer"]}
+			{value = "ShowTimer", text = L["Show timer"]},
+			{value = "noCooldownCount", text = L["Disable OmniCC"]}
 		}
 
 		local TellMeWhen_IconMenu_SubMenus = {
@@ -990,6 +995,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 		icon.OnlyMine = iconSettings.OnlyMine
 		icon.BuffOrDebuff = iconSettings.BuffOrDebuff
 		icon.WpnEnchantType = iconSettings.WpnEnchantType
+		icon.noCooldownCount = iconSettings.noCooldownCount
 
 		icon.updateTimer = updateInterval
 
@@ -1142,6 +1148,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 
 		icon.countText:Hide()
 		icon.Cooldown:Hide()
+		icon.Cooldown.noCooldownCount = icon.noCooldownCount or nil
 
 		if Enabled then
 			icon:SetAlpha(1.0)
