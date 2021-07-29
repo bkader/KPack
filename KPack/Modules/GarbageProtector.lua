@@ -19,7 +19,9 @@ KPack:AddModule("GarbageProtector", "Intercepts irresponsible collectgarbage cal
 		orig_collectgarbage("setstepmul", 200)
 
 		local function GP_collectgarbage(opt, arg)
-			if not (DB.enabled and DB.garbage) then
+			GP:SetupDatabase()
+
+			if not (DB and DB.enabled and DB.garbage) then
 				return orig_collectgarbage(opt, arg)
 			end
 
@@ -47,7 +49,9 @@ KPack:AddModule("GarbageProtector", "Intercepts irresponsible collectgarbage cal
 		local orig_UpdateAddOnMemoryUsage = UpdateAddOnMemoryUsage
 
 		local function GP_UpdateAddOnMemoryUsage(...)
-			if not (DB.enabled and DB.memory) then
+			GP:SetupDatabase()
+
+			if not (DB and DB.enabled and DB.memory) then
 				return orig_UpdateAddOnMemoryUsage(...)
 			end
 		end
