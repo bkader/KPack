@@ -29,6 +29,7 @@
 <Script file="EnhancedStackSplit.lua" />
 <Script file="ErrorFilter.lua" />
 <Script file="FriendsInfo.lua" />
+<Script file="GarbageProtector.lua" />
 <Script file="GearScoreLite.lua" />
 <Script file="HalionHelper.lua" />
 <Script file="IDs.lua" />

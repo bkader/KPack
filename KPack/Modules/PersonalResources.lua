@@ -32,17 +32,6 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 		end
 	end
 
-	-- utility to show/hide frame
-	local function ShowHide(f, cond)
-		if not f then
-			return
-		elseif cond and not f:IsShown() then
-			f:Show()
-		elseif not cond and f:IsShown() then
-			f:Hide()
-		end
-	end
-
 	-- sets up the database
 	local function SetupDatabase()
 		if not DB then
@@ -130,7 +119,7 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 		-- frame event handler
 		local function Frame_OnEvent(self, event, ...)
 			if event == "PLAYER_REGEN_ENABLED" then
-				ShowHide(self, DB.combat)
+				core:ShowIf(self, DB.combat)
 			elseif event == "PLAYER_REGEN_DISABLED" then
 				self:Show()
 			end
@@ -265,7 +254,7 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 			end
 
 			core:RestorePosition(frame, DB)
-			ShowHide(frame, DB.enabled and DB.combat)
+			core:ShowIf(frame, DB.enabled and DB.combat)
 
 			-- register our frame event
 			if DB.enabled then
@@ -315,7 +304,7 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 
 		-- hide the bar
 		commands.show = function()
-			ShowHide(frame, DB.enabled)
+			core:ShowIf(frame, DB.enabled)
 		end
 
 		-- hide bar

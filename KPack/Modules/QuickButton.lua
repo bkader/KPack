@@ -81,17 +81,6 @@ KPack:AddModule("QuickButton", function(folder, core, L)
 		end
 	end
 
-	-- utility function to show or hide
-	local function ShowHide(frame, cond)
-		if not frame then
-			return
-		elseif cond and not frame:IsShown() then
-			frame:Show()
-		elseif not cond and frame:IsShown() then
-			frame:Hide()
-		end
-	end
-
 	local function SetupDatabase()
 		if not DB then
 			if type(core.char.QuickButton) ~= "table" or not next(core.char.QuickButton) then
@@ -453,7 +442,7 @@ KPack:AddModule("QuickButton", function(folder, core, L)
 			QuickButton_Initialize()
 
 			if DB.enabled and button then
-				ShowHide(button, IsUsableSpell(spellName) == 1)
+				core:ShowIf(button, IsUsableSpell(spellName) == 1)
 				UPDATE_BINDINGS()
 			elseif button then
 				button:Hide()

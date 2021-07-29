@@ -36,6 +36,7 @@ L["Module Status"] = true
 L["module status: %s"] = true
 L["enable module"] = true
 L["disable module"] = true
+L["enable or disable module."] = true
 L["toggle module status"] = true
 L["Tick the modules you want to disable."] = true
 L["Acceptable commands for: |caaf49141%s|r"] = true
@@ -805,3 +806,7 @@ L["%s is being emulated."] = true
 L["Saving %s"] = true
 L["%s added to emulation list."] = true
 L["%s not found, please check the spelling it is case sensistive."] = true
+-- Garbage Protector
+L["Intercepts irresponsible collectgarbage calls to prevent chunky lockups and freezes."] = true
+L["Screw those irresponsible collectgarbage calls!"] = true
+L["UpdateAddOnMemoryUsage is a waste of CPU time and some addons call it periodically when they shouldn't.\n\n|cffffd700WARNING|r: All in-game memory usage reports obtained with GetAddOnMemoryUsage will be reported as 0 or the last returned value if this is enabled."] = true

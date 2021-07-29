@@ -65,7 +65,6 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	local unpack = unpack
 	local UnitExists = UnitExists
 	local targetExists
-	local ShowHide
 
 	-- events frame
 	local frame = CreateFrame("Frame")
@@ -241,50 +240,37 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		plate.healthBar:SetValue((val and (val == 1 and val ~= maxval) and 0 or val) or oldbar:GetValue())
 	end
 
-	local Nameplate_CheckForChange
-	do
-		function ShowHide(f, cond)
-			if not f or not f.Show then
-				return
-			elseif cond and not f:IsShown() then
-				f:Show()
-			elseif not cond and f:IsShown() then
-				f:Hide()
+	local function Nameplate_CheckForChange(self)
+		if changed then
+			if changed == "barWidth" then
+				self.healthBar:SetWidth(config.barWidth)
+			elseif changed == "barHeight" then
+				self.healthBar:SetHeight(config.barHeight)
+			elseif changed == "barTexture" then
+				local barTexture = LSM:Fetch("statusbar", config.barTexture)
+				self.healthBar:SetStatusBarTexture(barTexture)
+				self.castBar:SetStatusBarTexture(barTexture)
+			elseif changed == "font" or changed == "fontSize" or changed == "fontOutline" then
+				local font = LSM:Fetch("font", config.font)
+				self.name:SetFont(font, config.fontSize, config.fontOutline)
+				self.level:SetFont(font, config.fontSize, config.fontOutline)
+				self.castBar.time:SetFont(font, config.fontSize, config.fontOutline)
+			elseif changed == "textFont" or changed == "textFontSize" or changed == "textFontOutline" then
+				self.text:SetFont(LSM:Fetch("font", config.textFont), config.textFontSize, config.textFontOutline)
+			elseif changed == "hideName" or changed == "hideLevel" then
+				core:ShowIf(self.name, not config.hideName)
+				core:ShowIf(self.level, not config.hideLevel)
+			elseif changed == "showHealthText" or changed == "showHealthPercent" then
+				core:ShowIf(self.text, config.showHealthText or config.showHealthPercent)
+			elseif changed == "arrow" then
+				local texture = config.arrow and path .. "Textures\\Arrows\\" .. config.arrow or nil
+				self.leftIndicator:SetTexture(texture)
+				self.rightIndicator:SetTexture(texture)
+			elseif changed == "textOfsX" or changed == "textOfsY" then
+				self.text:SetPoint("CENTER", config.textOfsX or 0, config.textOfsY or 0)
 			end
-		end
 
-		function Nameplate_CheckForChange(self)
-			if changed then
-				if changed == "barWidth" then
-					self.healthBar:SetWidth(config.barWidth)
-				elseif changed == "barHeight" then
-					self.healthBar:SetHeight(config.barHeight)
-				elseif changed == "barTexture" then
-					local barTexture = LSM:Fetch("statusbar", config.barTexture)
-					self.healthBar:SetStatusBarTexture(barTexture)
-					self.castBar:SetStatusBarTexture(barTexture)
-				elseif changed == "font" or changed == "fontSize" or changed == "fontOutline" then
-					local font = LSM:Fetch("font", config.font)
-					self.name:SetFont(font, config.fontSize, config.fontOutline)
-					self.level:SetFont(font, config.fontSize, config.fontOutline)
-					self.castBar.time:SetFont(font, config.fontSize, config.fontOutline)
-				elseif changed == "textFont" or changed == "textFontSize" or changed == "textFontOutline" then
-					self.text:SetFont(LSM:Fetch("font", config.textFont), config.textFontSize, config.textFontOutline)
-				elseif changed == "hideName" or changed == "hideLevel" then
-					ShowHide(self.name, not config.hideName)
-					ShowHide(self.level, not config.hideLevel)
-				elseif changed == "showHealthText" or changed == "showHealthPercent" then
-					ShowHide(self.text, config.showHealthText or config.showHealthPercent)
-				elseif changed == "arrow" then
-					local texture = config.arrow and path .. "Textures\\Arrows\\" .. config.arrow or nil
-					self.leftIndicator:SetTexture(texture)
-					self.rightIndicator:SetTexture(texture)
-				elseif changed == "textOfsX" or changed == "textOfsY" then
-					self.text:SetPoint("CENTER", config.textOfsX or 0, config.textOfsY or 0)
-				end
-
-				core.After(0.1, function() changed = nil end)
-			end
+			core.After(0.1, function() changed = nil end)
 		end
 	end
 
@@ -369,8 +355,8 @@ KPack:AddModule("Nameplates", function(_, core, L)
 			self:UpdateCritical()
 			self:SetHealthColor()
 			self:FormatHealthText()
-			ShowHide(self.name, not config.hideName)
-			ShowHide(self.level, not config.hideLevel)
+			core:ShowIf(self.name, not config.hideName)
+			core:ShowIf(self.level, not config.hideLevel)
 
 			if targetExists and self:GetAlpha() == 1 then
 				self.healthBar:SetWidth(config.barWidth * 1.15)
@@ -407,7 +393,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		self.name:SetText(self.oldname:GetText())
 		self.name:SetPoint("BOTTOMLEFT", self.healthBar, "TOPLEFT", 0, 3)
 		self.name:SetPoint("RIGHT", self.healthBar, -15, 3)
-		ShowHide(self.name, not config.hideName)
+		core:ShowIf(self.name, not config.hideName)
 
 		local level, elite = tonumber(self.level:GetText()), self.elite:IsShown()
 		self.level:SetJustifyH("RIGHT")
@@ -419,7 +405,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		elseif elite then
 			self.level:SetText(level .. (elite and "+" or ""))
 		end
-		ShowHide(self.level, not config.hideLevel)
+		core:ShowIf(self.level, not config.hideLevel)
 
 		self:UpdateCritical()
 		Health_OnValueChanged(self.oldHealth, self.oldHealth:GetValue())
@@ -458,14 +444,14 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		name:SetJustifyH("LEFT")
 		name:SetJustifyV("BOTTOM")
 		frame.name = name
-		ShowHide(frame.name, not config.hideName)
+		core:ShowIf(frame.name, not config.hideName)
 
 		levelTextRegion:SetFont(LSM:Fetch("font", config.font), config.fontSize, config.fontOutline)
 		levelTextRegion:SetShadowOffset(1.25, -1.25)
 		levelTextRegion:SetJustifyH("RIGHT")
 		levelTextRegion:SetJustifyV("BOTTOM")
 		frame.level = levelTextRegion
-		ShowHide(frame.level, not config.hideLevel)
+		core:ShowIf(frame.level, not config.hideLevel)
 
 		healthBar:SetStatusBarTexture(LSM:Fetch("statusbar", config.barTexture))
 		healthBar.hpBackground = healthBar:CreateTexture(nil, "BORDER")

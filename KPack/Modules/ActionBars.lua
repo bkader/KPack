@@ -60,15 +60,6 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 			frame:Hide()
 		end
 	end
-	local function ShowHide(frame, cond)
-		if not frame or not frame.Show then
-			return
-		elseif cond and not frame:IsShown() then
-			frame:Show()
-		elseif not cond and frame:IsShown() then
-			frame:Hide()
-		end
-	end
 
 	--
 	-- scales action bar elements

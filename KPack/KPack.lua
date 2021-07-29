@@ -177,6 +177,17 @@ function core:Kill(frame)
 	end
 end
 
+-- used to show or hide frame based on a condition
+function core:ShowIf(frame, condition)
+	if not frame or not frame.Show then
+		return
+	elseif condition and not frame:IsShown() then
+		frame:Show()
+	elseif not condition and frame:IsShown() then
+		frame:Hide()
+	end
+end
+
 function core:RegisterForEvent(event, callback, ...)
 	if not self.frame then
 		self.frame = CreateFrame("Frame")

@@ -44,16 +44,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			UnitIsFriend("player", unit))
 	end
 
-	local function ShowHide(f, cond)
-		if not f or not f.Show then
-			return
-		elseif cond and not f:IsShown() then
-			f:Show()
-		elseif not cond and f:IsShown() then
-			f:Hide()
-		end
-	end
-
 	function mod:InGroup()
 		return (GetNumRaidMembers() > 0 or GetNumPartyMembers() > 0)
 	end
@@ -715,7 +705,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 						t:SetSize(size, size)
 						t:SetTexture([[Interface\Icons\Spell_Holy_AuraMastery]])
 						t:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-						ShowHide(t, testMode)
+						core:ShowIf(t, testMode)
 						f.am = t
 
 						t = CreateFrame("Cooldown", nil, display, "CooldownFrameTemplate")
@@ -779,7 +769,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
 			local iconSize = DB.Auras.iconSize or 24
 			display:SetHeight(iconSize * 7 + (DB.Auras.spacing or 0) * 6)
-			ShowHide(display.header, not (DB.Auras.hideTitle and display.locked))
+			core:ShowIf(display.header, not (DB.Auras.hideTitle and display.locked))
 
 			display.header:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
 
@@ -1234,7 +1224,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				DB.Sunders.fontFlags
 			)
 			display.header.text:SetJustifyH(DB.Sunders.align or "LEFT")
-			ShowHide(display.header, not (DB.Sunders.hideTitle and display.locked))
+			core:ShowIf(display.header, not (DB.Sunders.hideTitle and display.locked))
 
 			sunders = testMode and testSunders or DB.Sunders.sunders
 
@@ -1854,7 +1844,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
 			display.header:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
 			display.header:SetJustifyH(DB.Mana.align or "LEFT")
-			ShowHide(display.header, not (DB.Mana.hideTitle and display.locked))
+			core:ShowIf(display.header, not (DB.Mana.hideTitle and display.locked))
 
 			if testMode then
 				healers = testHealers

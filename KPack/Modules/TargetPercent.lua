@@ -8,17 +8,6 @@ KPack:AddModule("Target Percent", "Adds a health percentage to the Blizzard targ
 
 	local targetPercent, focusPercent
 
-	-- utility function
-	local function ShowHide(f, cond)
-		if not f then
-			return
-		elseif cond and not f:IsShown() then
-			f:Show()
-		elseif not cond and f:IsShown() then
-			f:Hide()
-		end
-	end
-
 	-- handles creating the percentage frame
 	local function TargetPercent_CreateFrame(name, parent, width, height)
 		local frame
@@ -64,7 +53,7 @@ KPack:AddModule("Target Percent", "Adds a health percentage to the Blizzard targ
 				return
 			end
 			local hp = UnitHealth("target")
-			ShowHide(frame, (hp >= 1))
+			core:ShowIf(frame, (hp >= 1))
 			frame.text:SetFormattedText("%.2f", (hp / UnitHealthMax("target") * 100))
 		end)
 
@@ -82,7 +71,7 @@ KPack:AddModule("Target Percent", "Adds a health percentage to the Blizzard targ
 				return
 			end
 			local hp = UnitHealth("focus")
-			ShowHide(frame, (hp >= 1))
+			core:ShowIf(frame, (hp >= 1))
 			frame.text:SetFormattedText("%.2f", (hp / UnitHealthMax("focus") * 100))
 		end)
 	end)
