@@ -332,6 +332,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	function KPack_UnitFrames_PlayerFrame_ToVehicleArt(self)
+		self.wasInVehicle = true
 		PlayerFrameHealthBar:SetHeight(12)
 		PlayerFrameHealthBarText:SetPoint("CENTER", 50, 3)
 		if DB.player.moved == true then
@@ -555,6 +556,12 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		PlayerFrame:SetScript("OnMouseUp", KPack_UnitFrames_PlayerFrame_OnMouseUp)
 		TargetFrame:SetScript("OnMouseDown", KPack_UnitFrames_TargetFrame_OnMouseDown)
 		TargetFrame:SetScript("OnMouseUp", KPack_UnitFrames_TargetFrame_OnMouseUp)
+		if PlayerFrame.wasInVehicle and not UnitInVehicle("player") then
+			PlayerFrame.wasInVehicle = nil
+			if not UnitExists("playerpet") then
+				PetFrame:Hide()
+			end
+		end
 	end)
 
 	core:RegisterForEvent("PLAYER_REGEN_DISABLED", function()
