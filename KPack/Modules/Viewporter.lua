@@ -5,7 +5,7 @@ KPack:AddModule("Viewporter", function(_, core, L)
 	local frame = CreateFrame("Frame")
 
 	-- saved variables and defaults
-	local DB
+	local DB, SetupDatabase
 	local defaults = {
 		enabled = false,
 		left = 0,
@@ -99,7 +99,8 @@ KPack:AddModule("Viewporter", function(_, core, L)
 
 	do
 		local function Viewporter_OnUpdate(self, elapsed)
-			if not DB.enabled then
+			SetupDatabase()
+			if not (DB and DB.enabled) then
 				Viewporter_Initialize()
 				self:Hide()
 				return
@@ -117,7 +118,7 @@ KPack:AddModule("Viewporter", function(_, core, L)
 		end)
 	end
 
-	local function SetupDatabase()
+	function SetupDatabase()
 		if not DB then
 			if type(core.char.Viewporter) ~= "table" or not next(core.char.Viewporter) then
 				core.char.Viewporter = CopyTable(defaults)

@@ -348,8 +348,13 @@ KPack:AddModule("Postal", function(folder, core, L)
 		end
 
 		core:RegisterForEvent("PLAYER_LOGIN", function()
-				if _G.Postal then return end
-				Postal:SetupDatabase()
+			if _G.Postal then return end
+			Postal:SetupDatabase()
+
+			-- in case someone updated from an older version
+			if Postal.db.EnabledModules == nil then
+				Postal.db.EnabledModules = defaults.EnabledModules
+			end
 
 			for name, mod in Postal:IterateModules() do
 				if Postal.db.EnabledModules[name] and mod.OnEnable then
