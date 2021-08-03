@@ -1,7 +1,7 @@
 local folder, core = ...
-_G.KPack = core
 core.callbacks = core.callbacks or LibStub("CallbackHandler-1.0"):New(core)
 core.version = GetAddOnMetadata("KPack", "Version")
+_G.KPack = core
 
 local L = core.L
 core.ACD = LibStub("AceConfigDialog-3.0")
@@ -191,20 +191,15 @@ end
 function core:RegisterForEvent(event, callback, ...)
 	if not self.frame then
 		self.frame = CreateFrame("Frame")
-		function self.frame:OnEvent(event, ...)
-			for callback, args in next, self.callbacks[event] do
-				callback(args, ...)
+		self.frame:SetScript("OnEvent", function(f, event, ...)
+			for func, args in next, f.events[event] do
+				func(args, ...)
 			end
-		end
-		self.frame:SetScript("OnEvent", self.frame.OnEvent)
+		end)
 	end
-	if not self.frame.callbacks then
-		self.frame.callbacks = {}
-	end
-	if not self.frame.callbacks[event] then
-		self.frame.callbacks[event] = {}
-	end
-	self.frame.callbacks[event][callback] = {...}
+	self.frame.events = self.frame.events or {}
+	self.frame.events[event] = self.frame.events[event] or {}
+	self.frame.events[event][callback] = {...}
 	self.frame:RegisterEvent(event)
 end
 

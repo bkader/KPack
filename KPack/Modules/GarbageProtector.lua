@@ -1,16 +1,13 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("GarbageProtector", "Intercepts irresponsible collectgarbage calls to prevent chunky lockups and freezes.", function(_, core, L)
 	if core:IsDisabled("GarbageProtector") then return end
+	if _G.GarbageProtector then return end
 
 	local GP = CreateFrame("Frame")
 	core.GarbageProtector = GP
 
 	local DB, options
-	local defaults = {
-		enabled = true,
-		garbage = true,
-		memory = true
-	}
+	local defaults = {enabled = true, garbage = true, memory = true}
 
 	-- garbage collector
 	do
