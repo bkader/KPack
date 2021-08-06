@@ -14,8 +14,9 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 	local defaults = {
 		enabled = true,
 		combat = false,
-		percent = false,
-		borderless = false,
+		text = false,
+		point = "CENTER",
+		borderless = true,
 		texture = "Blizzard",
 		width = 180,
 		height = 32,
@@ -66,15 +67,24 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 			bar:SetHitRectInsets(2, 2, 2, 2)
 			bar:SetMinMaxValues(0, 100)
 
-			local percent = bar:CreateFontString(nil, "OVERLAY")
-			percent:SetFont(PlayerFrameHealthBarText:GetFont())
-			percent:SetPoint("TOPLEFT")
-			percent:SetPoint("BOTTOMRIGHT")
-			percent:SetJustifyH("CENTER")
-			percent:SetJustifyV("MIDDLE")
-			percent:SetText("")
-			percent:Hide()
-			bar.percent = percent
+			local text = bar:CreateFontString(nil, "OVERLAY")
+			text:SetFont(PlayerFrameHealthBarText:GetFont())
+
+			if DB.point == "LEFT" then
+				text:SetPoint("RIGHT", bar, "LEFT")
+				text:SetJustifyH("RIGHT")
+			elseif DB.point == "RIGHT" then
+				text:SetPoint("LEFT", bar, "RIGHT")
+				text:SetJustifyH("LEFT")
+			else
+				text:SetPoint("CENTER", 0, 0)
+				text:SetJustifyH("CENTER")
+			end
+
+			text:SetJustifyV("MIDDLE")
+			text:SetText("")
+			text:Hide()
+			bar.text = text
 			return bar
 		end
 
@@ -162,17 +172,17 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 				self.power:SetValue(PersonalResources_Calculate(pw, pwMax))
 				self.power:SetStatusBarColor(PersonalResources_PowerColor(power))
 
-				if DB.percent then
-					self.health.percent:SetText(format("%02.f%%", 100 * hp / hpMax))
-					self.power.percent:SetText(format("%02.f%%", 100 * pw / pwMax))
-					self.health.percent:Show()
-					self.power.percent:Show()
+				if DB.text then
+					self.health.text:SetText(format("%02.f%%", 100 * hp / hpMax))
+					self.power.text:SetText(format("%02.f%%", 100 * pw / pwMax))
+					self.health.text:Show()
+					self.power.text:Show()
 				else
-					if self.health.percent:IsShown() then
-						self.health.percent:Hide()
+					if self.health.text:IsShown() then
+						self.health.text:Hide()
 					end
-					if self.power.percent:IsShown() then
-						self.power.percent:Hide()
+					if self.power.text:IsShown() then
+						self.power.text:Hide()
 					end
 				end
 			end
@@ -192,7 +202,7 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 		end
 
 		-- initializes personal resources
-		function PersonalResources_Initialize()
+		function PersonalResources_Initialize(cmd)
 			frame = frame or _G[fname]
 			local width = DB.width or 180
 			local height = DB.height or 32
@@ -253,6 +263,28 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 				frame:SetScale(scale)
 			end
 
+			if cmd then
+				frame.health.text:ClearAllPoints()
+				frame.power.text:ClearAllPoints()
+
+				if DB.point == "LEFT" then
+					frame.health.text:SetPoint("RIGHT", frame.health, "LEFT", -3, 0)
+					frame.power.text:SetPoint("RIGHT", frame.power, "LEFT", -3, 0)
+					frame.health.text:SetJustifyH("RIGHT")
+					frame.power.text:SetJustifyH("RIGHT")
+				elseif DB.point == "RIGHT" then
+					frame.health.text:SetPoint("LEFT", frame.health, "RIGHT", 3, 0)
+					frame.power.text:SetPoint("LEFT", frame.power, "RIGHT", 3, 0)
+					frame.health.text:SetJustifyH("LEFT")
+					frame.power.text:SetJustifyH("LEFT")
+				else
+					frame.health.text:SetPoint("CENTER", 0, 0)
+					frame.power.text:SetPoint("CENTER", 0, 0)
+					frame.health.text:SetJustifyH("CENTER")
+					frame.power.text:SetJustifyH("CENTER")
+				end
+			end
+
 			core:RestorePosition(frame, DB)
 			core:ShowIf(frame, DB.enabled and DB.combat)
 
@@ -278,7 +310,7 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 		if not cmd then
 			SetupDatabase()
 		end
-		PersonalResources_Initialize()
+		PersonalResources_Initialize(cmd)
 	end
 	core:RegisterForEvent("PLAYER_ENTERING_WORLD", PLAYER_ENTERING_WORLD)
 
@@ -356,8 +388,8 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 			end
 		end
 
-		commands.percent = function()
-			DB.percent = not DB.percent
+		commands.text = function()
+			DB.text = not DB.text
 		end
 
 		commands.config = function()
@@ -384,7 +416,7 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 				print(format(help, "scale|r |cff00ffffn|r", L["change personal resources scale"]))
 				print(format(help, "width|r |cff00ffffn|r", L["change personal resources width"]))
 				print(format(help, "height|r |cff00ffffn|r", L["change personal resources height"]))
-				print(format(help, "percent", L["toggle showing percentage of health and power"]))
+				print(format(help, "text", L["toggle showing health and power text"]))
 				print(format(help, "combat", L["toggle showing personal resources out of combat"]))
 				print(format(help, "config", L["Access module settings."]))
 				print(format(help, "reset", L["Resets module settings to default."]))
@@ -424,9 +456,9 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 					order = 2,
 					disabled = disabled
 				},
-				percent = {
+				text = {
 					type = "toggle",
-					name = L["Show percentage"],
+					name = L["Show Text"],
 					order = 3,
 					disabled = disabled
 				},
@@ -466,23 +498,30 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 					bigStep = 0.1,
 					disabled = disabled
 				},
+				point = {
+					type = "select",
+					name = L["Text Position"],
+					order = 8,
+					values = {CENTER = L["Center"], LEFT = L["Left"], RIGHT = L["Right"]}
+				},
 				texture = {
 					type = "select",
 					name = L["Texture"],
 					dialogControl = "LSM30_Statusbar",
-					order = 8,
-					values = AceGUIWidgetLSMlists.statusbar
+					order = 9,
+					values = AceGUIWidgetLSMlists.statusbar,
+					width = "double"
 				},
 				sep = {
 					type = "description",
 					name = " ",
-					order = 9
+					order = 10
 				},
 				reset = {
 					type = "execute",
 					name = RESET,
 					order = 99,
-					width = "full",
+					width = "double",
 					confirm = function()
 						return L:F("Are you sure you want to reset %s to default?", "Automate")
 					end,

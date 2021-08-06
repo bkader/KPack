@@ -552,10 +552,11 @@ L["Bar color when you have threat."] = true
 L["Target Highlight"] = true
 -- Personal Resources
 L['Mimics the retail feature named "Personal Resource Display".'] = true
-L["Show Percentage"] = true
+L["Show Text"] = true
+L["Text Position"] = true
 L["show personal resources"] = true
 L["hide personal resources"] = true
-L["toggle showing percentage of health and power"] = true
+L["toggle showing health and power text"] = true
 L["toggle showing personal resources out of combat"] = true
 L["change personal resources scale"] = true
 L["change personal resources width"] = true

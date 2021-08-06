@@ -512,10 +512,11 @@ L["Bar color when you have threat."] = "Couleur de la barre d'info en fonction d
 L["Target Highlight"] = "Flèche de cible"
 -- Personal Resources
 -- L['Mimics the retail feature named "Personal Resource Display".'] = true
-L["Show Percentage"] = "Afficher le pourcentage"
+L["Show Text"] = "Afficher le texte"
+L["Text Position"] = "Position du texte"
 L["show personal resources"] = "affiche les ressources personnelles"
 L["hide personal resources"] = "cache les ressources personnelles"
-L["toggle showing percentage of health and power"] = "affiche/cache les pourcentages de santé et de puissance"
+L["toggle showing health and power text"] = "affiche/cache les textes de santé et de puissance"
 L["toggle showing personal resources out of combat"] = "afficher/cache les ressources personnelles hors combat"
 L["change personal resources scale"] = "change l'échelle des ressources personnelles"
 L["change personal resources width"] = "change la largeur des ressources personnelles"
