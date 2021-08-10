@@ -23,14 +23,16 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 		[GetSpellInfo(16914)] = 1, -- Hurricane
 		-- Priest
 		[GetSpellInfo(47540)] = 1, -- Penance
-		[GetSpellInfo(15407)] = 1, -- Mind Flay
+		[GetSpellInfo(15407)] = 0.75, -- Mind Flay
 		[GetSpellInfo(48045)] = 1, -- Mind Sear
 		[GetSpellInfo(64843)] = 2, -- Divine Hymn
 		[GetSpellInfo(64901)] = 2, -- Hymn of Hope
 		-- Mage
 		[GetSpellInfo(10)] = 1, -- Blizzard
 		[GetSpellInfo(5143)] = 0.75, -- Arcane Missiles
-		[GetSpellInfo(12051)] = 2 -- Evocation
+		[GetSpellInfo(12051)] = 2, -- Evocation
+		-- Hunter
+		[GetSpellInfo(1510)] = 1 -- Volley
 	}
 
 	Castbars.Barticks = setmetatable({}, { __index = function(tick, i)
