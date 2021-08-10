@@ -213,9 +213,6 @@ KPack:AddModule("BlizzBugsSuck", function(_, core)
 		_G.INTERFACE_ACTION_BLOCKED = ""
 
 		-- Fix RemoveTalent() taint
-		FCF_StartAlertFlash = function()
-		end
-
 		local TaintFix = CreateFrame("Frame")
 		TaintFix:SetScript("OnUpdate", function(self, elapsed)
 			if LFRBrowseFrame.timeToClear then
