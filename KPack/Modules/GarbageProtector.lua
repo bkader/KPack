@@ -115,7 +115,7 @@ KPack:AddModule("GarbageProtector", "Intercepts irresponsible collectgarbage cal
 					},
 					garbage = {
 						type = "toggle",
-						name = "GarbageCollector",
+						name = "collectgarbage",
 						desc = L["Screw those irresponsible collectgarbage calls!"],
 						order = 3,
 						disabled = function() return not DB.enabled end
