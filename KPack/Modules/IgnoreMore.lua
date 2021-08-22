@@ -26,7 +26,7 @@ KPack:AddModule("IgnoreMore", "Let you ignore more than 49 players, a list share
 
 	-- needed locals
 	local list
-	local ignoredPlayers, systemIgnoreList = {}, {}
+	local ignoredPlayers, systemIgnoreList = core.WeakTable(), core.WeakTable()
 	local IgnoreMore_ChatFilter, IgnoreMore_SystemFilter
 
 	-- function that returns nothing

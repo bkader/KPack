@@ -397,8 +397,7 @@ KPack:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removi
 	local ChatMods_ChatCopy
 
 	do
-		local lines = {}
-		local frame
+		local lines, frame
 
 		local function ChatMods_CreateCopyFrame()
 			frame = CreateFrame("Frame", "KPack_ChatModsCopyFrame", UIParent)
@@ -445,6 +444,7 @@ KPack:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removi
 			local _, size = cf:GetFont()
 			FCF_SetChatWindowFontSize(cf, cf, 0.01)
 
+			lines = core.newTable()
 			local ct = 1
 			for i = select("#", cf:GetRegions()), 1, -1 do
 				local region = select(i, cf:GetRegions())
@@ -460,7 +460,7 @@ KPack:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removi
 			_G.KPack_ChatModsCopyFrame:Show()
 			_G.ChatModsCopyBox:SetText(text)
 			_G.ChatModsCopyBox:HighlightText(0)
-			wipe(lines)
+			core.delTable(lines)
 		end
 
 		local ChatMods_HintFunc = function(frame, button)

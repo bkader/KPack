@@ -43,8 +43,7 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
 	end
 
 	local unknownColor = {r = 0.6, g = 0.6, b = 0.6}
-	local classesInRaid = {}
-	local randoms = {}
+	local classesInRaid, randoms
 
 	local function CandidateUnitClass(unit)
 		local class, filename = UnitClass(unit)
@@ -56,7 +55,7 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
 
 	local function ILF_InitializeMenu()
 		local candidate, color
-		local info = UIDropDownMenu_CreateInfo()
+		local info
 
 		if UIDROPDOWNMENU_MENU_LEVEL == 2 then
 			for i = 1, 40 do
@@ -64,7 +63,7 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
 				if candidate then
 					local class = select(2, CandidateUnitClass(candidate))
 					if class == UIDROPDOWNMENU_MENU_VALUE then
-						wipe(info)
+						info = UIDropDownMenu_CreateInfo()
 						info.text = candidate
 						info.colorCode = hexColors[class] or hexColors.UNKNOWN
 						info.textHeight = 12
@@ -77,7 +76,7 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
 			return
 		end
 
-		wipe(info)
+		info = UIDropDownMenu_CreateInfo()
 		info.isTitle = true
 		info.text = GIVE_LOOT
 		info.textHeight = 12
@@ -85,9 +84,7 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
 		UIDropDownMenu_AddButton(info, UIDROPDOWNMENU_MENU_LEVEL)
 
 		if GetNumRaidMembers() > 0 then
-			for k, v in pairs(classesInRaid) do
-				classesInRaid[k] = nil
-			end
+			classesInRaid = core.WeakTable(classesInRaid)
 
 			for i = 1, 40 do
 				candidate = GetMasterLootCandidate(i)
@@ -98,7 +95,7 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
 			end
 
 			for k, v in pairs(classesInRaid) do
-				wipe(info)
+				info = UIDropDownMenu_CreateInfo()
 				info.text = v
 				info.colorCode = hexColors[k] or hexColors.UNKOWN
 				info.textHeight = 12
@@ -111,7 +108,7 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
 			for i = 1, MAX_PARTY_MEMBERS + 1, 1 do
 				candidate = GetMasterLootCandidate(i)
 				if candidate then
-					wipe(info)
+					info = UIDropDownMenu_CreateInfo()
 					info.text = candidate
 					info.colorCode = hexColors[select(2, CandidateUnitClass(candidate))] or hexColors.UNKOWN
 					info.textHeight = 12
@@ -123,7 +120,7 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
 			end
 		end
 
-		randoms = {}
+		randoms = core.newTable()
 		for i = 1, 40 do
 			candidate = GetMasterLootCandidate(i)
 			if candidate then
@@ -140,6 +137,8 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
 			info.hasArrow = nil
 			UIDropDownMenu_AddButton(info)
 		end
+		core.delTable(randoms)
+
 		for i = 1, 40 do
 			candidate = GetMasterLootCandidate(i)
 			if candidate and candidate == core.name then
@@ -193,7 +192,7 @@ KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when usin
 
 		-- populates the frames table.
 		local function PopulateFrames(...)
-			wipe(frames)
+			frames = wipe(frames or {})
 			for i = 1, select("#", ...) do
 				frames[i] = select(i, ...)
 			end

@@ -153,7 +153,6 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 			local ItemCount = 0
 			local LevelTotal = 0
 			local TitanGrip = 1
-			local TempEquip = {}
 			local TempPVPScore = 0
 
 			if (GetInventoryItemLink(Target, 16)) and (GetInventoryItemLink(Target, 17)) then
@@ -216,12 +215,14 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 
 	function GearScore_GetEnchantInfo(ItemLink, ItemEquipLoc)
 		local found, _, ItemSubString = string.find(ItemLink, "^|c%x+|H(.+)|h%[.*%]")
-		local ItemSubStringTable = {}
+		local ItemSubStringTable = core.newTable()
 
 		for v in string.gmatch(ItemSubString, "[^:]+") do
 			tinsert(ItemSubStringTable, v)
 		end
 		ItemSubString, _ = ItemSubStringTable[2] .. ":" .. ItemSubStringTable[3], ItemSubStringTable[2]
+		core.delTable(ItemSubStringTable)
+
 		local StringStart, StringEnd = string.find(ItemSubString, ":")
 		ItemSubString = string.sub(ItemSubString, StringStart + 1)
 		if (ItemSubString == "0") and (itemTypes[ItemEquipLoc]["Enchantable"]) then
@@ -242,7 +243,7 @@ KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of Gea
 			return 0, 0
 		end
 		local ItemName, ItemLink, ItemRarity, ItemLevel, ItemMinLevel, ItemType, ItemSubType, ItemStackCount, ItemEquipLoc, ItemTexture = GetItemInfo(itemLink)
-		local Table = {}
+		local Table = core.WeakTable()
 		local Scale = 1.8618
 		if (ItemRarity == 5) then
 			QualityScale = 1.3

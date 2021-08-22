@@ -93,7 +93,7 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 			self:SetPoint("TOPLEFT")
 			self:SetWidth(ScrollFrame:GetWidth())
 			self:SetHeight(ScrollFrame:GetHeight())
-			self.addons = {}
+			self.addons = self.addons or {}
 			for i = 1, GetNumAddOns() do
 				self.addons[i] = select(1, GetAddOnInfo(i))
 			end

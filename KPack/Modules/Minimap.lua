@@ -338,8 +338,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 		}
 
 		local grabberFrame, needUpdate
-		local minimapFrames = {}
-		local skinnedButtons = {}
+		local minimapFrames, skinnedButtons
 
 		function LockButton(btn)
 			for _, func in ipairs(buttonFunctions) do
@@ -543,7 +542,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 
 		function Minimap_GrabButtons()
 			if not DB.grabber then return end
-			skinnedButtons = {}
+			skinnedButtons = core.WeakTable(skinnedButtons)
 			minimapFrames = {Minimap, MinimapBackdrop}
 
 			grabberFrame = CreateFrame("Frame", "KPack_MinimapButtonGrabber", Minimap)

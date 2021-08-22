@@ -26,7 +26,7 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 		raid = true
 	}
 
-	local halion, cached = {[40142] = true, [39863] = true}, {}
+	local halion, cached = {[40142] = true, [39863] = true}, core.WeakTable()
 	local combustion = GetSpellInfo(74562)
 	local consumption = GetSpellInfo(74792)
 	local texture = [[Interface\BUTTONS\WHITE8X8]]
@@ -135,7 +135,7 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 				HalionBar:SetScript("OnDragStop", OnDragStop)
 
 				-- create bar segments
-				HalionBar.segments = {}
+				HalionBar.segments = core.WeakTable(HalionBar.segments)
 				for i = 1, 11 do
 					local t = HalionBar:CreateTexture(nil, "ARTWORK")
 					t:SetTexture(texture)
@@ -329,11 +329,11 @@ KPack:AddModule("HalionHelper", function(_, core, L)
 	end
 
 	function HalionHelper:PLAYER_REGEN_DISABLED()
-		cached = {}
+		cached = core.WeakTable(cached)
 	end
 
 	function HalionHelper:PLAYER_REGEN_ENABLED()
-		cached = {}
+		cached = core.WeakTable(cached)
 		if HalionBar and HalionBar:IsShown() then
 			HalionBar:Hide()
 		end

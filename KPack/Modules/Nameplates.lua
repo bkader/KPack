@@ -407,6 +407,19 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		end
 		core:ShowIf(self.level, not config.hideLevel)
 
+		if config.arenaUnitNumber then
+			if IsActiveBattlefieldArena() then
+				for i = 1, 5 do
+					if GetUnitName("arena" .. i) == self.oldname:GetText() or GetUnitName("arena" .. i) == self.oldname:GetText() .. " (*)" then
+						self.name:SetText(i)
+						break
+					end
+				end
+			elseif self.name:GetText() ~= self.oldname:GetText() then
+				self.name:SetText(self.oldname:GetText())
+			end
+		end
+
 		self:UpdateCritical()
 		Health_OnValueChanged(self.oldHealth, self.oldHealth:GetValue())
 	end
@@ -839,6 +852,12 @@ KPack:AddModule("Nameplates", function(_, core, L)
 								type = "toggle",
 								name = L["Raid Icon Color"],
 								order = 10
+							},
+							arenaUnitNumber = {
+								type = "toggle",
+								name = L["Arena Unit Number"],
+								desc = L["In arena, names will be changed to arena unit numbers."],
+								order = 11
 							}
 						}
 					},

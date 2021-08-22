@@ -36,9 +36,9 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
 	local PickupCompanion = PickupCompanion
 
 	-- module locals
-	local errorsCache = {}
-	local spellCache = {}
-	local macroCache = {}
+	local errorsCache = core.WeakTable()
+	local spellCache = core.WeakTable()
+	local macroCache = core.WeakTable()
 	local iconCache, myclass
 
 	local MAX_MACROS = 54
@@ -53,9 +53,7 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
 
 	local DB
 	local function LoadDatabase()
-		if DB then
-			return
-		end
+		if DB then return end
 
 		if type(core.db.ABS) ~= "table" then
 			core.db.ABS = {macro = false, count = false, rank = true, spellSubs = {}, sets = {}}
@@ -119,7 +117,7 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
 					end
 
 					if not iconCache then
-						iconCache = {}
+						iconCache = core.newTable()
 						for i = 1, GetNumMacroIcons() do
 							iconCache[(GetMacroIconInfo(i))] = i
 						end
@@ -133,6 +131,7 @@ KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for 
 						nil,
 						perCharacter
 					)
+					core.delTable(iconCache)
 				end
 			end
 		end

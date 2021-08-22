@@ -8,6 +8,10 @@ core.ACD = LibStub("AceConfigDialog-3.0")
 core.LSM = LibStub("LibSharedMedia-3.0")
 local LBF = LibStub("LibButtonFacade", true)
 
+local select, next, type = select, next, type
+local tinsert, tremove = table.insert, table.remove
+local setmetatable = setmetatable
+
 -- player & class
 core.guid = UnitGUID("player")
 core.name = UnitName("player")
@@ -28,12 +32,12 @@ core.classcolors = {
 }
 core.mycolor = core.classcolors[core.class]
 
+
 -------------------------------------------------------------------------------
 -- C_Timer mimic
 --
 
 do
-	local setmetatable = setmetatable
 	local Timer = {}
 
 	local TickerPrototype = {}
@@ -118,6 +122,45 @@ do
 	core.After = Timer.After
 	core.NewTimer = Timer.NewTimer
 	core.NewTicker = Timer.NewTicker
+end
+
+-------------------------------------------------------------------------------
+-- Weak Table
+--
+
+do
+	local weaktable = {__mode = "v"}
+	function core.WeakTable(t)
+		return setmetatable(wipe(t or {}), weaktable)
+	end
+
+	-- Shamelessly copied from Omen - thanks!
+	local tablePool = {}
+	setmetatable(tablePool, {__mode = "kv"})
+
+	-- get a new table
+	function core.newTable()
+		local t = next(tablePool) or {}
+		tablePool[t] = nil
+		return t
+	end
+
+	-- delete table and return to pool
+	function core.delTable(t, recursive)
+		if type(t) == "table" then
+			for k, v in pairs(t) do
+				if recursive and type(v) == "table" then
+					core.delTable(v, recursive)
+				end
+				t[k] = nil
+			end
+			t[true] = true
+			t[true] = nil
+			setmetatable(t, nil)
+			tablePool[t] = true
+		end
+		return nil
+	end
 end
 
 -------------------------------------------------------------------------------

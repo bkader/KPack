@@ -16,7 +16,7 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 	-- some locales we need
 	local maxPoints, xPos, yPos = 5, 0, 0
 	local druidForm, shown = false, true
-	local pointsFrame = {}
+	local pointsFrame
 
 	-- saved variables and default options
 	local DB, _
@@ -65,6 +65,7 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 
 	-- initializes the frame
 	function SCP_InitializeFrames()
+		pointsFrame = wipe(pointsFrame or {})
 		for i = 1, maxPoints do
 			pointsFrame[i] = CreateFrame("Frame", "KPackSCPFrame" .. i, i == 1 and UIParent or pointsFrame[i - 1])
 			pointsFrame[i]:SetBackdrop({
@@ -170,7 +171,7 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 				pointsFrame[i] = nil
 			end
 		end
-		pointsFrame = {}
+		pointsFrame = wipe(pointsFrame or {})
 	end
 
 	-- hooked to the ColorPickerFrame

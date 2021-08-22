@@ -162,7 +162,7 @@ KPack:AddModule("LynStats", function(_, addon, L)
 		GameTooltip:ClearLines()
 		GameTooltip:SetOwner(self, tooltipAnchor)
 		local blizz = collectgarbage("count")
-		local addons = {}
+		local addons = addon.newTable()
 		local entry, memory
 		local total = 0
 		local nr = 0
@@ -183,6 +183,7 @@ KPack:AddModule("LynStats", function(_, addon, L)
 				nr = nr + 1
 			end
 		end
+		addon.delTable(addons)
 		GameTooltip:AddLine("---------------------------------------", color.r, color.g, color.b)
 		GameTooltip:AddDoubleLine(L["Total"], memFormat(total), 1, 1, 1, RGBGradient(total / (1024 * 10)))
 		GameTooltip:AddDoubleLine(L["Total incl. Blizzard"], memFormat(blizz), 1, 1, 1, RGBGradient(blizz / (1024 * 10)))

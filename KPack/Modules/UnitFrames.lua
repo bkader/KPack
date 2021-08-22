@@ -33,7 +33,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	local ceil, format, tonumber, tostring = math.ceil, string.format, tonumber, tostring
 
 	-- prepare our functions.
-	local Print, Tokenize
+	local Print
 	local KPack_UnitFrames_BossTargetFrame_Show
 	local KPack_UnitFrames_CapDisplayOfNumericValue
 	local KPack_UnitFrames_Enable
@@ -69,14 +69,6 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		if msg then
 			core:Print(msg, "UnitFrames")
 		end
-	end
-
-	function Tokenize(str)
-		local tbl = {}
-		for v in strgmatch(str, "[^ ]+") do
-			tinsert(tbl, v)
-		end
-		return tbl
 	end
 
 	function KPack_UnitFrames_ApplySettings(settings)

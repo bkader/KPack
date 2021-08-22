@@ -73,11 +73,12 @@ KPack:AddModule("ChatFilter", "Filters out words or completely removes sentences
 		elseif cmd == "words" or cmd == "list" then
 			-- logs of messages that were hidden
 			Print(L["filter keywords are:"])
-			local words = {}
+			local words = core.newTable()
 			for i, word in ipairs(DB.words) do
 				words[i] = i .. ".|cff00ffff" .. word .. "|r"
 			end
 			print(table.concat(words, ", "))
+			core.delTable(words)
 		elseif cmd == "log" or cmd == "logs" then
 			-- add a new word to the list
 			if rest then
