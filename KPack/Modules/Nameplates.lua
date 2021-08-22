@@ -410,9 +410,13 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		if config.arenaUnitNumber then
 			if IsActiveBattlefieldArena() then
 				for i = 1, 5 do
-					if GetUnitName("arena" .. i) == self.oldname:GetText() or GetUnitName("arena" .. i) == self.oldname:GetText() .. " (*)" then
-						self.name:SetText(i)
-						break
+					if UnitExists("arena" .. i) then
+						if GetUnitName("arena" .. i) == self.oldname:GetText() or GetUnitName("arena" .. i) == self.oldname:GetText() .. " (*)" then
+							self.name:SetText(i)
+							break
+						end
+					else
+						break -- no more units
 					end
 				end
 			elseif self.name:GetText() ~= self.oldname:GetText() then
