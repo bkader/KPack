@@ -687,7 +687,6 @@ L["All characters in %s will be invited to raid in 10 seconds. Please leave your
 L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = "Tous les personnages de rang %s ou supérieur seront invités dans le raid dans 10 sec. Veuillez quitter vos groupes."
 -- UnitFrames
 L["changes the unit frames scale."] = "modifie l'échelle des cadres de l'unité."
-L["To move the player and target, hold SHIFT and ALT while dragging them around."] = "Pour déplacer le personnage et la cible, maintenez les touches MAJ et ALT enfoncées tout en les faisant glisser."
 -- Viewporter
 L["Viewporter"] = "Fenêtre d'affichage"
 L["toggles viewporter status"] = "active/désactive la fenêtre d'affichage"

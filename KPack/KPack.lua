@@ -236,7 +236,7 @@ function core:RegisterForEvent(event, callback, ...)
 		self.frame = CreateFrame("Frame")
 		self.frame:SetScript("OnEvent", function(f, event, ...)
 			for func, args in next, f.events[event] do
-				func(args, ...)
+				func(unpack(args), ...)
 			end
 		end)
 	end
@@ -391,7 +391,6 @@ do
 				for i = 1, #core.moduleslist do
 					core.moduleslist[i](folder, core, L)
 				end
-				core.moduleslist = nil
 			end
 			if LBF then
 				LBF:RegisterSkinCallback("KPack", core.OnSkin, core)

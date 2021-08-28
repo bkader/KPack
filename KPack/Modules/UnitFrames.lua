@@ -42,10 +42,6 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	local KPack_UnitFrames_LoadDefaultSettings
 	local KPack_UnitFrames_PartyMemberFrame_ToPlayerArt
 	local KPack_UnitFrames_PartyMemberFrame_ToVehicleArt
-	local KPack_UnitFrames_PlayerFrame_OnMouseDown
-	local KPack_UnitFrames_PlayerFrame_OnMouseUp
-	local KPack_UnitFrames_PlayerFrame_ToPlayerArt
-	local KPack_UnitFrames_PlayerFrame_ToVehicleArt
 	local KPack_UnitFrames_SetFrameScale
 	local KPack_UnitFrames_Style_PartyMemberFrame
 	local KPack_UnitFrames_Style_PartyMemberFrameColor
@@ -58,11 +54,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	local KPack_UnitFrames_TextStatusBar_UpdateTextString
 
 	local DB
-	local defaults = {
-		scale = 1,
-		player = {x = -19, y = -4, point = "TOPLEFT", locked = true, moved = false},
-		target = {x = 250, y = -4, point = "TOPLEFT", locked = true, moved = false}
-	}
+	local defaults = {scale = 1}
 
 	-- Debug function. Adds message to the chatbox (only visible to the loacl player)
 	function Print(msg)
@@ -73,20 +65,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 
 	function KPack_UnitFrames_ApplySettings(settings)
 		settings = settings or DB
-		if InCombatLockdown() then
-			return
-		end
 		KPack_UnitFrames_SetFrameScale(settings.scale)
-
-		if settings.player.moved == true then
-			PlayerFrame:ClearAllPoints()
-			PlayerFrame:SetPoint(settings.player.point, settings.player.x, settings.player.y)
-		end
-
-		if settings.target.moved == true then
-			TargetFrame:ClearAllPoints()
-			TargetFrame:SetPoint(settings.target.point, settings.target.x, settings.target.y)
-		end
 	end
 
 	function KPack_UnitFrames_LoadDefaultSettings()
@@ -105,11 +84,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		KPack_UnitFrames_TextStatusBar_UpdateTextString(PlayerFrameManaBar)
 
 		-- Hook PlayerFrame functions
-		hooksecurefunc("PlayerFrame_ToPlayerArt", KPack_UnitFrames_PlayerFrame_ToPlayerArt)
-		hooksecurefunc("PlayerFrame_ToVehicleArt", KPack_UnitFrames_PlayerFrame_ToVehicleArt)
-		PlayerFrame:SetScript("OnMouseDown", KPack_UnitFrames_PlayerFrame_OnMouseDown)
-		PlayerFrame:SetScript("OnMouseUp", KPack_UnitFrames_PlayerFrame_OnMouseUp)
-		PlayerFrameHealthBar.capNumericDisplay = true
+		hooksecurefunc("PlayerFrame_ToPlayerArt", KPack_UnitFrames_Style_PlayerFrame)
 
 		-- Set up some stylings
 		KPack_UnitFrames_Style_PlayerFrame()
@@ -119,9 +94,6 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		hooksecurefunc("TargetFrame_Update", KPack_UnitFrames_TargetFrame_Update)
 		hooksecurefunc("TargetFrame_CheckFaction", KPack_UnitFrames_TargetFrame_CheckFaction)
 		hooksecurefunc("TargetFrame_CheckClassification", KPack_UnitFrames_TargetFrame_CheckClassification)
-		TargetFrame:SetMovable(true) -- make sure to make it movable.
-		TargetFrame:SetScript("OnMouseDown", KPack_UnitFrames_TargetFrame_OnMouseDown)
-		TargetFrame:SetScript("OnMouseUp", KPack_UnitFrames_TargetFrame_OnMouseUp)
 
 		-- FocusFrame hooks
 		hooksecurefunc("FocusFrame_SetSmallSize", KPack_UnitFrames_FocusFrame_SetSmallSize)
@@ -180,25 +152,22 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 				Print(L["Scale has to be a number, recommended to be between 0.5 and 3"])
 			end
 		elseif cmd == "reset" or cmd == "default" then
-			StaticPopup_Show("LAYOUT_RESET")
+			StaticPopup_Show("KUFI_LAYOUT_RESET")
 		else
 			Print(L:F("Acceptable commands for: |caaf49141%s|r", "/uf"))
 			local helpStr = "|cffffd700%s|r: %s"
 			print(helpStr:format("scale |cff00ffffn|r", L["changes the unit frames scale."]))
 			print(helpStr:format("reset", L["Resets module settings to default."]))
-			print(L["To move the player and target, hold SHIFT and ALT while dragging them around."])
 		end
 	end
 
 	-- Setup the static popup dialog for resetting the UI
-	StaticPopupDialogs["LAYOUT_RESET"] = {
+	StaticPopupDialogs["KUFI_LAYOUT_RESET"] = {
 		preferredIndex = 4,
 		text = "Are you sure you want to reset your layout?\nThis will automatically reload the UI.",
 		button1 = YES,
 		button2 = NO,
 		OnAccept = function()
-			PlayerFrame:SetUserPlaced(false)
-			TargetFrame:SetUserPlaced(false)
 			core.char.UnitFrames = nil
 			DB = nil
 			KPack_UnitFrames_LoadDefaultSettings()
@@ -208,51 +177,6 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		whileDead = true,
 		hideOnEscape = true
 	}
-
-	-- Overloaded functions from Blizzard Unitframes Code
-	function KPack_UnitFrames_PlayerFrame_OnMouseDown(self, button)
-		if not InCombatLockdown() and IsShiftKeyDown() and IsAltKeyDown() and button == "LeftButton" then
-			KPack_UnitFrames_PlayerFrame_IsMoving = true
-			PlayerFrame:SetUserPlaced(true)
-			PlayerFrame:StartMoving()
-		end
-	end
-
-	function KPack_UnitFrames_PlayerFrame_OnMouseUp(self, button)
-		if not InCombatLockdown() and KPack_UnitFrames_PlayerFrame_IsMoving == true and button == "LeftButton" then
-			KPack_UnitFrames_PlayerFrame_IsMoving = false
-			PlayerFrame:StopMovingOrSizing()
-
-			local point, _, _, xOffset, yOffset = PlayerFrame:GetPoint(1)
-			DB.player.moved = true
-			DB.player.point = point
-			DB.player.x = xOffset
-			DB.player.y = yOffset
-			return
-		end
-	end
-
-	-- Overloaded functions from Blizzard Unitframes Code
-	function KPack_UnitFrames_TargetFrame_OnMouseDown(self, button)
-		if not InCombatLockdown() and IsShiftKeyDown() and IsAltKeyDown() and button == "LeftButton" then
-			KPack_UnitFrames_TargetFrame_IsMoving = true
-			TargetFrame:SetUserPlaced(true)
-			TargetFrame:StartMoving()
-		end
-	end
-
-	function KPack_UnitFrames_TargetFrame_OnMouseUp(self, button)
-		if not InCombatLockdown() and KPack_UnitFrames_TargetFrame_IsMoving == true and button == "LeftButton" then
-			KPack_UnitFrames_TargetFrame_IsMoving = false
-			TargetFrame:StopMovingOrSizing()
-
-			local point, _, _, xOffset, yOffset = TargetFrame:GetPoint(1)
-			DB.target.moved = true
-			DB.target.point = point
-			DB.target.x = xOffset
-			DB.target.y = yOffset
-		end
-	end
 
 	function KPack_UnitFrames_TextStatusBar_UpdateTextString(textStatusBar)
 		local textString = textStatusBar.TextString
@@ -312,29 +236,6 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 			end
 		end
 	end
-
-	function KPack_UnitFrames_PlayerFrame_ToPlayerArt(self)
-		KPack_UnitFrames_Style_PlayerFrame()
-		if DB.player.moved == true then
-			core.After(0.35, function()
-				PlayerFrame:ClearAllPoints()
-				PlayerFrame:SetPoint(DB.player.point, DB.player.x, DB.player.y)
-			end)
-		end
-	end
-
-	function KPack_UnitFrames_PlayerFrame_ToVehicleArt(self)
-		self.wasInVehicle = true
-		PlayerFrameHealthBar:SetHeight(12)
-		PlayerFrameHealthBarText:SetPoint("CENTER", 50, 3)
-		if DB.player.moved == true then
-			core.After(0.35, function()
-				PlayerFrame:ClearAllPoints()
-				PlayerFrame:SetPoint(DB.player.point, DB.player.x, DB.player.y)
-			end)
-		end
-	end
-
 	do
 		function UnitColor(unit)
 			local r, g, b
@@ -544,44 +445,10 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	core:RegisterForEvent("PLAYER_ENTERING_WORLD", KPack_UnitFrames_Enable)
 
 	core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()
-		PlayerFrame:SetScript("OnMouseDown", KPack_UnitFrames_PlayerFrame_OnMouseDown)
-		PlayerFrame:SetScript("OnMouseUp", KPack_UnitFrames_PlayerFrame_OnMouseUp)
-		TargetFrame:SetScript("OnMouseDown", KPack_UnitFrames_TargetFrame_OnMouseDown)
-		TargetFrame:SetScript("OnMouseUp", KPack_UnitFrames_TargetFrame_OnMouseUp)
-		if PlayerFrame.wasInVehicle and not UnitInVehicle("player") then
-			PlayerFrame.wasInVehicle = nil
-			if not UnitExists("playerpet") then
+		core.After(0.5, function()
+			if not UnitInVehicle("player") and not UnitExists("playerpet") then
 				PetFrame:Hide()
 			end
-		end
-	end)
-
-	core:RegisterForEvent("PLAYER_REGEN_DISABLED", function()
-		PlayerFrame:SetScript("OnMouseDown", nil)
-		PlayerFrame:SetScript("OnMouseUp", nil)
-		TargetFrame:SetScript("OnMouseDown", nil)
-		TargetFrame:SetScript("OnMouseUp", nil)
-	end)
-
-	core:RegisterForEvent("UNIT_ENTERED_VEHICLE", function(_, unit)
-		if unit == "player" and not InCombatLockdown() then
-			PlayerFrame.state = "vehicle"
-			UnitFrame_SetUnit(PlayerFrame, "vehicle", PlayerFrameHealthBar, PlayerFrameManaBar)
-			UnitFrame_SetUnit(PetFrame, "player", PetFrameHealthBar, PetFrameManaBar)
-			PetFrame_Update(PetFrame)
-			PlayerFrame:Show()
-			PlayerFrame_Update()
-		end
-	end)
-
-	core:RegisterForEvent("UNIT_EXITED_VEHICLE", function(_, unit)
-		if unit == "player" and not InCombatLockdown() then
-			PlayerFrame.state = "player"
-			UnitFrame_SetUnit(PlayerFrame, "player", PlayerFrameHealthBar, PlayerFrameManaBar)
-			UnitFrame_SetUnit(PetFrame, "pet", PetFrameHealthBar, PetFrameManaBar)
-			PetFrame_Update(PetFrame)
-			PlayerFrame_Update()
-			PlayerFrame:Show()
-		end
+		end)
 	end)
 end)
