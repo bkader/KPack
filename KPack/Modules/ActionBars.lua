@@ -270,12 +270,14 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 		local mopacity = opacity / 1.2 -- macro name opacity
 		for i = 1, 12 do
 			_G["ActionButton" .. i .. "HotKey"]:SetAlpha(opacity)
+			_G["BonusActionButton" .. i .. "HotKey"]:SetAlpha(opacity)
 			_G["MultiBarBottomRightButton" .. i .. "HotKey"]:SetAlpha(opacity)
 			_G["MultiBarBottomLeftButton" .. i .. "HotKey"]:SetAlpha(opacity)
 			_G["MultiBarRightButton" .. i .. "HotKey"]:SetAlpha(opacity)
 			_G["MultiBarLeftButton" .. i .. "HotKey"]:SetAlpha(opacity)
 
 			_G["ActionButton" .. i .. "Name"]:SetAlpha(mopacity)
+			_G["BonusActionButton" .. i .. "Name"]:SetAlpha(mopacity)
 			_G["MultiBarBottomRightButton" .. i .. "Name"]:SetAlpha(mopacity)
 			_G["MultiBarBottomLeftButton" .. i .. "Name"]:SetAlpha(mopacity)
 			_G["MultiBarRightButton" .. i .. "Name"]:SetAlpha(mopacity)
