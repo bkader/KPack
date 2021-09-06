@@ -217,6 +217,10 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 		end
 		SetupDatabase()
 
+		if not pointsFrame then
+			SCP_InitializeFrames()
+		end
+
 		if GetShapeshiftForm() == 3 then
 			for i = 1, maxPoints do
 				pointsFrame[i]:Show()
