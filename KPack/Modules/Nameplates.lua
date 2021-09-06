@@ -1012,7 +1012,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	end
 
 	core:RegisterForEvent("PLAYER_LOGIN", function()
-		disabled, reason = core:AddOnIsLoaded("TidyPlates", "Kui_Nameplates", "KuiNameplates", "Neatplates", "dNameplates", "Plater", "ThreatPlates", "caelNamePlates")
+		disabled, reason = core:AddOnIsLoaded("TidyPlates", "Kui_Nameplates", "KuiNameplates", "Neatplates", "dNameplates", "Plater", "ThreatPlates", "caelNamePlates", "Aloft")
 		SetupDatabase()
 		core.options.args.Options.args.Nameplates = GetOptions()
 
