@@ -228,7 +228,7 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
 				mod.frame:Hide()
 				mod.frame:UnregisterAllEvents()
 				mod.frame = nil
-				PLAYER_LOGIN()
+				mod:ApplySettings()
 			end
 		end
 		exec.defaults = exec.reset
