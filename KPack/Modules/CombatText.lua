@@ -318,6 +318,7 @@ KPack:AddModule("xCT", function(_, core, L)
 	elseif ct.myclass == "SHAMAN" then
 		if ct.mergeaoespam then
 			ct.aoespam[49271] = true -- Chain Lightning
+			ct.aoespam[45297] = 49271 -- Chain Lightning - Elemental Overload
 			ct.aoespam[61654] = true -- Fire Nova
 			ct.aoespam[59159] = true -- Thunderstorm
 			ct.aoespam[58735] = true -- Magma Totem
