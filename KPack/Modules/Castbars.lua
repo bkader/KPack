@@ -45,6 +45,15 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 		return spark
 	end})
 
+	local autoshotname, shootname, slamname = GetSpellInfo(75), GetSpellInfo(5019), GetSpellInfo(1464)
+	local swingResetSpells = {
+		[GetSpellInfo(845)] = true, -- Cleave
+		[GetSpellInfo(78)] = true, -- Heroic Strike
+		[GetSpellInfo(6807)] = true, -- Maul
+		[GetSpellInfo(2973)] = true, -- Raptor Strike
+		[GetSpellInfo(56815)] = true, -- Rune Strike
+	}
+
 	local function Castbars_SpellToTicks(spellName, actualDuration)
 		local baseTickDuration = Castbars.BaseTickDuration[spellName]
 		if baseTickDuration then
@@ -68,6 +77,11 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 				tick:Show()
 			end
 		end
+	end
+
+	local function Castbars_IsDualWielding()
+		local ohlow, ohhigh = select(3, UnitDamage("player"))
+		return (core.class ~= "DRUID" and ohlow ~= ohhigh)
 	end
 
 	local function Castbars_FrameMediaRestore(frame)
@@ -254,6 +268,22 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 			end
 		end
 
+		if frame.swing then
+			frame.swing:UnregisterAllEvents()
+			if Castbars.db[frame.configName]["ShowSwingTimer"] then
+				frame.swing:RegisterEvent("PLAYER_REGEN_ENABLED")
+				frame.swing:RegisterEvent("STOP_AUTOREPEAT_SPELL")
+				frame.swing:RegisterEvent("UNIT_ATTACK_SPEED")
+				frame.swing:RegisterEvent("UNIT_RANGEDDAMAGE")
+				frame.swing:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+				frame.swing:RegisterEvent("UNIT_SPELLCAST_START")
+				frame.swing:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+				frame.swing:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+				local r, g, b = unpack(Castbars.db[frame.configName]["BarColor"])
+				frame.swing.texture:SetTexture(r, g, b)
+			end
+		end
+
 		frame.text:SetJustifyH(Castbars.db[frame.configName]["TextAlignment"])
 
 		frame:SetWidth(Castbars.db[frame.configName]["Width"])
@@ -431,21 +461,94 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 			texture:SetBlendMode("ADD")
 			texture:SetWidth(35)
 			texture:SetHeight(35)
-			frame.gcd:SetScript("OnUpdate", function(frameGcd, elapsed)
-				frameGcd.elapsed = (frameGcd.elapsed or 0) + elapsed
-				if frameGcd.elapsed > 0.1 then
-					frameGcd.elapsed = 0
+			frame.gcd:SetScript("OnUpdate", function(self, elapsed)
+				self.elapsed = (self.elapsed or 0) + elapsed
+				if self.elapsed > 0.1 then
+					self.elapsed = 0
 					if frame:IsVisible() then
 						frame.gcd.border:SetTexture(0, 0, 0, 0)
 					else
 						frame.gcd.border:SetTexture(0, 0, 0, 0.5)
 					end
 				end
-				local x = GetTime() * frameGcd.a - frameGcd.b
-				if x > frameGcd:GetWidth() then
-					frameGcd:Hide()
+				local x = GetTime() * self.a - self.b
+				if x > self:GetWidth() then
+					self:Hide()
 				else
-					texture:SetPoint("CENTER", frameGcd, "LEFT", x, 0)
+					texture:SetPoint("CENTER", self, "LEFT", x, 0)
+				end
+			end)
+
+			frame.swing = CreateFrame("Frame", nil, UIParent)
+			frame.swing:Hide()
+			frame.swing:SetPoint("TOP", frame.statusBar, "BOTTOM", 0, 0)
+			frame.swing:SetHeight(3)
+			local b = frame.swing:CreateTexture(nil, "BACKGROUND")
+			b:SetAllPoints(frame.swing)
+			b:SetTexture(0, 0, 0, 0.5)
+			frame.swing.texture = frame.swing:CreateTexture(nil, "ARTWORK")
+			frame.swing.texture:SetSize(5, frame.swing:GetHeight())
+			frame.swing.texture:SetPoint("LEFT", frame.swing, "LEFT", 0, 0)
+			frame.swing:SetScript("OnUpdate", function(self, elapsed)
+				if self.slamStart then return end
+				if self.startTime then
+					local spent = GetTime() - self.startTime
+					local perc = spent / self.duration
+					if perc > 1 then
+						return self:Hide()
+					else
+						self.texture:SetWidth(self:GetWidth() * perc)
+					end
+				end
+			end)
+			frame.swing:SetScript("OnEvent", function(self, event, ...)
+				if event == "COMBAT_LOG_EVENT_UNFILTERED" then
+					local _, combatevent, srcGUID, _, _, dstGUID = ...
+					if srcGUID == core.guid then
+						if combatevent == "SPELL_EXTRA_ATTACKS" then
+							self.extraAttacks = select(12, ...)
+							self.extraInhibit = true
+						elseif combatevent == "SWING_DAMAGE" or combatevent == "SWING_MISSED" then
+							if (self.extraAttacks or 0) > 0 and not self.extraInhibit then
+								self.extraAttacks = (self.extraAttacks or 0) - 1
+							elseif not Castbars_IsDualWielding() then
+								self.extraInhibit = false
+								self.duration = UnitAttackSpeed("player")
+								self.startTime = GetTime()
+								self:Show()
+							end
+						end
+					elseif dstGUID == core.guid and combatevent == "SWING_MISSED" then
+						if select(9, ...) == "PARRY" and self.duration then
+							self.duration = self.duration * 0.6
+						end
+					end
+				elseif event == "UNIT_ATTACK_SPEED" and ... == "player" then
+					self.duration = UnitAttackSpeed("player")
+				elseif event == "UNIT_RANGEDDAMAGE" and ... == "player" then
+					self.duration = UnitRangedDamage("player")
+				elseif event == "PLAYER_REGEN_ENABLED" or event == "STOP_AUTOREPEAT_SPELL" then
+					self:Hide()
+				elseif event == "UNIT_SPELLCAST_SUCCEEDED" and ... == "player" then
+					local spell = select(2, ...)
+					if Castbars_IsDualWielding() then
+						if swingResetSpells[spell] then
+							self.duration = UnitAttackSpeed("player")
+							self.startTime = GetTime()
+							self:Show()
+						elseif spell == slamname then
+							self.startTime = (self.startTime or 0) + GetTime() - self.slamStart
+							self.slamStart = nil
+						end
+					elseif spell == autoshotname or spell == shootname then
+						self.duration = UnitRangedDamage("player")
+						self.startTime = GetTime()
+						self:Show()
+					end
+				elseif event == "UNIT_SPELLCAST_START" and ... == "player" and select(2, ...) == slamname then
+					self.slamStart = GetTime()
+				elseif event == "UNIT_SPELLCAST_INTERRUPTED" and ... == "player" and select(2, ...) == slamname and self.slamStart then
+					self.slamStart = nil
 				end
 			end)
 		end
@@ -499,6 +602,9 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 				frame.shield:SetPoint("CENTER", frame.statusBar, "CENTER", -0.031875 * width, 0)
 				if frame.gcd then
 					frame.gcd:SetWidth(width)
+				end
+				if frame.swing then
+					frame.swing:SetWidth(width)
 				end
 				setWidth(self, width)
 			end
@@ -800,11 +906,28 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 					return Castbars.db[frameConfigName]["ShowCooldownSpark"]
 				end,
 				set = function()
-					Castbars.db[frameConfigName]["ShowCooldownSpark"] =
-						not Castbars.db[frameConfigName]["ShowCooldownSpark"]
+					Castbars.db[frameConfigName]["ShowCooldownSpark"] = not Castbars.db[frameConfigName]["ShowCooldownSpark"]
 				end
 			}
 		end
+
+		if frameConfigName == "CastingBarFrame" then
+			options.args.showswing = {
+				type = "toggle",
+				name = L["Show Swing Timer"],
+				desc = L["Toggles display of the swing timer."],
+				order = 9.1,
+				width = "double",
+				get = function()
+					return Castbars.db[frameConfigName]["ShowSwingTimer"]
+				end,
+				set = function()
+					Castbars.db[frameConfigName]["ShowSwingTimer"] = not Castbars.db[frameConfigName]["ShowSwingTimer"]
+					Castbars_FrameLayoutRestoreAll()
+				end
+			}
+		end
+
 		if textAlign then
 			options.args.textalign = {
 				type = "select",
@@ -834,6 +957,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 			TotalCastTimeDecimals = 1,
 			ShowPushback = true,
 			ShowCooldownSpark = true,
+			ShowSwingTimer = true,
 			Width = 250,
 			Height = 24,
 			Texture = "Castbars",
