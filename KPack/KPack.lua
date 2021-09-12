@@ -13,11 +13,6 @@ local tinsert, tremove = table.insert, table.remove
 local setmetatable = setmetatable
 
 -- player & class
-core.guid = UnitGUID("player")
-core.name = UnitName("player")
-core.class = select(2, UnitClass("player"))
-core.race = select(2, UnitRace("player"))
-core.faction = UnitFactionGroup("player")
 core.classcolors = {
 	DEATHKNIGHT = {r = 0.77, g = 0.12, b = 0.23, colorStr = "ffc41f3b"},
 	DRUID = {r = 1, g = 0.49, b = 0.04, colorStr = "ffff7d0a"},
@@ -407,7 +402,13 @@ do
 
 		local f = CreateFrame("Frame")
 		f:SetScript("OnEvent", function(self, event, arg1)
-			if (InCombatLockdown() and eventcount > 25000) or (not InCombatLockdown() and eventcount > 10000) or event == "PLAYER_ENTERING_WORLD" then
+			if event == "PLAYER_LOGIN" then
+				core.guid = UnitGUID("player")
+				core.name = UnitName("player")
+				core.class = select(2, UnitClass("player"))
+				core.race = select(2, UnitRace("player"))
+				core.faction = UnitFactionGroup("player")
+			elseif (InCombatLockdown() and eventcount > 25000) or (not InCombatLockdown() and eventcount > 10000) or event == "PLAYER_ENTERING_WORLD" then
 				collectgarbage("collect")
 				eventcount = 0
 				self:UnregisterEvent(event)
@@ -431,6 +432,7 @@ do
 			end
 			eventcount = eventcount + 1
 		end)
+		f:RegisterEvent("PLAYER_LOGIN")
 		f:RegisterEvent("PLAYER_ENTERING_WORLD")
 		f:RegisterEvent("PLAYER_FLAGS_CHANGED")
 		f:RegisterEvent("PLAYER_REGEN_ENABLED")
