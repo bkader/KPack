@@ -2463,7 +2463,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			SHAMAN = {
 				[16166] = 180, -- Elemental Mastery
 				[16188] = 120, -- Nature's Swiftness
-				[16190] = 180, -- Mana Tide Totem
+				[16190] = 300, -- Mana Tide Totem
 				[20608] = 1800, -- Reincarnation
 				[2062] = 600, -- Earth Elemental Totem
 				[21169] = 1800, -- Reincarnation
