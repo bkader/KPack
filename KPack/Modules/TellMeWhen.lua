@@ -699,8 +699,6 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 				{value = "focustarget", text = L["Focus Target"]},
 				{value = "pet", text = PET},
 				{value = "pettarget", text = L["Pet Target"]},
-				{value = "maintank", text = MAINTANK},
-				{value = "mainassist", text = MAINASSIST},
 				{disabled = true},
 				{text = PARTY, isTitle = true},
 				{text = PLAYER .. " " .. 1, value = "party1"},
