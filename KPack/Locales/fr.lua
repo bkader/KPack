@@ -742,3 +742,7 @@ L["|cffeda55fShift-Click|r to take the contents."] = "|cffeda55fMaj-clic gauche|
 L["Intercepts irresponsible collectgarbage calls to prevent chunky lockups and freezes."] = "Bloque les appels irresponsables de la fonction collectgarbage pour éviter les problèmes de performance."
 L["Screw those irresponsible collectgarbage calls!"] = "Que ces appels de collectgarbage aillent au diable!"
 L["UpdateAddOnMemoryUsage is a waste of CPU time and some addons call it periodically when they shouldn't.\n\n|cffffd700WARNING|r: All in-game memory usage reports obtained with GetAddOnMemoryUsage will be reported as 0 or the last returned value if this is enabled."] = "UpdateAddOnMemoryUsage est une perte de CPU et certains addons l'appellent périodiquement alors qu'ils ne devraient pas.\n\n|cffffd700NOTE|r : tous les rapports d'utilisation de la mémoire dans le jeu obtenus avec GetAddOnMemoryUsage afficheront 0 ou la dernière valeur si cette option est activée."
+-- Auto Track
+L["Auto Track"] = "Pistage auto."
+L["Revert"] = "Retour"
+L["Whether to revert to previous track."] = "Activez si vous voulez revenir au mode de pistage précédent."

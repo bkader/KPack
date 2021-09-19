@@ -815,3 +815,7 @@ L["%s not found, please check the spelling it is case sensistive."] = true
 L["Intercepts irresponsible collectgarbage calls to prevent chunky lockups and freezes."] = true
 L["Screw those irresponsible collectgarbage calls!"] = true
 L["UpdateAddOnMemoryUsage is a waste of CPU time and some addons call it periodically when they shouldn't.\n\n|cffffd700WARNING|r: All in-game memory usage reports obtained with GetAddOnMemoryUsage will be reported as 0 or the last returned value if this is enabled."] = true
+-- Auto Track
+L["Auto Track"] = true
+L["Revert"] = true
+L["Whether to revert to previous track."] = true

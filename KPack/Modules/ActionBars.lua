@@ -181,6 +181,8 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 			"MinimapBorder",
 			"MinimapBorderTop",
 			"MiniMapTrackingButtonBorder",
+			"TargetFrameSpellBarBorderShield",
+			"FocusFrameSpellBarBorderShield",
 			-- CompactRaidFrame
 			"CompactRaidFrameManagerBorderTop",
 			"CompactRaidFrameManagerBorderTopLeft",

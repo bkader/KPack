@@ -1,6 +1,6 @@
-# KPack - Lots-In-One AddOn Collection! (64)
+# KPack - Lots-In-One AddOn Collection! (65)
 
-Currently, this pack contains 64 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 65 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -324,3 +324,7 @@ Intercepts irresponsible collectgarbage calls to prevent chunky lockups and free
 Some WoW addons call the lua collectgarbage function irresponsibly, causing all execution to halt until it is finished. This can take more than half a second, which freezes the game in an annoying manner. Most addons don't need to make such calls, but some do anyway, causing these lockups.
 
 [Read more](https://www.curseforge.com/wow/addons/garbageprotector)
+
+## 65. Auto Track
+
+AutoTrack is a module to switch the current tracking ability according to the creature type of your current target. It's an module for all hunters who specced improved tracking.
