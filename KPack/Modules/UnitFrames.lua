@@ -3,6 +3,9 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	if core:IsDisabled("UnitFrames") or core.ElvUI then return end
 
 	-- Setup some locals
+	local UFI = CreateFrame("Frame")
+	UFI:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
+
 	local KPack_UnitFrames_PlayerFrame_IsMoving = false
 	local KPack_UnitFrames_TargetFrame_IsMoving = false
 
@@ -36,7 +39,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	local Print
 	local KPack_UnitFrames_BossTargetFrame_Show
 	local KPack_UnitFrames_CapDisplayOfNumericValue
-	local KPack_UnitFrames_Enable
+	local KPack_UnitFrames_Initialize
 	local KPack_UnitFrames_FocusFrame_SetSmallSize
 	local KPack_UnitFrames_FocusFrame_Show
 	local KPack_UnitFrames_LoadDefaultSettings
@@ -54,17 +57,16 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	local KPack_UnitFrames_TextStatusBar_UpdateTextString
 
 	local DB
-	local defaults = {scale = 1}
+	local defaults = {scale = 1, improved = true}
 
 	-- Debug function. Adds message to the chatbox (only visible to the loacl player)
 	function Print(msg)
-		if msg then
-			core:Print(msg, "UnitFrames")
-		end
+		core:Print(msg, "UnitFrames")
 	end
 
 	function KPack_UnitFrames_ApplySettings(settings)
 		settings = settings or DB
+		core.ufi = settings.improved
 		KPack_UnitFrames_SetFrameScale(settings.scale)
 	end
 
@@ -72,10 +74,13 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		if type(core.char.UnitFrames) ~= "table" or not next(core.char.UnitFrames) then
 			core.char.UnitFrames = CopyTable(defaults)
 		end
+		if core.char.UnitFrames.improved == nil then
+			core.char.UnitFrames.improved = true
+		end
 		DB = core.char.UnitFrames
 	end
 
-	function KPack_UnitFrames_Enable()
+	function KPack_UnitFrames_Initialize()
 		if InCombatLockdown() then return end
 
 		-- Generic status text hook and instantly update player
@@ -115,12 +120,14 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	function KPack_UnitFrames_Style_PlayerFrame()
-		PlayerFrameHealthBar:SetWidth(119)
-		PlayerFrameHealthBar:SetHeight(29)
-		PlayerFrameHealthBar:SetPoint("TOPLEFT", 106, -22)
-		PlayerFrameHealthBarText:SetPoint("CENTER", 50, 6)
-		PlayerFrameTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-TargetingFrame")
-		PlayerStatusTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-Player-Status")
+		if DB.improved then
+			PlayerFrameHealthBar:SetWidth(119)
+			PlayerFrameHealthBar:SetHeight(29)
+			PlayerFrameHealthBar:SetPoint("TOPLEFT", 106, -22)
+			PlayerFrameHealthBarText:SetPoint("CENTER", 50, 6)
+			PlayerFrameTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-TargetingFrame")
+			PlayerStatusTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-Player-Status")
+		end
 		PlayerFrameHealthBar:SetStatusBarColor(UnitColor("player"))
 	end
 
@@ -151,12 +158,16 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 			elseif scale then
 				Print(L["Scale has to be a number, recommended to be between 0.5 and 3"])
 			end
+		elseif cmd == "style" or cmd == "improve" then
+			DB.improved = not DB.improved
+			ReloadUI()
 		elseif cmd == "reset" or cmd == "default" then
 			StaticPopup_Show("KUFI_LAYOUT_RESET")
 		else
 			Print(L:F("Acceptable commands for: |caaf49141%s|r", "/uf"))
 			local helpStr = "|cffffd700%s|r: %s"
 			print(helpStr:format("scale |cff00ffffn|r", L["changes the unit frames scale."]))
+			print(helpStr:format("style", L["enables improved unit frames textures."]))
 			print(helpStr:format("reset", L["Resets module settings to default."]))
 		end
 	end
@@ -261,9 +272,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		end
 
 		function KPack_UnitFrames_Style_PartyMemberFrameColor()
-			if InCombatLockdown() then
-				return
-			end
+			if InCombatLockdown() then return end
 			for i = 1, GetNumPartyMembers() do
 				_G["PartyMemberFrame" .. i .. "HealthBar"]:SetStatusBarColor(UnitColor("party" .. i))
 				_G["PartyMemberFrame" .. i .. "HealthBar"].lockColor = true
@@ -271,7 +280,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		end
 
 		function KPack_UnitFrames_Style_PartyMemberFrame()
-			if not InCombatLockdown() then
+			if not InCombatLockdown() and DB.improved then
 				for i = 1, GetNumPartyMembers() do
 					-- Text
 					_G["PartyMemberFrame" .. i .. "Name"]:SetPoint("BOTTOMLEFT", 57, 35)
@@ -319,7 +328,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		end
 
 		function KPack_UnitFrames_PartyMemberFrame_ToVehicleArt(self)
-			if not InCombatLockdown() then
+			if not InCombatLockdown() and DB.improved then
 				for i = 1, GetNumPartyMembers() do
 					if UnitInVehicle("party" .. i) then
 						_G["PartyMemberFrame" .. i .. "VehicleTexture"]:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-Vehicles-Partyframe")
@@ -333,16 +342,6 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	function KPack_UnitFrames_TargetFrame_Update(self)
-		local thisName = self:GetName()
-
-		-- Layout elements
-		self.healthbar.lockColor = true
-		self.healthbar:SetWidth(119)
-		self.healthbar:SetHeight(29)
-		self.healthbar:SetPoint("TOPLEFT", 7, -22)
-		_G[thisName .. "TextureFrameHealthBarText"]:SetPoint("CENTER", -50, 6)
-		self.deadText:SetPoint("CENTER", -50, 6)
-		self.nameBackground:Hide()
 
 		-- Set back color of health bar
 		if not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit) and not UnitIsTappedByAllThreatList(self.unit) then
@@ -352,9 +351,21 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 			-- Standard by class etc if not
 			self.healthbar:SetStatusBarColor(UnitColor(self.healthbar.unit))
 		end
+
+		if not DB.improved then return end
+		-- Layout elements
+		local thisName = self:GetName()
+		self.healthbar.lockColor = true
+		self.healthbar:SetWidth(119)
+		self.healthbar:SetHeight(29)
+		self.healthbar:SetPoint("TOPLEFT", 7, -22)
+		_G[thisName .. "TextureFrameHealthBarText"]:SetPoint("CENTER", -50, 6)
+		self.deadText:SetPoint("CENTER", -50, 6)
+		self.nameBackground:Hide()
 	end
 
 	function KPack_UnitFrames_TargetFrame_CheckClassification(self, forceNormalTexture)
+		if not DB.improved then return end
 		local texture
 		local classification = UnitClassification(self.unit)
 		if classification == "worldboss" or classification == "elite" then
@@ -372,6 +383,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	function KPack_UnitFrames_TargetFrame_CheckFaction(self)
+		if not DB.improved then return end
 		local factionGroup = UnitFactionGroup(self.unit)
 		if UnitIsPVPFreeForAll(self.unit) then
 			self.pvpIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA")
@@ -397,14 +409,16 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	function KPack_UnitFrames_BossTargetFrame_Show(self)
-		if not InCombatLockdown() then
+		if not InCombatLockdown() and DB.improved then
 			self.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-UnitFrame-Boss")
 			self:SetScale((DB.scale or 1) * 0.9)
 		end
 	end
 
 	function KPack_UnitFrames_FocusFrame_Show(self)
-		if not FocusFrame.smallSize then
+		if not DB.improved then
+			return
+		elseif not FocusFrame.smallSize then
 			FocusFrame.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-FocusTargetingFrame")
 		elseif FocusFrame.smallSize then
 			FocusFrame.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-TargetingFrame")
@@ -412,7 +426,9 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	function KPack_UnitFrames_FocusFrame_SetSmallSize(smallSize, onChange)
-		if smallSize and not FocusFrame.smallSize then
+		if not DB.improved then
+			return
+		elseif smallSize and not FocusFrame.smallSize then
 			FocusFrame.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-FocusTargetingFrame")
 		elseif not smallSize and FocusFrame.smallSize then
 			FocusFrame.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-TargetingFrame")
@@ -437,18 +453,20 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	-- Event listener to make sure we've loaded our settings and thta we apply them
 	core:RegisterForEvent("PLAYER_LOGIN", function()
 		KPack_UnitFrames_LoadDefaultSettings()
-		core.ufi = true
+		UFI:RegisterEvent("PLAYER_ENTERING_WORLD")
 		KPack_UnitFrames_ApplySettings(core.char.UnitFrames)
 	end)
 
-	-- Event listener to make sure we enable the addon at the right time
-	core:RegisterForEvent("PLAYER_ENTERING_WORLD", KPack_UnitFrames_Enable)
+	function UFI:PLAYER_ENTERING_WORLD()
+		KPack_UnitFrames_Initialize()
+		UFI:RegisterEvent("PLAYER_REGEN_ENABLED")
+	end
 
-	core:RegisterForEvent("PLAYER_REGEN_ENABLED", function()
+	function UFI:PLAYER_REGEN_ENABLED()
 		core.After(0.5, function()
 			if not UnitInVehicle("player") and not UnitExists("playerpet") then
 				PetFrame:Hide()
 			end
 		end)
-	end)
+	end
 end)

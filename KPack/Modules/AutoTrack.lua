@@ -23,13 +23,13 @@ KPack:AddModule("Auto Track", function(_, core, L)
 	local defaults = {enabled = true, revert = false}
 
 	local tracking = {
-		Beast = 1,
-		Demon = 3,
-		Dragonkin = 4,
-		Elemental = 5,
-		Giant = 6,
-		Humanoid = 7,
-		Undead = 8
+		Beast = 0,
+		Demon = 0,
+		Dragonkin = 0,
+		Elemental = 0,
+		Giant = 0,
+		Humanoid = 0,
+		Undead = 0
 	}
 
 	local creature = {
@@ -128,7 +128,7 @@ KPack:AddModule("Auto Track", function(_, core, L)
 		reverseCreature[v] = k
 	end
 
-	local function AutoTrack_CheckTrackingIDS()
+	function AutoTrack:CheckTrackingIDS()
 		for i = 1, GetNumTrackingTypes() do
 			local name, _, _, _ = GetTrackingInfo(i)
 			if name == GetSpellInfo(1494) then
@@ -157,7 +157,7 @@ KPack:AddModule("Auto Track", function(_, core, L)
 		end
 	end
 
-	local function AutoTrack_TrackIt()
+	function AutoTrack:TrackIt()
 		local trackid = 0
 
 		if UnitExists("target") then
@@ -175,7 +175,7 @@ KPack:AddModule("Auto Track", function(_, core, L)
 			trackid = revertid or 0
 		end
 
-		SetTracking(trackid)
+		core.After(0.5, function() SetTracking(trackid) end)
 	end
 
 	local options = {
@@ -228,7 +228,7 @@ KPack:AddModule("Auto Track", function(_, core, L)
 
 	function AutoTrack:PLAYER_REGEN_ENABLED()
 		if DB.enabled then
-			AutoTrack_TrackIt()
+			AutoTrack:TrackIt()
 		end
 	end
 
@@ -237,13 +237,13 @@ KPack:AddModule("Auto Track", function(_, core, L)
 			if DB.revert then
 				revertid = AutoTrack_GetCurrentTracking()
 			end
-			AutoTrack_TrackIt()
+			AutoTrack:TrackIt()
 		end
 	end
 
 	function AutoTrack:CHAT_MSG_SKILL()
 		if DB.enabled then
-			AutoTrack_CheckTrackingIDS()
+			AutoTrack:CheckTrackingIDS()
 		end
 	end
 
@@ -252,8 +252,11 @@ KPack:AddModule("Auto Track", function(_, core, L)
 		SLASH_KPACKTRACK1 = "/autotrack"
 		SLASH_KPACKTRACK2 = "/track"
 		SLASH_KPACKTRACK3 = "/at"
-		SlashCmdList.KPACKTRACK = AutoTrack_TrackIt
+		SlashCmdList.KPACKTRACK = AutoTrack.TrackIt
 		core.options.args.Options.args.AutoTrack = options
-		core.After(2, AutoTrack.ApplySettings)
+		core.After(2, function()
+			AutoTrack:CheckTrackingIDS()
+			AutoTrack:ApplySettings()
+		end)
 	end)
 end)

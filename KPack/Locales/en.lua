@@ -729,6 +729,7 @@ L["All characters in %s will be invited to raid in 10 seconds. Please leave your
 L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = true
 -- UnitFrames
 L["changes the unit frames scale."] = true
+L["enables improved unit frames textures."] = true
 -- Viewporter
 L["Viewporter"] = true
 L["toggles viewporter status"] = true
