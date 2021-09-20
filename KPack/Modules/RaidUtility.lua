@@ -3397,8 +3397,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			if _G.KRU then return end
 
 			core.After(2, function()
-				GuildRoster()
 				inGuild = IsInGuild()
+				if inGuild then GuildRoster() end
 
 				options = options or GetOptions()
 				if inGuild then
