@@ -21,6 +21,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		showHealthMax = false,
 		shortenNumbers = true,
 		showHealthPercent = false,
+		hideHealthFull = false,
 		textFont = "Yanone",
 		textFontSize = 11,
 		textFontOutline = "THINOUTLINE",
@@ -128,7 +129,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	-- format the text of the health
 	local Nameplate_FormatHealthText
 	do
-		local function Nameplate_Shorten(num)
+		local function Nameplate_ShortenHealthText(num)
 			local res
 			if num > 1000000000 then
 				res = format("%.3fB", num / 1000000000)
@@ -149,14 +150,20 @@ KPack:AddModule("Nameplates", function(_, core, L)
 			if config.showHealthText or config.showHealthPercent then
 				local minval, maxval = self.healthBar:GetMinMaxValues()
 				local curval = self.healthBar:GetValue()
+
+				if config.hideHealthFull and curval == maxval then
+					self.text:Hide()
+					return
+				end
+
 				local text = ""
 
 				if config.showHealthText then
-					text = text .. (config.shortenNumbers and Nameplate_Shorten(curval) or curval)
+					text = text .. (config.shortenNumbers and Nameplate_ShortenHealthText(curval) or curval)
 				end
 
 				if config.showHealthMax and text ~= "" then
-					text = text .. " / " .. (config.shortenNumbers and Nameplate_Shorten(maxval) or maxval)
+					text = text .. " / " .. (config.shortenNumbers and Nameplate_ShortenHealthText(maxval) or maxval)
 				end
 
 				if config.showHealthPercent then
@@ -888,17 +895,23 @@ KPack:AddModule("Nameplates", function(_, core, L)
 								name = L["Show Health Percent"],
 								order = 4
 							},
+							hideHealthFull = {
+								type = "toggle",
+								name = L["Hide text when health is full"],
+								order = 4,
+								width = "double"
+							},
 							textFont = {
 								type = "select",
 								name = L["Font"],
 								dialogControl = "LSM30_Font",
 								values = AceGUIWidgetLSMlists.font,
-								order = 5
+								order = 6
 							},
 							textFontSize = {
 								type = "range",
 								name = L["Font Size"],
-								order = 6,
+								order = 7,
 								min = 6,
 								max = 30,
 								step = 1
@@ -906,7 +919,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 							textFontOutline = {
 								type = "select",
 								name = L["Font Outline"],
-								order = 7,
+								order = 8,
 								values = {
 									[""] = NONE,
 									["OUTLINE"] = L["Outline"],
@@ -919,7 +932,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 							decimals = {
 								type = "range",
 								name = L["Decimals"],
-								order = 8,
+								order = 9,
 								min = 0,
 								max = 3,
 								step = 1
@@ -927,7 +940,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 							textOfsX = {
 								type = "range",
 								name = L["X Offset"],
-								order = 9,
+								order = 10,
 								min = -125,
 								max = 125,
 								step = 0.01,
@@ -936,7 +949,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 							textOfsY = {
 								type = "range",
 								name = L["Y Offset"],
-								order = 9,
+								order = 11,
 								min = -15,
 								max = 15,
 								step = 0.01,
