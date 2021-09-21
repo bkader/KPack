@@ -689,8 +689,10 @@ L["All max level characters will be invited to raid in 10 seconds. Please leave 
 L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."] = "Tous les personnages se trouvant à %s seront invités dans le raid rans 10 sec. Veuillez quitter vos groupes."
 L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = "Tous les personnages de rang %s ou supérieur seront invités dans le raid dans 10 sec. Veuillez quitter vos groupes."
 -- UnitFrames
-L["changes the unit frames scale."] = "modifie l'échelle des cadres de l'unité."
+L["Enhance Unit Frames"] = "Portraits améliorés"
+L["changes the unit frames scale."] = "modifie l'échelle des portraits d'unités."
 L["enables improved unit frames textures."] = "utilise des textures améliorées."
+L["Text Settings"] = "Paramètres de texte"
 -- Viewporter
 L["Viewporter"] = "Fenêtre d'affichage"
 L["toggles viewporter status"] = "active/désactive la fenêtre d'affichage"
