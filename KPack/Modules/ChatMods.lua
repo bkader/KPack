@@ -2,7 +2,9 @@ assert(KPack, "KPack not found!")
 KPack:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removing buttons, mousewheel scroll, copy chat and clickable links.", function(folder, core, L)
 	if core:IsDisabled("ChatMods") or core.ElvUI then return end
 
-	local mod = core.ChatMods or {}
+	local mod = core.ChatMods or CreateFrame("Frame")
+	mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
+
 	core.ChatMods = mod
 
 	local defaults = {
@@ -504,7 +506,12 @@ KPack:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removi
 		SetupDatabase()
 		disabled = (_G.Chatter or _G.Prat or _G.ElvUI)
 
-		if not disabled and DB.enabled then
+		if not disabled then
+			SlashCmdList["KPACKCHATMODS"] = SlashCommandHandler
+			SLASH_KPACKCHATMODS1 = "/cm"
+			SLASH_KPACKCHATMODS2 = "/chatmods"
+
+			if not DB.enabled then return end
 
 			-- :::::::::::::::::::::::::::::::::::::::::::::
 			-- Sticky Channels & Fading Alpha
@@ -538,11 +545,8 @@ KPack:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removi
 			SLASH_KPACKTELLTARGET2 = "/ее"
 			SLASH_KPACKTELLTARGET3 = "/wt"
 
-			SlashCmdList["KPACKCHATMODS"] = SlashCommandHandler
-			SLASH_KPACKCHATMODS1 = "/cm"
-			SLASH_KPACKCHATMODS2 = "/chatmods"
-
 			hooksecurefunc("FloatingChatFrame_OnMouseScroll", ChatMods_FloatingChatFrame_OnMouseScroll)
+			mod:RegisterEvent("PLAYER_ENTERING_WORLD")
 		end
 	end)
 
@@ -562,10 +566,10 @@ KPack:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removi
 		ChatMods_EditBox()
 	end
 
-	core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
+	function mod:PLAYER_ENTERING_WORLD()
 		SetupDatabase()
 		if not disabled and DB.enabled then
 			ChatMods_Initialize()
 		end
-	end)
+	end
 end)
