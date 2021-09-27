@@ -1360,10 +1360,10 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 						name = L["Scale"],
 						order = 7,
 						disabled = disabled,
-						min = 0.5,
-						max = 8,
+						min = 1,
+						max = 4,
 						step = 0.01,
-						bigStep = 0.1
+						isPercent = true
 					},
 					Columns = {
 						type = "range",

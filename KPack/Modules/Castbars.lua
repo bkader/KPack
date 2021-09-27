@@ -537,7 +537,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 							self.startTime = GetTime()
 							self:Show()
 						elseif spell == slamname then
-							self.startTime = (self.startTime or 0) + GetTime() - self.slamStart
+							self.startTime = (self.startTime or 0) + GetTime() - (self.slamStart or 0)
 							self.slamStart = nil
 						end
 					elseif spell == autoshotname or spell == shootname then
