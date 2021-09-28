@@ -628,8 +628,8 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 			ActionBars_MouseOver()
 			ActionBars_ScaleBars()
 			ActionBars_Hotkeys()
+			ActionBars_DarkMode()
 		end
-		ActionBars_DarkMode()
 	end
 
 	function mod:PLAYER_ENTERING_WORLD()
