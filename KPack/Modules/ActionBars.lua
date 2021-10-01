@@ -86,13 +86,9 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 			flash = "Interface\\Addons\\KPack\\Media\\Textures\\AB_Flash",
 			hightlight = "Interface\\Addons\\KPack\\Media\\Textures\\AB_Hightlight",
 			pushed = "Interface\\Addons\\KPack\\Media\\Textures\\AB_Pushed",
-			checked = "Interface\\Addons\\KPack\\Media\\Textures\\AB_Checked",
-			equipped = "Interface\\Addons\\KPack\\Media\\Textures\\AB_Equipped"
+			checked = "Interface\\Addons\\KPack\\Media\\Textures\\AB_Checked"
 		}
-		mod.colors = {
-			normal = {r = 0.37, g = 0.3, b = 0.3},
-			equipped = {r = 0.1, g = 0.5, b = 0.1}
-		}
+		mod.colors = {normal = {r = 0.37, g = 0.3, b = 0.3}, equipped = {r = 0.1, g = 0.5, b = 0.1}}
 
 		local function Darken_Button(name)
 			if not name or not _G[name] or _G[name].kpacked then return end
@@ -170,10 +166,10 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 
 			-- hightlight texture
 			if btn.SetHighlightTexture then
-				btn:SetHighlightTexture(mod.textures.hover)
+				btn:SetHighlightTexture(mod.textures.hightlight)
 				hooksecurefunc(btn, "SetHighlightTexture", function(self, texture)
-					if texture and texture ~= mod.textures.hover then
-						self:SetHighlightTexture(mod.textures.hover)
+					if texture and texture ~= mod.textures.hightlight then
+						self:SetHighlightTexture(mod.textures.hightlight)
 					end
 				end)
 			end
@@ -231,10 +227,10 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 
 			-- hightlight texture
 			if btn.SetHighlightTexture then
-				btn:SetHighlightTexture(mod.textures.hover)
+				btn:SetHighlightTexture(mod.textures.hightlight)
 				hooksecurefunc(btn, "SetHighlightTexture", function(self, texture)
-					if texture and texture ~= mod.textures.hover then
-						self:SetHighlightTexture(mod.textures.hover)
+					if texture and texture ~= mod.textures.hightlight then
+						self:SetHighlightTexture(mod.textures.hightlight)
 					end
 				end)
 			end
