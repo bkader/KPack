@@ -381,7 +381,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 			self.healthbar:SetStatusBarColor(UnitColor(self.healthbar.unit))
 		end
 
-		if not DB.improved then return end
+		if not DB.improved or InCombatLockdown() then return end
 
 		-- Layout elements
 		local thisName = self:GetName()
@@ -397,7 +397,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	function KPack_UnitFrames_TargetFrame_CheckClassification(self, forceNormalTexture)
-		if not DB.improved then return end
+		if not DB.improved or InCombatLockdown() then return end
 		local texture
 		local classification = UnitClassification(self.unit)
 		if classification == "worldboss" or classification == "elite" then
@@ -415,7 +415,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	end
 
 	function KPack_UnitFrames_TargetFrame_CheckFaction(self)
-		if not DB.improved then return end
+		if not DB.improved or InCombatLockdown() then return end
 		local factionGroup = UnitFactionGroup(self.unit)
 		if UnitIsPVPFreeForAll(self.unit) then
 			self.pvpIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA")
