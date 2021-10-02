@@ -555,7 +555,6 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 			dark = {
 				type = "toggle",
 				name = L["Dark Mode"],
-				disabled = function() return disabled end,
 				order = 3
 			},
 			hover = {
@@ -624,8 +623,8 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 			ActionBars_MouseOver()
 			ActionBars_ScaleBars()
 			ActionBars_Hotkeys()
-			ActionBars_DarkMode()
 		end
+		ActionBars_DarkMode()
 	end
 
 	function mod:PLAYER_ENTERING_WORLD()
