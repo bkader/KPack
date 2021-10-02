@@ -231,12 +231,15 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		CastBar_Colorize(self, self.shieldedRegion:IsShown())
 	end
 
+	local function CastBar_OnHide(self)
+		self.spell:SetText("")
+	end
+
 	-- handles colorizing the casting bar
-	local function CastBar_OnEvent(self, event, unit)
-		if unit == "target" then
-			if self:IsShown() then
-				CastBar_Colorize(self, event == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
-			end
+	local function CastBar_OnEvent(self, event, unit, spellname)
+		if unit and self:IsShown() then
+			CastBar_Colorize(self, event == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
+			self.spell:SetText(spellname or "")
 		end
 	end
 
@@ -442,10 +445,10 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		end
 		frame.done = true
 
-		local health, castBar = frame:GetChildren()
+		local oldHeath, castBar = frame:GetChildren()
 		frame.castBar = castBar
 
-		frame.oldHealth = health
+		frame.oldHealth = oldHeath
 		frame.oldHealth:Hide()
 
 		local healthBar = CreateFrame("StatusBar", nil, frame)
@@ -517,9 +520,13 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		castBar:SetStatusBarTexture(LSM:Fetch("statusbar", config.barTexture))
 
 		castBar:HookScript("OnShow", CastBar_OnShow)
+		castBar:HookScript("OnHide", CastBar_OnHide)
 		castBar:HookScript("OnSizeChanged", CastBar_OnSizeChanged)
 		castBar:HookScript("OnValueChanged", CastBar_OnValueChanged)
 		castBar:HookScript("OnEvent", CastBar_OnEvent)
+		castBar:RegisterEvent("UNIT_SPELLCAST_START")
+		castBar:RegisterEvent("UNIT_SPELLCAST_STOP")
+		castBar:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 		castBar:RegisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE")
 		castBar:RegisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
 
@@ -529,17 +536,23 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		castBar.time:SetTextColor(0.84, 0.75, 0.65)
 		castBar.time:SetShadowOffset(1.25, -1.25)
 
-		castBar.cbBackground = castBar:CreateTexture(nil, "BORDER")
-		castBar.cbBackground:SetAllPoints(castBar)
-		castBar.cbBackground:SetTexture(config.barTexture)
-		castBar.cbBackground:SetVertexColor(0.15, 0.15, 0.15)
+		castBar.spell = castBar:CreateFontString(nil, "ARTWORK")
+		castBar.spell:SetPoint("TOP", castBar, "BOTTOM", 0, -2)
+		castBar.spell:SetFont(LSM:Fetch("font", config.font), config.fontSize, config.fontOutline)
+		castBar.spell:SetTextColor(0.84, 0.75, 0.65)
+		castBar.spell:SetShadowOffset(1.25, -1.25)
 
-		castBar.cbGlow = CreateFrame("Frame", nil, castBar)
-		castBar.cbGlow:SetPoint("TOPLEFT", castBar, "TOPLEFT", -4.5, 4)
-		castBar.cbGlow:SetPoint("BOTTOMRIGHT", castBar, "BOTTOMRIGHT", 4.5, -4.5)
-		castBar.cbGlow:SetBackdrop(backdrop)
-		castBar.cbGlow:SetBackdropColor(0, 0, 0)
-		castBar.cbGlow:SetBackdropBorderColor(0, 0, 0)
+		castBar.bg = castBar:CreateTexture(nil, "BORDER")
+		castBar.bg:SetAllPoints(castBar)
+		castBar.bg:SetTexture(config.barTexture)
+		castBar.bg:SetVertexColor(0.15, 0.15, 0.15)
+
+		castBar.glow = CreateFrame("Frame", nil, castBar)
+		castBar.glow:SetPoint("TOPLEFT", castBar, "TOPLEFT", -4.5, 4)
+		castBar.glow:SetPoint("BOTTOMRIGHT", castBar, "BOTTOMRIGHT", 4.5, -4.5)
+		castBar.glow:SetBackdrop(backdrop)
+		castBar.glow:SetBackdropColor(0, 0, 0)
+		castBar.glow:SetBackdropBorderColor(0, 0, 0)
 
 		spellIconRegion:SetHeight(0.01)
 		spellIconRegion:SetWidth(0.01)
@@ -592,7 +605,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		frame.SetHealthColor = Nameplate_SetHealthColor
 		frame.UpdateCritical = Nameplate_UpdateCritical
 
-		frame.r, frame.g, frame.g = health:GetStatusBarColor()
+		frame.r, frame.g, frame.g = oldHeath:GetStatusBarColor()
 		frame.reaction, frame.type = NameplateReaction(frame.r, frame.g, frame.g)
 		frame.class = ClassReference[ColorToString(frame.r, frame.g, frame.g)]
 
