@@ -239,7 +239,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	local function CastBar_OnEvent(self, event, unit, spellname)
 		if unit and self:IsShown() then
 			CastBar_Colorize(self, event == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
-			self.spell:SetText(spellname or "")
+			-- self.spell:SetText(spellname or "")
 		end
 	end
 
@@ -520,13 +520,12 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		castBar:SetStatusBarTexture(LSM:Fetch("statusbar", config.barTexture))
 
 		castBar:HookScript("OnShow", CastBar_OnShow)
-		castBar:HookScript("OnHide", CastBar_OnHide)
+		-- castBar:HookScript("OnHide", CastBar_OnHide)
 		castBar:HookScript("OnSizeChanged", CastBar_OnSizeChanged)
 		castBar:HookScript("OnValueChanged", CastBar_OnValueChanged)
 		castBar:HookScript("OnEvent", CastBar_OnEvent)
-		castBar:RegisterEvent("UNIT_SPELLCAST_START")
-		castBar:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
-		castBar:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+		-- castBar:RegisterEvent("UNIT_SPELLCAST_START")
+		-- castBar:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 		castBar:RegisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE")
 		castBar:RegisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
 
@@ -536,11 +535,11 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		castBar.time:SetTextColor(0.84, 0.75, 0.65)
 		castBar.time:SetShadowOffset(1.25, -1.25)
 
-		castBar.spell = castBar:CreateFontString(nil, "ARTWORK")
-		castBar.spell:SetPoint("TOP", castBar, "BOTTOM", 0, -2)
-		castBar.spell:SetFont(LSM:Fetch("font", config.font), config.fontSize, config.fontOutline)
-		castBar.spell:SetTextColor(0.84, 0.75, 0.65)
-		castBar.spell:SetShadowOffset(1.25, -1.25)
+		-- castBar.spell = castBar:CreateFontString(nil, "ARTWORK")
+		-- castBar.spell:SetPoint("TOP", castBar, "BOTTOM", 0, -2)
+		-- castBar.spell:SetFont(LSM:Fetch("font", config.font), config.fontSize, config.fontOutline)
+		-- castBar.spell:SetTextColor(0.84, 0.75, 0.65)
+		-- castBar.spell:SetShadowOffset(1.25, -1.25)
 
 		castBar.bg = castBar:CreateTexture(nil, "BORDER")
 		castBar.bg:SetAllPoints(castBar)
