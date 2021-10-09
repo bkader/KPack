@@ -11,6 +11,7 @@ local LBF = LibStub("LibButtonFacade", true)
 local select, next, type = select, next, type
 local tinsert, tremove = table.insert, table.remove
 local setmetatable = setmetatable
+local __off -- number of disabled modules
 
 -- player & class
 core.classcolors = {
@@ -26,7 +27,7 @@ core.classcolors = {
 	WARRIOR = {r = 0.78, g = 0.61, b = 0.43, colorStr = "ffc79c6e"}
 }
 core.mycolor = core.classcolors[core.class]
-
+core.class = select(2, UnitClass("player"))
 
 -------------------------------------------------------------------------------
 -- C_Timer mimic
@@ -255,6 +256,7 @@ do
 				type = "group",
 				name = L["Options"],
 				order = 0,
+				hidden = function() return (__off == #core.moduleslist) end,
 				args = {}
 			},
 			Modules = {
@@ -405,7 +407,6 @@ do
 			if event == "PLAYER_LOGIN" then
 				core.guid = UnitGUID("player")
 				core.name = UnitName("player")
-				core.class = select(2, UnitClass("player"))
 				core.race = select(2, UnitRace("player"))
 				core.faction = UnitFactionGroup("player")
 			elseif (InCombatLockdown() and eventcount > 25000) or (not InCombatLockdown() and eventcount > 10000) or event == "PLAYER_ENTERING_WORLD" then
@@ -493,11 +494,10 @@ function core:AddModule(name, desc, func)
 end
 
 function core:IsDisabled(...)
-	KPackDB.disabled = KPackDB.disabled or {}
+	self.db.disabled = self.db.disabled or {}
 	for i = 1, select("#", ...) do
-		local name = select(i, ...)
-		if KPackDB.disabled[name] == true then
-			name = nil
+		if self.db.disabled[select(i, ...)] == true then
+			__off = (__off or 0) + 1
 			return true
 		end
 	end
