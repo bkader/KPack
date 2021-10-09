@@ -612,6 +612,8 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 
 	-- Event listener to make sure we've loaded our settings and thta we apply them
 	core:RegisterForEvent("PLAYER_LOGIN", function()
+		-- list of addons for which we disable the module.
+		if core:AddOnIsLoaded("RUF", "ShadowUF", "ElvUI") then return end
 		KPack_UnitFrames_LoadDefaultSettings()
 		UFI:RegisterEvent("PLAYER_ENTERING_WORLD")
 		KPack_UnitFrames_ApplySettings(core.char.UnitFrames)
