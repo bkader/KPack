@@ -13,6 +13,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 	local GetSpellTexture = GetSpellTexture
 	local IsSpellInRange = IsSpellInRange
 	local IsUsableSpell = IsUsableSpell
+	local IsSpellKnown = IsSpellKnown
 	local UnitAura = UnitAura
 
 	local LiCD = LibStub("LibInternalCooldowns", true)
@@ -298,20 +299,21 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 	end
 
 	local defaultSpells = {
-		ROGUE = GetSpellInfo(1752), -- sinister strike
-		PRIEST = GetSpellInfo(139), -- renew
-		DRUID = GetSpellInfo(774), -- rejuvenation
-		WARRIOR = GetSpellInfo(6673), -- battle shout
-		MAGE = GetSpellInfo(168), -- frost armor
-		WARLOCK = GetSpellInfo(1454), -- life tap
-		PALADIN = GetSpellInfo(1152), -- purify
-		SHAMAN = GetSpellInfo(324), -- lightning shield
-		HUNTER = GetSpellInfo(1978), -- serpent sting
-		DEATHKNIGHT = GetSpellInfo(45462) -- plague strike
+		ROGUE = 1752, -- sinister strike
+		PRIEST = 139, -- renew
+		DRUID = 774, -- rejuvenation
+		WARRIOR = 6673, -- battle shout
+		MAGE = 168, -- frost armor
+		WARLOCK = 1454, -- life tap
+		PALADIN = 1152, -- purify
+		SHAMAN = 324, -- lightning shield
+		HUNTER = 1978, -- serpent sting
+		DEATHKNIGHT = 45462 -- plague strike
 	}
+
 	local defaultSpell = defaultSpells[core.class]
 	local function TellMeWhen_GetGCD()
-		return select(2, GetSpellCooldown(defaultSpell))
+		return IsSpellKnown(defaultSpell) and select(2, GetSpellCooldown(defaultSpell)) or 0
 	end
 
 	local function TellMeWhen_Icon_SpellCooldown_OnUpdate(self, elapsed)
