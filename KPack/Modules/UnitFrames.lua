@@ -7,13 +7,15 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	UFI:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
 
 	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
+	core.LSM = LSM
 
-	local KPack_UnitFrames_PlayerFrame_IsMoving = false
-	local KPack_UnitFrames_TargetFrame_IsMoving = false
+	local tinsert, tgetn = table.insert, table.getn
+	local strgmatch, strsub, strlower = string.gmatch, string.sub, string.lower
+	local ceil, format, tonumber, tostring = math.ceil, string.format, tonumber, tostring
 
 	local StaticPopup_Show = StaticPopup_Show
 
-	local UnitColor
+	local hooksecurefunc = hooksecurefunc
 	local GetCVar, SetCVar, GetCVarBool = GetCVar, SetCVar, GetCVarBool
 	local InCombatLockdown = InCombatLockdown
 	local UnitClass = UnitClass
@@ -33,30 +35,19 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	local UnitPlayerControlled = UnitPlayerControlled
 	local UnitSelectionColor = UnitSelectionColor
 
-	local tinsert, tgetn = table.insert, table.getn
-	local strgmatch, strsub, strlower = string.gmatch, string.sub, string.lower
-	local ceil, format, tonumber, tostring = math.ceil, string.format, tonumber, tostring
-
 	-- prepare our functions.
-	local Print
-	local KPack_UnitFrames_BossTargetFrame_Show
-	local KPack_UnitFrames_CapDisplayOfNumericValue
-	local KPack_UnitFrames_Initialize
-	local KPack_UnitFrames_FocusFrame_SetSmallSize
-	local KPack_UnitFrames_FocusFrame_Show
-	local KPack_UnitFrames_LoadDefaultSettings
-	local KPack_UnitFrames_PartyMemberFrame_ToPlayerArt
-	local KPack_UnitFrames_PartyMemberFrame_ToVehicleArt
-	local KPack_UnitFrames_SetFrameScale
-	local KPack_UnitFrames_Style_PartyMemberFrame
-	local KPack_UnitFrames_Style_PartyMemberFrameColor
-	local KPack_UnitFrames_Style_PlayerFrame
-	local KPack_UnitFrames_TargetFrame_CheckClassification
-	local KPack_UnitFrames_TargetFrame_CheckFaction
-	local KPack_UnitFrames_TargetFrame_OnMouseDown
-	local KPack_UnitFrames_TargetFrame_OnMouseUp
-	local KPack_UnitFrames_TargetFrame_Update
-	local KPack_UnitFrames_TextStatusBar_UpdateTextString
+	local __BossTargetFrame_Show
+	local __FocusFrame_SetSmallSize
+	local __FocusFrame_Show
+	local __PartyMemberFrame_ToPlayerArt
+	local __PartyMemberFrame_ToVehicleArt
+	local __PartyMemberFrame_Style
+	local __HealthBar_OnValueChanged
+	local __PlayerFrame_ToPlayerArt
+	local __TargetFrame_CheckClassification
+	local __TargetFrame_CheckFaction
+	local __TargetFrame_Update
+	local __TextStatusBar_UpdateTextString
 
 	local DB
 	local defaults = {
@@ -68,149 +59,9 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		fontOutline = "OUTLINE"
 	}
 
-	-- Debug function. Adds message to the chatbox (only visible to the loacl player)
-	function Print(msg)
-		core:Print(msg, "UnitFrames")
-	end
+	-- [[ internal functions ]] --
 
-	function KPack_UnitFrames_ApplySettings(settings)
-		settings = settings or DB
-		for k, v in pairs(defaults) do
-			if settings[k] == nil then
-				settings[k] = v
-			end
-		end
-		core.ufi = settings.improved
-		KPack_UnitFrames_SetFrameScale(settings.scale)
-	end
-
-	function KPack_UnitFrames_LoadDefaultSettings()
-		if type(core.char.UnitFrames) ~= "table" or not next(core.char.UnitFrames) then
-			core.char.UnitFrames = CopyTable(defaults)
-		end
-		for k, v in pairs(defaults) do
-			if core.char.UnitFrames[k] == nil then
-				core.char.UnitFrames[k] = v
-			end
-		end
-		DB = core.char.UnitFrames
-	end
-
-	function KPack_UnitFrames_Initialize()
-		if InCombatLockdown() then return end
-
-		-- Generic status text hook and instantly update player
-		hooksecurefunc("TextStatusBar_UpdateTextString", KPack_UnitFrames_TextStatusBar_UpdateTextString)
-		KPack_UnitFrames_TextStatusBar_UpdateTextString(PlayerFrameHealthBar)
-		KPack_UnitFrames_TextStatusBar_UpdateTextString(PlayerFrameManaBar)
-
-		-- Hook PlayerFrame functions
-		hooksecurefunc("PlayerFrame_ToPlayerArt", KPack_UnitFrames_Style_PlayerFrame)
-
-		-- Set up some stylings
-		KPack_UnitFrames_Style_PlayerFrame()
-		PlayerFrameHealthBar.lockColor = true
-
-		-- Hook TargetFrame functions
-		hooksecurefunc("TargetFrame_Update", KPack_UnitFrames_TargetFrame_Update)
-		hooksecurefunc("TargetFrame_CheckFaction", KPack_UnitFrames_TargetFrame_CheckFaction)
-		hooksecurefunc("TargetFrame_CheckClassification", KPack_UnitFrames_TargetFrame_CheckClassification)
-
-		-- FocusFrame hooks
-		hooksecurefunc("FocusFrame_SetSmallSize", KPack_UnitFrames_FocusFrame_SetSmallSize)
-		hooksecurefunc(FocusFrame, "Show", KPack_UnitFrames_FocusFrame_Show)
-
-		-- Hook PartyMember functions
-		hooksecurefunc("PartyMemberFrame_ToPlayerArt", KPack_UnitFrames_PartyMemberFrame_ToPlayerArt)
-		hooksecurefunc("PartyMemberFrame_ToVehicleArt", KPack_UnitFrames_PartyMemberFrame_ToVehicleArt)
-		hooksecurefunc("HealthBar_OnValueChanged", KPack_UnitFrames_Style_PartyMemberFrameColor)
-		hooksecurefunc("UnitFrameHealthBar_Update", KPack_UnitFrames_Style_PartyMemberFrameColor)
-		KPack_UnitFrames_Style_PartyMemberFrame()
-		core.After(0.1, KPack_UnitFrames_Style_PartyMemberFrameColor)
-
-		-- BossFrame hooks
-		hooksecurefunc(Boss1TargetFrame, "Show", KPack_UnitFrames_BossTargetFrame_Show)
-		hooksecurefunc(Boss2TargetFrame, "Show", KPack_UnitFrames_BossTargetFrame_Show)
-		hooksecurefunc(Boss3TargetFrame, "Show", KPack_UnitFrames_BossTargetFrame_Show)
-		hooksecurefunc(Boss4TargetFrame, "Show", KPack_UnitFrames_BossTargetFrame_Show)
-	end
-
-	function KPack_UnitFrames_Style_PlayerFrame()
-		if DB.improved then
-			PlayerFrameHealthBar:SetWidth(119)
-			PlayerFrameHealthBar:SetHeight(29)
-			PlayerFrameHealthBar:SetPoint("TOPLEFT", 106, -22)
-			PlayerFrameHealthBarText:SetPoint("CENTER", 50, 6)
-			PlayerFrameTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-TargetingFrame")
-			PlayerStatusTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-Player-Status")
-			PlayerFrameHealthBar:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
-			PlayerFrameManaBar:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
-		end
-		PlayerFrameHealthBar:SetStatusBarColor(UnitColor("player"))
-	end
-
-	function KPack_UnitFrames_SetFrameScale(scale)
-		if not InCombatLockdown() then
-			PlayerFrame:SetScale(scale)
-			TargetFrame:SetScale(scale)
-			FocusFrame:SetScale((FocusFrame.smallSize and 0.75 or 1) * scale)
-			Boss1TargetFrame:SetScale(scale * 0.9)
-			Boss2TargetFrame:SetScale(scale * 0.9)
-			Boss3TargetFrame:SetScale(scale * 0.9)
-			Boss4TargetFrame:SetScale(scale * 0.9)
-			DB.scale = scale
-		end
-	end
-
-	-- Slashcommand stuff
-	SLASH_UNITFRAMESIMPROVED1 = "/uf"
-	SLASH_UNITFRAMESIMPROVED2 = "/ufi"
-	SlashCmdList["UNITFRAMESIMPROVED"] = function(msg)
-		local cmd, rest = strsplit(" ", msg, 2)
-		cmd = strlower(cmd)
-
-		if cmd == "scale" then
-			local scale = tonumber(rest)
-			if scale and scale ~= DB.scale and (scale >= 0.5 and scale <= 3) then
-				KPack_UnitFrames_SetFrameScale(scale)
-			elseif scale then
-				Print(L["Scale has to be a number, recommended to be between 0.5 and 3"])
-			end
-		elseif cmd == "style" or cmd == "improve" then
-			DB.improved = not DB.improved
-			ReloadUI()
-		elseif cmd == "reset" or cmd == "default" then
-			StaticPopup_Show("KUFI_LAYOUT_RESET")
-		elseif cmd == "config" or cmd == "options" then
-			core:OpenConfig("Options", "UnitFrames")
-		else
-			Print(L:F("Acceptable commands for: |caaf49141%s|r", "/uf"))
-			local helpStr = "|cffffd700%s|r: %s"
-			print(helpStr:format("scale |cff00ffffn|r", L["changes the unit frames scale."]))
-			print(helpStr:format("style", L["enables improved unit frames textures."]))
-			print(helpStr:format("config", L["Access module settings."]))
-			print(helpStr:format("reset", L["Resets module settings to default."]))
-		end
-	end
-
-	-- Setup the static popup dialog for resetting the UI
-	StaticPopupDialogs["KUFI_LAYOUT_RESET"] = {
-		preferredIndex = 4,
-		text = "Are you sure you want to reset your layout?\nThis will automatically reload the UI.",
-		button1 = YES,
-		button2 = NO,
-		OnAccept = function()
-			core.char.UnitFrames = nil
-			DB = nil
-			KPack_UnitFrames_LoadDefaultSettings()
-			ReloadUI()
-		end,
-		timeout = 0,
-		whileDead = true,
-		hideOnEscape = true
-	}
-
-	function KPack_UnitFrames_TextStatusBar_UpdateTextString(textStatusBar)
+	function __TextStatusBar_UpdateTextString(textStatusBar)
 		local textString = textStatusBar.TextString
 		if textString then
 			local value = textStatusBar:GetValue()
@@ -234,9 +85,9 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 
 					value = format("%02.1f%%", 100 * value / valueMax)
 					if textStatusBar.prefix and (textStatusBar.alwaysPrefix or not (textStatusBar.cvar and GetCVar(textStatusBar.cvar) == "1" and textStatusBar.textLockable)) then
-						textString:SetText(textStatusBar.prefix .. " " .. KPack_UnitFrames_CapDisplayOfNumericValue(textStatusBar:GetValue()) .. " (" .. value .. ")")
+						textString:SetText(textStatusBar.prefix .. " " .. UFI:CapDisplayOfNumericValue(textStatusBar:GetValue()) .. " (" .. value .. ")")
 					else
-						textString:SetText(KPack_UnitFrames_CapDisplayOfNumericValue(textStatusBar:GetValue()) .. " (" .. value .. ")")
+						textString:SetText(UFI:CapDisplayOfNumericValue(textStatusBar:GetValue()) .. " (" .. value .. ")")
 					end
 				elseif value == 0 and textStatusBar.zeroText then
 					textString:SetText(textStatusBar.zeroText)
@@ -246,8 +97,8 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 				else
 					textStatusBar.isZero = nil
 					if textStatusBar.capNumericDisplay then
-						value = KPack_UnitFrames_CapDisplayOfNumericValue(value)
-						valueMax = KPack_UnitFrames_CapDisplayOfNumericValue(valueMax)
+						value = UFI:CapDisplayOfNumericValue(value)
+						valueMax = UFI:CapDisplayOfNumericValue(valueMax)
 					end
 					if textStatusBar.prefix and (textStatusBar.alwaysPrefix or not (textStatusBar.cvar and GetCVar(textStatusBar.cvar) == "1" and textStatusBar.textLockable)) then
 						textString:SetText(textStatusBar.prefix .. " " .. value .. "/" .. valueMax)
@@ -274,42 +125,138 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 			end
 		end
 	end
-	do
-		function UnitColor(unit)
-			local r, g, b
-			if not UnitIsPlayer(unit) and not UnitIsConnected(unit) or UnitIsDeadOrGhost(unit) then
-				r, g, b = 0.5, 0.5, 0.5
-			elseif UnitIsPlayer(unit) then
-				local class = select(2, UnitClass(unit))
-				local color = RAID_CLASS_COLORS[class]
-				if color then
-					r, g, b = color.r, color.g, color.b
-				else
-					if UnitIsFriend("player", unit) then
-						r, g, b = 0, 1, 0
-					else
-						r, g, b = 1, 0, 0
+
+	function __PlayerFrame_ToPlayerArt()
+		if DB.improved then
+			PlayerFrameHealthBar:SetWidth(119)
+			PlayerFrameHealthBar:SetHeight(29)
+			PlayerFrameHealthBar:SetPoint("TOPLEFT", 106, -22)
+			PlayerFrameHealthBarText:SetPoint("CENTER", 50, 6)
+			PlayerFrameTexture:SetTexture([[Interface\AddOns\KPack\Media\UnitFrames\UI-TargetingFrame]])
+			PlayerStatusTexture:SetTexture([[Interface\AddOns\KPack\Media\UnitFrames\UI-Player-Status]])
+			PlayerFrameHealthBar:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
+			PlayerFrameManaBar:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
+		end
+		PlayerFrameHealthBar:SetStatusBarColor(UFI:UnitColor("player"))
+	end
+
+	function __TargetFrame_Update(self)
+		-- Set back color of health bar
+		if not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit) and not UnitIsTappedByAllThreatList(self.unit) then
+			-- Gray if npc is tapped by other player
+			self.healthbar:SetStatusBarColor(0.5, 0.5, 0.5)
+		else
+			-- Standard by class etc if not
+			self.healthbar:SetStatusBarColor(UFI:UnitColor(self.healthbar.unit))
+		end
+
+		if InCombatLockdown() or not DB.improved then return end
+
+		-- Layout elements
+		self.healthbar.lockColor = true
+		self.healthbar:SetWidth(119)
+		self.healthbar:SetHeight(29)
+		self.healthbar:SetPoint("TOPLEFT", 7, -22)
+		_G[self:GetName() .. "TextureFrameHealthBarText"]:SetPoint("CENTER", -50, 6)
+		self.deadText:SetPoint("CENTER", -50, 6)
+		self.nameBackground:Hide()
+		self.healthbar:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
+		self.manabar:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
+	end
+
+	function __TargetFrame_CheckFaction(self)
+		if not DB.improved then return end
+
+		local factionGroup = UnitFactionGroup(self.unit)
+		if UnitIsPVPFreeForAll(self.unit) then
+			self.pvpIcon:SetTexture([[Interface\TargetingFrame\UI-PVP-FFA]])
+			self.pvpIcon:Show()
+		elseif factionGroup and UnitIsPVP(self.unit) and UnitIsEnemy("player", self.unit) then
+			self.pvpIcon:SetTexture([[Interface\TargetingFrame\UI-PVP-FFA]])
+			self.pvpIcon:Show()
+		elseif factionGroup then
+			self.pvpIcon:SetTexture([[Interface\TargetingFrame\UI-PVP-]] .. factionGroup)
+			self.pvpIcon:Show()
+		else
+			self.pvpIcon:Hide()
+		end
+
+		-- Set back color of health bar
+		if not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit) and not UnitIsTappedByAllThreatList(self.unit) then
+			-- Gray if npc is tapped by other player
+			self.healthbar:SetStatusBarColor(0.5, 0.5, 0.5)
+		else
+			-- Standard by class etc if not
+			self.healthbar:SetStatusBarColor(UFI:UnitColor(self.healthbar.unit))
+		end
+	end
+
+	function __TargetFrame_CheckClassification(self, forceNormalTexture)
+		if not DB.improved then return end
+
+		local texture
+		local classification = UnitClassification(self.unit)
+		if classification == "worldboss" or classification == "elite" then
+			texture = [[Interface\AddOns\KPack\Media\UnitFrames\UI-TargetingFrame-Elite]]
+		elseif classification == "rareelite" then
+			texture = [[Interface\AddOns\KPack\Media\UnitFrames\UI-TargetingFrame-Rare-Elite]]
+		elseif classification == "rare" then
+			texture = [[Interface\AddOns\KPack\Media\UnitFrames\UI-TargetingFrame-Rare]]
+		end
+		if texture and not forceNormalTexture then
+			self.borderTexture:SetTexture(texture)
+		else
+			self.borderTexture:SetTexture([[Interface\AddOns\KPack\Media\UnitFrames\UI-TargetingFrame]])
+		end
+	end
+
+	function __FocusFrame_SetSmallSize(smallSize, onChange)
+		if not DB.improved then
+			return
+		elseif smallSize and not FocusFrame.smallSize then
+			FocusFrame.borderTexture:SetTexture([[Interface\AddOns\KPack\Media\UnitFrames\UI-FocusTargetingFrame]])
+		elseif not smallSize and FocusFrame.smallSize then
+			FocusFrame.borderTexture:SetTexture([[Interface\AddOns\KPack\Media\UnitFrames\UI-TargetingFrame]])
+		end
+	end
+
+	function __FocusFrame_Show(self)
+		if not DB.improved then
+			return
+		elseif not self.smallSize then
+			self.borderTexture:SetTexture([[Interface\AddOns\KPack\Media\UnitFrames\UI-FocusTargetingFrame]])
+		elseif self.smallSize then
+			self.borderTexture:SetTexture([[Interface\AddOns\KPack\Media\UnitFrames\UI-TargetingFrame]])
+		end
+	end
+
+	function __PartyMemberFrame_ToPlayerArt(self)
+		if not InCombatLockdown() then
+			__PartyMemberFrame_Style()
+		end
+	end
+
+	function __PartyMemberFrame_ToVehicleArt(self)
+		if DB.improved then
+			for i = 1, 4 do
+				if UnitExists("party" .. i) and UnitInVehicle("party" .. i) then
+					_G["PartyMemberFrame" .. i .. "VehicleTexture"]:SetTexture([[Interface\AddOns\KPack\Media\UnitFrames\UI-Vehicles-Partyframe]])
+					if not InCombatLockdown() then
+						_G["PartyMemberFrame" .. i .. "VehicleTexture"]:SetPoint("TOPLEFT", 0, 12)
+						_G["PartyMemberFrame" .. i .. "VehicleTexture"]:SetHeight(75)
+						_G["PartyMemberFrame" .. i .. "VehicleTexture"]:SetWidth(150)
 					end
 				end
-			else
-				r, g, b = UnitSelectionColor(unit)
-			end
-
-			return r, g, b
-		end
-
-		function KPack_UnitFrames_Style_PartyMemberFrameColor()
-			if not InCombatLockdown() then
-				for i = 1, GetNumPartyMembers() do
-					_G["PartyMemberFrame" .. i .. "HealthBar"]:SetStatusBarColor(UnitColor("party" .. i))
-					_G["PartyMemberFrame" .. i .. "HealthBar"].lockColor = true
-				end
 			end
 		end
+	end
 
-		function KPack_UnitFrames_Style_PartyMemberFrame()
-			if not InCombatLockdown() and DB.improved then
-				for i = 1, GetNumPartyMembers() do
+	function __PartyMemberFrame_Style()
+		if not InCombatLockdown() and DB.improved then
+			for i = 1, 4 do
+				local frame = _G["PartyMemberFrame" .. i]
+				if frame and not frame.kpacked then
+					frame.kpacked = true
 					_G["PartyMemberFrame" .. i .. "HealthBar"]:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
 					_G["PartyMemberFrame" .. i .. "ManaBar"]:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
 					-- Text
@@ -345,129 +292,184 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 					_G["PartyMemberFrame" .. i .. "Background"]:SetPoint("TOPLEFT", 55, -7)
 					_G["PartyMemberFrame" .. i .. "Background"]:SetHeight(35)
 					_G["PartyMemberFrame" .. i .. "Background"]:SetWidth(80)
-					_G["PartyMemberFrame" .. i .. "Texture"]:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-PartyFrame")
-					_G["PartyMemberFrame" .. i .. "Flash"]:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-Partyframe-Flash")
-				end
-			end
-		end
-
-		function KPack_UnitFrames_PartyMemberFrame_ToPlayerArt(self)
-			if not InCombatLockdown() then
-				KPack_UnitFrames_Style_PartyMemberFrame()
-			end
-		end
-
-		function KPack_UnitFrames_PartyMemberFrame_ToVehicleArt(self)
-			if not InCombatLockdown() and DB.improved then
-				for i = 1, GetNumPartyMembers() do
-					if UnitInVehicle("party" .. i) then
-						_G["PartyMemberFrame" .. i .. "VehicleTexture"]:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-Vehicles-Partyframe")
-						_G["PartyMemberFrame" .. i .. "VehicleTexture"]:SetPoint("TOPLEFT", 0, 12)
-						_G["PartyMemberFrame" .. i .. "VehicleTexture"]:SetHeight(75)
-						_G["PartyMemberFrame" .. i .. "VehicleTexture"]:SetWidth(150)
-					end
+					_G["PartyMemberFrame" .. i .. "Texture"]:SetTexture([[Interface\AddOns\KPack\Media\UnitFrames\UI-PartyFrame]])
+					_G["PartyMemberFrame" .. i .. "Flash"]:SetTexture([[Interface\AddOns\KPack\Media\UnitFrames\UI-Partyframe-Flash]])
 				end
 			end
 		end
 	end
 
-	function KPack_UnitFrames_TargetFrame_Update(self)
-		-- Set back color of health bar
-		if not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit) and not UnitIsTappedByAllThreatList(self.unit) then
-			-- Gray if npc is tapped by other player
-			self.healthbar:SetStatusBarColor(0.5, 0.5, 0.5)
-		else
-			-- Standard by class etc if not
-			self.healthbar:SetStatusBarColor(UnitColor(self.healthbar.unit))
-		end
-
-		if not DB.improved or InCombatLockdown() then return end
-
-		-- Layout elements
-		local thisName = self:GetName()
-		self.healthbar.lockColor = true
-		self.healthbar:SetWidth(119)
-		self.healthbar:SetHeight(29)
-		self.healthbar:SetPoint("TOPLEFT", 7, -22)
-		_G[thisName .. "TextureFrameHealthBarText"]:SetPoint("CENTER", -50, 6)
-		self.deadText:SetPoint("CENTER", -50, 6)
-		self.nameBackground:Hide()
-		self.healthbar:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
-		self.manabar:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
-	end
-
-	function KPack_UnitFrames_TargetFrame_CheckClassification(self, forceNormalTexture)
-		if not DB.improved or InCombatLockdown() then return end
-		local texture
-		local classification = UnitClassification(self.unit)
-		if classification == "worldboss" or classification == "elite" then
-			texture = "Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-TargetingFrame-Elite"
-		elseif classification == "rareelite" then
-			texture = "Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-TargetingFrame-Rare-Elite"
-		elseif classification == "rare" then
-			texture = "Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-TargetingFrame-Rare"
-		end
-		if texture and not forceNormalTexture then
-			self.borderTexture:SetTexture(texture)
-		else
-			self.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-TargetingFrame")
+	function __HealthBar_OnValueChanged()
+		if not InCombatLockdown() then
+			for i = 1, GetNumPartyMembers() do
+				_G["PartyMemberFrame" .. i .. "HealthBar"]:SetStatusBarColor(UFI:UnitColor("party" .. i))
+				_G["PartyMemberFrame" .. i .. "HealthBar"].lockColor = true
+			end
 		end
 	end
 
-	function KPack_UnitFrames_TargetFrame_CheckFaction(self)
-		if not DB.improved or InCombatLockdown() then return end
-		local factionGroup = UnitFactionGroup(self.unit)
-		if UnitIsPVPFreeForAll(self.unit) then
-			self.pvpIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA")
-			self.pvpIcon:Show()
-		elseif factionGroup and UnitIsPVP(self.unit) and UnitIsEnemy("player", self.unit) then
-			self.pvpIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA")
-			self.pvpIcon:Show()
-		elseif factionGroup then
-			self.pvpIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-" .. factionGroup)
-			self.pvpIcon:Show()
-		else
-			self.pvpIcon:Hide()
-		end
-
-		-- Set back color of health bar
-		if not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit) and not UnitIsTappedByAllThreatList(self.unit) then
-			-- Gray if npc is tapped by other player
-			self.healthbar:SetStatusBarColor(0.5, 0.5, 0.5)
-		else
-			-- Standard by class etc if not
-			self.healthbar:SetStatusBarColor(UnitColor(self.healthbar.unit))
-		end
-	end
-
-	function KPack_UnitFrames_BossTargetFrame_Show(self)
-		if not InCombatLockdown() and DB.improved then
-			self.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-UnitFrame-Boss")
+	function __BossTargetFrame_Show(self)
+		if not InCombatLockdown() and DB.improved and not self.kpacked then
+			self.kpacked = true
+			self.borderTexture:SetTexture([[Interface\AddOns\KPack\Media\UnitFrames\UI-UnitFrame-Boss]])
 			self:SetScale((DB.scale or 1) * 0.9)
 		end
 	end
 
-	function KPack_UnitFrames_FocusFrame_Show(self)
-		if not DB.improved then
-			return
-		elseif not FocusFrame.smallSize then
-			FocusFrame.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-FocusTargetingFrame")
-		elseif FocusFrame.smallSize then
-			FocusFrame.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-TargetingFrame")
+	-- [[ end of internal functions ]] --
+
+	-- Debug function. Adds message to the chatbox (only visible to the loacl player)
+	function UFI:Print(msg)
+		core:Print(msg, "UnitFrames")
+	end
+
+	function UFI:ApplySettings(settings)
+		settings = settings or DB
+		for k, v in pairs(defaults) do
+			if settings[k] == nil then
+				settings[k] = v
+			end
+		end
+		core.ufi = settings.improved
+		UFI:SetFrameScale(settings.scale)
+	end
+
+	function UFI:LoadDefaultSettings()
+		if type(core.char.UnitFrames) ~= "table" or not next(core.char.UnitFrames) then
+			core.char.UnitFrames = CopyTable(defaults)
+		end
+		for k, v in pairs(defaults) do
+			if core.char.UnitFrames[k] == nil then
+				core.char.UnitFrames[k] = v
+			end
+		end
+		DB = core.char.UnitFrames
+	end
+
+	function UFI:Initialize()
+		if InCombatLockdown() then return end
+
+		-- Generic status text hook and instantly update player
+		hooksecurefunc("TextStatusBar_UpdateTextString", __TextStatusBar_UpdateTextString)
+		__TextStatusBar_UpdateTextString(PlayerFrameHealthBar)
+		__TextStatusBar_UpdateTextString(PlayerFrameManaBar)
+
+		-- Hook PlayerFrame functions
+		hooksecurefunc("PlayerFrame_ToPlayerArt", __PlayerFrame_ToPlayerArt)
+
+		-- Set up some stylings
+		__PlayerFrame_ToPlayerArt()
+		PlayerFrameHealthBar.lockColor = true
+
+		-- Hook TargetFrame functions
+		hooksecurefunc("TargetFrame_Update", __TargetFrame_Update)
+		hooksecurefunc("TargetFrame_CheckFaction", __TargetFrame_CheckFaction)
+		hooksecurefunc("TargetFrame_CheckClassification", __TargetFrame_CheckClassification)
+
+		-- FocusFrame hooks
+		hooksecurefunc("FocusFrame_SetSmallSize", __FocusFrame_SetSmallSize)
+		hooksecurefunc(FocusFrame, "Show", __FocusFrame_Show)
+
+		-- Hook PartyMember functions
+		hooksecurefunc("PartyMemberFrame_ToPlayerArt", __PartyMemberFrame_ToPlayerArt)
+		hooksecurefunc("PartyMemberFrame_ToVehicleArt", __PartyMemberFrame_ToVehicleArt)
+		hooksecurefunc("HealthBar_OnValueChanged", __HealthBar_OnValueChanged)
+		hooksecurefunc("UnitFrameHealthBar_Update", __HealthBar_OnValueChanged)
+		__PartyMemberFrame_Style()
+		core.After(0.1, __HealthBar_OnValueChanged)
+
+		-- BossFrame hooks
+		hooksecurefunc(Boss1TargetFrame, "Show", __BossTargetFrame_Show)
+		hooksecurefunc(Boss2TargetFrame, "Show", __BossTargetFrame_Show)
+		hooksecurefunc(Boss3TargetFrame, "Show", __BossTargetFrame_Show)
+		hooksecurefunc(Boss4TargetFrame, "Show", __BossTargetFrame_Show)
+	end
+
+	function UFI:SetFrameScale(scale)
+		if not InCombatLockdown() then
+			PlayerFrame:SetScale(scale)
+			TargetFrame:SetScale(scale)
+			FocusFrame:SetScale((FocusFrame.smallSize and 0.75 or 1) * scale)
+			Boss1TargetFrame:SetScale(scale * 0.9)
+			Boss2TargetFrame:SetScale(scale * 0.9)
+			Boss3TargetFrame:SetScale(scale * 0.9)
+			Boss4TargetFrame:SetScale(scale * 0.9)
+			DB.scale = scale
 		end
 	end
 
-	function KPack_UnitFrames_FocusFrame_SetSmallSize(smallSize, onChange)
-		if not DB.improved then
-			return
-		elseif smallSize and not FocusFrame.smallSize then
-			FocusFrame.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-FocusTargetingFrame")
-		elseif not smallSize and FocusFrame.smallSize then
-			FocusFrame.borderTexture:SetTexture("Interface\\AddOns\\KPack\\Media\\UnitFrames\\UI-TargetingFrame")
+	-- Slashcommand stuff
+	SLASH_UNITFRAMESIMPROVED1 = "/uf"
+	SLASH_UNITFRAMESIMPROVED2 = "/ufi"
+	SlashCmdList["UNITFRAMESIMPROVED"] = function(msg)
+		local cmd, rest = strsplit(" ", msg, 2)
+		cmd = strlower(cmd)
+
+		if cmd == "scale" then
+			local scale = tonumber(rest)
+			if scale and scale ~= DB.scale and (scale >= 0.5 and scale <= 3) then
+				UFI:SetFrameScale(scale)
+			elseif scale then
+				UFI:Print(L["Scale has to be a number, recommended to be between 0.5 and 3"])
+			end
+		elseif cmd == "style" or cmd == "improve" then
+			DB.improved = not DB.improved
+			ReloadUI()
+		elseif cmd == "reset" or cmd == "default" then
+			StaticPopup_Show("KUFI_LAYOUT_RESET")
+		elseif cmd == "config" or cmd == "options" then
+			core:OpenConfig("Options", "UnitFrames")
+		else
+			UFI:Print(L:F("Acceptable commands for: |caaf49141%s|r", "/uf"))
+			local helpStr = "|cffffd700%s|r: %s"
+			print(helpStr:format("scale |cff00ffffn|r", L["changes the unit frames scale."]))
+			print(helpStr:format("style", L["enables improved unit frames textures."]))
+			print(helpStr:format("config", L["Access module settings."]))
+			print(helpStr:format("reset", L["Resets module settings to default."]))
 		end
 	end
 
-	function KPack_UnitFrames_CapDisplayOfNumericValue(value)
+	-- Setup the static popup dialog for resetting the UI
+	StaticPopupDialogs["KUFI_LAYOUT_RESET"] = {
+		preferredIndex = 4,
+		text = "Are you sure you want to reset your layout?\nThis will automatically reload the UI.",
+		button1 = YES,
+		button2 = NO,
+		OnAccept = function()
+			core.char.UnitFrames = nil
+			DB = nil
+			UFI:LoadDefaultSettings()
+			ReloadUI()
+		end,
+		timeout = 0,
+		whileDead = true,
+		hideOnEscape = true
+	}
+
+	function UFI:UnitColor(unit)
+		local r, g, b
+		if not UnitIsPlayer(unit) and not UnitIsConnected(unit) or UnitIsDeadOrGhost(unit) then
+			r, g, b = 0.5, 0.5, 0.5
+		elseif UnitIsPlayer(unit) then
+			local class = select(2, UnitClass(unit))
+			local color = RAID_CLASS_COLORS[class]
+			if color then
+				r, g, b = color.r, color.g, color.b
+			else
+				if UnitIsFriend("player", unit) then
+					r, g, b = 0, 1, 0
+				else
+					r, g, b = 1, 0, 0
+				end
+			end
+		else
+			r, g, b = UnitSelectionColor(unit)
+		end
+
+		return r, g, b
+	end
+
+	function UFI:CapDisplayOfNumericValue(value)
 		local strLen = strlen(value)
 		local retString = value
 		if true then
@@ -482,18 +484,9 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		return retString
 	end
 
-	function UFI:PLAYER_REGEN_ENABLED()
-		core.After(0.5, function()
-			if not UnitInVehicle("player") and not UnitExists("playerpet") then
-				PetFrame:Hide()
-			end
-		end)
-	end
-
-	local options
-	local function KPack_UnitFrames_GetOptions()
-		if not options then
-			options = {
+	function UFI:GetOptions()
+		if not self.options then
+			self.options = {
 				type = "group",
 				name = UNITFRAME_LABEL,
 				get = function(i)
@@ -501,7 +494,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 				end,
 				set = function(i, val)
 					DB[i[#i]] = val
-					KPack_UnitFrames_ApplySettings(DB)
+					UFI:ApplySettings(DB)
 				end,
 				disabled = function()
 					return InCombatLockdown()
@@ -550,9 +543,9 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 						order = 30,
 						set = function(i, val)
 							DB[i[#i]] = val
-							KPack_UnitFrames_ApplySettings(DB)
-							KPack_UnitFrames_TextStatusBar_UpdateTextString(PlayerFrameHealthBar)
-							KPack_UnitFrames_TextStatusBar_UpdateTextString(PlayerFrameManaBar)
+							UFI:ApplySettings(DB)
+							__TextStatusBar_UpdateTextString(PlayerFrameHealthBar)
+							__TextStatusBar_UpdateTextString(PlayerFrameManaBar)
 						end,
 						args = {
 							font = {
@@ -591,9 +584,9 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 								end,
 								set = function(_, val)
 									SetCVar("statusTextPercentage", val and "1" or "0")
-									KPack_UnitFrames_ApplySettings(DB)
-									KPack_UnitFrames_TextStatusBar_UpdateTextString(PlayerFrameHealthBar)
-									KPack_UnitFrames_TextStatusBar_UpdateTextString(PlayerFrameManaBar)
+									UFI:ApplySettings(DB)
+									__TextStatusBar_UpdateTextString(PlayerFrameHealthBar)
+									__TextStatusBar_UpdateTextString(PlayerFrameManaBar)
 								end,
 								order = 40
 							}
@@ -602,21 +595,20 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 				}
 			}
 		end
-		return options
+		return self.options
 	end
 
 	function UFI:PLAYER_ENTERING_WORLD()
-		KPack_UnitFrames_Initialize()
-		UFI:RegisterEvent("PLAYER_REGEN_ENABLED")
+		UFI:Initialize()
 	end
 
 	-- Event listener to make sure we've loaded our settings and thta we apply them
 	core:RegisterForEvent("PLAYER_LOGIN", function()
 		-- list of addons for which we disable the module.
 		if core:AddOnIsLoaded("RUF", "ShadowUF", "ElvUI") then return end
-		KPack_UnitFrames_LoadDefaultSettings()
+		UFI:LoadDefaultSettings()
 		UFI:RegisterEvent("PLAYER_ENTERING_WORLD")
-		KPack_UnitFrames_ApplySettings(core.char.UnitFrames)
-		core.options.args.Options.args.UnitFrames = KPack_UnitFrames_GetOptions()
+		UFI:ApplySettings(core.char.UnitFrames)
+		core.options.args.Options.args.UnitFrames = UFI:GetOptions()
 	end)
 end)

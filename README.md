@@ -327,4 +327,4 @@ Some WoW addons call the lua collectgarbage function irresponsibly, causing all 
 
 ## 65. Auto Track
 
-AutoTrack is a module to switch the current tracking ability according to the creature type of your current target. It's an module for all hunters who specced improved tracking.
+AutoTrack is a module that automatically changes the tracking method depending on the creature type of your current target. It is a module for all hunters who spec'd into Improved Tracking.
