@@ -6,8 +6,6 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
 	mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
 	core.CombatTime = mod
 
-	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
-
 	local defaults = {
 		enabled = false,
 		stopwatch = false,
@@ -166,7 +164,7 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
 
 		-- timer text
 		local timer = frame:CreateFontString(nil, "OVERLAY")
-		timer:SetFont(LSM:Fetch("font", mod.db.font), 14, mod.db.fontFlags)
+		timer:SetFont(core:MediaFetch("font", mod.db.font), 14, mod.db.fontFlags)
 		timer:SetTextColor(unpack(mod.db.color))
 		timer:SetJustifyH("CENTER")
 		timer:SetAllPoints(frame)
@@ -266,7 +264,7 @@ KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_
 
 		core:RestorePosition(self.frame, self.db)
 		self.frame:SetScale(self.db.scale or 1)
-		self.frame.timer:SetFont(LSM:Fetch("font", self.db.font), 14, self.db.fontFlags)
+		self.frame.timer:SetFont(core:MediaFetch("font", self.db.font), 14, self.db.fontFlags)
 		self.frame.timer:SetTextColor(unpack(self.db.color))
 
 		if self.db.locked then

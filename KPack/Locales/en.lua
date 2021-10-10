@@ -206,6 +206,9 @@ L["Set the width of the %s"] = true
 L["Set the height of the %s"] = true
 L["Texture"] = true
 L["Select texture to use for the %s"] = true
+L["Background"] = true
+L["Background Color"] = true
+L["Select the background color to use for %s"] = true
 L["Bar Color"] = true
 L["Set color of the %s"] = true
 L["Use class color"] = true
@@ -556,6 +559,7 @@ L["Tank Mode"] = true
 L["Bar color when you have threat."] = true
 L["Target Highlight"] = true
 -- Personal Resources
+L["Personal Resources"] = true
 L['Mimics the retail feature named "Personal Resource Display".'] = true
 L["Show Text"] = true
 L["Text Position"] = true

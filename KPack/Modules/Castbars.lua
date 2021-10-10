@@ -5,7 +5,6 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 	local Castbars = core.Castbars or {}
 	core.Castbars = Castbars
 
-	Castbars.LSM = core.LSM or LibStub("LibSharedMedia-3.0")
 	Castbars.DoNothing = function() end
 
 	local GetSpellInfo = GetSpellInfo
@@ -85,9 +84,9 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 	end
 
 	local function Castbars_FrameMediaRestore(frame)
-		local barTexture = Castbars.LSM:Fetch("statusbar", Castbars.db[frame.configName]["Texture"])
-		local borderTexture = Castbars.LSM:Fetch("border", Castbars.db[frame.configName]["Border"])
-		local font = Castbars.LSM:Fetch("font", Castbars.db[frame.configName]["Font"])
+		local barTexture = core:MediaFetch("statusbar", Castbars.db[frame.configName]["Texture"])
+		local borderTexture = core:MediaFetch("border", Castbars.db[frame.configName]["Border"])
+		local font = core:MediaFetch("font", Castbars.db[frame.configName]["Font"])
 		if barTexture then
 			frame.statusBar:SetStatusBarTexture(barTexture)
 			if frame.latency then
@@ -1157,9 +1156,9 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 		end
 
 		-- Register Texture and Listen to LibSharedMedia-3.0 callbacks
-		Castbars.LSM:Register("statusbar", "Castbars", [[Interface\AddOns\KPack\Media\Statusbar\castbars]])
-		Castbars.LSM.RegisterCallback(Castbars, "LibSharedMedia_Registered", "FrameMediaRestoreAll")
-		Castbars.LSM.RegisterCallback(Castbars, "LibSharedMedia_SetGlobal", "FrameMediaRestoreAll")
+		core:MediaRegister("statusbar", "Castbars", [[Interface\AddOns\KPack\Media\Statusbar\castbars]])
+		core:RegisterLSMCallback(Castbars, "LibSharedMedia_Registered", "FrameMediaRestoreAll")
+		core:RegisterLSMCallback(Castbars, "LibSharedMedia_SetGlobal", "FrameMediaRestoreAll")
 
 		Castbars.CastingBarFrame_OnUpdate = function(frame, elapsed, ...)
 			CastingBarFrame_OnUpdate(frame, elapsed, ...)

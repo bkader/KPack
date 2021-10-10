@@ -2,7 +2,6 @@ assert(KPack, "KPack not found!")
 KPack:AddModule("Nameplates", function(_, core, L)
 	if core:IsDisabled("Nameplates") or core.ElvUI then return end
 	local disabled, reason
-	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
 
 	-- SavedVariables
 	local options, GetOptions
@@ -257,16 +256,16 @@ KPack:AddModule("Nameplates", function(_, core, L)
 			elseif changed == "barHeight" then
 				self.healthBar:SetHeight(config.barHeight)
 			elseif changed == "barTexture" then
-				local barTexture = LSM:Fetch("statusbar", config.barTexture)
+				local barTexture = core:MediaFetch("statusbar", config.barTexture)
 				self.healthBar:SetStatusBarTexture(barTexture)
 				self.castBar:SetStatusBarTexture(barTexture)
 			elseif changed == "font" or changed == "fontSize" or changed == "fontOutline" then
-				local font = LSM:Fetch("font", config.font)
+				local font = core:MediaFetch("font", config.font)
 				self.name:SetFont(font, config.fontSize, config.fontOutline)
 				self.level:SetFont(font, config.fontSize, config.fontOutline)
 				self.castBar.time:SetFont(font, config.fontSize, config.fontOutline)
 			elseif changed == "textFont" or changed == "textFontSize" or changed == "textFontOutline" then
-				self.text:SetFont(LSM:Fetch("font", config.textFont), config.textFontSize, config.textFontOutline)
+				self.text:SetFont(core:MediaFetch("font", config.textFont), config.textFontSize, config.textFontOutline)
 			elseif changed == "hideName" or changed == "hideLevel" then
 				core:ShowIf(self.name, not config.hideName)
 				core:ShowIf(self.level, not config.hideLevel)
@@ -461,7 +460,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 
 		local name = frame:CreateFontString()
 		name:SetPoint("BOTTOM", healthBar, "TOP", 0, 1)
-		name:SetFont(LSM:Fetch("font", config.font), config.fontSize, config.fontOutline)
+		name:SetFont(core:MediaFetch("font", config.font), config.fontSize, config.fontOutline)
 		name:SetTextColor(0.84, 0.75, 0.65)
 		name:SetShadowOffset(1.25, -1.25)
 		name:SetJustifyH("LEFT")
@@ -469,14 +468,14 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		frame.name = name
 		core:ShowIf(frame.name, not config.hideName)
 
-		levelTextRegion:SetFont(LSM:Fetch("font", config.font), config.fontSize, config.fontOutline)
+		levelTextRegion:SetFont(core:MediaFetch("font", config.font), config.fontSize, config.fontOutline)
 		levelTextRegion:SetShadowOffset(1.25, -1.25)
 		levelTextRegion:SetJustifyH("RIGHT")
 		levelTextRegion:SetJustifyV("BOTTOM")
 		frame.level = levelTextRegion
 		core:ShowIf(frame.level, not config.hideLevel)
 
-		healthBar:SetStatusBarTexture(LSM:Fetch("statusbar", config.barTexture))
+		healthBar:SetStatusBarTexture(core:MediaFetch("statusbar", config.barTexture))
 		healthBar.hpBackground = healthBar:CreateTexture(nil, "BORDER")
 		healthBar.hpBackground:SetAllPoints(healthBar)
 		healthBar.hpBackground:SetTexture(config.barTexture)
@@ -496,13 +495,13 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		frame.oldHighlight = highlightRegion
 		frame.highlight = frame.overlay:CreateTexture(nil, "ARTWORK")
 		frame.highlight:SetAllPoints(frame.healthBar)
-		frame.highlight:SetTexture(LSM:Fetch("statusbar", config.barTexture))
+		frame.highlight:SetTexture(core:MediaFetch("statusbar", config.barTexture))
 		frame.highlight:SetBlendMode("ADD")
 		frame.highlight:SetVertexColor(1, 1, 1, 0.35)
 		frame.highlight:Hide()
 
 		local text = frame.overlay:CreateFontString(nil, "OVERLAY")
-		text:SetFont(LSM:Fetch("font", config.textFont), config.textFontSize, config.textFontOutline)
+		text:SetFont(core:MediaFetch("font", config.textFont), config.textFontSize, config.textFontOutline)
 		text:SetPoint("CENTER", config.textOfsX or 0, config.textOfsY or 1)
 		text:SetTextColor(0.84, 0.75, 0.65)
 		text:SetJustifyH("CENTER")
@@ -517,7 +516,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		castBar.castbarOverlay = castbarOverlay
 		castBar.healthBar = healthBar
 		castBar.shieldedRegion = shieldedRegion
-		castBar:SetStatusBarTexture(LSM:Fetch("statusbar", config.barTexture))
+		castBar:SetStatusBarTexture(core:MediaFetch("statusbar", config.barTexture))
 
 		castBar:HookScript("OnShow", CastBar_OnShow)
 		-- castBar:HookScript("OnHide", CastBar_OnHide)
@@ -531,13 +530,13 @@ KPack:AddModule("Nameplates", function(_, core, L)
 
 		castBar.time = castBar:CreateFontString(nil, "ARTWORK")
 		castBar.time:SetPoint("RIGHT", castBar, "LEFT", -2, 1)
-		castBar.time:SetFont(LSM:Fetch("font", config.font), config.fontSize, config.fontOutline)
+		castBar.time:SetFont(core:MediaFetch("font", config.font), config.fontSize, config.fontOutline)
 		castBar.time:SetTextColor(0.84, 0.75, 0.65)
 		castBar.time:SetShadowOffset(1.25, -1.25)
 
 		-- castBar.spell = castBar:CreateFontString(nil, "ARTWORK")
 		-- castBar.spell:SetPoint("TOP", castBar, "BOTTOM", 0, -2)
-		-- castBar.spell:SetFont(LSM:Fetch("font", config.font), config.fontSize, config.fontOutline)
+		-- castBar.spell:SetFont(core:MediaFetch("font", config.font), config.fontSize, config.fontOutline)
 		-- castBar.spell:SetTextColor(0.84, 0.75, 0.65)
 		-- castBar.spell:SetShadowOffset(1.25, -1.25)
 

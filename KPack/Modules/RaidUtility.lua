@@ -10,9 +10,6 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 		args = {}
 	}
 
-	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
-	core.LSM = LSM
-
 	local pairs, ipairs, select = pairs, ipairs, select
 	local tinsert, tremove, tsort = table.insert, table.remove, table.sort
 	local strformat, strfind, strlower, strlen = string.format, string.find, string.lower, string.len
@@ -713,7 +710,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 						f.cooldown = t
 
 						t = f:CreateFontString(nil, "ARTWORK")
-						t:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
+						t:SetFont(core:MediaFetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
 						t:SetSize(110, size)
 						t:SetJustifyV("MIDDLE")
 						f.name = t
@@ -771,7 +768,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			display:SetHeight(iconSize * 7 + (DB.Auras.spacing or 0) * 6)
 			core:ShowIf(display.header, not (DB.Auras.hideTitle and display.locked))
 
-			display.header:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
+			display.header:SetFont(core:MediaFetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
 
 			local changeside
 			if display.align ~= DB.Auras.align then
@@ -803,7 +800,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				local f = _G["KPackPaladinAuras" .. name]
 				if f then
 					f:SetHeight(iconSize + 2)
-					f.name:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
+					f.name:SetFont(core:MediaFetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
 					f.icon:SetSize(iconSize, iconSize)
 
 					if changeside == "RIGHT" then
@@ -869,7 +866,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				display.bg = t
 
 				t = display:CreateFontString(nil, "OVERLAY")
-				t:SetFont(LSM:Fetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
+				t:SetFont(core:MediaFetch("font", DB.Auras.font), DB.Auras.fontSize, DB.Auras.fontFlags)
 				t:SetText(L["Paladin Auras"])
 				t:SetTextColor(0.96, 0.55, 0.73)
 				if display.align == "RIGHT" then
@@ -1219,7 +1216,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			display:SetScale(DB.Sunders.scale or 1)
 
 			display.header.text:SetFont(
-				LSM:Fetch("font", DB.Sunders.font),
+				core:MediaFetch("font", DB.Sunders.font),
 				DB.Sunders.fontSize,
 				DB.Sunders.fontFlags
 			)
@@ -1231,7 +1228,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			for name, _ in pairs(sunders) do
 				local f = _G["KPackSunderCounter" .. name]
 				if f then
-					f.text:SetFont(LSM:Fetch("font", DB.Sunders.font), DB.Sunders.fontSize, DB.Sunders.fontFlags)
+					f.text:SetFont(core:MediaFetch("font", DB.Sunders.font), DB.Sunders.fontSize, DB.Sunders.fontFlags)
 					f.text:SetJustifyH(DB.Sunders.align or "RIGHT")
 				end
 			end
@@ -1297,7 +1294,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				t:SetHeight(DB.Sunders.fontSize + 4)
 
 				t.text = t:CreateFontString(nil, "OVERLAY")
-				t.text:SetFont(LSM:Fetch("font", DB.Sunders.font), DB.Sunders.fontSize, DB.Sunders.fontFlags)
+				t.text:SetFont(core:MediaFetch("font", DB.Sunders.font), DB.Sunders.fontSize, DB.Sunders.fontFlags)
 				t.text:SetText(sunder)
 				t.text:SetAllPoints(t)
 				t.text:SetJustifyH(DB.Sunders.align or "LEFT")
@@ -1458,7 +1455,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 						f = CreateFrame("Frame", fname, display)
 
 						local t = f:CreateFontString(nil, "OVERLAY")
-						t:SetFont(LSM:Fetch("font", DB.Sunders.font), DB.Sunders.fontSize, DB.Sunders.fontFlags)
+						t:SetFont(core:MediaFetch("font", DB.Sunders.font), DB.Sunders.fontSize, DB.Sunders.fontFlags)
 						t:SetPoint("TOPLEFT", f, "TOPLEFT")
 						t:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT")
 						t:SetJustifyH(DB.Sunders.align or "RIGHT")
@@ -1842,7 +1839,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			display:SetWidth(DB.Mana.width or 180)
 			display:SetScale(DB.Mana.scale or 1)
 
-			display.header:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
+			display.header:SetFont(core:MediaFetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
 			display.header:SetJustifyH(DB.Mana.align or "LEFT")
 			core:ShowIf(display.header, not (DB.Mana.hideTitle and display.locked))
 
@@ -1862,8 +1859,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				local f = _G["KPackHealersMana" .. data.name]
 				if f then
 					f.icon:SetSize(DB.Mana.iconSize, DB.Mana.iconSize)
-					f.name:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
-					f.mana:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
+					f.name:SetFont(core:MediaFetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
+					f.mana:SetFont(core:MediaFetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
 
 					if changeside == "RIGHT" then
 						f.icon:ClearAllPoints()
@@ -1929,7 +1926,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				display.bg = t
 
 				t = display:CreateFontString(nil, "OVERLAY")
-				t:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
+				t:SetFont(core:MediaFetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
 				t:SetText(L["Healers Mana"])
 				t:SetJustifyH(DB.Mana.align or "LEFT")
 				t:SetPoint("BOTTOMLEFT", display, "TOPLEFT", 0, 5)
@@ -2088,14 +2085,14 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 					f.cooldown = t
 
 					t = f:CreateFontString(nil, "ARTWORK")
-					t:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
+					t:SetFont(core:MediaFetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
 					t:SetJustifyV("MIDDLE")
 					t:SetText(data.name)
 					t:SetTextColor(unpack(colorsTable[data.class]))
 					f.name = t
 
 					t = f:CreateFontString(nil, "ARTWORK")
-					t:SetFont(LSM:Fetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
+					t:SetFont(core:MediaFetch("font", DB.Mana.font), DB.Mana.fontSize, DB.Mana.fontFlags)
 					t:SetJustifyV("MIDDLE")
 					f.mana = t
 				end
@@ -2884,8 +2881,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			display:RegisterCallback("AnchorClicked", RaidCooldowns.AnchorClicked)
 			display:RegisterCallback("AnchorMoved", RaidCooldowns.AnchorMoved)
 			display:SetClampedToScreen(true)
-			display:SetFont(LSM:Fetch("font", DB.Cooldowns.font), DB.Cooldowns.fontSize, DB.Cooldowns.fontFlags)
-			display:SetTexture(LSM:Fetch("statusbar", DB.Cooldowns.texture))
+			display:SetFont(core:MediaFetch("font", DB.Cooldowns.font), DB.Cooldowns.fontSize, DB.Cooldowns.fontFlags)
+			display:SetTexture(core:MediaFetch("statusbar", DB.Cooldowns.texture))
 			display:SetScale(DB.Cooldowns.scale)
 			display:SetOrientation(DB.Cooldowns.orientation)
 			display:ReverseGrowth(DB.Cooldowns.growUp)
@@ -2954,8 +2951,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			if not display then
 				CreateDisplay()
 			end
-			display:SetFont(LSM:Fetch("font", DB.Cooldowns.font), DB.Cooldowns.fontSize, DB.Cooldowns.fontFlags)
-			display:SetTexture(LSM:Fetch("statusbar", DB.Cooldowns.texture))
+			display:SetFont(core:MediaFetch("font", DB.Cooldowns.font), DB.Cooldowns.fontSize, DB.Cooldowns.fontFlags)
+			display:SetTexture(core:MediaFetch("statusbar", DB.Cooldowns.texture))
 			display:SetScale(DB.Cooldowns.scale)
 			display:ReverseGrowth(DB.Cooldowns.growUp)
 			display:SetOrientation(DB.Cooldowns.orientation)

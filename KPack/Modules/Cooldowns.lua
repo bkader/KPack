@@ -5,8 +5,6 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 	local mod = {}
 	LibStub("AceHook-3.0"):Embed(mod)
 
-	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
-
 	local str_format = string.format
 	local math_floor = math.floor
 	local math_min = math.min
@@ -71,7 +69,7 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 			if changed then
 				if color then
 					local scale = math_min(self:GetParent():GetWidth() / 36, 1)
-					self.text:SetFont(LSM:Fetch("font", DB.font), DB.fontSize * scale, DB.fontFlags)
+					self.text:SetFont(core:MediaFetch("font", DB.font), DB.fontSize * scale, DB.fontFlags)
 					self.text:SetTextColor(unpack(color))
 				end
 				changed = nil
@@ -86,7 +84,7 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 		else
 			local text = self:CreateFontString(nil, "OVERLAY")
 			text:SetPoint("CENTER", 0, 1)
-			text:SetFont(LSM:Fetch("font", DB.font), DB.fontSize * scale, DB.fontFlags)
+			text:SetFont(core:MediaFetch("font", DB.font), DB.fontSize * scale, DB.fontFlags)
 			text:SetTextColor(unpack(DB.colors.days))
 
 			self.text = text

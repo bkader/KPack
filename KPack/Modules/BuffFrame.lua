@@ -2,7 +2,6 @@ assert(KPack, "KPack not found!")
 KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff frames.", function(_, core, L)
 	if core:IsDisabled("BuffFrame") or core.ElvUI then return end
 
-	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
 	local hooksecurefunc = hooksecurefunc
 	local LBF = LibStub("LibButtonFacade", true)
 
@@ -133,13 +132,13 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 		if filter == "HELPFUL" then
 			buff:SetSize(DB.buffSize, DB.buffSize)
 			buff:SetScale(DB.buffScale)
-			buff.duration:SetFont(LSM:Fetch("font", DB.durationFont), DB.buffFontSize, "THINOUTLINE")
-			buff.count:SetFont(LSM:Fetch("font", DB.countFont), DB.buffCountSize, "THINOUTLINE")
+			buff.duration:SetFont(core:MediaFetch("font", DB.durationFont), DB.buffFontSize, "THINOUTLINE")
+			buff.count:SetFont(core:MediaFetch("font", DB.countFont), DB.buffCountSize, "THINOUTLINE")
 		else
 			buff:SetSize(DB.debuffSize, DB.debuffSize)
 			buff:SetScale(DB.debuffScale)
-			buff.duration:SetFont(LSM:Fetch("font", DB.durationFont), DB.debuffFontSize, "THINOUTLINE")
-			buff.count:SetFont(LSM:Fetch("font", DB.countFont), DB.debuffCountSize, "THINOUTLINE")
+			buff.duration:SetFont(core:MediaFetch("font", DB.durationFont), DB.debuffFontSize, "THINOUTLINE")
+			buff.count:SetFont(core:MediaFetch("font", DB.countFont), DB.debuffCountSize, "THINOUTLINE")
 		end
 
 		if LBF then
@@ -197,7 +196,7 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 					DB.durationOffsetX or 0,
 					DB.durationOffsetY or -2
 				)
-				duration:SetFont(LSM:Fetch("font", DB.durationFont), DB.buffFontSize, "THINOUTLINE")
+				duration:SetFont(core:MediaFetch("font", DB.durationFont), DB.buffFontSize, "THINOUTLINE")
 				duration:SetShadowOffset(0, 0)
 				duration:SetDrawLayer("OVERLAY")
 				_G["TempEnchant" .. i .. "Border"]:SetTexture(nil)

@@ -3,11 +3,9 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 	if core:IsDisabled("Personal Resources") then return end
 
 	-- cache frequently used glboals
-	local CreateFrame = CreateFrame
 	local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax
 	local UnitPowerType, UnitPower, UnitPowerMax = UnitPowerType, UnitPower, UnitPowerMax
 	local floor, format = math.floor, string.format
-	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
 
 	-- saved variables and default
 	local DB
@@ -16,8 +14,11 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 		combat = false,
 		text = false,
 		point = "CENTER",
-		borderless = true,
+		font = "Friz Quadrata TT",
+		fontSize = 12,
+		fontOutline = "OUTLINE",
 		texture = "Blizzard",
+		color = {0, 0, 0, 0.5},
 		width = 180,
 		height = 32,
 		scale = 1
@@ -62,13 +63,16 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 				return
 			end
 
-			local bar = CreateFrame("StatusBar", nil, parent)
+			local bar = core:CreateStatusBar(nil, parent)
 			bar:SetPoint("CENTER", 0, -120)
-			bar:SetHitRectInsets(2, 2, 2, 2)
 			bar:SetMinMaxValues(0, 100)
 
 			local text = bar:CreateFontString(nil, "OVERLAY")
-			text:SetFont(PlayerFrameHealthBarText:GetFont())
+			text:SetFont(
+				core:MediaFetch("font", DB.font or defaults.font, "Friz Quadrata TT"),
+				DB.fontSize or defaults.fontSize,
+				DB.fontOutline or defaults.fontOutline
+			)
 
 			if DB.point == "LEFT" then
 				text:SetPoint("RIGHT", bar, "LEFT")
@@ -86,27 +90,6 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 			text:Hide()
 			bar.text = text
 			return bar
-		end
-
-		local function PersonalResources_CreateBorder(bar)
-			if DB.borderless then
-				if bar.border then
-					bar.border:Hide()
-					bar.border = nil
-				end
-				return
-			end
-			local border = bar.border or CreateFrame("Frame", nil, bar)
-			border:SetBackdrop({
-				bgFile = "Interface\\Tooltips\\UI-StatusBar-Border",
-				tile = false,
-				tileSize = bar:GetWidth(),
-				edgeSize = bar:GetHeight(),
-				insets = {left = 0, right = 0, top = 0, bottom = 0}
-			})
-			border:SetPoint("TOPLEFT", -5, 5)
-			border:SetPoint("BOTTOMRIGHT", 5, -5)
-			return border
 		end
 
 		-- handles OnDragStart event
@@ -217,31 +200,31 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 				frame = CreateFrame("Frame", fname, UIParent)
 				frame:SetSize(width, height)
 				frame:SetPoint(anchor, xOfs, yOfs)
-				frame:SetBackdrop({
-					bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-					insets = {left = 2, right = 2, top = 2, bottom = 2}
-				})
-				frame:SetBackdropColor(0, 0, 0, 0.8)
+
+				-- background color
+				local color = DB.color or defaults.color
 
 				-- health bar
 				frame.health = PersonalResources_CreateBar(frame)
-				frame.health:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture))
+				frame.health:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture))
 				frame.health:GetStatusBarTexture():SetHorizTile(false)
 				frame.health:GetStatusBarTexture():SetVertTile(false)
 				frame.health:SetPoint("TOPLEFT", 2, -2)
 				frame.health:SetPoint("BOTTOMRIGHT", -2, height * 0.4)
 				frame.health:SetStatusBarColor(0, 0.65, 0)
-				frame.health.border = PersonalResources_CreateBorder(frame.health)
+				frame.health:SetBackgroundColor(unpack(color))
+				frame.health.bg:Show()
 
 				-- power bar
 				frame.power = PersonalResources_CreateBar(frame)
-				frame.power:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture))
+				frame.power:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture))
 				frame.power:GetStatusBarTexture():SetHorizTile(false)
 				frame.power:GetStatusBarTexture():SetVertTile(false)
 				frame.power:SetPoint("TOPLEFT", 2, -height * 0.6)
 				frame.power:SetPoint("BOTTOMRIGHT", -2, 2)
 				frame.power:SetStatusBarColor(nil)
-				frame.power.border = PersonalResources_CreateBorder(frame.power)
+				frame.power:SetBackgroundColor(unpack(color))
+				frame.power.bg:Show()
 				frame:SetScale(scale)
 
 				-- make the frame movable
@@ -249,16 +232,22 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 				frame:SetMovable(true)
 				frame:RegisterForDrag("LeftButton")
 			elseif frame then
+				-- background color
+				local color = DB.color or defaults.color
+
 				frame:SetSize(width, height)
-				frame.health:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture))
+				frame.health:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture))
 				frame.health:SetPoint("TOPLEFT", 2, -2)
 				frame.health:SetPoint("BOTTOMRIGHT", -2, height * 0.4)
-				frame.health.border = PersonalResources_CreateBorder(frame.health)
 
-				frame.power:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture))
+				frame.power:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture))
 				frame.power:SetPoint("TOPLEFT", 2, -height * 0.6)
 				frame.power:SetPoint("BOTTOMRIGHT", -2, 2)
-				frame.power.border = PersonalResources_CreateBorder(frame.power)
+
+				frame.health:SetBackgroundColor(unpack(color))
+				frame.health.bg:Show()
+				frame.power:SetBackgroundColor(unpack(color))
+				frame.power.bg:Show()
 
 				frame:SetScale(scale)
 			end
@@ -283,6 +272,18 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 					frame.health.text:SetJustifyH("CENTER")
 					frame.power.text:SetJustifyH("CENTER")
 				end
+
+				frame.health.text:SetFont(
+					core:MediaFetch("font", DB.font or defaults.font, "Friz Quadrata TT"),
+					DB.fontSize or defaults.fontSize,
+					DB.fontOutline or defaults.fontOutline
+				)
+
+				frame.power.text:SetFont(
+					core:MediaFetch("font", DB.font or defaults.font, "Friz Quadrata TT"),
+					DB.fontSize or defaults.fontSize,
+					DB.fontOutline or defaults.fontOutline
+				)
 			end
 
 			core:RestorePosition(frame, DB)
@@ -462,11 +463,11 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 					order = 3,
 					disabled = disabled
 				},
-				borderless = {
-					type = "toggle",
-					name = L["Hide border"],
+				sep1 = {
+					type = "description",
+					name = " ",
 					order = 4,
-					disabled = disabled
+					width = "full"
 				},
 				width = {
 					type = "range",
@@ -498,24 +499,78 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 					bigStep = 0.1,
 					disabled = disabled
 				},
+				sep2 = {
+					type = "description",
+					name = " ",
+					order = 8,
+					width = "full"
+				},
+				font = {
+					type = "select",
+					name = L["Font"],
+					dialogControl = "LSM30_Font",
+					order = 9,
+					values = AceGUIWidgetLSMlists.font
+				},
+				fontSize = {
+					type = "range",
+					name = L["Font Size"],
+					order = 10,
+					min = 6,
+					max = 30,
+					step = 1
+				},
+				fontOutline = {
+					type = "select",
+					name = L["Font Outline"],
+					order = 11,
+					values = {
+						[""] = NONE,
+						["OUTLINE"] = L["Outline"],
+						["THINOUTLINE"] = L["Thin outline"],
+						["THICKOUTLINE"] = L["Thick outline"],
+						["MONOCHROME"] = L["Monochrome"],
+						["OUTLINEMONOCHROME"] = L["Outlined monochrome"]
+					}
+				},
 				point = {
 					type = "select",
 					name = L["Text Position"],
-					order = 8,
+					order = 12,
 					values = {CENTER = L["Center"], LEFT = L["Left"], RIGHT = L["Right"]}
+				},
+				sep3 = {
+					type = "description",
+					name = " ",
+					order = 13,
+					width = "full"
 				},
 				texture = {
 					type = "select",
 					name = L["Texture"],
+					desc = L:F("Select texture to use for the %s", L["Personal Resources"]),
 					dialogControl = "LSM30_Statusbar",
-					order = 9,
-					values = AceGUIWidgetLSMlists.statusbar,
-					width = "double"
+					order = 14,
+					values = AceGUIWidgetLSMlists.statusbar
 				},
-				sep = {
+				color = {
+					type = "color",
+					name = L["Background Color"],
+					desc = L:F("Select the background color to use for %s", L["Personal Resources"]),
+					order = 15,
+					hasAlpha = true,
+					get = function()
+						return unpack(DB.color or defaults.color)
+					end,
+					set = function(_, r, g, b, a)
+						DB.color = {r, g, b, a}
+						PLAYER_ENTERING_WORLD(true)
+					end
+				},
+				sep4 = {
 					type = "description",
 					name = " ",
-					order = 10
+					order = 98
 				},
 				reset = {
 					type = "execute",

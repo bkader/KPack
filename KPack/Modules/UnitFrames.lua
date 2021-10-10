@@ -6,9 +6,6 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	local UFI = CreateFrame("Frame")
 	UFI:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
 
-	local LSM = core.LSM or LibStub("LibSharedMedia-3.0")
-	core.LSM = LSM
-
 	local tinsert, tgetn = table.insert, table.getn
 	local strgmatch, strsub, strlower = string.gmatch, string.sub, string.lower
 	local ceil, format, tonumber, tostring = math.ceil, string.format, tonumber, tostring
@@ -68,7 +65,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 			local valueMin, valueMax = textStatusBar:GetMinMaxValues()
 
 			textString:SetFont(
-				LSM:Fetch("font", DB.font or defaults.font),
+				core:MediaFetch("font", DB.font or defaults.font),
 				DB.fontSize or defaults.fontSize,
 				DB.fontOutline or defaults.fontOutline
 			)
@@ -134,8 +131,8 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 			PlayerFrameHealthBarText:SetPoint("CENTER", 50, 6)
 			PlayerFrameTexture:SetTexture([[Interface\AddOns\KPack\Media\UnitFrames\UI-TargetingFrame]])
 			PlayerStatusTexture:SetTexture([[Interface\AddOns\KPack\Media\UnitFrames\UI-Player-Status]])
-			PlayerFrameHealthBar:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
-			PlayerFrameManaBar:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
+			PlayerFrameHealthBar:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture or defaults.texture))
+			PlayerFrameManaBar:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture or defaults.texture))
 		end
 		PlayerFrameHealthBar:SetStatusBarColor(UFI:UnitColor("player"))
 	end
@@ -160,8 +157,8 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		_G[self:GetName() .. "TextureFrameHealthBarText"]:SetPoint("CENTER", -50, 6)
 		self.deadText:SetPoint("CENTER", -50, 6)
 		self.nameBackground:Hide()
-		self.healthbar:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
-		self.manabar:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
+		self.healthbar:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture or defaults.texture))
+		self.manabar:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture or defaults.texture))
 	end
 
 	function __TargetFrame_CheckFaction(self)
@@ -257,8 +254,8 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 				local frame = _G["PartyMemberFrame" .. i]
 				if frame and not frame.kpacked then
 					frame.kpacked = true
-					_G["PartyMemberFrame" .. i .. "HealthBar"]:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
-					_G["PartyMemberFrame" .. i .. "ManaBar"]:SetStatusBarTexture(LSM:Fetch("statusbar", DB.texture or defaults.texture))
+					_G["PartyMemberFrame" .. i .. "HealthBar"]:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture or defaults.texture))
+					_G["PartyMemberFrame" .. i .. "ManaBar"]:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture or defaults.texture))
 					-- Text
 					_G["PartyMemberFrame" .. i .. "Name"]:SetPoint("BOTTOMLEFT", 57, 35)
 					_G["PartyMemberFrame" .. i .. "HealthBarText"]:ClearAllPoints()
