@@ -147,6 +147,8 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 			end
 
 			function PersonalResources_UpdateValues(self)
+				if not (self.health and self.power) then return end
+
 				local hp, hpMax = UnitHealth("player"), UnitHealthMax("player")
 				self.health:SetValue(PersonalResources_Calculate(hp, hpMax))
 
@@ -231,25 +233,24 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 				frame:EnableMouse(true)
 				frame:SetMovable(true)
 				frame:RegisterForDrag("LeftButton")
-			elseif frame then
+			elseif frame and frame.health and frame.power then
 				-- background color
 				local color = DB.color or defaults.color
 
 				frame:SetSize(width, height)
+				frame:SetScale(scale)
+
 				frame.health:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture))
 				frame.health:SetPoint("TOPLEFT", 2, -2)
 				frame.health:SetPoint("BOTTOMRIGHT", -2, height * 0.4)
+				frame.health:SetBackgroundColor(unpack(color))
+				frame.health.bg:Show()
 
 				frame.power:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture))
 				frame.power:SetPoint("TOPLEFT", 2, -height * 0.6)
 				frame.power:SetPoint("BOTTOMRIGHT", -2, 2)
-
-				frame.health:SetBackgroundColor(unpack(color))
-				frame.health.bg:Show()
 				frame.power:SetBackgroundColor(unpack(color))
 				frame.power.bg:Show()
-
-				frame:SetScale(scale)
 			end
 
 			if cmd then
