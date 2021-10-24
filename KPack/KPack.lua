@@ -1,6 +1,6 @@
 local folder, core = ...
 core.callbacks = core.callbacks or LibStub("CallbackHandler-1.0"):New(core)
-core.version = GetAddOnMetadata("KPack", "Version")
+core.version = GetAddOnMetadata(folder, "Version")
 _G.KPack = core
 
 local L = core.L
@@ -25,98 +25,168 @@ core.classcolors = {
 	WARLOCK = {r = 0.58, g = 0.51, b = 0.79, colorStr = "ff8788ee"},
 	WARRIOR = {r = 0.78, g = 0.61, b = 0.43, colorStr = "ffc79c6e"}
 }
-core.mycolor = core.classcolors[core.class]
 core.class = select(2, UnitClass("player"))
+core.mycolor = core.classcolors[core.class]
 
 -------------------------------------------------------------------------------
 -- C_Timer mimic
 --
 
 do
-	local Timer = {}
-
 	local TickerPrototype = {}
 	local TickerMetatable = {
 		__index = TickerPrototype,
 		__metatable = true
 	}
 
-	local waitTable = {}
-	local waitFrame = _G.KPackTimerFrame or CreateFrame("Frame", "KPackTimerFrame", UIParent)
-	waitFrame:SetScript("OnUpdate", function(self, elapsed)
-		local total = #waitTable
-		for i = 1, total do
-			local ticker = waitTable[i]
-			if ticker then
-				if ticker._cancelled then
-					tremove(waitTable, i)
-				elseif ticker._delay > elapsed then
-					ticker._delay = ticker._delay - elapsed
-					i = i + 1
+	local WaitTable = {}
+
+	local new, del
+	do
+		core.__timers = core.__timers or {}
+		core.__afters = core.__afters or {}
+		local listT = core.__timers
+		local listA = core.__afters
+
+		function new(temp)
+			if temp then
+				local t = next(listA) or {}
+				listA[t] = nil
+				return t
+			end
+
+			local t = next(listT) or setmetatable({}, TickerMetatable)
+			listT[t] = nil
+			return t
+		end
+
+		function del(t)
+			if t then
+				local temp = t._temp
+				t[true] = true
+				t[true] = nil
+				if temp then
+					listA[t] = true
 				else
-					ticker._callback(ticker)
-					if ticker._remainingIterations == -1 then
-						ticker._delay = ticker._duration
-						i = i + 1
-					elseif ticker._remainingIterations > 1 then
-						ticker._remainingIterations = ticker._remainingIterations - 1
-						ticker._delay = ticker._duration
-						i = i + 1
-					elseif ticker._remainingIterations == 1 then
-						tremove(waitTable, i)
-						total = total - 1
-					end
+					listT[t] = true
+				end
+			end
+		end
+	end
+
+	local function WaitFunc(self, elapsed)
+		local total = #WaitTable
+		local i = 1
+
+		while i <= total do
+			local ticker = WaitTable[i]
+
+			if ticker._cancelled then
+				del(tremove(WaitTable, i))
+				total = total - 1
+			elseif ticker._delay > elapsed then
+				ticker._delay = ticker._delay - elapsed
+				i = i + 1
+			else
+				ticker._callback(ticker)
+
+				if ticker._remainingIterations == -1 then
+					ticker._delay = ticker._duration
+					i = i + 1
+				elseif ticker._remainingIterations > 1 then
+					ticker._remainingIterations = ticker._remainingIterations - 1
+					ticker._delay = ticker._duration
+					i = i + 1
+				elseif ticker._remainingIterations == 1 then
+					del(tremove(WaitTable, i))
+					total = total - 1
 				end
 			end
 		end
 
-		if #waitTable == 0 then
+		if #WaitTable == 0 then
 			self:Hide()
 		end
-	end)
-
-	local function AddDelayedCall(ticker, oldTicker)
-		if oldTicker and type(oldTicker) == "table" then
-			ticker = oldTicker
-		end
-		tinsert(waitTable, ticker)
-		waitFrame:Show()
 	end
 
-	local function CreateTicker(duration, callback, iterations)
-		local ticker = setmetatable({}, TickerMetatable)
-		ticker._remainingIterations = iterations or -1
-		ticker._duration = duration
-		ticker._delay = duration
+	local WaitFrame = _G.KPack_WaitFrame or CreateFrame("Frame", "KPack_WaitFrame", UIParent)
+	WaitFrame:SetScript("OnUpdate", WaitFunc)
+
+	local function AddDelayedCall(ticker, oldTicker)
+		ticker = (oldTicker and type(oldTicker) == "table") and oldTicker or ticker
+		tinsert(WaitTable, ticker)
+		WaitFrame:Show()
+	end
+
+	local function ValidateArguments(duration, callback, callFunc)
+		if type(duration) ~= "number" then
+			error(format(
+				"Bad argument #1 to '" .. callFunc .. "' (number expected, got %s)",
+				duration ~= nil and type(duration) or "no value"
+			), 2)
+		elseif type(callback) ~= "function" then
+			error(format(
+				"Bad argument #2 to '" .. callFunc .. "' (function expected, got %s)",
+				callback ~= nil and type(callback) or "no value"
+			), 2)
+		end
+	end
+
+	local function After(duration, callback, ...)
+		ValidateArguments(duration, callback, "After")
+
+		local ticker = new(true)
+
+		ticker._remainingIterations = 1
+		ticker._delay = max(0.01, duration)
 		ticker._callback = callback
+		ticker._cancelled = nil
+		ticker._temp = true
+
+		AddDelayedCall(ticker)
+	end
+
+	local function CreateTicker(duration, callback, iterations, ...)
+		local ticker = new()
+
+		ticker._remainingIterations = iterations or -1
+		ticker._delay = max(0.01, duration)
+		ticker._duration = ticker._delay
+		ticker._callback = callback
+		ticker._cancelled = nil
 
 		AddDelayedCall(ticker)
 		return ticker
 	end
 
-	function Timer.After(duration, callback)
-		AddDelayedCall({
-			_remainingIterations = 1,
-			_delay = duration,
-			_callback = callback
-		})
+	local function NewTicker(duration, callback, iterations, ...)
+		ValidateArguments(duration, callback, "NewTicker")
+		return CreateTicker(duration, callback, iterations, ...)
 	end
 
-	function Timer.NewTimer(duration, callback)
-		return CreateTicker(duration, callback, 1)
+	local function NewTimer(duration, callback, ...)
+		ValidateArguments(duration, callback, "NewTimer")
+		return CreateTicker(duration, callback, 1, ...)
 	end
 
-	function Timer.NewTicker(duration, callback, iterations)
-		return CreateTicker(duration, callback, iterations)
+	local function CancelTimer(ticker)
+		if ticker and ticker.Cancel then
+			ticker:Cancel()
+		end
+		return nil
 	end
 
 	function TickerPrototype:Cancel()
 		self._cancelled = true
 	end
+	function TickerPrototype:IsCancelled()
+		return self._cancelled
+	end
 
-	core.After = Timer.After
-	core.NewTimer = Timer.NewTimer
-	core.NewTicker = Timer.NewTicker
+	core.After = After
+	core.NewTicker = NewTicker
+	core.NewTimer = NewTimer
+	core.CancelTimer = CancelTimer
 end
 
 -------------------------------------------------------------------------------
@@ -124,14 +194,16 @@ end
 --
 
 do
+	local wipe = wipe or table.wipe
+
 	local weaktable = {__mode = "v"}
 	function core.WeakTable(t)
 		return setmetatable(wipe(t or {}), weaktable)
 	end
 
 	-- Shamelessly copied from Omen - thanks!
-	local tablePool = {}
-	setmetatable(tablePool, {__mode = "kv"})
+	local tablePool = core.tablePool or setmetatable({}, {__mode = "k"})
+	core.tablePool = tablePool
 
 	-- get a new table
 	function core.newTable()
@@ -141,17 +213,11 @@ do
 	end
 
 	-- delete table and return to pool
-	function core.delTable(t, recursive)
+	function core.delTable(t)
 		if type(t) == "table" then
-			for k, v in pairs(t) do
-				if recursive and type(v) == "table" then
-					core.delTable(v, recursive)
-				end
-				t[k] = nil
-			end
+			wipe(t)
 			t[true] = true
 			t[true] = nil
-			setmetatable(t, nil)
 			tablePool[t] = true
 		end
 		return nil

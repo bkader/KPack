@@ -8,7 +8,12 @@
 ## DefaultState: enabled
 ## RequiredDeps: Blizzard_CombatText
 ## Version: 1.2.5
+## X-Date: 2021-10-26 @ 06:31 PM |cff808080UTC|r
+## X-Credits: Original addons' authors
+## X-License: MIT/X
+## X-Email: bkader@mail.com
 ## X-Website: https://github.com/bkader/KPack
-## X-Email: bkader@email.com
+## X-Discord: https://discord.gg/a8z5CyS3eW
+## X-Donate: |cff0079c1PayPal|r or |cff246a96Paysera|r at |cff20ff20bkader@mail.com|r
 
 KPack.xml

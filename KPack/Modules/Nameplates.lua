@@ -909,7 +909,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 							hideHealthFull = {
 								type = "toggle",
 								name = L["Hide text when health is full"],
-								order = 4,
+								order = 5,
 								width = "double"
 							},
 							textFont = {
