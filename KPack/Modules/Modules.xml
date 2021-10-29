@@ -25,6 +25,7 @@
 <Script file="CombatTime.lua" />
 <Include file="Combuctor\Combuctor.xml" />
 <Script file="Cooldowns.lua" />
+<Script file="DarkMode.lua" />
 <Script file="DeathRecap.lua" />
 <Script file="EnhancedColourPicker.lua" />
 <Script file="EnhancedStackSplit.lua" />

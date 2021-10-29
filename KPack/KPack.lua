@@ -553,7 +553,7 @@ function core:AddModule(name, desc, func)
 
 	self.options.args.Modules.args.list.args[name] = {
 		type = "toggle",
-		name = name,
+		name = _G.name or L[name],
 		desc = L[desc]
 	}
 end

@@ -29,14 +29,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 	local _SetCVar, _GetCVar = SetCVar, GetCVar
 
 	local DB
-	local defaults = {
-		scale = 1,
-		dark = true,
-		range = true,
-		art = true,
-		hotkeys = 1,
-		hover = false
-	}
+	local defaults = {scale = 1, range = true, art = true, hotkeys = 1, hover = false}
 
 	-- module's print function
 	local function Print(msg)
@@ -74,332 +67,6 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 		_G.MultiBarRight:SetScale(scale)
 		_G.MultiBarLeft:SetScale(scale)
 		_G.VehicleMenuBar:SetScale(scale)
-	end
-
-	--
-	-- Dark mode
-	--
-	local ActionBars_DarkMode
-	do
-		mod.textures = {
-			normal = "Interface\\Addons\\KPack\\Media\\Textures\\AB_Normal",
-			flash = "Interface\\Addons\\KPack\\Media\\Textures\\AB_Flash",
-			hightlight = "Interface\\Addons\\KPack\\Media\\Textures\\AB_Hightlight",
-			pushed = "Interface\\Addons\\KPack\\Media\\Textures\\AB_Pushed",
-			checked = "Interface\\Addons\\KPack\\Media\\Textures\\AB_Checked"
-		}
-		mod.colors = {normal = {r = 0.37, g = 0.3, b = 0.3}, equipped = {r = 0.1, g = 0.5, b = 0.1}}
-
-		local function Darken_Button(name)
-			if not name or not _G[name] or _G[name].kpacked then return end
-			_G[name].kpacked = true
-			local btn = _G[name]
-
-			-- crop icon
-			local t = _G[name .. "Icon"]
-			if t then
-				t:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				t:SetPoint("TOPLEFT", btn, "TOPLEFT", 2, -2)
-				t:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 2)
-			end
-
-			-- remove border
-			t = _G[name .. "Border"]
-			if t then
-				t:SetTexture(nil)
-			end
-
-			-- position cooldown
-			t = _G[name .. "Cooldown"]
-			if t then
-				t:SetAllPoints(btn)
-			end
-
-			-- flash texture
-			t = _G[name .. "Flash"]
-			if t then
-				t:SetTexture(mod.textures.flash)
-			end
-
-			-- normal texture
-			t = _G[name .. "NormalTexture2"] or _G[name .. "NormalTexture"] or btn.GetNormalTexture and btn:GetNormalTexture()
-			if t then
-				if btn.action and IsEquippedAction(btn.action) then
-					t:SetVertexColor(mod.colors.equipped.r, mod.colors.equipped.g, mod.colors.equipped.b, 1)
-				else
-					t:SetVertexColor(mod.colors.normal.r, mod.colors.normal.g, mod.colors.normal.b, 1)
-				end
-				t:SetAllPoints(btn)
-				hooksecurefunc(t, "SetVertexColor", function(self, r, g, b, a)
-					local bn = self:GetParent()
-					if r == 1 and g == 1 and b == 1 and bn.action and (IsEquippedAction(btn.action)) then
-						if mod.colors.equipped.r == 1 and mod.colors.equipped.g == 1 and mod.colors.equipped.b == 1 then
-							self:SetVertexColor(0.99, 0.99, 0.99, 1)
-						else
-							self:SetVertexColor(mod.colors.equipped.r, mod.colors.equipped.g, mod.colors.equipped.b, 1)
-						end
-					elseif r == 0.5 and g == 0.5 and b == 1 then
-						if mod.colors.normal.r == 0.5 and mod.colors.normal.g == 0.5 and mod.colors.normal.b == 1 then
-							self:SetVertexColor(0.49, 0.49, 0.99, 1)
-						else
-							self:SetVertexColor(mod.colors.normal.r, mod.colors.normal.g, mod.colors.normal.b, 1)
-						end
-					elseif r == 1 and g == 1 and b == 1 then
-						if mod.colors.normal.r == 1 and mod.colors.normal.g == 1 and mod.colors.normal.b == 1 then
-							self:SetVertexColor(0.99, 0.99, 0.99, 1)
-						else
-							self:SetVertexColor(mod.colors.normal.r, mod.colors.normal.g, mod.colors.normal.b, 1)
-						end
-					end
-				end)
-			end
-
-			-- normal texture
-			if btn.SetNormalTexture then
-				btn:SetNormalTexture(mod.textures.normal)
-				hooksecurefunc(btn, "SetNormalTexture", function(self, texture)
-					if texture and texture ~= mod.textures.normal then
-						self:SetNormalTexture(mod.textures.normal)
-					end
-				end)
-			end
-
-			-- hightlight texture
-			if btn.SetHighlightTexture then
-				btn:SetHighlightTexture(mod.textures.hightlight)
-				hooksecurefunc(btn, "SetHighlightTexture", function(self, texture)
-					if texture and texture ~= mod.textures.hightlight then
-						self:SetHighlightTexture(mod.textures.hightlight)
-					end
-				end)
-			end
-
-			-- pushed texture
-			if btn.SetPushedtTexture then
-				btn:SetPushedtTexture(mod.textures.pushed)
-				hooksecurefunc(btn, "SetPushedtTexture", function(self, texture)
-					if texture and texture ~= mod.textures.pushed then
-						self:SetPushedtTexture(mod.textures.pushed)
-					end
-				end)
-			end
-
-			-- checked texture
-			if btn.SetCheckedTexture then
-				btn:SetCheckedTexture(mod.textures.checked)
-				hooksecurefunc(btn, "SetCheckedTexture", function(self, texture)
-					if texture and texture ~= mod.textures.checked then
-						self:SetCheckedTexture(mod.textures.checked)
-					end
-				end)
-			end
-		end
-
-		local function Darken_BagButton(name, vertex)
-			if not name or not _G[name] or _G[name].kpacked then return end
-			_G[name].kpacked = true
-			local btn = _G[name]
-
-			-- icon
-			local t = _G[name .. "IconTexture"]
-			if t then
-				t:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				t:SetPoint("TOPLEFT", btn, "TOPLEFT", 2, -2)
-				t:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 2)
-			end
-
-			-- normal texture
-			t = _G[name .. "NormalTexture"] or btn:GetNormalTexture()
-			if t then
-				t:SetTexCoord(0, 1, 0, 1)
-				t:SetDrawLayer("BACKGROUND", -7)
-				t:SetVertexColor(vertex, vertex, vertex)
-				t:SetAllPoints(btn)
-			end
-			if btn.SetNormalTexture then
-				btn:SetNormalTexture(mod.textures.normal)
-				hooksecurefunc(btn, "SetNormalTexture", function(self, texture)
-					if texture and texture ~= mod.textures.normal then
-						self:SetNormalTexture(mod.textures.normal)
-					end
-				end)
-			end
-
-			-- hightlight texture
-			if btn.SetHighlightTexture then
-				btn:SetHighlightTexture(mod.textures.hightlight)
-				hooksecurefunc(btn, "SetHighlightTexture", function(self, texture)
-					if texture and texture ~= mod.textures.hightlight then
-						self:SetHighlightTexture(mod.textures.hightlight)
-					end
-				end)
-			end
-
-			-- pushed texture
-			if btn.SetPushedtTexture then
-				btn:SetPushedtTexture(mod.textures.pushed)
-				hooksecurefunc(btn, "SetPushedtTexture", function(self, texture)
-					if texture and texture ~= mod.textures.pushed then
-						self:SetPushedtTexture(mod.textures.pushed)
-					end
-				end)
-			end
-
-			-- checked texture
-			if btn.SetCheckedTexture then
-				btn:SetCheckedTexture(mod.textures.checked)
-				hooksecurefunc(btn, "SetCheckedTexture", function(self, texture)
-					if texture and texture ~= mod.textures.checked then
-						self:SetCheckedTexture(mod.textures.checked)
-					end
-				end)
-			end
-		end
-
-		function ActionBars_DarkMode()
-			if not DB.dark then return end
-			for i, v in pairs({
-				-- UnitFrames
-				"PlayerFrameTexture",
-				"TargetFrameTextureFrameTexture",
-				"PetFrameTexture",
-				"PartyMemberFrame1Texture",
-				"PartyMemberFrame2Texture",
-				"PartyMemberFrame3Texture",
-				"PartyMemberFrame4Texture",
-				"PartyMemberFrame1PetFrameTexture",
-				"PartyMemberFrame2PetFrameTexture",
-				"PartyMemberFrame3PetFrameTexture",
-				"PartyMemberFrame4PetFrameTexture",
-				"FocusFrameTextureFrameTexture",
-				"TargetFrameToTTextureFrameTexture",
-				"FocusFrameToTTextureFrameTexture",
-				"Boss1TargetFrameTextureFrameTexture",
-				"Boss2TargetFrameTextureFrameTexture",
-				"Boss3TargetFrameTextureFrameTexture",
-				"Boss4TargetFrameTextureFrameTexture",
-				"Boss5TargetFrameTextureFrameTexture",
-				"Boss1TargetFrameSpellBarBorder",
-				"Boss2TargetFrameSpellBarBorder",
-				"Boss3TargetFrameSpellBarBorder",
-				"Boss4TargetFrameSpellBarBorder",
-				"Boss5TargetFrameSpellBarBorder",
-				"RuneButtonIndividual1BorderTexture",
-				"RuneButtonIndividual2BorderTexture",
-				"RuneButtonIndividual3BorderTexture",
-				"RuneButtonIndividual4BorderTexture",
-				"RuneButtonIndividual5BorderTexture",
-				"RuneButtonIndividual6BorderTexture",
-				"CastingBarFrameBorder",
-				"FocusFrameSpellBarBorder",
-				"TargetFrameSpellBarBorder",
-				-- MainMenuBar
-				"SlidingActionBarTexture0",
-				"SlidingActionBarTexture1",
-				"BonusActionBarTexture0",
-				"BonusActionBarTexture1",
-				"BonusActionBarTexture",
-				"MainMenuBarTexture0",
-				"MainMenuBarTexture1",
-				"MainMenuBarTexture2",
-				"MainMenuBarTexture3",
-				"MainMenuMaxLevelBar0",
-				"MainMenuMaxLevelBar1",
-				"MainMenuMaxLevelBar2",
-				"MainMenuMaxLevelBar3",
-				"MainMenuXPBarTextureLeftCap",
-				"MainMenuXPBarTextureRightCap",
-				"MainMenuXPBarTextureMid",
-				"ReputationWatchBarTexture0",
-				"ReputationWatchBarTexture1",
-				"ReputationWatchBarTexture2",
-				"ReputationWatchBarTexture3",
-				"ReputationXPBarTexture0",
-				"ReputationXPBarTexture1",
-				"ReputationXPBarTexture2",
-				"ReputationXPBarTexture3",
-				"MainMenuBarLeftEndCap",
-				"MainMenuBarRightEndCap",
-				"StanceBarLeft",
-				"StanceBarMiddle",
-				"StanceBarRight",
-				"ShapeshiftBarLeft",
-				"ShapeshiftBarMiddle",
-				"ShapeshiftBarRight",
-				-- ArenaFrames
-				"ArenaEnemyFrame1Texture",
-				"ArenaEnemyFrame2Texture",
-				"ArenaEnemyFrame3Texture",
-				"ArenaEnemyFrame4Texture",
-				"ArenaEnemyFrame5Texture",
-				"ArenaEnemyFrame1SpecBorder",
-				"ArenaEnemyFrame2SpecBorder",
-				"ArenaEnemyFrame3SpecBorder",
-				"ArenaEnemyFrame4SpecBorder",
-				"ArenaEnemyFrame5SpecBorder",
-				"ArenaEnemyFrame1PetFrameTexture",
-				"ArenaEnemyFrame2PetFrameTexture",
-				"ArenaEnemyFrame3PetFrameTexture",
-				"ArenaEnemyFrame4PetFrameTexture",
-				"ArenaEnemyFrame5PetFrameTexture",
-				"ArenaPrepFrame1Texture",
-				"ArenaPrepFrame2Texture",
-				"ArenaPrepFrame3Texture",
-				"ArenaPrepFrame4Texture",
-				"ArenaPrepFrame5Texture",
-				"ArenaPrepFrame1SpecBorder",
-				"ArenaPrepFrame2SpecBorder",
-				"ArenaPrepFrame3SpecBorder",
-				"ArenaPrepFrame4SpecBorder",
-				"ArenaPrepFrame5SpecBorder",
-				-- PANES
-				"CharacterFrameTitleBg",
-				"CharacterFrameBg",
-				-- MINIMAP
-				"MinimapBorder",
-				"MinimapBorderTop",
-				"MiniMapTrackingButtonBorder",
-				"TargetFrameSpellBarBorderShield",
-				"FocusFrameSpellBarBorderShield",
-				-- CompactRaidFrame
-				"CompactRaidFrameManagerBorderTop",
-				"CompactRaidFrameManagerBorderTopLeft",
-				"CompactRaidFrameManagerBorderTopRight",
-				"CompactRaidFrameManagerBorderBottom",
-				"CompactRaidFrameManagerBorderBottomLeft",
-				"CompactRaidFrameManagerBorderBottomRight",
-				"CompactRaidFrameManagerBorderLeft",
-				"CompactRaidFrameManagerBorderRight",
-				"CompactRaidFrameManagerBg",
-				"CompactRaidFrameContainerBorderFrameBorderTop",
-				"CompactRaidFrameContainerBorderFrameBorderTopLeft",
-				"CompactRaidFrameContainerBorderFrameBorderTopRight",
-				"CompactRaidFrameContainerBorderFrameBorderBottom",
-				"CompactRaidFrameContainerBorderFrameBorderBottomLeft",
-				"CompactRaidFrameContainerBorderFrameBorderBottomRight",
-				"CompactRaidFrameContainerBorderFrameBorderLeft",
-				"CompactRaidFrameContainerBorderFrameBorderRight"}) do
-				if _G[v] then
-					_G[v]:SetVertexColor(mod.colors.normal.r, mod.colors.normal.g, mod.colors.normal.b, 1)
-				end
-			end
-
-			for i = 0, NUM_ACTIONBAR_BUTTONS do
-				Darken_Button("ActionButton" .. i)
-				Darken_Button("BonusActionButton" .. i)
-				Darken_Button("MultiBarBottomLeftButton" .. i)
-				Darken_Button("MultiBarBottomRightButton" .. i)
-				Darken_Button("MultiBarRightButton" .. i)
-				Darken_Button("MultiBarLeftButton" .. i)
-				Darken_Button("ShapeshiftButton" .. i)
-				Darken_Button("PetActionButton" .. i)
-
-				if i <= 3 then
-					Darken_BagButton("CharacterBag" .. i .. "Slot")
-				end
-			end
-			Darken_BagButton("MainMenuBarBackpackButton")
-		end
 	end
 
 	--
@@ -552,17 +219,18 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 				disabled = function() return disabled end,
 				order = 2
 			},
-			dark = {
-				type = "toggle",
-				name = L["Dark Mode"],
-				order = 3
-			},
 			hover = {
 				type = "toggle",
 				name = L["Hover Mode"],
 				desc = L["Shows your right action bars on hover."],
 				disabled = function() return disabled end,
-				order = 4
+				order = 3
+			},
+			sep1 = {
+				type = "description",
+				name = " ",
+				order = 4,
+				width = "full"
 			},
 			scale = {
 				type = "range",
@@ -624,7 +292,6 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 			ActionBars_ScaleBars()
 			ActionBars_Hotkeys()
 		end
-		ActionBars_DarkMode()
 	end
 
 	function mod:PLAYER_ENTERING_WORLD()
