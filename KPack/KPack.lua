@@ -202,7 +202,7 @@ do
 	end
 
 	-- Shamelessly copied from Omen - thanks!
-	local tablePool = core.tablePool or setmetatable({}, {__mode = "k"})
+	local tablePool = core.tablePool or setmetatable({}, {__mode = "kv"})
 	core.tablePool = tablePool
 
 	-- get a new table
@@ -290,6 +290,25 @@ function core:ShowIf(frame, condition)
 	elseif not condition and frame:IsShown() then
 		frame:Hide()
 	end
+end
+
+-- used to abbreviate long texts
+local match = string.match
+local utf8lower = string.utf8lower
+local utf8sub = string.utf8sub
+
+function core:Abbrev(str)
+	local letters, lastWord = "", match(str, ".+%s(.+)$")
+	if lastWord then
+		for word in gmatch(str, ".-%s") do
+			local firstLetter = utf8sub(gsub(word, "^[%s%p]*", ""), 1, 1)
+			if firstLetter ~= utf8lower(firstLetter) then
+				letters = format("%s%s. ", letters, firstLetter)
+			end
+		end
+		str = format("%s%s", letters, lastWord)
+	end
+	return str
 end
 
 function core:RegisterForEvent(event, callback, ...)

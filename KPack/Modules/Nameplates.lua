@@ -15,6 +15,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		fontSize = 11,
 		fontOutline = "THINOUTLINE",
 		hideName = false,
+		abbrevName = false,
 		hideLevel = false,
 		showHealthText = false,
 		showHealthMax = false,
@@ -269,6 +270,8 @@ KPack:AddModule("Nameplates", function(_, core, L)
 			elseif changed == "hideName" or changed == "hideLevel" then
 				core:ShowIf(self.name, not config.hideName)
 				core:ShowIf(self.level, not config.hideLevel)
+			elseif changed == "abbrevName" then
+				self.name:SetText(config.abbrevName and core:Abbrev(self.oldname:GetText()) or self.oldname:GetText())
 			elseif changed == "showHealthText" or changed == "showHealthPercent" then
 				core:ShowIf(self.text, config.showHealthText or config.showHealthPercent)
 			elseif changed == "arrow" then
@@ -399,7 +402,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		self.highlight:SetAllPoints(self.healthBar)
 
 		self.name:SetJustifyH("LEFT")
-		self.name:SetText(self.oldname:GetText())
+		self.name:SetText(config.abbrevName and core:Abbrev(self.oldname:GetText()) or self.oldname:GetText())
 		self.name:SetPoint("BOTTOMLEFT", self.healthBar, "TOPLEFT", 0, 3)
 		self.name:SetPoint("RIGHT", self.healthBar, -15, 3)
 		core:ShowIf(self.name, not config.hideName)
@@ -425,7 +428,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 					end
 				end
 			elseif self.name:GetText() ~= self.oldname:GetText() then
-				self.name:SetText(self.oldname:GetText())
+				self.name:SetText(config.abbrevName and core:Abbrev(self.oldname:GetText()) or self.oldname:GetText())
 			end
 		end
 
@@ -861,21 +864,26 @@ KPack:AddModule("Nameplates", function(_, core, L)
 								name = L["Hide Name"],
 								order = 8
 							},
+							abbrevName = {
+								type = "toggle",
+								name = L["Abbreviation"],
+								order = 9
+							},
 							hideLevel = {
 								type = "toggle",
 								name = L["Hide Level"],
-								order = 9
+								order = 10
 							},
 							raidIconColor = {
 								type = "toggle",
 								name = L["Raid Icon Color"],
-								order = 10
+								order = 11
 							},
 							arenaUnitNumber = {
 								type = "toggle",
 								name = L["Arena Unit Number"],
 								desc = L["In arena, names will be changed to arena unit numbers."],
-								order = 11
+								order = 12
 							}
 						}
 					},

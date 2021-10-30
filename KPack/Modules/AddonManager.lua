@@ -103,7 +103,7 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 			local countAll, countOn, countOff = 0, 0, 0
 
 			for i, v in pairs(self.addons) do
-				local name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(v)
+				local name, title, notes, enabled, loadable, reason = GetAddOnInfo(v)
 
 				if name then
 					local CheckButtonName = "AddonListEntry" .. i
@@ -111,6 +111,8 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 					if not CheckButton then
 						CheckButton = CreateFrame("CheckButton", CheckButtonName, self, "OptionsCheckButtonTemplate")
 					end
+					CheckButton:SetChecked(enabled)
+
 					if name == addonName then
 						CheckButton:EnableMouse(false)
 						CheckButton:Disable()
@@ -142,7 +144,7 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 					CheckButton:SetScript("OnEnter", function(self)
 						GameTooltip:ClearLines()
 						GameTooltip:SetOwner(self, ANCHOR_TOPRIGHT)
-						GameTooltip:AddLine(self.title)
+						GameTooltip:AddLine(self.title, nil, nil, nil, true)
 						GameTooltip:Show()
 					end)
 					CheckButton:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
@@ -155,13 +157,18 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 							EnableAddOn(name)
 						end
 					end)
-					if enabled then
+
+					if loadable and (enabled and (reason == "DEP_DEMAND_LOADED" or reason == "DEMAND_LOADED")) then
+						_G[CheckButtonName .. "Text"]:SetTextColor(1.0, 0.78, 0.0)
+						countOff = countOff + 1
+					elseif enabled and reason == "DEP_DISABLED" then
+						_G[CheckButtonName .. "Text"]:SetTextColor(1.0, 0.1, 0.1)
+						countOff = countOff + 1
+					elseif enabled then
 						countOn = countOn + 1
-						CheckButton:SetChecked(true)
 					else
 						countOff = countOff + 1
-						_G[CheckButtonName .. "Text"]:SetTextColor(0.6, 0.6, 0.6)
-						CheckButton:SetChecked(false)
+						_G[CheckButtonName .. "Text"]:SetTextColor(0.5, 0.5, 0.5)
 					end
 
 					countAll = countAll + 1
@@ -209,7 +216,7 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 		DisableAllButton:SetText(L["Disable All"])
 		DisableAllButton:SetScript("OnClick", function()
 			for k, v in pairs(MainAddonFrame.addons) do
-				local name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(v)
+				local name, title, notes, enabled, loadable, reason = GetAddOnInfo(v)
 				if name and name ~= addonName then
 					DisableAddOn(name)
 				end

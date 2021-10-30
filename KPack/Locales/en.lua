@@ -544,6 +544,7 @@ L["Thick outline"] = true
 L["Monochrome"] = true
 L["Outlined monochrome"] = true
 L["Hide Name"] = true
+L["Abbreviation"] = true
 L["Hide Level"] = true
 L["Raid Icon Color"] = true
 L["Arena Unit Number"] = true
