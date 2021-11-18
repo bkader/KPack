@@ -391,6 +391,10 @@ KPack:AddModule("Minimap", function(_, core, L)
 				end
 			end
 
+			if _G.MiniMapMailFrame then
+				SkinMinimapButton(_G.MiniMapMailFrame)
+			end
+
 			if _G.AtlasButtonFrame then
 				SkinMinimapButton(_G.AtlasButton)
 			end
@@ -559,6 +563,13 @@ KPack:AddModule("Minimap", function(_, core, L)
 	--------------------------------------------------------------------------------
 
 	do
+		local backdrop = {
+			bgFile = [[Interface\ChatFrame\ChatFrameBackground]],
+			edgeFile = [[Interface\ChatFrame\ChatFrameBackground]],
+			edgeSize = 1,
+			insets = {top = 0, left = 0, bottom = 0, right = 0}
+		}
+
 		-- the dopdown menu frame
 		local menuFrame
 
@@ -768,20 +779,24 @@ KPack:AddModule("Minimap", function(_, core, L)
 				MinimapCluster:RegisterForDrag(nil)
 				MinimapCluster:SetScript("OnMouseDown", nil)
 				MinimapCluster:SetScript("OnMouseUp", nil)
+				MinimapCluster:SetBackdrop(nil)
+				MinimapCluster:SetBackdropColor(0, 0, 0, 0)
+				MinimapCluster:SetBackdropBorderColor(0, 0, 0, 0)
 			else
 				MinimapCluster:SetMovable(true)
 				MinimapCluster:SetClampedToScreen(true)
 				MinimapCluster:RegisterForDrag("LeftButton")
 				MinimapCluster:SetScript("OnMouseDown", Cluster_OnMouseDown)
 				MinimapCluster:SetScript("OnMouseUp", Cluster_OnMouseUp)
+				MinimapCluster:SetBackdrop(backdrop)
+				MinimapCluster:SetBackdropColor(0, 0, 0, 0.5)
+				MinimapCluster:SetBackdropBorderColor(0, 0, 0, 1)
 			end
 
 			-- move to position
 			if DB.moved then
 				MinimapCluster:ClearAllPoints()
 				MinimapCluster:SetPoint(DB.point, DB.x, DB.y)
-				MinimapCluster.SetPoint = function()
-				end
 			end
 
 			Minimap_GrabButtons()
