@@ -197,8 +197,8 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 						width = "double",
 						min = 0,
 						max = 30,
-						step = 1,
-						bigStep = 5,
+						step = 0.1,
+						bigStep = 1,
 						get = function()
 							return math_floor(DB.threshold or 5)
 						end,

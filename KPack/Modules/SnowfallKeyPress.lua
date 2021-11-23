@@ -27,6 +27,85 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 	}
 
 	-------------------------------------------------------------------------------
+	-- KeyPress Animations
+	--
+
+	local animate
+	do
+		local animationsCount, animations = 5, {}
+		local frame, texture, animationGroup, alpha1, scale1, scale2, rotation2
+		for i = 1, animationsCount do
+			frame = CreateFrame("Frame")
+
+			-- Create an animation texture
+			texture = frame:CreateTexture()
+			texture:SetTexture([[Interface\Cooldown\star4]])
+			texture:SetAlpha(0)
+			texture:SetAllPoints()
+			texture:SetBlendMode("ADD")
+
+			-- Create an animation group for that texture
+			animationGroup = texture:CreateAnimationGroup()
+
+			-- Start by making the animation texture visible
+			alpha1 = animationGroup:CreateAnimation("Alpha")
+			alpha1:SetChange(1)
+			alpha1:SetDuration(0)
+			alpha1:SetOrder(1)
+
+			-- Start by making the animation texture 1.5x the size of the button
+			scale1 = animationGroup:CreateAnimation("Scale")
+			scale1:SetScale(1.0, 1.0)
+			scale1:SetDuration(0)
+			scale1:SetOrder(1)
+
+			-- Over 0.2 seconds, scale the animation texture down to zero size
+			scale2 = animationGroup:CreateAnimation("Scale")
+			scale2:SetScale(1.5, 1.5)
+			scale2:SetDuration(0.2)
+			scale2:SetOrder(2)
+
+			-- Over 0.2 seconds, rotate the animation texture counter-clockwise by 90 degrees
+			rotation2 = animationGroup:CreateAnimation("Rotation")
+			rotation2:SetDegrees(90)
+			rotation2:SetDuration(0.2)
+			rotation2:SetOrder(2)
+
+			animations[i] = {frame = frame, animationGroup = animationGroup}
+		end
+
+		local animationNum = 1
+		function animate(button)
+			-- Don't animate invisible buttons
+			if (not button:IsVisible()) then
+				return true
+			end
+
+			local animation = animations[animationNum]
+			local frame = animation.frame
+			local animationGroup = animation.animationGroup
+
+			-- Place the animation on top of the button
+			frame:SetFrameStrata(button:GetFrameStrata())
+			frame:SetFrameLevel(button:GetFrameLevel() + 10)
+			frame:SetAllPoints(button)
+
+			-- Play the animation from the beginning
+			animationGroup:Stop()
+			animationGroup:Play()
+
+			-- Cycle to the next animation on the next call
+			animationNum = (animationNum % animationsCount) + 1
+
+			return true
+		end
+	end
+
+	SnowfallKeyPress.animation = SnowfallKeyPress.animation or {}
+	SnowfallKeyPress.animation.handlers = SnowfallKeyPress.animation.handlers or {}
+	SnowfallKeyPress.animation.savedDefaultHandler = animate
+
+	-------------------------------------------------------------------------------
 	-- Globals
 	--
 
@@ -47,29 +126,14 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 
 	local templates = {
 		{command = "^ACTIONBUTTON(%d+)$", attributes = {{"type", "macro"}, {"actionbutton", "%1"}}}, -- Action Buttons
-		{
-			command = "^MULTIACTIONBAR1BUTTON(%d+)$",
-			attributes = {{"type", "click"}, {"clickbutton", "MultiBarBottomLeftButton%1"}}
-		}, -- BottomLeft Action Buttons
-		{
-			command = "^MULTIACTIONBAR2BUTTON(%d+)$",
-			attributes = {{"type", "click"}, {"clickbutton", "MultiBarBottomRightButton%1"}}
-		}, -- BottomRight Action Buttons
-		{
-			command = "^MULTIACTIONBAR3BUTTON(%d+)$",
-			attributes = {{"type", "click"}, {"clickbutton", "MultiBarRightButton%1"}}
-		}, -- Right Action Buttons (rightmost)
-		{
-			command = "^MULTIACTIONBAR4BUTTON(%d+)$",
-			attributes = {{"type", "click"}, {"clickbutton", "MultiBarLeftButton%1"}}
-		}, -- Right ActionBar 2 Buttons (2nd from right)
+		{command = "^MULTIACTIONBAR1BUTTON(%d+)$", attributes = {{"type", "click"}, {"clickbutton", "MultiBarBottomLeftButton%1"}}}, -- BottomLeft Action Buttons
+		{command = "^MULTIACTIONBAR2BUTTON(%d+)$", attributes = {{"type", "click"}, {"clickbutton", "MultiBarBottomRightButton%1"}}}, -- BottomRight Action Buttons
+		{command = "^MULTIACTIONBAR3BUTTON(%d+)$", attributes = {{"type", "click"}, {"clickbutton", "MultiBarRightButton%1"}}}, -- Right Action Buttons (rightmost)
+		{command = "^MULTIACTIONBAR4BUTTON(%d+)$", attributes = {{"type", "click"}, {"clickbutton", "MultiBarLeftButton%1"}}}, -- Right ActionBar 2 Buttons (2nd from right)
 		{command = "^SHAPESHIFTBUTTON(%d+)$", attributes = {{"type", "click"}, {"clickbutton", "ShapeshiftButton%1"}}}, -- Special Action Buttons (shapeshift/stance)
 		{command = "^BONUSACTIONBUTTON(%d+)$", attributes = {{"type", "click"}, {"clickbutton", "PetActionButton%1"}}}, -- Secondary Action Buttons (pet/bonus)
 		{command = "^MULTICASTSUMMONBUTTON(%d+)$", attributes = {{"type", "click"}, {"multicastsummon", "%1"}}}, -- Call of the Elements/Ancestors/Spirits
-		{
-			command = "^MULTICASTRECALLBUTTON1$",
-			attributes = {{"type", "click"}, {"clickbutton", "MultiCastRecallSpellButton"}}
-		}, -- Totemic Recall
+		{command = "^MULTICASTRECALLBUTTON1$", attributes = {{"type", "click"}, {"clickbutton", "MultiCastRecallSpellButton"}}}, -- Totemic Recall
 		{command = "^CLICK (.+):([^:]+)$", attributes = {{"type", "click"}, {"clickbutton", "%1"}}}, -- Clicks
 		{command = "^MACRO (.+)$", attributes = {{"type", "macro"}, {"macro", "%1"}}}, -- Macros
 		{command = "^SPELL (.+)$", attributes = {{"type", "spell"}, {"spell", "%1"}}}, -- Spells
@@ -225,11 +289,17 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 
 	local function addAll(_, key)
 		if
-			key == "UNKNOWN" or key == "LSHIFT" or key == "RSHIFT" or key == "LCTRL" or key == "RCTRL" or key == "LALT" or
-				key == "RALT"
-		 then
+			key == "UNKNOWN" or
+			key == "LSHIFT" or
+			key == "RSHIFT" or
+			key == "LCTRL" or
+			key == "RCTRL" or
+			key == "LALT" or
+			key == "RALT"
+		then
 			return
 		end
+
 		if key == "LeftButton" then
 			key = "BUTTON1"
 		elseif key == "RightButton" then
@@ -250,11 +320,17 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 
 	local function addOne(_, key)
 		if
-			key == "UNKNOWN" or key == "LSHIFT" or key == "RSHIFT" or key == "LCTRL" or key == "RCTRL" or key == "LALT" or
-				key == "RALT"
-		 then
+			key == "UNKNOWN" or
+			key == "LSHIFT" or
+			key == "RSHIFT" or
+			key == "LCTRL" or
+			key == "RCTRL" or
+			key == "LALT" or
+			key == "RALT"
+		then
 			return
 		end
+
 		if key == "LeftButton" then
 			key = "BUTTON1"
 		elseif key == "RightButton" then
@@ -281,11 +357,17 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 
 	local function subAll(_, key)
 		if
-			key == "UNKNOWN" or key == "LSHIFT" or key == "RSHIFT" or key == "LCTRL" or key == "RCTRL" or key == "LALT" or
-				key == "RALT"
-		 then
+			key == "UNKNOWN" or
+			key == "LSHIFT" or
+			key == "RSHIFT" or
+			key == "LCTRL" or
+			key == "RCTRL" or
+			key == "LALT" or
+			key == "RALT"
+		then
 			return
 		end
+
 		if key == "LeftButton" then
 			key = "BUTTON1"
 		elseif key == "RightButton" then
@@ -306,11 +388,17 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 
 	local function subOne(_, key)
 		if
-			key == "UNKNOWN" or key == "LSHIFT" or key == "RSHIFT" or key == "LCTRL" or key == "RCTRL" or key == "LALT" or
-				key == "RALT"
-		 then
+			key == "UNKNOWN" or
+			key == "LSHIFT" or
+			key == "RSHIFT" or
+			key == "LCTRL" or
+			key == "RCTRL" or
+			key == "LALT" or
+			key == "RALT"
+		then
 			return
 		end
+
 		if key == "LeftButton" then
 			key = "BUTTON1"
 		elseif key == "RightButton" then
@@ -405,6 +493,13 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 		updateBindings()
 	end)
 
+	local animationButton = CreateFrame("CheckButton", "SnowfallKeyPress_configFrameAnimationButton", configFrame, "UICheckButtonTemplate")
+	animationButton:SetWidth(22)
+	animationButton:SetHeight(22)
+	animationButton:SetPoint("TOPLEFT", resetDefaultButton, "BOTTOMLEFT", 0, -10)
+	_G["SnowfallKeyPress_configFrameAnimationButtonText"]:SetText(ANIMATION)
+	animationButton:SetScript("OnClick", function(self) DB.animation = (self:GetChecked() == 1) end)
+
 	local enableButton = CreateFrame("CheckButton", "SnowfallKeyPress_configFrameEnableButton", configFrame, "UICheckButtonTemplate")
 	enableButton:SetWidth(22)
 	enableButton:SetHeight(22)
@@ -448,9 +543,7 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 	scrollBar:SetWidth(316)
 	scrollBar:SetHeight(16 * 16)
 	scrollBar:SetPoint("TOPLEFT", 16, -162)
-	scrollBar:SetScript("OnVerticalScroll", function(self, offset)
-		FauxScrollFrame_OnVerticalScroll(self, offset, 16, scrollBarUpdate)
-	end)
+	scrollBar:SetScript("OnVerticalScroll", function(self, offset) FauxScrollFrame_OnVerticalScroll(self, offset, 16, scrollBarUpdate) end)
 	local scrollBarTextureTop = scrollBar:CreateTexture()
 	scrollBarTextureTop:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-ScrollBar")
 	scrollBarTextureTop:SetWidth(31)
@@ -478,15 +571,35 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 	-- overrides and generate bogus messages like:
 	-- "CLICK SnowfallKeyPress_Button_1:LeftButton Function is Now Unbound!"
 
-	hooksecurefunc("ShowUIPanel", function() if KeyBindingFrame then KeyBindingFrame.mode = nil end end)
+	hooksecurefunc("ShowUIPanel", function()
+		if KeyBindingFrame then
+			KeyBindingFrame.mode = nil
+		end
+	end)
 
 	--------------------------------------------------------------------------------
 	-- Helper functions
 
 	local function isSecureButton(x)
-		return not (not (type(x) == "table" and type(x.IsObjectType) == "function" and issecurevariable(x, "IsObjectType") and
-			x:IsObjectType("Button") and
-			select(2, x:IsProtected())))
+		return not (not (type(x) == "table" and type(x.IsObjectType) == "function" and issecurevariable(x, "IsObjectType") and x:IsObjectType("Button") and select(2, x:IsProtected())))
+	end
+
+	local function animateKey(f)
+		if not DB.animation then return end
+
+		local key = f.clickButtonName
+		if not key then return end
+
+		local e = _G[key]
+		if not e then return end
+
+		local t = false
+		for o, n in ipairs(SnowfallKeyPress.animation.handlers) do
+			t = ipairs(f) or t
+		end
+		if not t and SnowfallKeyPress.animation.savedDefaultHandler then
+			SnowfallKeyPress.animation.savedDefaultHandler(e)
+		end
 	end
 
 	-- Accelerate a key, which we must not currently be overriding
@@ -514,10 +627,10 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 						harmType = SecureButton_GetModifiedAttribute(clickButton, "type", harmButton)
 						helpType = SecureButton_GetModifiedAttribute(clickButton, "type", helpButton)
 						if
-							mouseType and not allowedTypeAttributes[mouseType] or
-								harmType and not allowedTypeAttributes[harmType] or
-								helpType and not allowedTypeAttributes[helpType]
-						 then
+							(mouseType and not allowedTypeAttributes[mouseType]) or
+							(harmType and not allowedTypeAttributes[harmType]) or
+							(helpType and not allowedTypeAttributes[helpType])
+						then
 							return
 						end
 					else
@@ -552,36 +665,29 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 						if attributeName == "clickbutton" then
 							-- For "clickbutton" attributes, convert the button name into a button reference
 							bindButton:SetAttribute(attributeName, _G[attributeValue])
+							bindButton.clickButtonName = attributeValue
+							bindButton:SetScript("PostClick", animateKey)
 						elseif attributeName == "actionbutton" then
 							-- For our custom "actionbutton" attribute, we'll make the decision which button (vehicle/bonus/action) to click similar to how Blizzard does it in ActionButton.lua:ActionButtonUp()
 							SecureHandlerWrapScript(bindButton, "OnClick", bindButton, [[
-								local clickMacro = "/click ActionButton]] ..
-									attributeValue ..
-										[[";
-								if (VehicleMenuBar:IsProtected() and VehicleMenuBar:IsShown() and ]] ..
-											tostring(tonumber(attributeValue) <= VEHICLE_MAX_ACTIONBUTTONS) ..
-												[[) then
-									clickMacro = "/click VehicleMenuBarActionButton]] ..
-													attributeValue ..
-														[[";
+								local clickMacro = "/click ActionButton]] .. attributeValue .. [[";
+								if (VehicleMenuBar:IsProtected() and VehicleMenuBar:IsShown() and ]] .. tostring(tonumber(attributeValue) <= VEHICLE_MAX_ACTIONBUTTONS) .. [[) then
+									clickMacro = "/click VehicleMenuBarActionButton]] .. attributeValue .. [[";
 								elseif (BonusActionBarFrame:IsProtected() and BonusActionBarFrame:IsShown()) then
-									clickMacro = "/click BonusActionButton]] ..
-															attributeValue ..
-																[[";
+									clickMacro = "/click BonusActionButton]] .. attributeValue .. [[";
 								end
 								self:SetAttribute("macrotext", clickMacro);
 							]])
+							bindButton:SetScript("PostClick", function(self)
+								bindButton.clickButtonName = strsub(bindButton:GetAttribute("macrotext"), 8)
+								animateKey(bindButton)
+							end)
 						elseif attributeName == "multicastsummon" then
 							-- For our custom "multicastsummon" attribute, before the click, we'll set the button ID based upon the binding
 							SecureHandlerWrapScript(bindButton, "OnClick", bindButton, [[
-									lastID = MultiCastSummonSpellButton:GetID();
-									MultiCastSummonSpellButton:SetID(]] ..
-									attributeValue .. [[);
-								]],
-								[[
-									MultiCastSummonSpellButton:SetID(lastID);
-								]]
-							)
+								lastID = MultiCastSummonSpellButton:GetID();
+								MultiCastSummonSpellButton:SetID(]] .. attributeValue .. [[);
+							]], [[MultiCastSummonSpellButton:SetID(lastID);]])
 							bindButton:SetAttribute("clickbutton", MultiCastSummonSpellButton)
 						else
 							bindButton:SetAttribute(attributeName, attributeValue)
@@ -605,9 +711,7 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 	-- Find all keys. Accelerate them.
 
 	function updateBindings()
-		if InCombatLockdown() then
-			return
-		end
+		if InCombatLockdown() then return end
 		SetupDatabase()
 
 		-- Remove all of our overrides so we can see other overrides
@@ -636,9 +740,7 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 	-- Make sure this key is one we are supposed to accelerate. Remove our override. See what the key is bound to, now. Apply a new override.
 
 	local function setOverrideBindingHook(_, _, overrideKey)
-		if not hook or InCombatLockdown() then
-			return
-		end
+		if not hook or InCombatLockdown() then return end
 
 		local command
 		for _, key in ipairs(keysConfig) do
@@ -676,7 +778,11 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 	function SetupDatabase()
 		if not DB then
 			if type(core.db.SnowfallKeyPress) ~= "table" or not next(core.db.SnowfallKeyPress) then
-				core.db.SnowfallKeyPress = {keys = {}, enable = true}
+				core.db.SnowfallKeyPress = {keys = {}, enable = true, animation = true}
+			end
+			-- fix animation
+			if core.db.SnowfallKeyPress.animation == nil then
+				core.db.SnowfallKeyPress.animation = true
 			end
 			DB = core.db.SnowfallKeyPress
 			keysConfig = DB.keys
@@ -685,6 +791,7 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 
 	core:RegisterForEvent("PLAYER_LOGIN", function()
 		SetupDatabase()
+		animationButton:SetChecked(DB.animation)
 		enableButton:SetChecked(DB.enable)
 
 		if #keysConfig == 0 then
