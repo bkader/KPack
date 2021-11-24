@@ -28,6 +28,7 @@ KPack:AddModule("xCT", function(_, core, L)
 	local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax
 	local UnitPowerType = UnitPowerType
 	local UnitPower, UnitPowerMax = UnitPower, UnitPowerMax
+	local gflags = nil
 
 	-- xCT internal color Printer for debug and such
 	local pr = function(msg)
@@ -975,7 +976,7 @@ KPack:AddModule("xCT", function(_, core, L)
 				end
 			end
 		elseif event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITING_VEHICLE" then
-			if arg1 == "player" then
+			if ... == "player" then
 				SetUnit()
 			end
 		elseif event == "PLAYER_ENTERING_WORLD" then
@@ -1551,8 +1552,9 @@ KPack:AddModule("xCT", function(_, core, L)
 
 	-- damage
 	if (ct.damageout) then
-		local gflags =
-			bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
+		if gflags == nil then
+			gflags = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
+		end
 
 		local xCTd = CreateFrame("Frame")
 		if ct.damagecolor then
@@ -1774,6 +1776,10 @@ KPack:AddModule("xCT", function(_, core, L)
 
 	-- healing
 	if (ct.healingout) then
+		if gflags == nil then
+			gflags = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
+		end
+
 		local xCTh = CreateFrame("Frame")
 		if ct.icons then
 			ct.blank = "Interface\\Addons\\KPack\\Media\\Textures\\blank"

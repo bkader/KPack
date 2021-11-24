@@ -34,41 +34,28 @@ core.mycolor = core.classcolors[core.class]
 
 do
 	local TickerPrototype = {}
-	local TickerMetatable = {
-		__index = TickerPrototype,
-		__metatable = true
-	}
+	local TickerMetatable = {__index = TickerPrototype}
 
 	local WaitTable = {}
 
 	local new, del
 	do
-		core.__timers = core.__timers or {}
-		core.__afters = core.__afters or {}
-		local listT = core.__timers
-		local listA = core.__afters
+		local list = {cache = {}, trash = {}}
+		setmetatable(list.trash, {__mode = "v"})
 
-		function new(temp)
-			if temp then
-				local t = next(listA) or {}
-				listA[t] = nil
-				return t
-			end
-
-			local t = next(listT) or setmetatable({}, TickerMetatable)
-			listT[t] = nil
-			return t
+		function new()
+			return tremove(list.cache) or tremove(list.trash) or {}
 		end
 
 		function del(t)
 			if t then
-				local temp = t._temp
-				t[true] = true
-				t[true] = nil
-				if temp then
-					listA[t] = true
-				else
-					listT[t] = true
+				setmetatable(t, nil)
+				for k, v in pairs(t) do
+					t[k] = nil
+				end
+				tinsert(list.cache, 1, t)
+				while #list.cache > 10 do
+					tinsert(list.trash, 1, tremove(list.cache))
 				end
 			end
 		end
@@ -90,14 +77,14 @@ do
 			else
 				ticker._callback(ticker)
 
-				if ticker._remainingIterations == -1 then
+				if ticker._iterations == -1 then
 					ticker._delay = ticker._duration
 					i = i + 1
-				elseif ticker._remainingIterations > 1 then
-					ticker._remainingIterations = ticker._remainingIterations - 1
+				elseif ticker._iterations > 1 then
+					ticker._iterations = ticker._iterations - 1
 					ticker._delay = ticker._duration
 					i = i + 1
-				elseif ticker._remainingIterations == 1 then
+				elseif ticker._iterations == 1 then
 					del(tremove(WaitTable, i))
 					total = total - 1
 				end
@@ -135,25 +122,23 @@ do
 	local function After(duration, callback, ...)
 		ValidateArguments(duration, callback, "After")
 
-		local ticker = new(true)
+		local ticker = new()
 
-		ticker._remainingIterations = 1
+		ticker._iterations = 1
 		ticker._delay = max(0.01, duration)
 		ticker._callback = callback
-		ticker._cancelled = nil
-		ticker._temp = true
 
 		AddDelayedCall(ticker)
 	end
 
 	local function CreateTicker(duration, callback, iterations, ...)
 		local ticker = new()
+		setmetatable(ticker, TickerMetatable)
 
-		ticker._remainingIterations = iterations or -1
+		ticker._iterations = iterations or -1
 		ticker._delay = max(0.01, duration)
 		ticker._duration = ticker._delay
 		ticker._callback = callback
-		ticker._cancelled = nil
 
 		AddDelayedCall(ticker)
 		return ticker

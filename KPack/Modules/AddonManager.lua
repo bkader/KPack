@@ -16,6 +16,13 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 	local AddonList
 	local menuWasShown
 
+	-- buttons & frames
+	local CloseButton
+	local EnableAllButton
+	local ReloadButton
+	local DisableAllButton
+	local ScrollFrame, ScrollBar
+
 	local function CreateAddonsList()
 		if AddonList then return end
 		AddonList = CreateFrame("Frame", "AddonList", UIParent)
@@ -31,7 +38,7 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 		AddonList:SetFrameStrata("DIALOG")
 		tinsert(UISpecialFrames, "Addons")
 
-		local CloseButton = CreateFrame("Button", "AddonListCloseButton", AddonList, "UIPanelCloseButton")
+		CloseButton = CloseButton or CreateFrame("Button", "AddonListCloseButton", AddonList, "UIPanelCloseButton")
 		CloseButton:SetSize(30, 30)
 		CloseButton:SetPoint("TOPRIGHT", AddonList, "TOPRIGHT", 5, -4)
 		CloseButton:SetScript("OnClick", function() AddonList:Hide() end)
@@ -81,7 +88,8 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 		info:SetPoint("TOPLEFT", 26, -30)
 		info:SetPoint("RIGHT", -22, -30)
 
-		local ScrollFrame = CreateFrame("ScrollFrame", "AddonListScrollFrame", AddonList, "UIPanelScrollFrameTemplate")
+		ScrollFrame = ScrollFrame or CreateFrame("ScrollFrame", "AddonListScrollFrame", AddonList, "UIPanelScrollFrameTemplate")
+		ScrollBar = _G["AddonListScrollFrameScrollBar"]
 		local MainAddonFrame = CreateFrame("Frame", "AddonListFrame", ScrollFrame)
 
 		ScrollFrame:SetPoint("TOPLEFT", AddonList, "TOPLEFT", 5, -58)
@@ -195,13 +203,13 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 		end)
 		AddonList:Hide()
 
-		local ReloadButton = CreateFrame("Button", "AddonListReloadButton", AddonList, "KPackButtonTemplate")
+		ReloadButton = ReloadButton or CreateFrame("Button", "AddonListReloadButton", AddonList, "KPackButtonTemplate")
 		ReloadButton:SetSize(105, 21)
 		ReloadButton:SetPoint("BOTTOM", AddonList, "BOTTOM", 0, 21)
 		ReloadButton:SetText(L["Reload UI"])
 		ReloadButton:SetScript("OnClick", function() ReloadUI() end)
 
-		local EnableAllButton = CreateFrame("Button", "AddonListEnableAllButton", AddonList, "KPackButtonTemplate")
+		EnableAllButton = EnableAllButton or CreateFrame("Button", "AddonListEnableAllButton", AddonList, "KPackButtonTemplate")
 		EnableAllButton:SetSize(105, 21)
 		EnableAllButton:SetPoint("BOTTOMLEFT", AddonList, "BOTTOMLEFT", 7, 21)
 		EnableAllButton:SetText(L["Enable All"])
@@ -210,7 +218,7 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 			UpdateAddonList()
 		end)
 
-		local DisableAllButton = CreateFrame("Button", "AddonListDisableAllButton", AddonList, "KPackButtonTemplate")
+		DisableAllButton = DisableAllButton or CreateFrame("Button", "AddonListDisableAllButton", AddonList, "KPackButtonTemplate")
 		DisableAllButton:SetSize(105, 21)
 		DisableAllButton:SetPoint("BOTTOMRIGHT", AddonList, "BOTTOMRIGHT", -6, 21)
 		DisableAllButton:SetText(L["Disable All"])
@@ -254,9 +262,9 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 		local offset = 26
 		if _G.GameMenuButtonMoveAnything then
 			offset = offset + 26
-			GameMenuButtonMoveAnything:ClearAllPoints()
-			GameMenuButtonMoveAnything:SetPoint("TOP", AddonListButton, "BOTTOM", 0, -1)
-			GameMenuButtonLogout:SetPoint("TOP", GameMenuButtonMoveAnything, "BOTTOM", 0, -16)
+			_G.GameMenuButtonMoveAnything:ClearAllPoints()
+			_G.GameMenuButtonMoveAnything:SetPoint("TOP", AddonListButton, "BOTTOM", 0, -1)
+			GameMenuButtonLogout:SetPoint("TOP", _G.GameMenuButtonMoveAnything, "BOTTOM", 0, -16)
 		else
 			GameMenuButtonLogout:SetPoint("TOP", AddonListButton, "BOTTOM", 0, -16)
 		end
@@ -282,17 +290,17 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 					AddonList:StripTextures()
 					AddonList:SetTemplate("Transparent")
 
-					S:HandleCloseButton(AddonListCloseButton, AddonList)
-					S:HandleButton(AddonListEnableAllButton)
-					S:HandleButton(AddonListReloadButton)
-					S:HandleButton(AddonListDisableAllButton)
+					S:HandleCloseButton(CloseButton, AddonList)
+					S:HandleButton(EnableAllButton)
+					S:HandleButton(ReloadButton)
+					S:HandleButton(DisableAllButton)
 
-					AddonListScrollFrame:StripTextures()
-					AddonListScrollFrame:SetTemplate("Transparent")
+					ScrollFrame:StripTextures()
+					ScrollFrame:SetTemplate("Transparent")
 
-					S:HandleScrollBar(AddonListScrollFrameScrollBar)
-					AddonListScrollFrameScrollBar:Point("TOPLEFT", AddonListScrollFrame, "TOPRIGHT", 3, -19)
-					AddonListScrollFrameScrollBar:Point("BOTTOMLEFT", AddonListScrollFrame, "BOTTOMRIGHT", 3, 19)
+					S:HandleScrollBar(ScrollBar)
+					ScrollBar:Point("TOPLEFT", ScrollFrame, "TOPRIGHT", 3, -19)
+					ScrollBar:Point("BOTTOMLEFT", ScrollFrame, "BOTTOMRIGHT", 3, 19)
 
 					AddonList.isSkinned = true
 				end

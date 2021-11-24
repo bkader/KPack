@@ -27,8 +27,11 @@ ignore = {
 	"113/LE_.*", -- Accessing an undefined (Lua ENUM type) global variable
 	"113/NUM_LE_.*", -- Accessing an undefined (Lua ENUM type) global variable
 	"113/KPack.*", -- Accessing an undefined (KPack) global variable
+	"113/xCT.*", -- Accessing an undefined (xCT) global variable
 	"111/[A-Z][A-Z0-9_]+",	-- Setting an undefined global variable
 	"113/[A-Z][A-Z0-9_]+",	-- Accessing an undefined global variable (GlobalStrings and Constants 2char+)
+	"131/SLASH.*", -- unused global variable starting with SLASH
+	"131/BINDING.*", -- unused global variable starting with BINDING
 	"211", -- Unused local variable
 	"211/L", -- Unused local variable "L"
 	"211/CL", -- Unused local variable "CL"
@@ -46,6 +49,7 @@ globals = {
 	"bit",
 	"KPack",
 	"MovAny",
+	"Blizzard_CombatText_AddMessage",
 
 	-- MoveAnything
 	"numfor",
