@@ -445,7 +445,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 
 	function UFI:UnitColor(unit)
 		local r, g, b
-		if not UnitIsPlayer(unit) and not UnitIsConnected(unit) or UnitIsDeadOrGhost(unit) then
+		if not UnitIsPlayer(unit) and (not UnitIsConnected(unit) or UnitIsDeadOrGhost(unit)) then
 			r, g, b = 0.5, 0.5, 0.5
 		elseif UnitIsPlayer(unit) then
 			local class = select(2, UnitClass(unit))
