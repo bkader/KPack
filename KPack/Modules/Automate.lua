@@ -29,6 +29,7 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
 
 	local chatFrame = DEFAULT_CHAT_FRAME
 
+	local GetSpellInfo = GetSpellInfo
 	local GetNumEquipmentSets = GetNumEquipmentSets
 	local GetEquipmentSetInfo = GetEquipmentSetInfo
 	local EquipmentManager_EquipSet = EquipmentManager_EquipSet
@@ -566,7 +567,7 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
 			if not flying or flying == "" then
 				flying = ground
 			end
-			if not ground or ground == "" then
+			if (not ground or ground == "") and (not flying or flying == "") then
 				return
 			end
 
@@ -581,27 +582,27 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
 				return
 			end
 
-			local flyablex, nofly
+			local flyable, nofly
 
 			if IsUsableSpell(59569) ~= true then
 				nofly = true
 			end
 
-			flyablex = IsFlyableArea()
+			flyable = IsFlyableArea()
 			if not nofly and IsFlyableArea() then
-				flyablex = true
+				flyable = true
 			end
 
 			if IsControlKeyDown() then
-				flyablex = not flyablex
+				flyable = not flyable
 			end
 
 			for i = 1, num, 1 do
 				local _, info = GetCompanionInfo("MOUNT", i)
-				if flying and info == flying and flyablex then
+				if flying and info == flying and flyable then
 					CallCompanion("MOUNT", i)
 					return
-				elseif ground and info == ground and not flyablex then
+				elseif ground and info == ground and not flyable then
 					CallCompanion("MOUNT", i)
 					return
 				end

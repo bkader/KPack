@@ -286,8 +286,7 @@ KPack:AddModule("QuickButton", function(folder, core, L)
 			-- creates the class button
 			function QuickButton_CreateButton()
 				if not button then
-					button =
-						CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate, ActionButtonTemplate")
+					button = CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate, ActionButtonTemplate")
 					button:SetPoint(DB.point or "CENTER", DB.xOfs or 0, DB.yOfs or 0)
 					button:SetFrameStrata("HIGH")
 					button.texture = _G[btnName .. "Icon"]
