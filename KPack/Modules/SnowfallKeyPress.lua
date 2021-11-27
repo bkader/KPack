@@ -41,7 +41,7 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 			texture = frame:CreateTexture()
 			texture:SetTexture([[Interface\Cooldown\star4]])
 			texture:SetAlpha(0)
-			texture:SetAllPoints()
+			texture:SetAllPoints(frame)
 			texture:SetBlendMode("ADD")
 
 			-- Create an animation group for that texture
@@ -55,20 +55,20 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 
 			-- Start by making the animation texture 1.5x the size of the button
 			scale1 = animationGroup:CreateAnimation("Scale")
-			scale1:SetScale(1.0, 1.0)
+			scale1:SetScale(1.5, 1.5)
 			scale1:SetDuration(0)
 			scale1:SetOrder(1)
 
 			-- Over 0.2 seconds, scale the animation texture down to zero size
 			scale2 = animationGroup:CreateAnimation("Scale")
-			scale2:SetScale(1.5, 1.5)
-			scale2:SetDuration(0.2)
+			scale2:SetScale(0, 0)
+			scale2:SetDuration(0.3)
 			scale2:SetOrder(2)
 
-			-- Over 0.2 seconds, rotate the animation texture counter-clockwise by 90 degrees
+			-- Over 0.3 seconds, rotate the animation texture counter-clockwise by 90 degrees
 			rotation2 = animationGroup:CreateAnimation("Rotation")
 			rotation2:SetDegrees(90)
-			rotation2:SetDuration(0.2)
+			rotation2:SetDuration(0.3)
 			rotation2:SetOrder(2)
 
 			animations[i] = {frame = frame, animationGroup = animationGroup}
@@ -88,7 +88,8 @@ KPack:AddModule("SnowfallKeyPress", function(_, core, L)
 			-- Place the animation on top of the button
 			frame:SetFrameStrata(button:GetFrameStrata())
 			frame:SetFrameLevel(button:GetFrameLevel() + 10)
-			frame:SetAllPoints(button)
+			frame:SetPoint("TOPLEFT", button, "TOPLEFT", -3, 3)
+			frame:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 3, -3)
 
 			-- Play the animation from the beginning
 			animationGroup:Stop()
