@@ -645,7 +645,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 			end
 
 			if RaidBrowser.timer then
-				RaidBrowser.timer:Cancel()
+				core.CancelTimer(RaidBrowser.timer, true)
 			end
 		end)
 	end
