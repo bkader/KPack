@@ -831,6 +831,5 @@ L["Whether to revert to previous track."] = true
 -- Items Borders Colors
 L["Borders Colors"] = true
 L["This module adds colorized border items."] = true
-L["Bank"] = true
-L["Quest"] = true
-L["intensity"] = true
+L.Quest = true
+L.Intensity = true

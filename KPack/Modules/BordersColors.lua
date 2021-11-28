@@ -83,7 +83,7 @@ KPack:AddModule("Borders Colors", "This module adds colorized border items.", fu
 					},
 					intensity = {
 						type = "range",
-						name = L["intensity"],
+						name = L["Intensity"],
 						min = 0,
 						max = 1,
 						step = 0.01,
