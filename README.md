@@ -1,6 +1,6 @@
-# KPack - Lots-In-One AddOn Collection! (65)
+# KPack - Lots-In-One AddOn Collection! (66)
 
-Currently, this pack contains 65 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 66 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -328,3 +328,14 @@ Some WoW addons call the lua collectgarbage function irresponsibly, causing all 
 ## 65. Auto Track
 
 AutoTrack is a module that automatically changes the tracking method depending on the creature type of your current target. It is a module for all hunters who spec'd into Improved Tracking.
+
+## 66. Borders Colors
+
+This is a clone of [Colored Inventory Items](https://www.curseforge.com/wow/addons/colored-inventory-items) from Retail-Classic and adds colorized border items for:
+
+* Character frame.
+* Inspect frame.
+* Bags items.
+* Bank items.
+* Vendor frame.
+* Trade Skills frame.

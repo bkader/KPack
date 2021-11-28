@@ -828,3 +828,9 @@ L["UpdateAddOnMemoryUsage is a waste of CPU time and some addons call it periodi
 L["Auto Track"] = true
 L["Revert"] = true
 L["Whether to revert to previous track."] = true
+-- Items Borders Colors
+L["Borders Colors"] = true
+L["This module adds colorized border items."] = true
+L["Bank"] = true
+L["Quest"] = true
+L["intensity"] = true

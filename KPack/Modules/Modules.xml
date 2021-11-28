@@ -13,6 +13,7 @@
 <Script file="Automate.lua" />
 <Script file="AutoTrack.lua" />
 <Script file="Binder.lua" />
+<Script file="BordersColors.lua" />
 <Script file="Bubblicious.lua" />
 <Script file="BuffFrame.lua" />
 <Script file="Castbars.lua" />

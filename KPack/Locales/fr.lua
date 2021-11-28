@@ -755,3 +755,9 @@ L["UpdateAddOnMemoryUsage is a waste of CPU time and some addons call it periodi
 L["Auto Track"] = "Pistage auto."
 L["Revert"] = "Retour"
 L["Whether to revert to previous track."] = "Activez si vous voulez revenir au mode de pistage précédent."
+-- Items Borders Colors
+L["Borders Colors"] = "Couleurs de bordures"
+L["This module adds colorized border items."] = "Ce module ajoute des bordures colorisés en fonction des qualités des items."
+L["Bank"] = "Banque"
+L["Quest"] = "Quête"
+L["intensity"] = "intensité"

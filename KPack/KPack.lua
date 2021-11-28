@@ -44,7 +44,7 @@ do
 		setmetatable(list.trash, {__mode = "v"})
 
 		function new()
-			return tremove(list.cache) or tremove(list.trash) or {}
+			return tremove(list.cache) or {}
 		end
 
 		function del(t)
@@ -54,7 +54,7 @@ do
 					t[k] = nil
 				end
 				tinsert(list.cache, 1, t)
-				while #list.cache > 10 do
+				while #list.cache > 20 do
 					tinsert(list.trash, 1, tremove(list.cache))
 				end
 			end
@@ -154,9 +154,11 @@ do
 		return CreateTicker(duration, callback, 1, ...)
 	end
 
-	local function CancelTimer(ticker)
+	local function CancelTimer(ticker, silent)
 		if ticker and ticker.Cancel then
 			ticker:Cancel()
+		elseif not silent then
+			error("KPack.CancelTimer(timer[, silent]): '"..tostring(ticker).."' - no such timer registered")
 		end
 		return nil
 	end
