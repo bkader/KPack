@@ -10,7 +10,7 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 	local math_min = math.min
 	local GetTime = GetTime
 
-	local HookCooldows, changed
+	local HookCooldows, IsBlacklisted, changed
 	local options, GetOptions
 	local DB, SetupDatabase
 	local defaults = {
@@ -27,7 +27,8 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 			mins = {1, 1, 1, 1}, -- >= 1 minute
 			hrs = {0.7, 0.7, 0.7, 1}, -- >= 1 hr
 			days = {0.7, 0.7, 0.7, 1} -- >= 1 day
-		}
+		},
+		blacklist = {}
 	}
 
 	local function Cooldowns_FormattedText(s)
@@ -108,6 +109,9 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 		if not DB then
 			if type(core.db.OmniCC) ~= "table" then
 				core.db.OmniCC = CopyTable(defaults)
+			end
+			if core.db.OmniCC.blacklist == nil then
+				core.db.OmniCC.blacklist = {}
 			end
 			DB = core.db.OmniCC
 		end
@@ -285,6 +289,40 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 								order = 5
 							}
 						}
+					},
+					blacklist = {
+						type = "group",
+						name = L.filtering,
+						inline = true,
+						disabled = disabled,
+						order = 8,
+						get = function()
+							local list = {}
+							for k, _ in pairs(DB.blacklist) do
+								tinsert(list, k)
+							end
+							return table.concat(list, "\n")
+						end,
+						set = function(_, val)
+							val = val:trim()
+							local lines = {}
+							for s in val:gmatch("[^\r\n]+") do
+								if s:trim() ~= "" then
+									lines[s:trim()] = true
+								end
+							end
+							DB.blacklist = lines
+						end,
+						args = {
+							list = {
+								type = "input",
+								name = L["Filtered Frames"],
+								desc = L["Enter the names of frames you don't want cooldown texts to be shown on.\nOne name per line."],
+								multiline = true,
+								width = "double",
+								order = 1
+							}
+						}
 					}
 				}
 			}
@@ -302,10 +340,36 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 		end
 	end
 
+	do
+		local blacklistCache = setmetatable({}, {__index = function(t, frame)
+			if frame.noCooldownCount then
+				return true
+			end
+
+			local fname = frame:GetName()
+			local blacklisted = false
+			if fname and DB.blacklist then
+				for k in pairs(DB.blacklist) do
+					if fname:match(k) then
+						blacklisted = true
+						break
+					end
+				end
+			end
+			t[frame] = blacklisted
+			return blacklisted
+		end})
+
+		function IsBlacklisted(frame)
+			return (blacklistCache[frame] or frame.noCooldownCount)
+		end
+	end
+
 	function mod:SetCooldown(frame, start, duration)
-		if frame.noCooldownCount or not frame then
+		if not frame or IsBlacklisted(frame) then
 			return
 		end
+
 		if start > 0 and duration > (DB.minDuration or 3) then
 			Cooldowns_StartTimer(frame, start, duration)
 		else

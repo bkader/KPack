@@ -350,6 +350,9 @@ L["Seconds"] = true
 L["Minutes"] = true
 L["Hours"] = true
 L["Days"] = true
+L["Filtering"] = true
+L["Filtered Frames"] = true
+L["Enter the names of frames you don't want cooldown texts to be shown on.\nOne name per line."] = true
 -- Death Recap
 L["Death Recap"] = true
 L["Death Recap unavailable."] = true
