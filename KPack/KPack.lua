@@ -593,7 +593,6 @@ function core:AddOnHasModule(name, modname)
 		-- using AceAddon
 		if _G[name].GetModule then
 			local mod = _G[name]:GetModule(modname, true)
-			-- print("here", modname, mod:IsEnabled())
 			return (mod and mod:IsEnabled())
 		end
 		-- using custom

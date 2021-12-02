@@ -241,7 +241,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 				min = 0.5,
 				max = 3,
 				step = 0.01,
-				bigStep = 0.1
+				bigStep = 0.05
 			},
 			hotkeys = {
 				type = "range",
