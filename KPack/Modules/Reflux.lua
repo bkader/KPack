@@ -158,8 +158,8 @@ KPack:AddModule("Reflux", "A small lightweight profile manager.", function(_, co
 		end
 
 		-- Rock copy profile
-		if Rock and Rock:HasLibrary("LibRockDB-1.0") then
-			local RockDB = Rock:GetLibrary("LibRockDB-1.0", false, false)
+		if _G.Rock and _G.Rock:HasLibrary("LibRockDB-1.0") then
+			local RockDB = _G.Rock:GetLibrary("LibRockDB-1.0", false, false)
 			if RockDB and RockDB.data then
 				for db in pairs(RockDB.data) do
 					local currentProfile = db:GetProfile()
@@ -247,8 +247,8 @@ KPack:AddModule("Reflux", "A small lightweight profile manager.", function(_, co
 			end
 		end
 		-- Rock delete profile
-		if Rock and Rock:HasLibrary("LibRockDB-1.0") then
-			local RockDB = Rock:GetLibrary("LibRockDB-1.0", false, false)
+		if _G.Rock and _G.Rock:HasLibrary("LibRockDB-1.0") then
+			local RockDB = _G.Rock:GetLibrary("LibRockDB-1.0", false, false)
 			if RockDB and RockDB.data then
 				for db in pairs(RockDB.data) do
 					db:RemoveProfile(profile)

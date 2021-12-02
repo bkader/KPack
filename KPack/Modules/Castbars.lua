@@ -1129,13 +1129,13 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 
 		-- Create target casting bar
 		CreateFrame("StatusBar", "TargetCastingBarFrame", UIParent, "CastingBarFrameTemplate")
-		TargetCastingBarFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-		CastingBarFrame_OnLoad(TargetCastingBarFrame, "target", false, true)
+		_G.TargetCastingBarFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+		CastingBarFrame_OnLoad(_G.TargetCastingBarFrame, "target", false, true)
 
 		-- Create focus casting bar
 		CreateFrame("StatusBar", "FocusCastingBarFrame", UIParent, "CastingBarFrameTemplate")
-		FocusCastingBarFrame:RegisterEvent("PLAYER_FOCUS_CHANGED")
-		CastingBarFrame_OnLoad(FocusCastingBarFrame, "focus", false, true)
+		_G.FocusCastingBarFrame:RegisterEvent("PLAYER_FOCUS_CHANGED")
+		CastingBarFrame_OnLoad(_G.FocusCastingBarFrame, "focus", false, true)
 
 		-- Register additional events on CastingBarFrame
 		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
@@ -1143,7 +1143,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 		CastingBarFrame:RegisterEvent("UPDATE_TRADESKILL_RECAST")
 
 		-- Setup table with all frames
-		Castbars.frames = {CastingBarFrame, PetCastingBarFrame, TargetCastingBarFrame, FocusCastingBarFrame, MirrorTimer1, MirrorTimer2, MirrorTimer3}
+		Castbars.frames = {CastingBarFrame, PetCastingBarFrame, _G.TargetCastingBarFrame, _G.FocusCastingBarFrame, MirrorTimer1, MirrorTimer2, MirrorTimer3}
 
 		-- Customize the bars
 		Castbars_FrameCustomizeAll()
@@ -1309,14 +1309,14 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 		-- Replace the OnEvent handler
 		CastingBarFrame:SetScript("OnEvent", Castbars.CastingBarFrame_OnEvent)
 		PetCastingBarFrame:SetScript("OnEvent", Castbars.CastingBarFrame_OnEvent)
-		TargetCastingBarFrame:SetScript("OnEvent", Castbars.CastingBarFrame_OnEvent)
-		FocusCastingBarFrame:SetScript("OnEvent", Castbars.CastingBarFrame_OnEvent)
+		_G.TargetCastingBarFrame:SetScript("OnEvent", Castbars.CastingBarFrame_OnEvent)
+		_G.FocusCastingBarFrame:SetScript("OnEvent", Castbars.CastingBarFrame_OnEvent)
 
 		-- Replace the OnUpdate handler
 		CastingBarFrame:SetScript("OnUpdate", Castbars.CastingBarFrame_OnUpdate)
 		PetCastingBarFrame:SetScript("OnUpdate", Castbars.CastingBarFrame_OnUpdate)
-		TargetCastingBarFrame:SetScript("OnUpdate", Castbars.CastingBarFrame_OnUpdate)
-		FocusCastingBarFrame:SetScript("OnUpdate", Castbars.CastingBarFrame_OnUpdate)
+		_G.TargetCastingBarFrame:SetScript("OnUpdate", Castbars.CastingBarFrame_OnUpdate)
+		_G.FocusCastingBarFrame:SetScript("OnUpdate", Castbars.CastingBarFrame_OnUpdate)
 
 		Castbars.GetOptionsTableForBar = nil
 		Castbars.GetOptionsTable = nil

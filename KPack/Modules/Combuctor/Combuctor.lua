@@ -28,6 +28,7 @@ KPack:AddModule("Combuctor", function(_, core, L)
 	L.Weapon, L.Armor, L.Container, L.Consumable, L.Glyph, L.TradeGood, _, _, L.Recipe, L.Gem, L.Misc, L.Quest = GetAuctionItemClasses()
 	L.Devices, L.Explosives = select(10, GetAuctionItemSubClasses(6))
 	L.SimpleGem = select(8, GetAuctionItemSubClasses(7))
+	local currentRealm = GetRealmName()
 
 	local AutoShowInventory, AutoHideInventory
 
@@ -172,7 +173,7 @@ KPack:AddModule("Combuctor", function(_, core, L)
 			mod:Hide(BACKPACK_CONTAINER, true)
 		end
 
-		OpenBackpack = AutoShowInventory
+		_G.OpenBackpack = AutoShowInventory
 		hooksecurefunc("CloseBackpack", AutoHideInventory)
 
 		_G.ToggleBank = function(bag)
@@ -225,8 +226,8 @@ KPack:AddModule("Combuctor", function(_, core, L)
 		local GetItemInfo, GetItemIcon = GetItemInfo, GetItemIcon
 
 		local function SetupBagnonDB()
-			if not BagnonDB and BagSync then
-				BagnonDB = {}
+			if not _G.BagnonDB and _G.BagSync then
+				_G.BagnonDB = {}
 			else
 				return
 			end

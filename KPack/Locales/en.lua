@@ -594,6 +594,8 @@ L["Combat logging is currently %s."] = true
 L["Combat logging is now %s."] = true
 L["Change Specilization"] = true
 -- TellMeWhen
+L["Use Desaturation"] = true
+L["Icons will be desaturated instead of being colored."] = true
 L["Resize"] = true
 L["Click and drag to change size."] = true
 L["Choose spell/item/buff/etc."] = true
@@ -836,3 +838,11 @@ L["Borders Colors"] = true
 L["This module adds colorized border items."] = true
 L.Quest = true
 L.Intensity = true
+-- Virtual Plates
+L["Virtual Plates"] = true
+L["Scale Factor"] = true
+L["Nameplates this far from the camera will be normal sized."] = true
+L["Nameplate Scale Limits"] = true
+L["Limits how small nameplates can shrink, from 0 meaning no limit, to 1 meaning they won't shrink smaller than their default size."] = true
+L["Maximum Scale"] = true
+L["Prevents nameplates from growing too large when they're near the screen.\nSet to -1 to disable."] = true

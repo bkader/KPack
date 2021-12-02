@@ -75,21 +75,33 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 	local DB, SetupDatabase, _
 	local defaults = {
 		Locked = false,
+		Desaturate = false,
 		Groups = {}
 	}
 
 	local TellMeWhen_BuffEquivalencies = {
-		Bleeding = "Pounce Bleed;Rake;Rip;Lacerate;Rupture;Garrote;Savage Rend;Rend;Deep Wound",
-		DontMelee = "Berserk;Evasion;Shield Wall;Retaliation;Dispersion;Hand of Sacrifice;Hand of Protection;Divine Shield;Divine Protection;Ice Block;Icebound Fortitude;Cyclone;Banish",
-		FaerieFires = "Faerie Fire;Faerie Fire (Feral)",
-		ImmuneToMagicCC = "Divine Shield;Ice Block;The Beast Within;Beastial Wrath;Cyclone;Banish",
-		ImmuneToStun = "Divine Shield;Ice Block;The Beast Within;Beastial Wrath;Icebound Fortitude;Hand of Protection;Cyclone;Banish",
-		Incapacitated = "Gouge;Maim;Repentance;Reckless Charge;Hungering Cold",
-		MeleeSlowed = "Rocket Burst;Infected Wounds;Judgements of the Just;Earth Shock;Thunder Clap;Icy Touch",
-		MovementSlowed = "Incapacitating Shout;Chains of Ice;Icy Clutch;Slow;Daze;Hamstring;Piercing Howl;Wing Clip;Frost Trap Aura;Frostbolt;Cone of Cold;Blast Wave;Mind Flay;Crippling Poison;Deadly Throw;Frost Shock;Earthbind;Curse of Exhaustion",
-		Stunned = "Reckless Charge;Bash;Maim;Pounce;Starfire Stun;Intimidation;Impact;Hammer of Justice;Stun;Blackout;Kidney Shot;Cheap Shot;Shadowfury;Intercept;Charge Stun;Concussion Blow;War Stomp",
-		StunnedOrIncapacitated = "Gouge;Maim;Repentance;Reckless Charge;Hungering Cold;Bash;Pounce;Starfire Stun;Intimidation;Impact;Hammer of Justice;Stun;Blackout;Kidney Shot;Cheap Shot;Shadowfury;Intercept;Charge Stun;Concussion Blow;War Stomp",
-		VulnerableToBleed = "Mangle (Cat);Mangle (Bear);Trauma",
+		-- Pounce Bleed, Rake, Rip, Lacerate, Rupture, Garrot, Savage Rend, Rend, Deep Wounds
+		Bleeding = "9007;9824;9826;27007;49804;1822;1823;1824;9904;27003;48573;48574;1079;9492;9493;9752;9894;9896;27008;49799;49800;33745;48567;48568;1943;8639;8640;11273;11274;11275;26867;48671;48672;703;8631;8632;8633;11289;11290;26839;26884;48675;48676;50498;53578;53579;53580;53581;53582;772;6546;6547;6548;11572;11573;11574;25208;46845;47465;12834;12849;12867",
+		-- Berserk, Evasion, Shield Wall, Retaliation, Dispersion, Hand of Sacrifice, Hand of Protection, Divine Shield, Divine Protection, Ice Block, Icebound Fortitude, Cyclone, Banish
+		DontMelee = "50334;5277;26669;871;20230;47585;6940;1022;5599;10278;642;498;45438;48792;33786;710;18647",
+		-- Faerie Fire and Faerie Fire (Feral)
+		FaerieFires = "770;16857",
+		-- Divine Shield, Ice Block, The Beast Within, Beastial Wrath, Cyclone, Banish
+		ImmuneToMagicCC = "642;45438;34471;19574;33786;710;18647",
+		-- Divine Shield, Ice Block, The Beast Within, Beastial Wrath, Icebound Fortitude, Hand of Protection, Cyclone, Banish
+		ImmuneToStun = "642;45438;34471;33786;48792;1022;5599;10278;33786;710;18647",
+		-- Gouge, Maim, Repentance, Reckless Charge, Hungering Cold
+		Incapacitated = "1776;1777;8629;11285;11286;38764;22570;49802;20066;13327;51209",
+		-- Rocket Burst, Infected Wounds, Judgements of the Just, Earth Shock, Thunder Clap, Icy Touch
+		MeleeSlowed = "69192;58179;58180;58181;68055;8042;8044;8045;8046;10412;10413;10414;25454;49230;49231;6343;8198;8204;8205;11580;11581;25264;47501;47502;45477;49896;49903;49904;49909",
+		-- Incapacitating Shout, Chains of Ice, Icy Clutch, Slow, Daze, Hamstring, Piercing Howl, Wing Clip, Frost Trap Aura;Frostbolt, Cone of Cold, Blast Wave, Mind Flay, Crippling Poison, Deadly Throw, Frost Shock, Earthbind, Curse of Exhaustion
+		MovementSlowed = "18328;61578;45524;50434;50435;50436;31589;38767;1715;52744;2974;13810;116;205;837;7322;8406;8407;8408;10179;10180;10181;25304;27071;27072;38697;42841;42842;120;8492;10159;10160;10161;42930;42931;11113;13018;13019;13020;13021;27133;33933;42944;42945;15407;17311;17312;17313;17314;18807;25387;48155;48156;58381;30981;26679;48673;48674;8056;8058;10472;10473;25464;49235;49236;2484;65815",
+		-- Reckless Charge, Bash, Maim, Pounce, Starfire Stun, Intimidation, Impact, Hammer of Justice, Stun, Blackout, Kidney Shot, Cheap Shot, Shadowfury, Intercept, Charge Stun, Concussion Blow, War Stomp
+		Stunned = "13327;5211;6798;8983;22570;49802;9005;9823;9827;27006;49803;16922;24394;12355;853;5588;5589;10308;2880;46025;408;8643;1833;30283;30413;30414;47846;47847;20253;20614;20615;25273;25274;65929;12809;19482",
+		-- Gouge, Maim, Repentance, Reckless Charge, Hungering Cold, Bash, Pounce, Starfire Stun, Intimidation, Impact, Hammer of Justice, Stun, Blackout, Kidney Shot, Cheap Shot, Shadowfury, Intercept, Charge Stun, Concussion Blow, War Stomp
+		StunnedOrIncapacitated = "1776;1777;8629;11285;11286;38764;22570;49802;20066;13327;51209;5211;6798;8983;9005;9823;9827;27006;49803;16922;24394;12355;853;5588;5589;10308;2880;46025;408;8643;1833;30283;30413;30414;47846;47847;20253;20614;20615;25273;25274;65929;12809;19482",
+		-- Mangle (Bear) & Mangle (Cat)
+		VulnerableToBleed = "33878;33986;33987;48563;48564;33876;33982;33983;48565;48566",
 		WoTLKDebuffs = "71237;71289;71204;72293;69279;69674;72272;73020;70447;70672;70911;72999;71822;70867;71340;71267;70923;70873;70106;69762;69766;70128;70126;70541;70337;69409;69409;73797;73798;74453;74367;74562;74792"
 	}
 
@@ -316,6 +328,30 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 		return IsSpellKnown(defaultSpell) and select(2, GetSpellCooldown(defaultSpell)) or 0
 	end
 
+	local function TellMeWhen_Desaturate(texture, desaturate, r, g, b, a)
+		if DB.Desaturate and desaturate then
+			texture:SetVertexColor(r or 0.5, g or 0.5, b or 0.5, a or 1)
+			if not texture:IsDesaturated() then
+				texture:SetDesaturated(true)
+			end
+		elseif DB.Desaturate then
+			texture:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
+			if texture:IsDesaturated() then
+				texture:SetDesaturated(false)
+			end
+		elseif desaturate then
+			texture:SetVertexColor(r or 0.5, g or 0.5, b or 0.5, a or 1)
+			if texture:IsDesaturated() then
+				texture:SetDesaturated(false)
+			end
+		else
+			texture:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
+			if texture:IsDesaturated() then
+				texture:SetDesaturated(false)
+			end
+		end
+	end
+
 	local function TellMeWhen_Icon_SpellCooldown_OnUpdate(self, elapsed)
 		self.updateTimer = self.updateTimer - elapsed
 		if self.updateTimer <= 0 then
@@ -335,20 +371,20 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 			end
 			if timeLeft then
 				if (timeLeft == 0 or OnGCD) and inrange == 1 and not nomana then
-					self.texture:SetVertexColor(1, 1, 1, 1)
+					TellMeWhen_Desaturate(self.texture, false)
 					self:SetAlpha(self.usableAlpha)
 				elseif self.usableAlpha == 1 and (timeLeft == 0 or OnGCD) then
-					self.texture:SetVertexColor(0.5, 0.5, 0.5, 1)
+					TellMeWhen_Desaturate(self.texture, true)
 					self:SetAlpha(self.usableAlpha)
 				else
-					self.texture:SetVertexColor(1, 1, 1, 1)
+					TellMeWhen_Desaturate(self.texture, false)
 					self:SetAlpha(self.unusableAlpha)
 				end
 			end
 		end
 	end
 
-	local function TellMeWhen_Icon_SpellCooldown_OnEvent(self, event, ...)
+	local function TellMeWhen_Icon_SpellCooldown_OnEvent(self, event, _, arg2, _, _, _, _, _, _, arg9)
 		local startTime, timeLeft, _
 
 		if event == "COMBAT_LOG_EVENT_UNFILTERED" and arg2 == "SPELL_ENERGIZE" then
@@ -416,7 +452,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 					if icon.presentAlpha then
 						icon:SetAlpha(icon.presentAlpha)
 					end
-					icon.texture:SetVertexColor(1, 1, 1, 1)
+					TellMeWhen_Desaturate(icon.texture, false)
 					if count > 1 then
 						icon.countText:SetText(count)
 						icon.countText:Show()
@@ -437,7 +473,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 				icon:SetAlpha(icon.absentAlpha)
 			end
 			if icon.presentAlpha == 1 and icon.absentAlpha == 1 then
-				icon.texture:SetVertexColor(1, 0.35, 0.35, 1)
+				TellMeWhen_Desaturate(icon.texture, true, 1, 0.35, 0.35, 1)
 			end
 
 			icon.countText:Hide()
@@ -450,7 +486,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 		end
 	end
 
-	local function TellMeWhen_Icon_Buff_OnEvent(self, event, ...)
+	local function TellMeWhen_Icon_Buff_OnEvent(self, event, arg1, arg2, _, _, _, arg6)
 		if event == "COMBAT_LOG_EVENT_UNFILTERED" and arg2 == "UNIT_DIED" then
 			if arg6 == UnitGUID(self.Unit) then
 				TellMeWhen_Icon_BuffCheck(self)
@@ -472,13 +508,13 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 		end
 		if usable then
 			if inrange and not nomana then
-				icon.texture:SetVertexColor(1, 1, 1, 1)
+				TellMeWhen_Desaturate(icon.texture, false)
 				icon:SetAlpha(icon.usableAlpha)
 			elseif not inrange or nomana then
-				icon.texture:SetVertexColor(.35, .35, .35, 1)
+				TellMeWhen_Desaturate(icon.texture, true, 0.35, 0.35, 0.35, 1)
 				icon:SetAlpha(icon.usableAlpha)
 			else
-				icon.texture:SetVertexColor(1, 1, 1, 1)
+				TellMeWhen_Desaturate(icon.texture, false)
 				icon:SetAlpha(icon.unusableAlpha)
 			end
 		else
@@ -497,7 +533,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 		end
 	end
 
-	local function TellMeWhen_Icon_WpnEnchant_OnEvent(self, event, ...)
+	local function TellMeWhen_Icon_WpnEnchant_OnEvent(self, event, arg1)
 		if event == "UNIT_INVENTORY_CHANGED" and arg1 == "player" then
 			local slotID, _
 			if self.WpnEnchantType == "mainhand" then
@@ -564,7 +600,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 			for i, iName in ipairs(self.Name) do
 				if totemName and totemName:find(iName) then
 					foundTotem = true
-					self.texture:SetVertexColor(1, 1, 1, 1)
+					TellMeWhen_Desaturate(self.texture, false)
 					self:SetAlpha(self.presentAlpha)
 
 					if self.texture:GetTexture() ~= totemIcon then
@@ -586,7 +622,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 		end
 		if not foundTotem then
 			if self.absentAlpha == 1 and self.presentAlpha == 1 then
-				self.texture:SetVertexColor(1, 0.35, 0.35, 1)
+				TellMeWhen_Desaturate(self.texture, true, 1, 0.35, 0.35, 1)
 			end
 			self:SetAlpha(self.absentAlpha)
 			CooldownFrame_SetTimer(self.Cooldown, 0, 0, 0)
@@ -1169,7 +1205,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 			TellMeWhen:Icon_StatusCheck(icon, iconType)
 		else
 			icon:EnableMouse(1)
-			icon.texture:SetVertexColor(1, 1, 1, 1)
+			TellMeWhen_Desaturate(icon.texture, false)
 			TellMeWhen:Icon_ClearScripts(icon)
 		end
 	end
@@ -1274,6 +1310,14 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 				confirm = function()
 					return L["Are you sure you want to reset all groups?"]
 				end
+			},
+			Desaturate = {
+				type = "toggle",
+				name = L["Use Desaturation"],
+				desc = L["Icons will be desaturated instead of being colored."],
+				get = function() return DB.Desaturate end,
+				set = function() DB.Desaturate = not DB.Desaturate end,
+				order = 0.3
 			}
 		}
 	}

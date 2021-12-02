@@ -59,17 +59,17 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		insets = {left = 3, right = 2, top = 3, bottom = 2}
 	}
 
-	local _type, _select = type, select
-	local _format = string.format
-	local math_max = math.max
-	local math_floor = math.floor
+	local type, select = type, select
+	local format = string.format
+	local max = math.max
+	local floor = math.floor
 	local unpack = unpack
 	local UnitExists = UnitExists
 	local targetExists
 
 	-- events frame
-	local frame = CreateFrame("Frame")
-	frame:SetScript("OnEvent", function(self, event, ...)
+	local NP = CreateFrame("Frame")
+	NP:SetScript("OnEvent", function(self, event, ...)
 		if DB.enabled and event == "PLAYER_TARGET_CHANGED" then
 			targetExists = (UnitExists("target") ~= nil)
 		end
@@ -101,13 +101,13 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	}
 
 	local function ColorToString(r, g, b)
-		return "C" .. math_floor((100 * r) + 0.5) .. math_floor((100 * g) + 0.5) .. math_floor((100 * b) + 0.5)
+		return "C" .. floor((100 * r) + 0.5) .. floor((100 * g) + 0.5) .. floor((100 * b) + 0.5)
 	end
 
 	-- makes sure the frame is a valid one
 	local function NameplateIsValid(frame)
 		if frame:GetName() then return end
-		local overlayRegion = _select(2, frame:GetRegions())
+		local overlayRegion = select(2, frame:GetRegions())
 		return (overlayRegion and overlayRegion:GetObjectType() == "Texture" and overlayRegion:GetTexture() == [[Interface\Tooltips\Nameplate-Border]])
 	end
 
@@ -138,7 +138,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 			elseif num > 1000 then
 				res = format("%.1fK", num / 1000)
 			else
-				res = math_floor(num)
+				res = floor(num)
 			end
 			return res
 		end
@@ -168,9 +168,9 @@ KPack:AddModule("Nameplates", function(_, core, L)
 
 				if config.showHealthPercent then
 					if text == "" then
-						text = _format("%." .. (config.decimals or 1) .. "f%%", 100 * curval / math_max(1, maxval))
+						text = format("%." .. (config.decimals or 1) .. "f%%", 100 * curval / max(1, maxval))
 					else
-						text = text .. "  -  " .. _format("%." .. (config.decimals or 1) .. "f%%", 100 * curval / math_max(1, maxval))
+						text = text .. "  -  " .. format("%." .. (config.decimals or 1) .. "f%%", 100 * curval / max(1, maxval))
 					end
 				end
 
@@ -694,23 +694,23 @@ KPack:AddModule("Nameplates", function(_, core, L)
 			local cmd, rest = strsplit(" ", msg, 2)
 			cmd = cmd:lower()
 
-			if _type(commands[cmd]) == "function" then
+			if type(commands[cmd]) == "function" then
 				commands[cmd](rest)
 				if cmd ~= "config" and cmd ~= "options" then
 					ReloadUI()
 				end
 			else
 				Print(L:F("Acceptable commands for: |caaf49141%s|r", "/np"))
-				print(_format(help, "enable", L["enable module"]))
-				print(_format(help, "disable", L["disable module"]))
-				print(_format(help, "fontsize|r |cff00ffffn|r", L["changes nameplates font size"]))
-				print(_format(help, "width|r |cff00ffffn|r", L["changes nameplates width"]))
-				print(_format(help, "height|r |cff00ffffn|r", L["changes nameplates height"]))
-				print(_format(help, "health", L["toggles health text"]))
-				print(_format(help, "max", L["toggles max health text"]))
-				print(_format(help, "shorten", L["shortens health text"]))
-				print(_format(help, "percent", L["toggles health percentage"]))
-				print(_format(help, "config", L["Access module settings."]))
+				print(format(help, "enable", L["enable module"]))
+				print(format(help, "disable", L["disable module"]))
+				print(format(help, "fontsize|r |cff00ffffn|r", L["changes nameplates font size"]))
+				print(format(help, "width|r |cff00ffffn|r", L["changes nameplates width"]))
+				print(format(help, "height|r |cff00ffffn|r", L["changes nameplates height"]))
+				print(format(help, "health", L["toggles health text"]))
+				print(format(help, "max", L["toggles max health text"]))
+				print(format(help, "shorten", L["shortens health text"]))
+				print(format(help, "percent", L["toggles health percentage"]))
+				print(format(help, "config", L["Access module settings."]))
 			end
 		end
 	end
@@ -1057,15 +1057,22 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	do
 		-- nameplates OnUpdate handler
 		local lastUpdate = 0
+		-- used to update only if needed.
+		local lastChildCount, newChildCount = 0, 0
+
 		local function Nameplates_OnUpdate(self, elapsed)
 			lastUpdate = lastUpdate + elapsed
 
 			if lastUpdate > 0.1 then
 				lastUpdate = 0
-				for i = 1, _select("#", WorldFrame:GetChildren()) do
-					local frame = _select(i, WorldFrame:GetChildren())
-					if NameplateIsValid(frame) and not frame.done then
-						Nameplate_Create(frame)
+				newChildCount = WorldFrame:GetNumChildren()
+				if lastChildCount ~= newChildCount then
+					lastChildCount = newChildCount
+					for i = 1, select("#", WorldFrame:GetChildren()) do
+						local f = select(i, WorldFrame:GetChildren())
+						if NameplateIsValid(f) and not f.done then
+							Nameplate_Create(f)
+						end
 					end
 				end
 			end
@@ -1074,21 +1081,21 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		-- on mod loaded.
 		core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
 			if disabled then
-				frame:UnregisterAllEvents()
-				frame:SetScript("OnUpdate", nil)
-				frame:Hide()
+				NP:UnregisterAllEvents()
+				NP:SetScript("OnUpdate", nil)
+				NP:Hide()
 				return
 			end
 
 			SetupDatabase()
 			if DB.enabled then
-				frame:RegisterEvent("PLAYER_TARGET_CHANGED")
-				frame:SetScript("OnUpdate", Nameplates_OnUpdate)
-				frame:Show()
+				NP:RegisterEvent("PLAYER_TARGET_CHANGED")
+				NP:SetScript("OnUpdate", Nameplates_OnUpdate)
+				NP:Show()
 			else
-				frame:UnregisterAllEvents()
-				frame:SetScript("OnUpdate", nil)
-				frame:Hide()
+				NP:UnregisterAllEvents()
+				NP:SetScript("OnUpdate", nil)
+				NP:Hide()
 			end
 		end)
 	end

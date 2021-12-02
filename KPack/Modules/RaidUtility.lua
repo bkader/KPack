@@ -927,7 +927,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				RAID_ROSTER_UPDATE = true
 			}
 
-			local function OnEvent(self, event, ...)
+			local function OnEvent(self, event, _, arg2, _, arg4, _, _, arg7, _, _, arg10)
 				if not self or self ~= display or not (event == "COMBAT_LOG_EVENT_UNFILTERED" or cacheEvents[event]) then
 					return
 				elseif cacheEvents[event] then
@@ -1395,7 +1395,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				end
 			end
 
-			local function OnEvent(self, event, ...)
+			local function OnEvent(self, event, _, arg2, _, arg4, _, _, _, _, _, arg10)
 				if not self or self ~= display or event ~= "COMBAT_LOG_EVENT_UNFILTERED" then
 					return
 				elseif arg4 and CheckUnit(arg4) and arg2 == "SPELL_CAST_SUCCESS" and arg10 and arg10 == sunder then
@@ -2001,7 +2001,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				PLAYER_REGEN_DISABLED = true
 			}
 
-			local function OnEvent(self, event, ...)
+			local function OnEvent(self, event, arg1)
 				if not self or self ~= display or not DB.Mana.enabled then
 					return
 				elseif cacheEvents[event] then
@@ -3088,7 +3088,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				return flags and (band(flags, group) ~= 0) or nil
 			end
 
-			function RaidCooldowns:COMBAT_LOG_EVENT_UNFILTERED(...)
+			function RaidCooldowns:COMBAT_LOG_EVENT_UNFILTERED(_, arg2, _, arg4, arg5, _, arg7, _, arg9)
 				if arg2 and events[arg2] and inGroup(arg5) and arg9 then
 					if (arg9 == 35079 or arg9 == 34477) and DB.Cooldowns.spells[34477] then
 						self:StartCooldown(arg4, 34477, allSpells[34477], arg7)

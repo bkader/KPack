@@ -213,12 +213,12 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
 	local UIErrorsFrame_OldOnEvent = UIErrorsFrame:GetScript("OnEvent")
 	core:RegisterForEvent("PLAYER_ENTERING_WORLD", function()
 		SetupDatabase()
-		UIErrorsFrame:SetScript("OnEvent", function(self, event, ...)
+		UIErrorsFrame:SetScript("OnEvent", function(self, event, arg1, ...)
 			if event == "UI_ERROR_MESSAGE" and DB.options.enabled and DB.filters[arg1] then
 				return
 			end
 
-			return UIErrorsFrame_OldOnEvent(self, event, ...)
+			return UIErrorsFrame_OldOnEvent(self, event, arg1, ...)
 		end)
 	end)
 

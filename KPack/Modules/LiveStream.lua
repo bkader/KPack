@@ -54,7 +54,7 @@ KPack:AddModule("LiveStream", function(_, core, L)
 			if (not DB.url or DB.url:trim() == "") then
 				frame:SetScript("OnUpdate", nil)
 				frame:Hide()
-				started, output, emote = nil, nil
+				started, output, emote = nil, nil, nil
 				return
 			end
 

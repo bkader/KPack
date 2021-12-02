@@ -82,13 +82,13 @@ KPack:AddModule("Postal", function(folder, core, L)
 		Postal.keepFreeOptions = {0, 1, 2, 3, 5, 10, 15, 20, 25, 30}
 
 		local KPostal_DropDownMenu = CreateFrame("Frame", "KPostal_DropDownMenu")
-		KPostal_DropDownMenu.displayMode = "MENU"
-		KPostal_DropDownMenu.info = {}
-		KPostal_DropDownMenu.levelAdjust = 0
-		KPostal_DropDownMenu.UncheckHack = function(dropdownbutton)
+		_G.KPostal_DropDownMenu.displayMode = "MENU"
+		_G.KPostal_DropDownMenu.info = {}
+		_G.KPostal_DropDownMenu.levelAdjust = 0
+		_G.KPostal_DropDownMenu.UncheckHack = function(dropdownbutton)
 			_G[dropdownbutton:GetName() .. "Check"]:Hide()
 		end
-		KPostal_DropDownMenu.HideMenu = function()
+		_G.KPostal_DropDownMenu.HideMenu = function()
 			if UIDROPDOWNMENU_OPEN_MENU == KPostal_DropDownMenu then
 				CloseDropDownMenus()
 			end
@@ -375,13 +375,13 @@ KPack:AddModule("Postal", function(folder, core, L)
 			KPostal_ModuleMenuButton:SetDisabledTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Disabled")
 			KPostal_ModuleMenuButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
 			KPostal_ModuleMenuButton:SetScript("OnClick", function(self, button, down)
-				if KPostal_DropDownMenu.initialize ~= Postal.Menu then
+				if _G.KPostal_DropDownMenu.initialize ~= Postal.Menu then
 					CloseDropDownMenus()
-					KPostal_DropDownMenu.initialize = Postal.Menu
+					_G.KPostal_DropDownMenu.initialize = Postal.Menu
 				end
 				ToggleDropDownMenu(1, nil, KPostal_DropDownMenu, self:GetName(), 0, 0)
 			end)
-			KPostal_ModuleMenuButton:SetScript("OnHide", KPostal_DropDownMenu.HideMenu)
+			KPostal_ModuleMenuButton:SetScript("OnHide", _G.KPostal_DropDownMenu.HideMenu)
 		end)
 	end
 
@@ -670,17 +670,17 @@ KPack:AddModule("Postal", function(folder, core, L)
 				KPostal_OpenAllMenuButton:SetDisabledTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Disabled")
 				KPostal_OpenAllMenuButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
 				KPostal_OpenAllMenuButton:SetScript("OnClick", function(self, button, down)
-					if KPostal_DropDownMenu.initialize ~= Postal_OpenAll.ModuleMenu then
+					if _G.KPostal_DropDownMenu.initialize ~= Postal_OpenAll.ModuleMenu then
 						CloseDropDownMenus()
-						KPostal_DropDownMenu.initialize = Postal_OpenAll.ModuleMenu
+						_G.KPostal_DropDownMenu.initialize = Postal_OpenAll.ModuleMenu
 					end
-					ToggleDropDownMenu(1, nil, KPostal_DropDownMenu, self:GetName(), 0, 0)
+					ToggleDropDownMenu(1, nil, _G.KPostal_DropDownMenu, self:GetName(), 0, 0)
 				end)
 				KPostal_OpenAllMenuButton:SetFrameLevel(KPostal_OpenAllMenuButton:GetFrameLevel() + 1)
 			end
 
 			button:Show()
-			KPostal_OpenAllMenuButton:SetScript("OnHide", KPostal_DropDownMenu.HideMenu)
+			KPostal_OpenAllMenuButton:SetScript("OnHide", _G.KPostal_DropDownMenu.HideMenu)
 			KPostal_OpenAllMenuButton:Show()
 			Postal.RegisterEvent(Postal_OpenAll, "UI_ERROR_MESSAGE")
 		end
@@ -816,10 +816,10 @@ KPack:AddModule("Postal", function(folder, core, L)
 				end
 			else
 				if IsAddOnLoaded("MrPlow") then
-					if MrPlow.DoStuff then
-						MrPlow:DoStuff("stack")
-					elseif MrPlow.ParseInventory then
-						MrPlow:ParseInventory()
+					if _G.MrPlow.DoStuff then
+						_G.MrPlow:DoStuff("stack")
+					elseif _G.MrPlow.ParseInventory then
+						_G.MrPlow:ParseInventory()
 					end
 				end
 				if skipFlag then
@@ -1353,10 +1353,10 @@ KPack:AddModule("Postal", function(folder, core, L)
 				end
 			else
 				if IsAddOnLoaded("MrPlow") then
-					if MrPlow.DoStuff then
-						MrPlow:DoStuff("stack")
-					elseif MrPlow.ParseInventory then -- Backwards compat
-						MrPlow:ParseInventory()
+					if _G.MrPlow.DoStuff then
+						_G.MrPlow:DoStuff("stack")
+					elseif _G.MrPlow.ParseInventory then -- Backwards compat
+						_G.MrPlow:ParseInventory()
 					end
 				end
 				if skipFlag then
@@ -1620,13 +1620,13 @@ KPack:AddModule("Postal", function(folder, core, L)
 				Postal_BlackBookButton:SetDisabledTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Disabled")
 				Postal_BlackBookButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
 				Postal_BlackBookButton:SetScript("OnClick", function(self, button, down)
-					if KPostal_DropDownMenu.initialize ~= Postal_BlackBook.BlackBookMenu then
+					if _G.KPostal_DropDownMenu.initialize ~= Postal_BlackBook.BlackBookMenu then
 						CloseDropDownMenus()
-						KPostal_DropDownMenu.initialize = Postal_BlackBook.BlackBookMenu
+						_G.KPostal_DropDownMenu.initialize = Postal_BlackBook.BlackBookMenu
 					end
-					ToggleDropDownMenu(1, nil, KPostal_DropDownMenu, self:GetName(), 0, 0)
+					ToggleDropDownMenu(1, nil, _G.KPostal_DropDownMenu, self:GetName(), 0, 0)
 				end)
-				Postal_BlackBookButton:SetScript("OnHide", KPostal_DropDownMenu.HideMenu)
+				Postal_BlackBookButton:SetScript("OnHide", _G.KPostal_DropDownMenu.HideMenu)
 			end
 
 			SendMailNameEditBox:SetHistoryLines(15)
@@ -1761,12 +1761,12 @@ KPack:AddModule("Postal", function(folder, core, L)
 			local newname
 
 			if db.AutoCompleteAlts then
-				local db = Postal.char.BlackBook.alts
+				local alts = Postal.char.BlackBook.alts
 				local realm = GetRealmName()
 				local faction = UnitFactionGroup("player")
 				local player = UnitName("player")
-				for i = 1, #db do
-					local p, r, f = strsplit("|", db[i])
+				for i = 1, #alts do
+					local p, r, f = strsplit("|", alts[i])
 					if r == realm and f == faction and p ~= player then
 						if strfind(strupper(p), text, 1, 1) == 1 then
 							newname = p

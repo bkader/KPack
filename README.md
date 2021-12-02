@@ -1,6 +1,6 @@
-# KPack - Lots-In-One AddOn Collection! (66)
+# KPack - Lots-In-One AddOn Collection! (67)
 
-Currently, this pack contains 66 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 67 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -339,3 +339,7 @@ This is a clone of [Colored Inventory Items](https://www.curseforge.com/wow/addo
 * Bank items.
 * Vendor frame.
 * Trade Skills frame.
+
+## 67. Virtual Plates
+
+Nameplates are hard to look at. They fill your screen and make an absolute mess when you're fighting lots of mobs. This module gives them depth, so they fit into the game world instead of covering it.

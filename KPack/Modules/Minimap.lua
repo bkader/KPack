@@ -731,7 +731,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 			for i, v in pairs({
 				MinimapBorder,
 				MiniMapMailBorder,
-				QueueStatusMinimapButtonBorder,
+				_G.QueueStatusMinimapButtonBorder,
 				-- select(1, TimeManagerClockButton:GetRegions()),
 				select(1, GameTimeFrame:GetRegions())
 			}) do

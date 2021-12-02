@@ -1140,7 +1140,7 @@ KPack:AddModule("xCT", function(_, core, L)
 	InterfaceOptionsCombatTextPanelFCTDropDown:Hide()
 
 	-- Intercept Messages Sent by other Add-Ons that use CombatText_AddMessage
-	Blizzard_CombatText_AddMessage = CombatText_AddMessage
+	_G.Blizzard_CombatText_AddMessage = CombatText_AddMessage
 	function CombatText_AddMessage(message, scrollFunction, r, g, b, displayType, isStaggered)
 		xCTgen:AddMessage(message, r, g, b)
 	end
