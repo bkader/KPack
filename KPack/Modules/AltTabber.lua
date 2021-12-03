@@ -4,7 +4,12 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 
 	local AltTabber = CreateFrame("Frame")
 	core.AltTabber = AltTabber
-	AltTabber:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
+	AltTabber:SetScript(
+		"OnEvent",
+		function(self, event, ...)
+			self[event](self, ...)
+		end
+	)
 
 	local _GetCVar, _SetCVar = GetCVar, SetCVar
 	local _PlaySoundFile, _GetTime = PlaySoundFile, GetTime
@@ -22,6 +27,7 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 		end,
 		set = function(i, val)
 			DB[i[#i]] = val
+			AltTabber:PLAYER_ENTERING_WORLD()
 		end,
 		args = {
 			enabled = {
@@ -99,8 +105,6 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 			return
 		end
 
-		self:RegisterEvent("PLAYER_ENTERING_WORLD")
-
 		if DB.ready then
 			self:RegisterEvent("READY_CHECK")
 		else
@@ -134,10 +138,16 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 
 	function AltTabber:PLAYER_ENTERING_WORLD()
 		SetupDatabase()
+		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		if not StaticPopupDialogs["CONFIRM_BATTLEFIELD_ENTRY"].OnShow then
 			StaticPopupDialogs["CONFIRM_BATTLEFIELD_ENTRY"].OnShow = function()
 				_PlaySoundFile("Sound\\Spells\\PVPEnterQueue.wav")
 			end
+		end
+		if DB.enabled then
+			SetupEvents(AltTabber)
+		else
+			AltTabber:UnregisterAllEvents()
 		end
 	end
 
@@ -193,7 +203,7 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 	end
 
 	do
-		local prevtime = 0  -- only plays once every 1sec (default)
+		local prevtime = 0 -- only plays once every 1sec (default)
 		function AltTabber:CHAT_MSG_RAID_WARNING()
 			if (_GetTime() - prevtime) >= 1 then
 				AltTabber_PlaySound("Sound\\Interface\\RaidWarning.wav", "warning")
@@ -203,7 +213,7 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 	end
 
 	do
-		local prevtime = 0  -- only plays once every 5sec
+		local prevtime = 0 -- only plays once every 5sec
 		function AltTabber:CHAT_MSG_WHISPER(_, name)
 			if (_GetTime() - prevtime) >= 5 and not AltTabber_IsIgnored(name) then
 				AltTabber_PlaySound("Interface\\AddOns\\KPack\\Media\\Sounds\\Whisper.ogg", "whisper")
@@ -215,13 +225,7 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 	core:RegisterForEvent("PLAYER_LOGIN", function()
 		SetupDatabase()
 		core.options.args.Options.args.AltTabber = options
-
-		if _G.AltTabber or not DB.enabled then
-			AltTabber:UnregisterAllEvents()
-			disabled = true
-		else
-			SetupEvents(AltTabber)
-			disabled = nil
-		end
+		disabled = (_G.AltTabber ~= nil)
+		AltTabber:RegisterEvent("PLAYER_ENTERING_WORLD")
 	end)
 end)
