@@ -47,7 +47,9 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
 	function mod:IsPromoted(name)
 		name = name or "player"
-		if UnitInRaid(name) then
+		if (name == "player" or name == core.name) and UnitInRaid("player") then
+			return IsRaidLeader() or UnitIsRaidOfficer("player")
+		elseif UnitInRaid(name) then
 			return UnitIsRaidOfficer(name), "raid"
 		elseif UnitInParty(name) then
 			return UnitIsPartyLeader(name), "party"
@@ -3374,6 +3376,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
 		inviteFrame:SetScript("OnEvent", function(self, event, msg, sender)
 			if (keyword and msg == keyword) or (guidkeyword and msg == guidkeyword and IsGuildMember(sender) and CanInvite()) then
+				if mod:InGroup() and (UnitInParty(sender) or UnitInRaid(sender)) then return end -- ignore trolls.
+
 				local inInstance, instanceType = IsInInstance()
 				local numparty, numraid = GetNumPartyMembers(), GetNumRaidMembers()
 				if inInstance and instanceType == "party" and numparty == 4 then
