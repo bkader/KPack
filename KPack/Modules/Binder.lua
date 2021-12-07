@@ -19,7 +19,9 @@ KPack:AddModule("Binder", "Allows you to save your current keybinds as a profile
 		local list = {}
 		for i = 1, total do
 			local action, bindOne, bindTwo = GetBinding(i)
-			tinsert(list, {action = action, bindOne = bindOne, bindTwo = bindTwo})
+			if bindOne ~= nil or bindTwo ~= nil then
+				list[#list + 1] = {action = action, bindOne = bindOne, bindTwo = bindTwo}
+			end
 		end
 		return list
 	end
@@ -41,17 +43,22 @@ KPack:AddModule("Binder", "Allows you to save your current keybinds as a profile
 			SetBinding("-")
 			SetBinding("=")
 
-			for i = 1, GetNumBindings() do
+			for i = 1, #profile.binds do -- GetNumBindings()
 				local action = profile.binds[i].action
 				local bindOne = profile.binds[i].bindOne
 				local bindTwo = profile.binds[i].bindTwo
 
-				if bindOne ~= nil then
-					SetBinding(bindOne, action)
+				if bindOne ~= nil or bindTwo ~= nil then
+					if bindOne ~= nil then
+						SetBinding(bindOne, action)
+					end
+					if bindTwo ~= nil then
+						SetBinding(bindTwo, action)
+					end
+				else
+					tremove(profile.binds, i) -- clean it
 				end
-				if bindTwo ~= nil then
-					SetBinding(bindTwo, action)
-				end
+
 			end
 
 			SaveBindings(characterspecific and 2 or 1)
@@ -97,7 +104,21 @@ KPack:AddModule("Binder", "Allows you to save your current keybinds as a profile
 					set = function(_, val)
 						val = val:trim()
 						if val == "" then return end
-						tinsert(DB, {name = val, binds = Binder_SaveBindings()})
+						local binds = Binder_SaveBindings()
+
+						-- replace existing one.
+						local saved = false
+						for i, profile in ipairs(DB) do
+							if profile.name:lower() == val:lower() then
+								DB[i].binds = binds
+								saved = true
+								break
+							end
+						end
+						-- create new profile
+						if not saved then
+							DB[#DB + 1] = {name = val, binds = binds}
+						end
 						core:Print(L:F('Profile "%s" successfully created.', val), "Binder")
 						selectedprofile, characterspecific = nil, nil
 					end
