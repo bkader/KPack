@@ -4,15 +4,10 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 
 	local AltTabber = CreateFrame("Frame")
 	core.AltTabber = AltTabber
-	AltTabber:SetScript(
-		"OnEvent",
-		function(self, event, ...)
-			self[event](self, ...)
-		end
-	)
+	AltTabber:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
 
-	local _GetCVar, _SetCVar = GetCVar, SetCVar
-	local _PlaySoundFile, _GetTime = PlaySoundFile, GetTime
+	local GetCVar, SetCVar = GetCVar, SetCVar
+	local PlaySoundFile, GetTime = PlaySoundFile, GetTime
 	local DB, disabled
 
 	local function _disabled()
@@ -80,6 +75,12 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 				name = WHISPER,
 				order = 6,
 				disabled = _disabled
+			},
+			achievement = {
+				type = "toggle",
+				name = ACHIEVEMENTS,
+				order = 7,
+				disabled = _disabled
 			}
 		}
 	}
@@ -93,7 +94,8 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 					lfg = true,
 					warning = true,
 					invite = true,
-					whisper = true
+					whisper = true,
+					achievement = true
 				}
 			end
 			DB = core.db.AltTabber
@@ -134,6 +136,12 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 		else
 			self:UnregisterEvent("CHAT_MSG_WHISPER")
 		end
+
+		if DB.achievement then
+			self:RegisterEvent("ACHIEVEMENT_EARNED")
+		else
+			self:UnregisterEvent("ACHIEVEMENT_EARNED")
+		end
 	end
 
 	function AltTabber:PLAYER_ENTERING_WORLD()
@@ -141,8 +149,12 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		if not StaticPopupDialogs["CONFIRM_BATTLEFIELD_ENTRY"].OnShow then
 			StaticPopupDialogs["CONFIRM_BATTLEFIELD_ENTRY"].OnShow = function()
-				_PlaySoundFile("Sound\\Spells\\PVPEnterQueue.wav")
+				PlaySoundFile("Sound\\Spells\\PVPThroughQueue.wav")
 			end
+		else
+			hooksecurefunc(StaticPopupDialogs["CONFIRM_BATTLEFIELD_ENTRY"], "OnShow", function()
+				PlaySoundFile("Sound\\Spells\\PVPThroughQueue.wav")
+			end)
 		end
 		if DB.enabled then
 			SetupEvents(AltTabber)
@@ -156,19 +168,19 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 			return
 		end
 
-		local Sound_EnableSFX = _GetCVar("Sound_EnableSFX")
-		local Sound_EnableAllSound = _GetCVar("Sound_EnableAllSound")
+		local Sound_EnableSFX = GetCVar("Sound_EnableSFX")
+		local Sound_EnableAllSound = GetCVar("Sound_EnableAllSound")
 
 		if Sound_EnableSFX == "0" then
-			if _GetCVar("Sound_EnableSoundWhenGameIsInBG") == "0" then
-				_SetCVar("Sound_EnableSoundWhenGameIsInBG", "1")
+			if GetCVar("Sound_EnableSoundWhenGameIsInBG") == "0" then
+				SetCVar("Sound_EnableSoundWhenGameIsInBG", "1")
 			elseif Sound_EnableAllSound == "0" then
-				_SetCVar("Sound_EnableAllSound", "1")
-				_SetCVar("Sound_EnableSFX", "0")
-				_SetCVar("Sound_EnableAmbience", "0")
-				_SetCVar("Sound_EnableMusic", "0")
+				SetCVar("Sound_EnableAllSound", "1")
+				SetCVar("Sound_EnableSFX", "0")
+				SetCVar("Sound_EnableAmbience", "0")
+				SetCVar("Sound_EnableMusic", "0")
 			else
-				_PlaySoundFile(file)
+				PlaySoundFile(file)
 			end
 		end
 	end
@@ -205,9 +217,9 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 	do
 		local prevtime = 0 -- only plays once every 1sec (default)
 		function AltTabber:CHAT_MSG_RAID_WARNING()
-			if (_GetTime() - prevtime) >= 1 then
+			if (GetTime() - prevtime) >= 1 then
 				AltTabber_PlaySound("Sound\\Interface\\RaidWarning.wav", "warning")
-				prevtime = _GetTime()
+				prevtime = GetTime()
 			end
 		end
 	end
@@ -215,9 +227,19 @@ KPack:AddModule("AltTabber", "Allows you to never miss important events even if 
 	do
 		local prevtime = 0 -- only plays once every 5sec
 		function AltTabber:CHAT_MSG_WHISPER(_, name)
-			if (_GetTime() - prevtime) >= 5 and not AltTabber_IsIgnored(name) then
+			if (GetTime() - prevtime) >= 5 and not AltTabber_IsIgnored(name) then
 				AltTabber_PlaySound("Interface\\AddOns\\KPack\\Media\\Sounds\\Whisper.ogg", "whisper")
-				prevtime = _GetTime()
+				prevtime = GetTime()
+			end
+		end
+	end
+
+	do
+		local prevtime = 0 -- only plays once every 5sec
+		function AltTabber:ACHIEVEMENT_EARNED()
+			if (GetTime() - prevtime) >= 1 then
+				AltTabber_PlaySound("Sound\\Spells\\AchievmentSound1.wav", "achievement")
+				prevtime = GetTime()
 			end
 		end
 	end
