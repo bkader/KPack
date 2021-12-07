@@ -214,7 +214,8 @@ MovAny = {
 		TargetFrameSpellBar,
 		FocusFrameSpellBar,
 		MirrorTimer1,
-		MiniMapInstanceDifficulty
+		MiniMapInstanceDifficulty,
+		EclipseBarFrame
 	},
 	lSimpleHide = {},
 	lTranslate = {
@@ -452,7 +453,8 @@ MovAny = {
 		FocusFrameSpellBar = "FocusFrameSpellBar",
 		VehicleMenuBarHealthBar = "VehicleMenuBarHealthBar",
 		VehicleMenuBarLeaveButton = "VehicleMenuBarLeaveButton",
-		VehicleMenuBarPowerBar = "VehicleMenuBarPowerBar"
+		VehicleMenuBarPowerBar = "VehicleMenuBarPowerBar",
+		EclipseBarFrame = "EclipseBarFrame"
 	},
 	NoUnanchorRelatives = {
 		FramerateLabel = "FramerateLabel",
@@ -732,6 +734,7 @@ MovAny = {
 		{"PlayerDebuffsMover", "Player Debuffs"},
 		{"CastingBarFrame", "Casting Bar"},
 		{"RuneFrame", "Deathknight Runes"},
+		{"EclipseBarFrame", "Druid Eclipse Bar"},
 		{"MultiCastActionBarFrame", "Shaman Totem bar"},
 		{"TotemFrame", "Shaman Totem Timers"},
 
