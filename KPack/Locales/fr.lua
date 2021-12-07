@@ -549,6 +549,7 @@ L["Changes points color."] = "Change la couleur des points."
 L["Toggles showing combo points out of combat."] = "Active/désactive l'affichage des points de combo hors combat."
 L["Hide out of combat"] = "Cacher hors du combat"
 L["Color"] = "Couleur"
+L["Colors"] = "Couleurs"
 -- Simplified
 L["Combat logging is currently %s."] = "La journal de combat est actuellement %s."
 L["Combat logging is now %s."] = "La journal de combat est maintenant %s."
@@ -700,6 +701,7 @@ L["All characters in %s will be invited to raid in 10 seconds. Please leave your
 L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = "Tous les personnages de rang %s ou supérieur seront invités dans le raid dans 10 sec. Veuillez quitter vos groupes."
 -- UnitFrames
 L["Enhance Unit Frames"] = "Portraits améliorés"
+L["Class Icon Portrait"] = "Portraits icône de classe"
 L["changes the unit frames scale."] = "modifie l'échelle des portraits d'unités."
 L["enables improved unit frames textures."] = "utilise des textures améliorées."
 L["Text Settings"] = "Paramètres de texte"

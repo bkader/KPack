@@ -589,6 +589,7 @@ L["Changes points color."] = true
 L["Toggles showing combo points out of combat."] = true
 L["Hide out of combat"] = true
 L["Color"] = true
+L["Colors"] = true
 -- Simplified
 L["Combat logging is currently %s."] = true
 L["Combat logging is now %s."] = true
@@ -740,6 +741,7 @@ L["All characters in %s will be invited to raid in 10 seconds. Please leave your
 L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = true
 -- UnitFrames
 L["Enhance Unit Frames"] = true
+L["Class Icon Portrait"] = true
 L["changes the unit frames scale."] = true
 L["enables improved unit frames textures."] = true
 L["Text Settings"] = true

@@ -39,7 +39,9 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	local __PartyMemberFrame_ToPlayerArt
 	local __PartyMemberFrame_ToVehicleArt
 	local __PartyMemberFrame_Style
-	local __HealthBar_OnValueChanged
+	local __ColorHealthBar
+	local __UnitFrameHealthBar_Update
+	local __UnitFramePortrait_Update
 	local __PlayerFrame_ToPlayerArt
 	local __TargetFrame_CheckClassification
 	local __TargetFrame_CheckFaction
@@ -50,10 +52,14 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 	local defaults = {
 		scale = 1,
 		improved = true,
+		portrait = false,
 		texture = "Blizzard",
 		font = "Friz Quadrata TT",
 		fontSize = 10,
-		fontOutline = "OUTLINE"
+		fontOutline = "OUTLINE",
+		friendly = {0, 1, 0},
+		hostile = {1, 0, 0},
+		neutral = {1, 1, 0}
 	}
 
 	-- [[ internal functions ]] --
@@ -134,19 +140,9 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 			PlayerFrameHealthBar:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture or defaults.texture))
 			PlayerFrameManaBar:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture or defaults.texture))
 		end
-		PlayerFrameHealthBar:SetStatusBarColor(UFI:UnitColor("player"))
 	end
 
 	function __TargetFrame_Update(self)
-		-- Set back color of health bar
-		if not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit) and not UnitIsTappedByAllThreatList(self.unit) then
-			-- Gray if npc is tapped by other player
-			self.healthbar:SetStatusBarColor(0.5, 0.5, 0.5)
-		else
-			-- Standard by class etc if not
-			self.healthbar:SetStatusBarColor(UFI:UnitColor(self.healthbar.unit))
-		end
-
 		if InCombatLockdown() or not DB.improved then return end
 
 		-- Layout elements
@@ -176,15 +172,6 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 			self.pvpIcon:Show()
 		else
 			self.pvpIcon:Hide()
-		end
-
-		-- Set back color of health bar
-		if not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit) and not UnitIsTappedByAllThreatList(self.unit) then
-			-- Gray if npc is tapped by other player
-			self.healthbar:SetStatusBarColor(0.5, 0.5, 0.5)
-		else
-			-- Standard by class etc if not
-			self.healthbar:SetStatusBarColor(UFI:UnitColor(self.healthbar.unit))
 		end
 	end
 
@@ -254,6 +241,9 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 				local frame = _G["PartyMemberFrame" .. i]
 				if frame and not frame.kpacked then
 					frame.kpacked = true
+					__ColorHealthBar(_G["PartyMemberFrame" .. i .. "HealthBar"], "party" .. i)
+					__UnitFramePortrait_Update(_G["PartyMemberFrame" .. i])
+
 					_G["PartyMemberFrame" .. i .. "HealthBar"]:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture or defaults.texture))
 					_G["PartyMemberFrame" .. i .. "ManaBar"]:SetStatusBarTexture(core:MediaFetch("statusbar", DB.texture or defaults.texture))
 					-- Text
@@ -296,11 +286,23 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		end
 	end
 
-	function __HealthBar_OnValueChanged()
-		if not InCombatLockdown() then
-			for i = 1, GetNumPartyMembers() do
-				_G["PartyMemberFrame" .. i .. "HealthBar"]:SetStatusBarColor(UFI:UnitColor("party" .. i))
-				_G["PartyMemberFrame" .. i .. "HealthBar"].lockColor = true
+	function __UnitFrameHealthBar_Update(statusbar, unit)
+		if unit and unit ~= "mouseover" and UnitIsConnected(unit) and unit == statusbar.unit then
+			__ColorHealthBar(statusbar, unit)
+		end
+	end
+
+	function __UnitFramePortrait_Update(self)
+		if DB.portrait and self.portrait and self.unit then
+			if UnitIsPlayer(self.unit) then
+				local tex = CLASS_ICON_TCOORDS[select(2, UnitClass(self.unit))]
+				if tex then
+					self.portrait:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
+					self.portrait:SetTexCoord(unpack(tex))
+				end
+			else
+				SetPortraitTexture(self.portrait, self.unit)
+				self.portrait:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1)
 			end
 		end
 	end
@@ -370,10 +372,13 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		-- Hook PartyMember functions
 		hooksecurefunc("PartyMemberFrame_ToPlayerArt", __PartyMemberFrame_ToPlayerArt)
 		hooksecurefunc("PartyMemberFrame_ToVehicleArt", __PartyMemberFrame_ToVehicleArt)
-		hooksecurefunc("HealthBar_OnValueChanged", __HealthBar_OnValueChanged)
-		hooksecurefunc("UnitFrameHealthBar_Update", __HealthBar_OnValueChanged)
+		hooksecurefunc("UnitFrameHealthBar_Update", __UnitFrameHealthBar_Update)
+		hooksecurefunc("HealthBar_OnValueChanged", function(statusbar) __ColorHealthBar(statusbar, statusbar.unit) end)
+		hooksecurefunc("UnitFramePortrait_Update", __UnitFramePortrait_Update)
+
+		__UnitFrameHealthBar_Update(PlayerFrameHealthBar, "player")
+		__UnitFramePortrait_Update(PlayerFrame)
 		__PartyMemberFrame_Style()
-		core.After(0.1, __HealthBar_OnValueChanged)
 
 		-- BossFrame hooks
 		hooksecurefunc(Boss1TargetFrame, "Show", __BossTargetFrame_Show)
@@ -443,27 +448,28 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		hideOnEscape = true
 	}
 
-	function UFI:UnitColor(unit)
-		local r, g, b
-		if not UnitIsPlayer(unit) and (not UnitIsConnected(unit) or UnitIsDeadOrGhost(unit)) then
-			r, g, b = 0.5, 0.5, 0.5
+	function __ColorHealthBar(statusbar, unit)
+		if not unit then
+			return
 		elseif UnitIsPlayer(unit) then
-			local class = select(2, UnitClass(unit))
-			local color = RAID_CLASS_COLORS[class]
-			if color then
-				r, g, b = color.r, color.g, color.b
-			else
-				if UnitIsFriend("player", unit) then
-					r, g, b = 0, 1, 0
-				else
-					r, g, b = 1, 0, 0
-				end
+			local _, class = UnitClass(unit)
+			if class then
+				local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
+				statusbar:SetStatusBarColor(color.r, color.g, color.b)
+				return
 			end
-		else
-			r, g, b = UnitSelectionColor(unit)
 		end
 
-		return r, g, b
+		local r, g, b = UnitSelectionColor(unit)
+		if r == 0 then
+			r, g, b = unpack(DB.friendly)
+		elseif g == 0 then
+			r, g, b = unpack(DB.hostile)
+		else
+			r, g, b = unpack(DB.neutral)
+		end
+
+		statusbar:SetStatusBarColor(r, g, b)
 	end
 
 	function UFI:CapDisplayOfNumericValue(value)
@@ -506,14 +512,18 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 					improved = {
 						type = "toggle",
 						name = L["Enhance Unit Frames"],
-						order = 10,
-						width = "double"
+						order = 10
+					},
+					portrait = {
+						type = "toggle",
+						name = L["Class Icon Portrait"],
+						order = 20
 					},
 					appearance = {
 						type = "group",
 						name = L["Appearance"],
 						inline = true,
-						order = 20,
+						order = 30,
 						args = {
 							scale = {
 								type = "range",
@@ -537,7 +547,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 						type = "group",
 						name = L["Text Settings"],
 						inline = true,
-						order = 30,
+						order = 40,
 						set = function(i, val)
 							DB[i[#i]] = val
 							UFI:ApplySettings(DB)
@@ -588,6 +598,55 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 								order = 40
 							}
 						}
+					},
+					colors = {
+						type = "group",
+						name = L["Colors"],
+						inline = true,
+						order = 50,
+						get = function(i)
+							local r, g, b = unpack(DB[i[#i]])
+							return r, g, b
+						end,
+						set = function(i, r, g, b)
+							DB[i[#i]][1] = r or 1
+							DB[i[#i]][2] = g or 1
+							DB[i[#i]][3] = b or 1
+							UFI:ApplySettings(DB)
+						end,
+						args = {
+							friendly = {
+								type = "color",
+								name = FRIENDLY,
+								order = 10
+							},
+							neutral = {
+								type = "color",
+								name = FACTION_STANDING_LABEL4,
+								order = 20
+							},
+							hostile = {
+								type = "color",
+								name = HOSTILE,
+								order = 30
+							}
+						}
+					},
+					reset = {
+						type = "execute",
+						name = RESET,
+						width = "full",
+						order = 60,
+						func = function()
+							wipe(core.char.UnitFrames)
+							wipe(DB)
+							for k, v in pairs(defaults) do
+								core.char.UnitFrames[k] = v
+								DB[k] = v
+							end
+							UFI:ApplySettings(DB)
+							core:Print(L["module's settings reset to default."], "UnitFrames")
+						end
 					}
 				}
 			}
