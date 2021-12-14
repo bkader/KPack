@@ -195,10 +195,10 @@ MovAny = {
 		"KeyRingFrame"
 	},
 	lForcedLock = {
-		Boss1TargetFrame = "Boss1TargetFrame",
-		Boss2TargetFrame = "Boss2TargetFrame",
-		Boss3TargetFrame = "Boss3TargetFrame",
-		Boss4TargetFrame = "Boss4TargetFrame",
+		-- Boss1TargetFrame = "Boss1TargetFrame",
+		-- Boss2TargetFrame = "Boss2TargetFrame",
+		-- Boss3TargetFrame = "Boss3TargetFrame",
+		-- Boss4TargetFrame = "Boss4TargetFrame",
 		ActionButton1 = "ActionButton1",
 		BonusActionButton1 = "BonusActionButton1"
 	},

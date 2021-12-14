@@ -67,7 +67,7 @@
 <Script file="TradeTabs.lua" />
 <Script file="UnitFrames.lua" />
 <Script file="Viewporter.lua" />
-<Script file="VirtualPlates.lua" />
+<!-- <Script file="VirtualPlates.lua" /> -->
 
 <!-- Please leave this at the end of the file -->
 <Script file="AddOnSkins.lua" />
