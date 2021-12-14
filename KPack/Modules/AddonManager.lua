@@ -130,17 +130,17 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 					end
 					CheckButton.title = title .. "|n"
 					if notes then
-						CheckButton.title = CheckButton.title .. "|cffffffff" .. notes .. "|r|n"
+						CheckButton.tooltip = (CheckButton.tooltip or "") .. "|cffffffff" .. notes .. "|r|n"
 					end
 					if (GetAddOnDependencies(v)) then
-						CheckButton.title = "|cffff4400Dependencies: |r"
+						CheckButton.tooltip = (CheckButton.tooltip or "") .. "|n|cffff4400Dependencies: |r"
 						for j = 1, select("#", GetAddOnDependencies(v)) do
-							CheckButton.title = CheckButton.title .. select(j, GetAddOnDependencies(v))
+							CheckButton.tooltip = CheckButton.tooltip .. select(j, GetAddOnDependencies(v))
 							if (j > 1) then
-								CheckButton.title = CheckButton.title .. ", "
+								CheckButton.tooltip = CheckButton.tooltip .. ", "
 							end
 						end
-						CheckButton.title = CheckButton.title .. "|r"
+						CheckButton.tooltip = CheckButton.tooltip .. "|r"
 					end
 
 					if i == 1 then
@@ -153,6 +153,9 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 						GameTooltip:ClearLines()
 						GameTooltip:SetOwner(self, ANCHOR_TOPRIGHT)
 						GameTooltip:AddLine(self.title, nil, nil, nil, true)
+						if self.tooltip then
+							GameTooltip:AddLine(self.tooltip, nil, nil, nil, true)
+						end
 						GameTooltip:Show()
 					end)
 					CheckButton:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
