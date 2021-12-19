@@ -8,7 +8,8 @@ KPack:AddModule("Dark Mode", function(_, core)
 			flash = [[Interface\Addons\KPack\Media\Textures\AB_Flash]],
 			hightlight = [[Interface\Addons\KPack\Media\Textures\AB_Hightlight]],
 			pushed = [[Interface\Addons\KPack\Media\Textures\AB_Pushed]],
-			checked = [[Interface\Addons\KPack\Media\Textures\AB_Checked]]
+			checked = [[Interface\Addons\KPack\Media\Textures\AB_Checked]],
+			equipped = [[Interface\Addons\KPack\Media\Textures\AB_Equipped]],
 		},
 		colors = {
 			normal = {r = 0.37, g = 0.37, b = 0.37},
@@ -159,7 +160,23 @@ KPack:AddModule("Dark Mode", function(_, core)
 		-- remove border
 		t = _G[name .. "Border"]
 		if t then
-			t:SetTexture(nil)
+			t:ClearAllPoints()
+			t:SetAllPoints(btn)
+			t:SetTexture(config.textures.equipped)
+			if btn.action and IsEquippedAction(btn.action) then
+				t:SetVertexColor(0, 1, 0, 0.65)
+				t:Show()
+			elseif btn.action then
+				t:Hide()
+			end
+			local _SetVertexColor = t.SetVertexColor
+			t.SetVertexColor = function(self, r, g, b, a)
+				if btn.action and IsEquippedAction(btn.action) then
+					_SetVertexColor(self, 0, 1, 0, 0.65)
+				else
+					_SetVertexColor(self, r, g, b, a)
+				end
+			end
 		end
 
 		-- position cooldown
