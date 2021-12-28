@@ -1313,7 +1313,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 			},
 			Desaturate = {
 				type = "toggle",
-				name = L["Use Desaturation"],
+				name = L["Desaturate Icons"],
 				desc = L["Icons will be desaturated instead of being colored."],
 				get = function() return DB.Desaturate end,
 				set = function() DB.Desaturate = not DB.Desaturate end,

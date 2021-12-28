@@ -555,7 +555,7 @@ L["Combat logging is currently %s."] = "La journal de combat est actuellement %s
 L["Combat logging is now %s."] = "La journal de combat est maintenant %s."
 L["Change Specilization"] = "Changer la spécialisation"
 -- TellMeWhen
-L["Use Desaturation"] = "Utiliser la désaturation"
+L["Desaturate Icons"] = "Désaturer les icônes"
 L["Icons will be desaturated instead of being colored."] = "Les icônes seront désaturées au lieu d'être colorées."
 L["Resize"] = "Redimensionner"
 L["Click and drag to change size."] = "Cliquez et faites glisser pour changer la taille."

@@ -81,14 +81,25 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 		end
 
 		function mod:ActionButton_UpdateUsable(btn)
-			local icon = _G[btn:GetName() .. "Icon"]
-			local valid = _IsActionInRange(btn.action)
-			if valid == 0 then
+			local name = btn:GetName()
+			local icon = _G[name.."Icon"]
+			local normalTexture = _G[name.."NormalTexture"]
+
+			local inRange = IsActionInRange(btn.action)
+			local isUsable, notEnoughMana = IsUsableAction(btn.action);
+
+			if inRange == 0 then
 				icon:SetVertexColor(1.0, 0.1, 0.1)
-			elseif not _IsUsableAction(btn.action) then
-				icon:SetVertexColor(0.5, 0.5, 1.0)
-			else
+				normalTexture:SetVertexColor(1.0, 0.1, 0.1)
+			elseif isUsable then
 				icon:SetVertexColor(1.0, 1.0, 1.0)
+				normalTexture:SetVertexColor(1.0, 1.0, 1.0)
+			elseif notEnoughMana then
+				icon:SetVertexColor(0.5, 0.5, 1.0)
+				normalTexture:SetVertexColor(0.5, 0.5, 1.0)
+			else
+				icon:SetVertexColor(0.4, 0.4, 0.4)
+				normalTexture:SetVertexColor(1.0, 1.0, 1.0)
 			end
 		end
 

@@ -595,7 +595,7 @@ L["Combat logging is currently %s."] = true
 L["Combat logging is now %s."] = true
 L["Change Specilization"] = true
 -- TellMeWhen
-L["Use Desaturation"] = true
+L["Desaturate Icons"] = true
 L["Icons will be desaturated instead of being colored."] = true
 L["Resize"] = true
 L["Click and drag to change size."] = true
