@@ -28,7 +28,11 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		decimals = 1,
 		textOfsX = 0,
 		textOfsY = 0,
-		arrow = "arrow0"
+		arrow = "arrow0",
+		customColor = false,
+		FRIENDLY = {0, 1.0, 0}, -- green for friendly
+		NEUTRAL = {1.0, 1.0, 0}, -- yellow for  neutral
+		HOSTILE = {1.0, 0, 0} -- red for hostile
 	}
 	local defaultsChar = {
 		tankMode = false,
@@ -280,6 +284,8 @@ KPack:AddModule("Nameplates", function(_, core, L)
 				self.rightIndicator:SetTexture(texture)
 			elseif changed == "textOfsX" or changed == "textOfsY" then
 				self.text:SetPoint("CENTER", config.textOfsX or 0, config.textOfsY or 0)
+			elseif changed == "tankColor" or changed == "tankMode" or changed == "customColor" or changed == "FRIENDLY" or changed == "NEUTRAL" or changed == "HOSTILE" then
+				self:SetHealthColor()
 			end
 
 			core.After(0.1, function() changed = nil end)
@@ -306,6 +312,21 @@ KPack:AddModule("Nameplates", function(_, core, L)
 
 		if not (r and g and b) then
 			r, g, b = self.oldHealth:GetStatusBarColor()
+
+			-- using custom colors
+			if config.customColor then
+				-- change reaction and type if required.
+				local nreact, ntype = NameplateReaction(r, g, b)
+				if nreact ~= self.reaction or ntype ~= self.type then
+					self.reaction, self.type = nreact, ntype
+				end
+				nreact, ntype = nil, nil
+
+				-- we use custom colors only for non-players.
+				if self.reaction and config[self.reaction] and self.type ~= "PLAYER" then
+					r, g, b = unpack(config[self.reaction])
+				end
+			end
 		end
 
 		if self.healthBar.reset or r ~= self.healthBar.r or g ~= self.healthBar.g or b ~= self.healthBar.b then
@@ -606,9 +627,9 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		frame.SetHealthColor = Nameplate_SetHealthColor
 		frame.UpdateCritical = Nameplate_UpdateCritical
 
-		frame.r, frame.g, frame.g = oldHeath:GetStatusBarColor()
-		frame.reaction, frame.type = NameplateReaction(frame.r, frame.g, frame.g)
-		frame.class = ClassReference[ColorToString(frame.r, frame.g, frame.g)]
+		frame.r, frame.g, frame.b = oldHeath:GetStatusBarColor()
+		frame.reaction, frame.type = NameplateReaction(frame.r, frame.g, frame.b)
+		frame.class = ClassReference[ColorToString(frame.r, frame.g, frame.b)]
 
 		frame:SetScript("OnShow", Nameplate_OnShow)
 		frame:SetScript("OnHide", Nameplate_OnHide)
@@ -976,10 +997,69 @@ KPack:AddModule("Nameplates", function(_, core, L)
 							}
 						}
 					},
+					custom = {
+						type = "group",
+						name = L["Custom Colors"],
+						order = 98,
+						inline = true,
+						disabled = _disabled,
+						args = {
+							customColor = {
+								type = "toggle",
+								name = L["Enable"],
+								order = 1
+							},
+							FRIENDLY = {
+								type = "color",
+								name = FACTION_STANDING_LABEL5,
+								get = function()
+									return unpack(config.FRIENDLY)
+								end,
+								set = function(_, r, g, b)
+									DB.FRIENDLY[1], config.FRIENDLY[1] = r, r
+									DB.FRIENDLY[2], config.FRIENDLY[2] = g, g
+									DB.FRIENDLY[3], config.FRIENDLY[3] = b, b
+									changed = "FRIENDLY"
+								end,
+								disabled = function() return not config.customColor end,
+								order = 2
+							},
+							NEUTRAL = {
+								type = "color",
+								name = FACTION_STANDING_LABEL4,
+								get = function()
+									return unpack(config.NEUTRAL)
+								end,
+								set = function(_, r, g, b)
+									DB.NEUTRAL[1], config.NEUTRAL[1] = r, r
+									DB.NEUTRAL[2], config.NEUTRAL[2] = g, g
+									DB.NEUTRAL[3], config.NEUTRAL[3] = b, b
+									changed = "NEUTRAL"
+								end,
+								disabled = function() return not config.customColor end,
+								order = 3
+							},
+							HOSTILE = {
+								type = "color",
+								name = FACTION_STANDING_LABEL2,
+								get = function()
+									return unpack(config.HOSTILE)
+								end,
+								set = function(_, r, g, b)
+									DB.HOSTILE[1], config.HOSTILE[1] = r, r
+									DB.HOSTILE[2], config.HOSTILE[2] = g, g
+									DB.HOSTILE[3], config.HOSTILE[3] = b, b
+									changed = "HOSTILE"
+								end,
+								disabled = function() return not config.customColor end,
+								order = 4
+							}
+						}
+					},
 					tank = {
 						type = "group",
 						name = L["Tank Mode"],
-						order = 98,
+						order = 99,
 						inline = true,
 						disabled = _disabled,
 						args = {
@@ -1013,7 +1093,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 					arrow = {
 						type = "multiselect",
 						name = L["Target Highlight"],
-						order = 99,
+						order = 100,
 						width = "half",
 						disabled = _disabled,
 						get = function(_, key)

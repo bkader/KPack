@@ -559,6 +559,7 @@ L["Shorten Health Text"] = true
 L["Show Health Percent"] = true
 L["Hide text when health is full"] = true
 L["Decimals"] = true
+L["Custom Colors"] = true
 L["Tank Mode"] = true
 L["Bar color when you have threat."] = true
 L["Target Highlight"] = true
