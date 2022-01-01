@@ -75,7 +75,8 @@ KPack:AddModule("IgnoreMore", "Let you ignore more than 49 players, a list share
 	end
 
 	local function IgnoreMore_GetRealm()
-		return GetRealmName() .. "-" .. UnitFactionGroup("player")
+		local realm, faction = GetRealmName(), UnitFactionGroup("player")
+		return faction and format("%s-%s", realm, faction) or realm
 	end
 
 	-- ///////////////////////////////////////////////////////

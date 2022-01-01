@@ -741,21 +741,29 @@ KPack:AddModule("Nameplates", function(_, core, L)
 			if type(core.db.Nameplates) ~= "table" or not next(core.db.Nameplates) then
 				core.db.Nameplates = CopyTable(defaults)
 			end
+
+			-- just in case config were missing after update.
+			for k, v in pairs(defaults) do
+				if core.db.Nameplates[k] == nil then
+					core.db.Nameplates[k] = v
+				end
+			end
+
 			DB = core.db.Nameplates
 
 			for k, v in pairs(DB) do
 				config[k] = v
 			end
-
-			for k, v in pairs(defaults) do
-				if config[k] == nil then
-					config[k] = v
-				end
-			end
 		end
 		if not CharDB then
 			if type(core.char.Nameplates) ~= "table" or not next(core.char.Nameplates) then
 				core.char.Nameplates = CopyTable(defaultsChar)
+			end
+
+			for k, v in pairs(defaultsChar) do
+				if core.char.Nameplates[k] == nil then
+					core.char.Nameplates[k] = v
+				end
 			end
 			CharDB = core.char.Nameplates
 
