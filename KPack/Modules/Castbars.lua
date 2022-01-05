@@ -221,8 +221,11 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 			elseif barText ~= frame.spellName and frame.spellTargetName then
 				barText = frame.spellTargetName
 			end
+			if Castbars.db[frame.configName]["ShowSpellRank"] and frame.spellRank and frame.spellRank ~= "" and frame.spellRank ~= barText then
+				barText = ("%s (%s)"):format(barText, frame.spellRank)
+			end
 			if Castbars.db[frame.configName]["ShowSpellTarget"] and frame.spellTargetName and frame.spellTargetName ~= "" and frame.spellTargetName ~= barText then
-				frame.text:SetFormattedText("%s (%s)", barText, frame.spellTargetName)
+				frame.text:SetFormattedText("%s -> %s", barText, frame.spellTargetName)
 			else
 				frame.text:SetText(barText)
 			end
@@ -819,6 +822,19 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 					Castbars_FrameLayoutRestoreAll()
 				end
 			}
+			options.args.showspellrank = {
+				type = "toggle",
+				name = L["Show Spell Rank"],
+				desc = L["Toggles display of the rank of the spell being cast."],
+				order = 4.1,
+				get = function()
+					return Castbars.db[frameConfigName]["ShowSpellRank"]
+				end,
+				set = function()
+					Castbars.db[frameConfigName]["ShowSpellRank"] = not Castbars.db[frameConfigName]["ShowSpellRank"]
+					Castbars_FrameLayoutRestoreAll()
+				end
+			}
 			options.args.texture.width = "double"
 			options.args.classcolor = {
 				type = "toggle",
@@ -951,6 +967,7 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 			Show = true,
 			ShowIcon = true,
 			ShowLatency = true,
+			ShowSpellRank = false,
 			ShowSpellTarget = true,
 			ShowTotalCastTime = true,
 			TotalCastTimeDecimals = 1,
@@ -1199,11 +1216,12 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 			end
 			frame.Show = nil
 			if event == "UNIT_SPELLCAST_SENT" then
-				local unit, spellName, _, targetName = ...
+				local unit, spellName, spellRank, targetName = ...
 				if unit == "player" then
 					frame.sentTime = GetTime()
 					frame.outOfRange = false
 					frame.spellName = spellName
+					frame.spellRank = spellRank
 					frame.spellTargetName = targetName
 					frame.spellTarget = Castbars_NameToUnitID(targetName)
 				end
