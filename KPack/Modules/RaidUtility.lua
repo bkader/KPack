@@ -2352,7 +2352,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				[55233] = 60, -- Vampiric Blood
 				[56222] = 8, -- Dark Command
 				[61999] = 600, -- Raise Ally
-				[70654] = 60 -- Blood Armor
+				[70654] = 60, -- Blood Armor
+				[48743] = 120 -- Death Pact
 			},
 			DRUID = {
 				[16857] = 6, -- Faerie Fire (Feral)
@@ -2386,7 +2387,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				[34600] = 30, -- Snake Trap
 				[49067] = 30, -- Explosive Trap
 				[60192] = 30, -- Freezing Arrow
-				[781] = 25 -- Disengage
+				[781] = 25, -- Disengage
+				[5384] = 30 -- Feign Death
 			},
 			MAGE = {
 				[11958] = 480, -- Cold Snap
@@ -2471,6 +2473,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				[51533] = 180, -- Feral Spirit
 				[57994] = 6, -- Wind Shear
 				[59159] = 35, -- Thunderstorm
+				[30823] = 60, -- Shamanistic Rage
 				[heroism] = 300 -- Bloodlust/Heroism
 			},
 			WARLOCK = {
@@ -2483,7 +2486,8 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				[48020] = 30, -- Demonic Circle: Teleport
 				[59672] = 180, -- Metamorphosis
 				[6203] = 1800, -- Soulstone, XXX needs testing
-				[698] = 120 -- Ritual of Summoning
+				[698] = 120, -- Ritual of Summoning
+				[47891] = 30 -- ShadowWard
 			},
 			WARRIOR = {
 				[1161] = 180, -- Challenging Shout
