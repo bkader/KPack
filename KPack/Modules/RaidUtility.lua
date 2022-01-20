@@ -2352,7 +2352,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				[55233] = 60, -- Vampiric Blood
 				[56222] = 8, -- Dark Command
 				[61999] = 600, -- Raise Ally
-				[70654] = 60, -- Blood Armor
+				[70654] = 60, -- Blood Armor (Tank 4 Set)
 				[48743] = 120 -- Death Pact
 			},
 			DRUID = {
@@ -2487,7 +2487,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				[59672] = 180, -- Metamorphosis
 				[6203] = 1800, -- Soulstone, XXX needs testing
 				[698] = 120, -- Ritual of Summoning
-				[47891] = 30 -- ShadowWard
+				[47891] = 30 -- Shadow Ward
 			},
 			WARRIOR = {
 				[1161] = 180, -- Challenging Shout
@@ -2508,7 +2508,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 				[64382] = 300, -- Shattering Throw
 				[6552] = 10, -- Pummel
 				[676] = 60, -- Disarm
-				[70845] = 60, -- Stoicism
+				[70845] = 60, -- Stoicism (Tank 4 Set)
 				[72] = 12, -- Shield Bash
 				[871] = 300 -- Shield Wall
 			}
@@ -2857,11 +2857,13 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 						args = {}
 					}
 					for spellid in pairs(spells) do
-						local spellname = GetSpellInfo(spellid)
+						local spellname, _, spellicon = GetSpellInfo(spellid)
 						if spellname then
 							opt.args[spellname] = {
 								type = "toggle",
 								name = spellname,
+								image = spellicon,
+								imageCoords = {0.1, 0.9, 0.1, 0.9},
 								arg = spellid
 							}
 						end
