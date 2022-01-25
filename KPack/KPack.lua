@@ -25,6 +25,10 @@ core.classcolors = {
 	WARLOCK = {r = 0.58, g = 0.51, b = 0.79, colorStr = "ff8788ee"},
 	WARRIOR = {r = 0.78, g = 0.61, b = 0.43, colorStr = "ffc79c6e"}
 }
+
+core.name = UnitName("player")
+core.race = select(2, UnitRace("player"))
+core.faction = UnitFactionGroup("player")
 core.class = select(2, UnitClass("player"))
 core.mycolor = core.classcolors[core.class]
 
@@ -477,9 +481,6 @@ do
 		f:SetScript("OnEvent", function(self, event, arg1)
 			if event == "PLAYER_LOGIN" then
 				core.guid = UnitGUID("player")
-				core.name = UnitName("player")
-				core.race = select(2, UnitRace("player"))
-				core.faction = UnitFactionGroup("player")
 			elseif (InCombatLockdown() and eventcount > 25000) or (not InCombatLockdown() and eventcount > 10000) or event == "PLAYER_ENTERING_WORLD" then
 				collectgarbage("collect")
 				eventcount = 0

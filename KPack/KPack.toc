@@ -8,7 +8,7 @@
 ## DefaultState: enabled
 ## RequiredDeps: Blizzard_CombatText
 ## Version: 1.2.7
-## X-Date: 2022-01-20 @ 12:54 PM |cff808080UTC|r
+## X-Date: 2022-01-25 @ 12:13 AM |cff808080UTC|r
 ## X-Credits: Original addons' authors
 ## X-License: MIT/X
 ## X-Email: bkader@mail.com
