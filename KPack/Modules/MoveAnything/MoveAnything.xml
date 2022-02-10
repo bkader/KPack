@@ -269,7 +269,7 @@
 			</OnHide>
 			<OnEnter>
 				if self.tagged then
-					if self.alwaysShowTooltip or (self.neverShowTooltip and IsShiftKeyDown()) or (MADB.tooltips and not IsShiftKeyDown() and not self.neverShowTooltip) or (not MADB.tooltips and IsShiftKeyDown()) then
+					if self.alwaysShowTooltip or (self.neverShowTooltip and IsShiftKeyDown()) or (kMADB.tooltips and not IsShiftKeyDown() and not self.neverShowTooltip) or (not kMADB.tooltips and IsShiftKeyDown()) then
 						self.tooltipLines = MovAny:GetFrameTooltipLines(self.tagged:GetName())
 						MovAny:TooltipShowMultiline(self)
 					end
@@ -555,7 +555,7 @@
 						if IsShiftKeyDown() and IsControlKeyDown() and IsAltKeyDown() then
 							ReloadUI()
 						else
-							MADB.autoShowNext = nil
+							kMADB.autoShowNext = nil
 							MAOptions:Hide()
 						end
 					</OnClick>
@@ -825,6 +825,7 @@
 				self:RegisterEvent("PLAYER_LOGOUT")
 				self:RegisterEvent("PLAYER_ENTERING_WORLD")
 				self:RegisterEvent("PLAYER_REGEN_ENABLED")
+				self:RegisterEvent("RAID_ROSTER_UPDATE")
 				self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 				self:RegisterEvent("PLAYER_FOCUS_CHANGED")
 				self:RegisterEvent("PLAYER_ENTER_COMBAT")
@@ -1116,7 +1117,7 @@
 			<OnMouseWheel function="MANudger_OnMouseWheel"/>
 			<OnEnter>
 				if MovAny.currentMover ~= nil and MovAny.currentMover.tagged then
-					if self.alwaysShowTooltip or (self.neverShowTooltip and IsShiftKeyDown()) or (MADB.tooltips and not IsShiftKeyDown() and not self.neverShowTooltip) or (not MADB.tooltips and IsShiftKeyDown()) then
+					if self.alwaysShowTooltip or (self.neverShowTooltip and IsShiftKeyDown()) or (kMADB.tooltips and not IsShiftKeyDown() and not self.neverShowTooltip) or (not kMADB.tooltips and IsShiftKeyDown()) then
 						self.tooltipLines = MovAny:GetFrameTooltipLines(MovAny.currentMover.tagged:GetName())
 						MovAny:TooltipShowMultiline(self)
 					end

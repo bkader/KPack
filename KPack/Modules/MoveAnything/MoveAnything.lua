@@ -1,6 +1,7 @@
 assert(KPack, "KPack not found!")
 local L = KPack.L
 local MAOptions
+local MovAny_SetupDatabase
 
 local function void()
 end
@@ -55,7 +56,11 @@ local defaults = {
 	profiles = {}
 }
 
-_G.MADB = nil
+kMADB = {
+	tooltips = true,
+	characters = {},
+	profiles = {},
+}
 
 MovAny = {
 	fVoid = function() end,
@@ -369,7 +374,6 @@ MovAny = {
 		TargetFrameSpellBar = "UIParent",
 		FocusFrameSpellBar = "UIParent",
 		--LFDSearchStatus = "UIParent",
-		MultiBarBottomLeft = "UIParent",
 		MANudger = "UIParent",
 		MultiBarBottomRight = "UIParent",
 		MultiBarBottomLeft = "UIParent",
@@ -990,7 +994,7 @@ function MovAny:Boot()
 	MovAny_SetupDatabase()
 	MAOptions = _G["MAOptions"]
 
-	if not MADB.noMMMW and Minimap:GetScript("OnMouseWheel") == nil then
+	if not kMADB.noMMMW and Minimap:GetScript("OnMouseWheel") == nil then
 		Minimap:SetScript("OnMouseWheel", function(self, dir)
 			if dir < 0 then
 				Minimap_ZoomOut()
@@ -1001,31 +1005,31 @@ function MovAny:Boot()
 		Minimap:EnableMouseWheel(true)
 	end
 
-	local MADB_Defaults = {frameListRows = 18}
+	local kMADB_Defaults = {frameListRows = 18}
 
-	for i, v in pairs(MADB_Defaults) do
-		if MADB[i] ~= nil then
+	for i, v in pairs(kMADB_Defaults) do
+		if kMADB[i] ~= nil then
 		else
-			MADB[i] = v
+			kMADB[i] = v
 		end
 	end
 
-	if tlen(MADB.profiles) == 0 then
-		MADB.autoShowNext = true
+	if tlen(kMADB.profiles) == 0 then
+		kMADB.autoShowNext = true
 	end
 
 	self:VerifyData()
 
-	MADB.collapsed = true
+	kMADB.collapsed = true
 
-	if MADB.squareMM then
+	if kMADB.squareMM then
 		MinimapBorder:SetTexture(nil)
 		Minimap:SetMaskTexture("Interface\\AddOns\\KPack\\Modules\\MoveAnything\\MinimapMaskSquare")
 	end
 
-	self:SetNumRows(MADB.frameListRows, false)
+	self:SetNumRows(kMADB.frameListRows, false)
 
-	if MADB.closeGUIOnEscape then
+	if kMADB.closeGUIOnEscape then
 		tinsert(UISpecialFrames, "MAOptions")
 	end
 
@@ -1078,12 +1082,12 @@ function MovAny:Boot()
 		end
 	end
 
-	if not MADB.noBags then
+	if not kMADB.noBags then
 		MAOptions:RegisterEvent("BANKFRAME_OPENED")
 		MAOptions:RegisterEvent("BANKFRAME_CLOSED")
 	end
 
-	if not MADB.dontHookCreateFrame and CreateFrame then
+	if not kMADB.dontHookCreateFrame and CreateFrame then
 		hooksecurefunc("CreateFrame", self.hCreateFrame)
 	end
 	if ContainerFrame_GenerateFrame then
@@ -1125,7 +1129,7 @@ end
 
 function MovAny:OnPlayerLogout()
 	if MAOptions:IsShown() then
-		MADB.autoShowNext = true
+		kMADB.autoShowNext = true
 	end
 
 	if type(self.movers) == "table" then
@@ -1133,15 +1137,15 @@ function MovAny:OnPlayerLogout()
 			self:StopMoving(v.tagged:GetName())
 		end
 	end
-	if type(MADB.profiles) == "table" then
-		for i, v in pairs(MADB.profiles) do
+	if type(kMADB.profiles) == "table" then
+		for i, v in pairs(kMADB.profiles) do
 			MovAny:CleanProfile(i)
 		end
 	end
 end
 
 function MovAny:CleanProfile(pn)
-	local p = MADB.profiles[pn]
+	local p = kMADB.profiles[pn]
 	if type(p) == "table" and type(p.frames) == "table" then
 		local f
 		for i, v in pairs(p.frames) do
@@ -1181,37 +1185,37 @@ function MovAny:CleanProfile(pn)
 end
 
 function MovAny:VerifyData()
-	if MADB.CharacterSettings then
-		MADB.profiles = {}
-		for i, v in pairs(MADB.CharacterSettings) do
+	if kMADB.CharacterSettings then
+		kMADB.profiles = {}
+		for i, v in pairs(kMADB.CharacterSettings) do
 			if type(v) == "table" then
-				MADB.profiles[i] = {name = i, frames = v}
+				kMADB.profiles[i] = {name = i, frames = v}
 			end
 		end
-		MADB.CharacterSettings = nil
+		kMADB.CharacterSettings = nil
 
-		MADB.characters = {}
-		if MADB.UseCharacterSettings then
-			for i, _ in pairs(MADB.profiles) do
-				MADB.characters[i] = {profile = i}
+		kMADB.characters = {}
+		if kMADB.UseCharacterSettings then
+			for i, _ in pairs(kMADB.profiles) do
+				kMADB.characters[i] = {profile = i}
 			end
 		end
 	end
 
-	if type(MADB) ~= "table" then
-		MADB = {}
+	if type(kMADB) ~= "table" then
+		kMADB = {}
 	end
-	if type(MADB.profiles) ~= "table" then
-		MADB.profiles = {}
+	if type(kMADB.profiles) ~= "table" then
+		kMADB.profiles = {}
 	end
-	if type(MADB.characters) ~= "table" then
-		MADB.characters = {}
+	if type(kMADB.characters) ~= "table" then
+		kMADB.characters = {}
 	end
-	if MADB.profiles["default"] == nil then
+	if kMADB.profiles["default"] == nil then
 		self:AddProfile("default", true, true)
 	end
-	if MADB.profiles[self:GetProfileName()] == nil then
-		local char = MADB.characters[self:GetCharacterIndex()]
+	if kMADB.profiles[self:GetProfileName()] == nil then
+		local char = kMADB.characters[self:GetCharacterIndex()]
 		if char then
 			char.profile = nil
 		end
@@ -1222,7 +1226,7 @@ function MovAny:VerifyData()
 	local addList = {}
 	local rewriteName
 
-	for pi, profile in pairs(MADB.profiles) do
+	for pi, profile in pairs(kMADB.profiles) do
 		table.wipe(remList)
 		table.wipe(addList)
 		if type(profile.frames) ~= "table" then
@@ -1307,10 +1311,10 @@ function MovAny:VerifyData()
 			end
 		end
 		for i, v in ipairs(remList) do
-			MADB.profiles[pi].frames[v] = nil
+			kMADB.profiles[pi].frames[v] = nil
 		end
 		for i, opt in pairs(addList) do
-			MADB.profiles[pi].frames[i] = opt
+			kMADB.profiles[pi].frames[i] = opt
 		end
 	end
 
@@ -1322,7 +1326,7 @@ function MovAny:ParseData()
 	if self.DefaultFrameList then
 		local sepLast, sep
 
-		if MADB.noList then
+		if kMADB.noList then
 			for i, v in pairs(self.DefaultFrameList) do
 				if v[1] then
 					if v[1] == "" then
@@ -1330,7 +1334,7 @@ function MovAny:ParseData()
 						sep.name = nil
 						sep.helpfulName = v[2]
 						sep.sep = true
-						sep.collapsed = MADB.collapsed
+						sep.collapsed = kMADB.collapsed
 						sepLast = sep
 					end
 				end
@@ -1350,7 +1354,7 @@ function MovAny:ParseData()
 						sep.name = nil
 						sep.helpfulName = v[2]
 						sep.sep = true
-						sep.collapsed = MADB.collapsed
+						sep.collapsed = kMADB.collapsed
 						tinsert(self.frames, sep)
 						tinsert(self.cats, sep)
 						self.framesCount = self.framesCount + 1
@@ -1368,7 +1372,7 @@ function MovAny:ParseData()
 		self.DefaultFrameList = nil
 		self.customCat = sepLast
 	end
-	self.frameOptions = MADB.profiles[self:GetProfileName()].frames
+	self.frameOptions = kMADB.profiles[self:GetProfileName()].frames
 	for i, v in pairs(self.frameOptions) do
 		if not self:GetFrame(v.name) then
 			self:AddFrameToMovableList(v.name, v.helpfulName, 1)
@@ -1554,7 +1558,7 @@ function MovAny:SyncFrames(dontReset)
 	self.rendered = true
 	self.syncingFrames = nil
 
-	if MADB.autoShowNext then
+	if kMADB.autoShowNext then
 		MAOptions:Show()
 	end
 end
@@ -1667,7 +1671,7 @@ function MovAny:GetCharacterIndex()
 end
 
 function MovAny:GetProfileName(override)
-	local char = MADB.characters[MovAny:GetCharacterIndex()]
+	local char = kMADB.characters[MovAny:GetCharacterIndex()]
 	if char and char.profile then
 		return char.profile
 	else
@@ -1679,30 +1683,30 @@ function MovAny:CopyProfile(fromName, toName)
 	if fromName == toName then
 		return
 	end
-	if MADB.profiles[toName] == nil then
+	if kMADB.profiles[toName] == nil then
 		self:AddProfile(toName, true)
 	end
 	local l, vm
-	for i, val in pairs(MADB.profiles[fromName].frames) do
+	for i, val in pairs(kMADB.profiles[fromName].frames) do
 		l = tcopy(val)
 		l.cat = nil
 		data = self.lVirtualMovers[i]
 		if data and data.excludes then
-			MADB.profiles[toName].frames[data.excludes] = nil
+			kMADB.profiles[toName].frames[data.excludes] = nil
 		end
-		MADB.profiles[toName].frames[i] = l
+		kMADB.profiles[toName].frames[i] = l
 	end
 	return true
 end
 
 function MovAny:AddProfile(pn, silent, dontUpdate)
-	if MADB.profiles[pn] then
+	if kMADB.profiles[pn] then
 		if not silent then
 			MovAny_Print(string.format(L.PROFILE_ALREADY_EXISTS, pn))
 		end
 		return
 	end
-	MADB.profiles[pn] = {name = pn, frames = {}}
+	kMADB.profiles[pn] = {name = pn, frames = {}}
 
 	return true
 end
@@ -1716,14 +1720,14 @@ function MovAny:DeleteProfile(pn)
 		self:ResetProfile()
 	end
 
-	MADB.profiles[pn] = nil
-	for name, char in pairs(MADB.characters) do
+	kMADB.profiles[pn] = nil
+	for name, char in pairs(kMADB.characters) do
 		if char and char.profile == pn then
 			char.profile = nil
 		end
 	end
 	if true then
-		self.frameOptions = MADB.profiles[self:GetProfileName()].frames
+		self.frameOptions = kMADB.profiles[self:GetProfileName()].frames
 		self:SyncAllFrames(true)
 		self:UpdateGUIIfShown(true)
 	end
@@ -1734,14 +1738,14 @@ function MovAny:RenameProfile(pn, nn)
 	if pn == nn or nn == "default" or nn == "" then
 		return
 	end
-	local p = MADB.profiles[pn]
+	local p = kMADB.profiles[pn]
 	if type(p) ~= "table" then
 		return
 	end
 	p.name = nn
-	MADB.profiles[nn] = p
-	MADB.profiles[pn] = nil
-	for i, v in pairs(MADB.characters) do
+	kMADB.profiles[nn] = p
+	kMADB.profiles[pn] = nil
+	for i, v in pairs(kMADB.characters) do
 		if v.profile == pn then
 			v.profile = nn
 		end
@@ -1753,20 +1757,20 @@ function MovAny:UpdateProfile()
 	if self.frameOptions then
 		self:ResetProfile(true)
 	end
-	self.frameOptions = MADB.profiles[self:GetProfileName()].frames
+	self.frameOptions = kMADB.profiles[self:GetProfileName()].frames
 	self:SyncAllFrames(true)
 	self:UpdateGUIIfShown(true)
 end
 
 function MovAny:ChangeProfile(profile)
 	MovAny:ResetProfile(true)
-	local char = MADB.characters[MovAny:GetCharacterIndex()]
+	local char = kMADB.characters[MovAny:GetCharacterIndex()]
 	if not char then
 		char = {}
-		MADB.characters[MovAny:GetCharacterIndex()] = char
+		kMADB.characters[MovAny:GetCharacterIndex()] = char
 	end
 	char.profile = profile
-	MovAny.frameOptions = MADB.profiles[MovAny:GetProfileName()].frames
+	MovAny.frameOptions = kMADB.profiles[MovAny:GetProfileName()].frames
 
 	for i, v in pairs(MovAny.frameOptions) do
 		if not MovAny:GetFrame(v.name) then
@@ -2563,7 +2567,7 @@ end
 --X: bindings
 function MovAny:SafeMoveFrameAtCursor()
 	local obj = GetMouseFocus()
-	while 1 == 1 and obj do
+	if obj then
 		while 1 == 1 and obj do
 			if self:IsMAFrame(obj:GetName()) then
 				if self:IsMover(obj:GetName()) then
@@ -2588,32 +2592,35 @@ function MovAny:SafeMoveFrameAtCursor()
 
 		if transName ~= obj:GetName() then
 			self:ToggleMove(transName)
-			break
+			self:UpdateGUIIfShown(true)
+			return
 		end
 
 		local p = obj:GetParent()
 		-- check for minimap button
 		if (p == MinimapBackdrop or p == Minimap or p == MinimapCluster) and obj ~= Minimap then
 			self:ToggleMove(obj:GetName())
-			break
+			self:UpdateGUIIfShown(true)
+			return
 		end
 
 		local objTest = self:GetDefaultFrameParent(obj)
 		if objTest then
 			self:ToggleMove(objTest:GetName())
-			break
+			self:UpdateGUIIfShown(true)
+			return
 		end
 
 		objTest = self:GetTopFrameParent(obj)
 		if objTest then
 			self:ToggleMove(objTest:GetName())
-			break
+			self:UpdateGUIIfShown(true)
+			return
 		end
 
 		if obj and obj ~= WorldFrame and obj ~= UIParent and obj.GetName then
 			self:ToggleMove(obj:GetName())
 		end
-		break
 	end
 
 	self:UpdateGUIIfShown(true)
@@ -2622,7 +2629,7 @@ end
 function MovAny:SafeHideFrameAtCursor()
 	local obj = GetMouseFocus()
 
-	while 1 do
+	if obj then
 		if self:IsMAFrame(obj:GetName()) then
 			if self:IsMover(obj:GetName()) and obj.tagged then
 				obj = obj.tagged
@@ -2633,25 +2640,25 @@ function MovAny:SafeHideFrameAtCursor()
 		local transName = self:Translate(obj:GetName(), 1)
 		if transName ~= obj:GetName() then
 			self:ToggleHide(transName)
-			break
+			return
 		end
 		local objTest = self:GetDefaultFrameParent(obj)
 		if objTest then
 			self:ToggleHide(objTest:GetName())
-			break
+			return
 		end
 		objTest = self:GetTopFrameParent(obj)
 		if objTest then
 			self:AddFrameToMovableList(objTest:GetName(), nil)
 			self:ToggleHide(objTest:GetName())
-			break
+			return
 		end
 		if obj and obj ~= WorldFrame and obj ~= UIParent then
 			self:AddFrameToMovableList(obj:GetName(), nil)
 			self:ToggleHide(obj:GetName())
-			break
+			return
 		end
-		break
+		return
 	end
 
 	self:UpdateGUIIfShown(true)
@@ -2661,16 +2668,16 @@ function MovAny:SafeResetFrameAtCursor()
 	local obj = GetMouseFocus()
 	local fn = obj:GetName()
 
-	while 1 do
+	if obj then
 		if fn and self.frameOptions[fn] then
 			self:ResetFrameConfirm(fn)
-			break
+			return
 		end
 		if self:IsMAFrame(fn) then
 			if self:IsMover(fn) and obj.tagged then
 				obj = obj.tagged
 				self:ResetFrameConfirm(obj:GetName())
-				break
+				return
 			elseif not self:IsValidObject(obj, true) then
 				obj = obj:GetParent()
 			end
@@ -2680,23 +2687,23 @@ function MovAny:SafeResetFrameAtCursor()
 		local transName = self:Translate(fn, 1)
 		if transName ~= fn and self.frameOptions[fn] then
 			self:ResetFrameConfirm(fn)
-			break
+			return
 		end
 		local objTest = self:GetDefaultFrameParent(obj)
 		if objTest and self.frameOptions[objTest:GetName()] then
 			self:ResetFrameConfirm(objTest:GetName())
-			break
+			return
 		end
 		objTest = self:GetTopFrameParent(obj)
 		if objTest and self.frameOptions[objTest:GetName()] then
 			self:ResetFrameConfirm(objTest:GetName())
-			break
+			return
 		end
 		if obj and obj ~= WorldFrame and obj ~= UIParent and self.frameOptions[fn] then
 			self:ResetFrameConfirm(fn)
-			break
+			return
 		end
-		break
+		return
 	end
 end
 
@@ -3308,9 +3315,9 @@ end
 function MovAny:OnCheckToggleCategories(button)
 	local state = button:GetChecked()
 	if state then
-		MADB.collapsed = true
+		kMADB.collapsed = true
 	else
-		MADB.collapsed = nil
+		kMADB.collapsed = nil
 	end
 	for i, v in pairs(self.cats) do
 		v.collapsed = state
@@ -3322,9 +3329,9 @@ end
 function MovAny:OnCheckToggleModifiedFramesOnly(button)
 	local state = button:GetChecked()
 	if state then
-		MADB.modifiedFramesOnly = true
+		kMADB.modifiedFramesOnly = true
 	else
-		MADB.modifiedFramesOnly = nil
+		kMADB.modifiedFramesOnly = nil
 	end
 
 	self:UpdateGUIIfShown(true)
@@ -3466,12 +3473,10 @@ function MovAny:MoverUpdatePosition(mover)
 			return
 		end
 		local opt = self:GetFrameOptions(f:GetName())
-		if not skipGroups and opt.groups and not IsShiftKeyDown() then
+		if not mover.skipGroups and opt.groups and not IsShiftKeyDown() then
 			local _, _, _, mx, my = unpack(self:GetRelativePoint(opt.pos, f, true))
-			mx = mx
-			 -- * mover:GetScale()
-			my = my
-			 -- * mover:GetScale()
+			mx = mx -- * mover:GetScale()
+			my = my -- * mover:GetScale()
 			local fx = opt.pos[4]
 			local fy = opt.pos[5]
 
@@ -3665,7 +3670,7 @@ function MovAny:ResetProfile(readOnly)
 	self:ReanchorRelatives()
 	if not readOnly then
 		self.frameOptions = {}
-		MADB.profiles[self:GetProfileName()].frames = self.frameOptions
+		kMADB.profiles[self:GetProfileName()].frames = self.frameOptions
 	end
 	self:UpdateGUIIfShown(true)
 end
@@ -3676,23 +3681,23 @@ function MovAny:CompleteReset()
 	end
 	self:ReanchorRelatives()
 
-	if MADB.squareMM then
+	if kMADB.squareMM then
 		MinimapBorder:SetTexture("Interface\\Minimap\\UI-Minimap-Border")
 		Minimap:SetMaskTexture("Textures\\MinimapMask")
 	end
 
-	MADB = {
+	kMADB = {
 		collapsed = true,
 		frameListRows = 18,
 		tooltips = true
 	}
-	MADB.profiles = {}
-	MADB.characters = {}
+	kMADB.profiles = {}
+	kMADB.characters = {}
 	self.frameOptions = {}
 
 	local name = self:GetProfileName()
-	if MADB.profiles[name] then
-		MADB.profiles[name].frames = self.frameOptions
+	if kMADB.profiles[name] then
+		kMADB.profiles[name].frames = self.frameOptions
 	end
 
 	MAOptionsToggleCategories:SetChecked(true)
@@ -3702,11 +3707,11 @@ function MovAny:CompleteReset()
 end
 
 function MovAny:OnShow()
-	if MADB.playSound then
+	if kMADB.playSound then
 		PlaySound("igMainMenuOpen")
 	end
 
-	MADB.autoShowNext = true
+	kMADB.autoShowNext = true
 
 	MANudger:Show()
 	self:NudgerFrameRefresh()
@@ -3720,11 +3725,11 @@ function MovAny:OnShow()
 end
 
 function MovAny:OnHide()
-	if MADB.playSound then
+	if kMADB.playSound then
 		PlaySound("igMainMenuClose")
 	end
 
-	MADB.autoShowNext = nil
+	kMADB.autoShowNext = nil
 
 	if not self.currentMover then
 		MANudger:Hide()
@@ -3766,10 +3771,10 @@ function MovAny:CountGUIItems()
 		for i, o in pairs(MovAny.frames) do
 			if not o.sep and o.cat then
 				if
-					(not MADB.dontSearchFrameNames and string.match(string.lower(o.name), self.searchWord)) or
+					(not kMADB.dontSearchFrameNames and string.match(string.lower(o.name), self.searchWord)) or
 						(o.helpfulName and string.match(string.lower(o.helpfulName), self.searchWord))
 				 then
-					if MADB.modifiedFramesOnly then
+					if kMADB.modifiedFramesOnly then
 						if MovAny:IsModified(o.name) then
 							items = items + 1
 						end
@@ -3788,7 +3793,7 @@ function MovAny:CountGUIItems()
 				end
 				curSep = o
 			else
-				if MADB.modifiedFramesOnly then
+				if kMADB.modifiedFramesOnly then
 					if MovAny:IsModified(o.name) then
 						nextSepItems = nextSepItems + 1
 					end
@@ -3804,7 +3809,7 @@ function MovAny:CountGUIItems()
 
 		for i, o in pairs(MovAny.frames) do
 			if o.sep then
-				if not MADB.modifiedFramesOnly then
+				if not kMADB.modifiedFramesOnly then
 					if o.collapsed then
 						items = items + 1
 					else
@@ -3830,7 +3835,7 @@ function MovAny:UpdateGUI(recount)
 		MovAny:CountGUIItems()
 	end
 
-	FauxScrollFrame_Update(MAScrollFrame, MovAny.guiLines, MADB.frameListRows, MovAny.SCROLL_HEIGHT)
+	FauxScrollFrame_Update(MAScrollFrame, MovAny.guiLines, kMADB.frameListRows, MovAny.SCROLL_HEIGHT)
 	local topOffset = FauxScrollFrame_GetOffset(MAScrollFrame)
 
 	local displayList = {}
@@ -3841,10 +3846,10 @@ function MovAny:UpdateGUI(recount)
 		for i, o in pairs(MovAny.frames) do
 			if not o.sep then
 				if
-					(not MADB.dontSearchFrameNames and string.match(string.lower(o.name), MovAny.searchWord)) or
+					(not kMADB.dontSearchFrameNames and string.match(string.lower(o.name), MovAny.searchWord)) or
 						(o.helpfulName and string.match(string.lower(o.helpfulName), MovAny.searchWord))
 				 then
-					if MADB.modifiedFramesOnly then
+					if kMADB.modifiedFramesOnly then
 						if MovAny:IsModified(o.name) then
 							tinsert(results, o)
 						end
@@ -3876,7 +3881,7 @@ function MovAny:UpdateGUI(recount)
 
 			if o.sep then
 				lastSep = o
-				if MADB.modifiedFramesOnly then
+				if kMADB.modifiedFramesOnly then
 					if o.items == 0 then
 						hidden = hidden + 1
 					else
@@ -3887,7 +3892,7 @@ function MovAny:UpdateGUI(recount)
 				end
 			else
 				if lastSep and lastSep.collapsed then
-				elseif MADB.modifiedFramesOnly then
+				elseif kMADB.modifiedFramesOnly then
 					if lastSep.items > 0 then
 						shown = shown + 1
 					else
@@ -3911,7 +3916,7 @@ function MovAny:UpdateGUI(recount)
 		wtfOffset = 0
 		local skip = topOffset
 
-		for i = 1, MADB.frameListRows, 1 do
+		for i = 1, kMADB.frameListRows, 1 do
 			local index = i + sepOffset + wtfOffset
 
 			local o
@@ -3923,7 +3928,7 @@ function MovAny:UpdateGUI(recount)
 				end
 				o = MovAny.frames[index]
 				if o.sep then
-					if MADB.modifiedFramesOnly then
+					if kMADB.modifiedFramesOnly then
 						if o.items > 0 then
 							if skip > 0 then
 								index = index + 1
@@ -3957,7 +3962,7 @@ function MovAny:UpdateGUI(recount)
 						index = index + 1
 						wtfOffset = wtfOffset + 1
 					else
-						if MADB.modifiedFramesOnly then
+						if kMADB.modifiedFramesOnly then
 							if MovAny:IsModified(o.name) then
 								if skip > 0 then
 									index = index + 1
@@ -3996,7 +4001,7 @@ function MovAny:UpdateGUI(recount)
 	local prefix, move, hide, backdrop = "MAMove", "Move", "Hide"
 	local skip = topOffset
 
-	for i = 1, MADB.frameListRows, 1 do
+	for i = 1, kMADB.frameListRows, 1 do
 		local o = displayList[i]
 		local row = _G[prefix .. i]
 
@@ -4065,8 +4070,8 @@ function MovAny:UpdateGUI(recount)
 		end
 	end
 
-	MAOptionsToggleCategories:SetChecked(MADB.collapsed)
-	MAOptionsToggleModifiedFramesOnly:SetChecked(MADB.modifiedFramesOnly)
+	MAOptionsToggleCategories:SetChecked(kMADB.collapsed)
+	MAOptionsToggleModifiedFramesOnly:SetChecked(kMADB.modifiedFramesOnly)
 
 	if MovAny.searchWord and MovAny.searchWord ~= "" then
 		MAOptionsFrameNameHeader:SetText(string.format(L.LIST_HEADING_SEARCH_RESULTS, MovAny.guiLines))
@@ -4175,7 +4180,7 @@ end
 
 function MovAny:MoverOnHide()
 	local firstMover = self:GetFirstMover()
-	if not MADB.alwaysShowNudger and firstMover == nil then
+	if not kMADB.alwaysShowNudger and firstMover == nil then
 		MANudger:Hide()
 	else
 		self.currentMover = firstMover
@@ -4184,7 +4189,7 @@ function MovAny:MoverOnHide()
 end
 
 function MovAny:NudgerOnShow()
-	if not MADB.alwaysShowNudger then
+	if not kMADB.alwaysShowNudger then
 		local firstMover = self:GetFirstMover()
 		if firstMover == nil then
 			MANudger:Hide()
@@ -4298,9 +4303,10 @@ function MovAny:NudgerOnUpdate()
 				text2 = text2 .. "\nParent: " .. name
 			end
 			if
-				obj:GetParent():GetParent() and obj:GetParent():GetParent() ~= WorldFrame and
-					obj:GetParent():GetParent():GetName()
-			 then
+				obj:GetParent():GetParent() and
+				obj:GetParent():GetParent() ~= WorldFrame and
+				obj:GetParent():GetParent():GetName()
+			then
 				name = obj:GetParent():GetParent():GetName()
 				if name then
 					text2 = text2 .. "\nParent's Parent: " .. name
@@ -4418,9 +4424,11 @@ function MovAny:SyncUIPanel(mn, f)
 	local mover = _G[mn]
 
 	if
-		f and (f ~= LootFrame or GetCVar("lootUnderMouse") ~= "1") and not MovAny:IsModified(f) and
-			not MovAny:GetMoverByFrame(f)
-	 then
+		f and
+		(f ~= LootFrame or GetCVar("lootUnderMouse") ~= "1") and
+		not MovAny:IsModified(f) and
+		not MovAny:GetMoverByFrame(f)
+	then
 		if self:IsModified(mn) then
 			local closure = function(f)
 				return function()
@@ -4478,26 +4486,26 @@ function MovAny:SyncUIPanel(mn, f)
 end
 
 function MovAny:SyncUIPanels()
-	local self = MovAny
+	local this = MovAny
 
 	local f = GetUIPanel("left")
 	if f then
-		self:SyncUIPanel("UIPanelMover1", f)
+		this:SyncUIPanel("UIPanelMover1", f)
 		f = GetUIPanel("center")
 		if f then
-			self:SyncUIPanel("UIPanelMover2", f)
+			this:SyncUIPanel("UIPanelMover2", f)
 			f = GetUIPanel("right")
 			if f then
-				self:SyncUIPanel("UIPanelMover3", f)
+				this:SyncUIPanel("UIPanelMover3", f)
 			end
 		end
 	else
 		f = GetUIPanel("doublewide")
 		if f then
-			self:SyncUIPanel("UIPanelMover1", f)
+			this:SyncUIPanel("UIPanelMover1", f)
 			f = GetUIPanel("right")
 			if f then
-				self:SyncUIPanel("UIPanelMover3", f)
+				this:SyncUIPanel("UIPanelMover3", f)
 			end
 		end
 	end
@@ -4639,27 +4647,29 @@ function MovAny:UnanchorRelatives(f, opt)
 	if size > 0 then
 		local unanchored = {}
 		local x, y, i
-		for i, v in pairs(relatives) do
+		for k, v in pairs(relatives) do
 			if
-				v:GetName() ~= nil and not self:IsContainer(v:GetName()) and
-					not string.match(v:GetName(), "BagFrame[1-9][0-9]*") and
-					not self.NoUnanchoring[v:GetName()] and
-					not v.MAPoint
-			 then -- alternatively use not self:GetFrameOptions(v:GetName()) instead of v.MAPoint
+				v:GetName() ~= nil and
+				not self:IsContainer(v:GetName()) and
+				not string.match(v:GetName(), "BagFrame[1-9][0-9]*") and
+				not self.NoUnanchoring[v:GetName()] and
+				not v.MAPoint
+			then -- alternatively use not self:GetFrameOptions(v:GetName()) instead of v.MAPoint
 				if v:GetRight() ~= nil and v:GetTop() ~= nil then
-					local p = {v:GetPoint(1)}
-					p[2] = fRel
-					p = MovAny:GetRelativePoint(p, v, true)
+					local pts = {v:GetPoint(1)}
+					pts[2] = fRel
+					pts = MovAny:GetRelativePoint(pts, v, true)
 					if MovAny:IsProtected(v) and InCombatLockdown() then
-						MovAny:AddPendingPoint(v, p)
+						MovAny:AddPendingPoint(v, pts)
 					else
 						v.MAOrgPoint = {v:GetPoint(1)}
 						MovAny:UnlockPoint(v)
 						v:ClearAllPoints()
-						v:SetPoint(unpack(p))
+						v:SetPoint(unpack(pts))
 						MovAny:LockPoint(v)
 					end
-					unanchored[i] = v
+					unanchored[k] = v
+					i = k
 				end
 			end
 		end
@@ -4798,12 +4808,14 @@ function MovAny:ApplyPosition(f, opt)
 		if f.attachedChildren then
 			for i, v in pairs(f.attachedChildren) do
 				if
-					not v.ignoreFramePositionManager and v.GetName and UIPARENT_MANAGED_FRAME_POSITIONS[v:GetName()] and
-						not v.ignoreFramePositionManager and
-						not MovAny:IsModified(v) and
-						v.GetName and
-						UIPARENT_MANAGED_FRAME_POSITIONS[v:GetName()]
-				 then
+					not v.ignoreFramePositionManager and
+					v.GetName and
+					UIPARENT_MANAGED_FRAME_POSITIONS[v:GetName()] and
+					not v.ignoreFramePositionManager and
+					not MovAny:IsModified(v) and
+					v.GetName and
+					UIPARENT_MANAGED_FRAME_POSITIONS[v:GetName()]
+				then
 					v.UMFP = true
 					v.ignoreFramePositionManager = true
 				end
@@ -4826,9 +4838,11 @@ function MovAny:ApplyPosition(f, opt)
 
 			local wasShown = f:IsShown()
 			if
-				f ~= MerchantFrame and f ~= BankFrame and f ~= ClassTrainerFrame and
-					(not MovAny:IsProtected(f) or not InCombatLockdown())
-			 then
+				f ~= MerchantFrame and
+				f ~= BankFrame and
+				f ~= ClassTrainerFrame and
+				(not MovAny:IsProtected(f) or not InCombatLockdown())
+			then
 				if self.rendered then
 					HideUIPanel(f)
 				else
@@ -4910,9 +4924,11 @@ function MovAny:ResetPosition(f, opt, readOnly)
 		f:SetAttribute("UIPanelLayout-enabled", true)
 
 		if
-			f:IsShown() and f ~= MerchantFrame and f ~= BankFrame and
-				(not MovAny:IsProtected(f) or not InCombatLockdown())
-		 then
+			f:IsShown() and
+			f ~= MerchantFrame and
+			f ~= BankFrame and
+			(not MovAny:IsProtected(f) or not InCombatLockdown())
+		then
 			f:Hide()
 			ShowUIPanel(f)
 		end
@@ -5308,7 +5324,7 @@ end
 
 -- modfied version of blizzards updateContainerFrameAnchors
 function MovAny:hUpdateContainerFrameAnchors()
-	if MADB.noBags then
+	if kMADB.noBags then
 		return
 	end
 	local frame, xOffset, yOffset, screenHeight, freeScreenHeight, leftMostPoint, column
@@ -5431,7 +5447,7 @@ SlashCmdList["MAIMPORT"] = function(msg)
 		return
 	end
 
-	if MADB.profiles[msg] == nil then
+	if kMADB.profiles[msg] == nil then
 		MovAny_Print(string.format(L.PROFILE_UNKNOWN, msg))
 		return
 	end
@@ -5455,7 +5471,7 @@ end
 SLASH_MALIST1 = "/movelist"
 SlashCmdList["MALIST"] = function(msg)
 	MovAny_Print(L.PROFILES .. ":")
-	for i, val in pairs(MADB.profiles) do
+	for i, val in pairs(kMADB.profiles) do
 		local str = ' "' .. i .. '"'
 		if val == MovAny.frameOptions then
 			str = str .. " <- " .. L.PROFILE_CURRENT
@@ -5472,7 +5488,7 @@ SlashCmdList["MADELETE"] = function(msg)
 		return
 	end
 
-	if MADB.profiles[msg] == nil then
+	if kMADB.profiles[msg] == nil then
 		MovAny_Print(string.format(L.PROFILE_UNKNOWN, msg))
 		return
 	end
@@ -5695,16 +5711,17 @@ function MovAny:hGameTooltip_SetBagItem(container, slot)
 end
 
 -- X: MA tooltip funcs
-function MovAny:TooltipShow(self)
-	if not self.tooltipText then return end
+function MovAny:TooltipShow(this)
+	if not this.tooltipText then return end
 	if
-		self.alwaysShowTooltip or (MADB.tooltips and not IsShiftKeyDown() and not self.neverShowTooltip) or
-			(not MADB.tooltips and IsShiftKeyDown()) or
-			(self.neverShowTooltip and IsShiftKeyDown())
-	 then
-		GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
+		this.alwaysShowTooltip or
+		(kMADB.tooltips and not IsShiftKeyDown() and not this.neverShowTooltip) or
+		(not kMADB.tooltips and IsShiftKeyDown()) or
+		(this.neverShowTooltip and IsShiftKeyDown())
+	then
+		GameTooltip:SetOwner(this, "ANCHOR_CURSOR")
 		GameTooltip:ClearLines()
-		GameTooltip:AddLine(self.tooltipText)
+		GameTooltip:AddLine(this.tooltipText)
 		GameTooltip:Show()
 	end
 end
@@ -5713,26 +5730,20 @@ function MovAny:TooltipHide()
 	GameTooltip:Hide()
 end
 
-function MovAny:TooltipShowMultiline(self)
-	local tooltipLines = self.tooltipLines
+function MovAny:TooltipShowMultiline(this)
+	local tooltipLines = this.tooltipLines
 	if tooltipLines == nil then
-		tooltipLines = MovAny:GetFrameTooltipLines(MovAny.frames[self.idx].name)
+		tooltipLines = MovAny:GetFrameTooltipLines(MovAny.frames[this.idx].name)
 	end
-	if tooltipLines == nil then return end
-	local g = 0
-	for k in pairs(tooltipLines) do
-		g = 1
-		break
-	end
-	if g == 0 then
-		return
-	end
+	if tooltipLines == nil or next(tooltipLines) == nil then return end
+
 	if
-		self.alwaysShowTooltip or (self.neverShowTooltip and IsShiftKeyDown()) or
-			(MADB.tooltips and not IsShiftKeyDown() and not self.neverShowTooltip) or
-			(not MADB.tooltips and IsShiftKeyDown())
-	 then
-		GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
+		this.alwaysShowTooltip or
+		(this.neverShowTooltip and IsShiftKeyDown()) or
+		(kMADB.tooltips and not IsShiftKeyDown() and not this.neverShowTooltip) or
+		(not kMADB.tooltips and IsShiftKeyDown())
+	then
+		GameTooltip:SetOwner(this, "ANCHOR_CURSOR")
 		GameTooltip:ClearLines()
 		for i, v in ipairs(tooltipLines) do
 			GameTooltip:AddLine(v)
@@ -5810,53 +5821,6 @@ end
 
 ----------------------------------------------------------------
 -- X: debugging code
-
-function echo(...)
-	local msg = ""
-	for k, v in pairs({...}) do
-		msg = msg .. k .. "=[" .. tostring(v) .. "] "
-	end
-	DEFAULT_CHAT_FRAME:AddMessage(msg)
-end
-
-function decho(ar, limit)
-	local msg = ""
-	for k, v in pairs(ar) do
-		if type(v) == "table" then
-			msg = msg .. k .. "=[" .. dechoSub(v, 1, limit) .. "] \n"
-		else
-			msg = msg .. k .. "=[" .. tostring(v) .. "] \n"
-		end
-	end
-	DEFAULT_CHAT_FRAME:AddMessage(msg)
-end
-
-function dechoSub(t, d, limit)
-	local msg = ""
-	if d > 10 or (type(limit) == "number" and d <= limit) then
-		return msg
-	end
-	for k, v in pairs(t) do
-		if type(v) == "table" then
-			msg = msg .. k .. "=[" .. dechoSub(v, d + 1) .. "] \n"
-		else
-			msg = msg .. k .. "=[" .. tostring(v) .. "] \n"
-		end
-	end
-	return msg
-end
-
-function necho(...)
-	local msg = ""
-	for k, v in pairs({...}) do
-		if type(v) == "table" then
-			for k2, v2 in pairs(v) do
-				msg = msg .. k2 .. "=(" .. type(v2) .. ") "
-			end
-		end
-	end
-	DEFAULT_CHAT_FRAME:AddMessage(msg)
-end
 
 function MovAny:DebugFrameAtCursor()
 	local o = GetMouseFocus()
@@ -6053,8 +6017,8 @@ function MovAny:Dump(o)
 					MovAny_Print("   " .. i .. ": " .. numfor(v))
 				elseif type(v) == "table" then
 					s = ""
-					for i, v in pairs(v) do
-						s = s .. " " .. v
+					for j, k in pairs(v) do
+						s = s .. " " .. k
 					end
 					MovAny_Print("   " .. i .. ":" .. s)
 				else
@@ -6065,8 +6029,8 @@ function MovAny:Dump(o)
 	end
 end
 
-SLASH_MADBG1 = "/madbg"
-SlashCmdList["MADBG"] = function(msg)
+SLASH_kMADBG1 = "/madbg"
+SlashCmdList["kMADBG"] = function(msg)
 	if msg == nil or msg == "" then
 		MADebug()
 		return
@@ -6097,10 +6061,10 @@ end
 MovAny.dbg = dbg
 
 function MovAny:OptionCheckboxChecked(var)
-	MADB[var] = not MADB[var]
+	kMADB[var] = not kMADB[var]
 
 	if var == "squareMM" then
-		if MADB.squareMM then
+		if kMADB.squareMM then
 			MinimapBorder:SetTexture(nil)
 			Minimap:SetMaskTexture("Interface\\AddOns\\KPack\\Modules\\MoveAnything\\MinimapMaskSquare")
 		else
@@ -6108,7 +6072,7 @@ function MovAny:OptionCheckboxChecked(var)
 			Minimap:SetMaskTexture("Textures\\MinimapMask")
 		end
 	elseif var == "closeGUIOnEscape" then
-		if MADB.closeGUIOnEscape then
+		if kMADB.closeGUIOnEscape then
 			tinsert(UISpecialFrames, "MAOptions")
 		else
 			for i, v in pairs(UISpecialFrames) do
@@ -6119,10 +6083,10 @@ function MovAny:OptionCheckboxChecked(var)
 			end
 		end
 	elseif var == "noMMMW" then
-		if MADB.noMMMW and Minimap:GetScript("OnMouseWheel") ~= nil then
+		if kMADB.noMMMW and Minimap:GetScript("OnMouseWheel") ~= nil then
 			Minimap:SetScript("OnMouseWheel", nil)
 			Minimap:EnableMouseWheel(false)
-		elseif not MADB.noMMMW and Minimap:GetScript("OnMouseWheel") == nil then
+		elseif not kMADB.noMMMW and Minimap:GetScript("OnMouseWheel") == nil then
 			Minimap:SetScript("OnMouseWheel", function(self, dir)
 				if dir < 0 then
 					Minimap_ZoomOut()
@@ -6138,11 +6102,11 @@ function MovAny:OptionCheckboxChecked(var)
 end
 
 function MovAny:SetDefaultOptions()
-	if MADB.squareMM then
+	if kMADB.squareMM then
 		Minimap:SetMaskTexture("Textures\\MinimapMask")
 	end
 
-	if MADB.closeGUIOnEscape then
+	if kMADB.closeGUIOnEscape then
 		for i, v in pairs(UISpecialFrames) do
 			if v == "MAOptions" then
 				tremove(UISpecialFrames, i)
@@ -6151,30 +6115,25 @@ function MovAny:SetDefaultOptions()
 		end
 	end
 
-	MADB.alwaysShowNudger = nil
-	MADB.noBags = nil
-	MADB.noMMMW = nil
-	MADB.playSound = nil
-	MADB.tooltips = true
-	MADB.closeGUIOnEscape = nil
-	MADB.squareMM = nil
-	MADB.dontHookCreateFrame = nil
-	MADB.dontSearchFrameNames = nil
-	MADB.frameListRows = 18
+	kMADB.alwaysShowNudger = nil
+	kMADB.noBags = nil
+	kMADB.noMMMW = nil
+	kMADB.playSound = nil
+	kMADB.tooltips = true
+	kMADB.closeGUIOnEscape = nil
+	kMADB.squareMM = nil
+	kMADB.dontHookCreateFrame = nil
+	kMADB.dontSearchFrameNames = nil
+	kMADB.frameListRows = 18
 
 	MovAny:UpdateGUIIfShown()
 end
 
 function MovAny_SetupDatabase()
-	if not MADB then
-		if type(KPack.db.MoveAnything) ~= "table" then
-			KPack.db.MoveAnything = {
-				CustomFrames = {},
-				CharacterSettings = {},
-				UseCharacterSettings = false
-			}
-		end
-		MADB = KPack.db.MoveAnything
+	if type(KPack.db.MoveAnything) == "table" then
+		kMADB = CopyTable(KPack.db.MoveAnything)
+		KPack.db.MoveAnything = nil
+		KPack:Print("Corrected SavedVariables. Please reload!", "MoveAnything")
 	end
 end
 
@@ -6243,7 +6202,7 @@ do
 				info = UIDropDownMenu_CreateInfo()
 				info.text = RESET
 				info.func = function()
-					if MADB.playSound then
+					if kMADB.playSound then
 						PlaySound("igMainMenuOption")
 					end
 					StaticPopup_Show("MOVEANYTHING_RESET_PROFILE_CONFIRM")
@@ -6288,7 +6247,7 @@ do
 				info = UIDropDownMenu_CreateInfo()
 				info.text = "Reset All"
 				info.func = function()
-					if MADB.playSound then
+					if kMADB.playSound then
 						PlaySound("igMainMenuOption")
 					end
 					StaticPopup_Show("MOVEANYTHING_RESET_ALL_CONFIRM")
@@ -6306,7 +6265,7 @@ do
 					info.checked = (selected == "default")
 					UIDropDownMenu_AddButton(info, level)
 
-					for name, _ in pairs(MADB.profiles) do
+					for name, _ in pairs(kMADB.profiles) do
 						if name ~= "default" then
 							info = UIDropDownMenu_CreateInfo()
 							info.text = name
@@ -6321,7 +6280,7 @@ do
 					info = UIDropDownMenu_CreateInfo()
 					info.text = "Export"
 					info.func = function()
-						if MADB.playSound then
+						if kMADB.playSound then
 							PlaySound("igMainMenuOption")
 						end
 						MovAny:PortDialog(2)
@@ -6333,7 +6292,7 @@ do
 					info = UIDropDownMenu_CreateInfo()
 					info.text = "Import"
 					info.func = function()
-						if MADB.playSound then
+						if kMADB.playSound then
 							PlaySound("igMainMenuOption")
 						end
 						MovAny:PortDialog(1)
@@ -6346,7 +6305,7 @@ do
 					info.text = "Show Nudger with main window"
 					info.func = MovAny.OptionCheckboxChecked
 					info.arg1 = "alwaysShowNudger"
-					info.checked = MADB.alwaysShowNudger
+					info.checked = kMADB.alwaysShowNudger
 					UIDropDownMenu_AddButton(info, level)
 
 					-- show tooltips
@@ -6354,7 +6313,7 @@ do
 					info.text = "Show Tooltips"
 					info.func = MovAny.OptionCheckboxChecked
 					info.arg1 = "tooltips"
-					info.checked = MADB.tooltips
+					info.checked = kMADB.tooltips
 					UIDropDownMenu_AddButton(info, level)
 
 					-- play sound
@@ -6362,7 +6321,7 @@ do
 					info.text = "Play Sound"
 					info.func = MovAny.OptionCheckboxChecked
 					info.arg1 = "playSound"
-					info.checked = MADB.playSound
+					info.checked = kMADB.playSound
 					UIDropDownMenu_AddButton(info, level)
 
 					-- close on escape
@@ -6370,7 +6329,7 @@ do
 					info.text = "Escape key closes main window"
 					info.func = MovAny.OptionCheckboxChecked
 					info.arg1 = "closeGUIOnEscape"
-					info.checked = MADB.closeGUIOnEscape
+					info.checked = kMADB.closeGUIOnEscape
 					UIDropDownMenu_AddButton(info, level)
 
 					-- disable search
@@ -6378,7 +6337,7 @@ do
 					info.text = "Dont search frame names"
 					info.func = MovAny.OptionCheckboxChecked
 					info.arg1 = "dontSearchFrameNames"
-					info.checked = MADB.dontSearchFrameNames
+					info.checked = kMADB.dontSearchFrameNames
 					UIDropDownMenu_AddButton(info, level)
 
 					-- disable bags container
@@ -6386,7 +6345,7 @@ do
 					info.text = "Disable bag container hook"
 					info.func = MovAny.OptionCheckboxChecked
 					info.arg1 = "noBags"
-					info.checked = MADB.noBags
+					info.checked = kMADB.noBags
 					UIDropDownMenu_AddButton(info, level)
 
 					-- disable hook to CreateFrame
@@ -6394,7 +6353,7 @@ do
 					info.text = "Disable frame creation hook"
 					info.func = MovAny.OptionCheckboxChecked
 					info.arg1 = "dontHookCreateFrame"
-					info.checked = MADB.dontHookCreateFrame
+					info.checked = kMADB.dontHookCreateFrame
 					UIDropDownMenu_AddButton(info, level)
 
 					-- square minimap
@@ -6402,7 +6361,7 @@ do
 					info.text = "Enable square Minimap"
 					info.func = MovAny.OptionCheckboxChecked
 					info.arg1 = "squareMM"
-					info.checked = MADB.squareMM
+					info.checked = kMADB.squareMM
 					UIDropDownMenu_AddButton(info, level)
 
 					-- minimap mousewheel
@@ -6410,7 +6369,7 @@ do
 					info.text = "Disable Minimap mousewheel zoom"
 					info.func = MovAny.OptionCheckboxChecked
 					info.arg1 = "noMMMW"
-					info.checked = MADB.noMMMW
+					info.checked = kMADB.noMMMW
 					UIDropDownMenu_AddButton(info, level)
 				end
 			end
@@ -6428,7 +6387,7 @@ end
 
 function MovAny:SetNumRows(num, dontUpdate)
 	if not MAOptions then return end
-	MADB.frameListRows = num
+	kMADB.frameListRows = num
 
 	local base, h = 0, 24
 
@@ -6906,12 +6865,12 @@ function MovAny:UnserializeProfile(str)
 
 	local tName = sName
 	local ct = 1
-	while MADB.profiles[tName] do
+	while kMADB.profiles[tName] do
 		tName = sName .. " (" .. ct .. ")"
 		ct = ct + 1
 	end
 	MovAny:AddProfile(tName)
-	MADB.profiles[tName].frames = frames
+	kMADB.profiles[tName].frames = frames
 
 	MovAny_Print(string.format(L.UNSERIALIZE_PROFILE_COMPLETED, tlen(frames), tName))
 	return true
@@ -6981,7 +6940,7 @@ function MovAny:UnserializeFrame(str, name)
 end
 
 function MovAny:SerializeProfile(pn)
-	local p = MADB.profiles[pn]
+	local p = kMADB.profiles[pn]
 
 	local s = ""
 
