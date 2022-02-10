@@ -24,6 +24,9 @@ ignore = {
 	"11./SLASH_.*", -- Setting an undefined (Slash handler) global variable
 	"11./BINDING_.*", -- Setting an undefined (Keybinding header) global variable
 	"11./KPack.*", -- Setting an undefined (KPack) global variable
+	"113/MANudger.*", -- Accessing an undefined (Lua ENUM type) global variable
+	"113/MAOptions.*", -- Accessing an undefined (Lua ENUM type) global variable
+	"113/MainMenu.*", -- Accessing an undefined (Lua ENUM type) global variable
 	"113/LE_.*", -- Accessing an undefined (Lua ENUM type) global variable
 	"113/NUM_LE_.*", -- Accessing an undefined (Lua ENUM type) global variable
 	"113/KPack.*", -- Accessing an undefined (KPack) global variable
@@ -48,7 +51,17 @@ globals = {
 	"_G",
 	"bit",
 	"KPack",
+	"KPackDB",
+	"KPackCharDB",
+	"kMADB",
 	"MovAny",
+	"MANudger",
+	"MAScrollFrame",
+	"MAScrollBorder",
+	"MAOptionsMoveHeader",
+	"MAOptionsHideHeader",
+	"MAOptionsToggleFrameEditors",
+	"EclipseBarFrame",
 	"Blizzard_CombatText_AddMessage",
 
 	-- MoveAnything

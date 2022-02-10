@@ -164,7 +164,7 @@ function MovAny:CreatePortDialog()
 				if textEditBox:IsShown() then
 					local opt = MovAny:UnserializeFrame(textEditBox:GetText(), pd.fn)
 					if opt then
-						MADB.profiles[MovAny:GetProfileName()].frames[pd.fn] = opt
+						kMADB.profiles[MovAny:GetProfileName()].frames[pd.fn] = opt
 						MovAny:SyncFrame(pd.fn, opt)
 						pd:CloseDialog()
 						MovAny:UpdateGUIIfShown(true)
@@ -172,14 +172,14 @@ function MovAny:CreatePortDialog()
 				else
 					-- import pd.fn from selected profile
 					local pn = UIDropDownMenu_GetSelectedValue(profileDropDownButton)
-					local p = MADB.profiles[pn]
-					local oldOpt = MADB.profiles[MovAny:GetProfileName()].frames[pd.fn]
+					local p = kMADB.profiles[pn]
+					local oldOpt = kMADB.profiles[MovAny:GetProfileName()].frames[pd.fn]
 					if type(p) == "table" then
 						if oldOpt then
 							MovAny:ResetFrame(pd.fn, nil, true)
 						end
 						local opt = MA_tdeepcopy(p.frames[pd.fn])
-						MADB.profiles[MovAny:GetProfileName()].frames[pd.fn] = opt
+						kMADB.profiles[MovAny:GetProfileName()].frames[pd.fn] = opt
 						MovAny.pendingFrames[pd.fn] = opt
 						MovAny:SyncFrames()
 						pd:CloseDialog()
@@ -207,9 +207,9 @@ function MovAny:CreatePortDialog()
 				if not textEditBox:IsShown() then
 					--export pd.fn to selected profile
 					local pn = UIDropDownMenu_GetSelectedValue(profileDropDownButton)
-					local p = MADB.profiles[MovAny:GetProfileName()]
+					local p = kMADB.profiles[MovAny:GetProfileName()]
 					if type(p) == "table" then
-						MADB.profiles[pn].frames[pd.fn] = MA_tdeepcopy(p.frames[pd.fn])
+						kMADB.profiles[pn].frames[pd.fn] = MA_tdeepcopy(p.frames[pd.fn])
 					end
 					pd:CloseDialog()
 				end
@@ -262,7 +262,7 @@ function MovAny:CreatePortDialog()
 		local profileDropDown_MenuInit = function()
 			local info
 			local names = {}
-			for name, profile in pairs(MADB.profiles) do
+			for name, profile in pairs(kMADB.profiles) do
 				if name ~= "default" and name ~= MovAny:GetProfileName() then
 					if not pd.fn or (pd.mode == 1 and pd.fn and profile.frames[pd.fn]) or (pd.mode == 2) then
 						tinsert(names, name)
@@ -277,7 +277,7 @@ function MovAny:CreatePortDialog()
 			)
 			if
 				MovAny:GetProfileName() ~= "default" and
-					((pd.mode == 1 and pd.fn and MADB.profiles["default"].frames[pd.fn]) or (pd.mode == 1 and not pd.fn) or
+					((pd.mode == 1 and pd.fn and kMADB.profiles["default"].frames[pd.fn]) or (pd.mode == 1 and not pd.fn) or
 						pd.mode == 2)
 			 then
 				info = UIDropDownMenu_CreateInfo()
@@ -298,11 +298,11 @@ function MovAny:CreatePortDialog()
 		UIDropDownMenu_Initialize(profileDropDownButton, profileDropDown_MenuInit)
 
 		local selProfile
-		if MovAny:GetProfileName() ~= "default" and ((pd.mode == 1 and pd.fn and MADB.profiles["default"].frames[pd.fn]) or (pd.mode == 1 and not pd.fn) or pd.mode == 2) then
+		if MovAny:GetProfileName() ~= "default" and ((pd.mode == 1 and pd.fn and kMADB.profiles["default"].frames[pd.fn]) or (pd.mode == 1 and not pd.fn) or pd.mode == 2) then
 			selProfile = "default"
 		else
 			local names = {}
-			for name, profile in pairs(MADB.profiles) do
+			for name, profile in pairs(kMADB.profiles) do
 				if name ~= "default" and name ~= MovAny:GetProfileName() then
 					if not pd.fn or (pd.mode == 1 and pd.fn and profile.frames[pd.fn]) or (pd.mode == 2) then
 						tinsert(names, name)

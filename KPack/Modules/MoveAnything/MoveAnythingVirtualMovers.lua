@@ -36,7 +36,7 @@ MovAny.lVirtualMovers = {
 		w = 150,
 		h = 80,
 		point = {"TOP", "UIParent", 0, 0},
-		OnShow = function()
+		OnShow = function(self)
 			self:SetFrameLevel(GameTooltip:GetFrameLevel() + 1)
 		end,
 		OnMAPostHook = function(self)
