@@ -18,6 +18,7 @@ function L:F(line, ...)
 end
 core.L = L
 core.locale = GetLocale()
+
 -- General:
 L["addon loaded. use |cffffd700/kp|r to access options."] = true
 L["Enable"] = true
@@ -473,6 +474,10 @@ L["Lock Minimap"] = true
 L["Hide Minimap"] = true
 L["Hide Zone Text"] = true
 L["Hide in combat"] = true
+-- Minimap Button
+L["Minimap Button"] = true
+L["Shows the minimap icon button."] = true
+L["|cff00ff00Click|r to toggle the settings window."] = true
 -- MoveAnything
 L.RESET_FRAME_CONFIRM = "Reset %s? Press again within 5 seconds to confirm"
 L.RESETTING_FRAME = "Resetting %s"

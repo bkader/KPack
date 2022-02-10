@@ -1,5 +1,6 @@
 local folder, core = ...
 core.callbacks = core.callbacks or LibStub("CallbackHandler-1.0"):New(core)
+core.title = GetAddOnMetadata(folder, "Title")
 core.version = GetAddOnMetadata(folder, "Version")
 _G.KPack = core
 
@@ -324,7 +325,7 @@ end
 do
 	local options = {
 		type = "group",
-		name = "|cfff58cbaKader|r|caaf49141Pack|r " .. core.version,
+		name = format("%s - %s", core.title, core.version),
 		childGroups = "tab",
 		args = {
 			Options = {
@@ -422,12 +423,12 @@ do
 	end
 
 	function core:OpenConfig(...)
-		self.ACD:SetDefaultSize(folder, 655, 500)
+		core.ACD:SetDefaultSize(folder, 655, 500)
 		if ... then
-			self.ACD:Open(folder)
-			self.ACD:SelectGroup(folder, ...)
-		elseif not self.ACD:Close(folder) then
-			self.ACD:Open(folder)
+			core.ACD:Open(folder)
+			core.ACD:SelectGroup(folder, ...)
+		elseif not core.ACD:Close(folder) then
+			core.ACD:Open(folder)
 		end
 	end
 

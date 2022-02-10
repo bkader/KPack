@@ -45,6 +45,7 @@
 <Script file="LynStats.lua" />
 <Script file="Math.lua" />
 <Script file="Minimap.lua" />
+<Script file="MinimapIcon.lua" />
 <Script file="Molinari.lua" />
 <Include file="MoveAnything\Load.xml" />
 <Script file="Nameplates.lua" />
@@ -68,7 +69,6 @@
 <Script file="UnitFrames.lua" />
 <Script file="Viewporter.lua" />
 <Script file="VirtualPlates.lua" />
-<Script file="MinimapIcon.lua" />
 
 <!-- Please leave this at the end of the file -->
 <Script file="AddOnSkins.lua" />
