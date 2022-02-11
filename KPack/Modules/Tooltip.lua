@@ -75,10 +75,26 @@ KPack:AddModule("Tooltip", function(_, core, L)
 		end
 
 		-- change game tooltip position
+		local Tooltip_AnchorToMouse
 		local function Tooltip_ChangePosition(tooltip, parent)
 			if DB.moved then
-				tooltip:SetOwner(parent, "ANCHOR_NONE")
-				tooltip:SetPoint(DB.point or "TOP", UIParent, DB.point or "TOP", DB.xOfs or 0, DB.yOfs or -25)
+				if DB.point == "CURSOR" then
+					tooltip:SetOwner(parent, "ANCHOR_CURSOR")
+
+					if not Tooltip_AnchorToMouse then
+						Tooltip_AnchorToMouse = function(self)
+							local x, y = GetCursorPosition()
+							local s = self:GetEffectiveScale()
+							self:ClearAllPoints()
+							self:SetPoint("BOTTOM", UIParent, "BOTTOMLEFT", (x / s), (y / s))
+						end
+					end
+
+					Tooltip_AnchorToMouse(tooltip)
+				else
+					tooltip:SetOwner(parent, "ANCHOR_NONE")
+					tooltip:SetPoint(DB.point or "TOP", UIParent, DB.point or "TOP", DB.xOfs or 0, DB.yOfs or -25)
+				end
 				tooltip.default = 1
 			end
 		end
@@ -151,7 +167,8 @@ KPack:AddModule("Tooltip", function(_, core, L)
 							BOTTOM = L["Bottom"],
 							LEFT = L["Left"],
 							RIGHT = L["Right"],
-							CENTER = L["Center"]
+							CENTER = L["Center"],
+							CURSOR = L["At Cursor"],
 						}
 					},
 					xOfs = {

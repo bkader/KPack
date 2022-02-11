@@ -669,6 +669,7 @@ L["Bottom Left"] = true
 L["Bottom Right"] = true
 L["Bottom"] = true
 L["Right"] = true
+L["At Cursor"] = true
 L["X Offset"] = true
 L["Y Offset"] = true
 L["Unit"] = true
