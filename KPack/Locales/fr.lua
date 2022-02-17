@@ -40,7 +40,6 @@ L["Current list of commands:"] = "Liste des commandes disponibles:"
 L["Character Specific"] = "Par personnage"
 L["Enable this if you want settings to be stored per character rather than per account."] = "Activé ceci si vous voulez que les paramètres soient enregistrés par perso au lieu de par compte."
 -- AddOn Manager:
-L["Addon Manager"] = "Gestionnaire d'addons"
 L["Reload UI"] = "Reload UI"
 L["Enable all"] = "Tout Activer"
 L["Disable all"] = "Tout Désactiver"
@@ -654,7 +653,6 @@ L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = "|cff00ff00Active
 L["button scale set to |cff00ffff%s|r"] = "échelle de bouton réglée sur |cff00ffff%s|r"
 L["Scales the button."] = "Change l'échelle du bouton."
 -- Raid Target Icons
-L["Target Icons"] = "Icônes de cible"
 L["Allows you to quickly mark raid targets using a radial menu."] = "Vous permet de marquer rapidement les cibles de raid à l'aide d'un menu radial."
 L["Left Click"] = "Clic gauche"
 L["Modifiers"] = "Modificateurs"
