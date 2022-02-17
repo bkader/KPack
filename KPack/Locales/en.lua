@@ -60,6 +60,7 @@ L["|cffffd700%s|r: %s"] = true
 L["Character Specific"] = true
 L["Enable this if you want settings to be stored per character rather than per account."] = true
 -- AddOn Manager:
+L["Addon Manager"] = true
 L["Reload UI"] = true
 L["Enable all"] = true
 L["Disable all"] = true
@@ -694,6 +695,7 @@ L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = true
 L["button scale set to |cff00ffff%s|r"] = true
 L["Scales the button."] = true
 -- Raid Target Icons
+L["Target Icons"] = true
 L["Allows you to quickly mark raid targets using a radial menu."] = true
 L["Left Click"] = true
 L["Modifiers"] = true

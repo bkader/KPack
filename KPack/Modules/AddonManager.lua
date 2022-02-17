@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule(ADDONS, function(addonName, addon, L)
-	if addon:IsDisabled(ADDONS) then return end
+KPack:AddModule("Addon Manager", function(addonName, addon, L)
+	if addon:IsDisabled(L["Addon Manager"]) then return end
 	if addon.ElvUI and addon.ElvUI:GetModule("ElvUI_Enhanced", true) then return end
 
 	local _G = _G
@@ -82,7 +82,7 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 
 		local title = AddonList:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 		title:SetPoint("TOP", t, 0, -14)
-		title:SetText(ADDONS)
+		title:SetText(L["Addon Manager"])
 
 		local info = AddonList:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 		info:SetPoint("TOPLEFT", 26, -30)
@@ -257,7 +257,7 @@ KPack:AddModule(ADDONS, function(addonName, addon, L)
 	end
 
 	local AddonListButton = CreateFrame("Button", "GameMenuButtonAddOns", GameMenuFrame, "GameMenuButtonTemplate")
-	AddonListButton:SetText(ADDONS)
+	AddonListButton:SetText(L["Addon Manager"])
 	AddonListButton:SetPoint("TOP", GameMenuButtonMacros, "BOTTOM", 0, -1)
 	AddonListButton:SetScript("OnClick", OpenAddonList)
 

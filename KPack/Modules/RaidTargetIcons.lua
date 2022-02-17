@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule(TARGETICONS, "Allows you to quickly mark raid targets using a radial menu.", function(_, core, L)
-	if core:IsDisabled(TARGETICONS) then return end
+KPack:AddModule("Target Icons", "Allows you to quickly mark raid targets using a radial menu.", function(_, core, L)
+	if core:IsDisabled(L["Target Icons"]) then return end
 
 	local RTI = {}
 
@@ -413,7 +413,7 @@ KPack:AddModule(TARGETICONS, "Allows you to quickly mark raid targets using a ra
 
 		core.options.args.Options.args.RTI = {
 			type = "group",
-			name = TARGETICONS,
+			name = L["Target Icons"],
 			get = function(i)
 				return DB[i[#i]]
 			end,
@@ -507,13 +507,13 @@ KPack:AddModule(TARGETICONS, "Allows you to quickly mark raid targets using a ra
 					order = 99,
 					width = "full",
 					confirm = function()
-						return L:F("Are you sure you want to reset %s to default?", TARGETICONS)
+						return L:F("Are you sure you want to reset %s to default?", L["Target Icons"])
 					end,
 					func = function()
 						core.db.RTI = nil
 						DB = nil
 						SetupDatabase()
-						core:Print(L["module's settings reset to default."], TARGETICONS)
+						core:Print(L["module's settings reset to default."], L["Target Icons"])
 					end
 				}
 			}
