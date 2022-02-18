@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("QuickButton", function(folder, core, L)
-	if core:IsDisabled("QuickButton") or not LibStub then return end
+	if core:IsDisabled("QuickButton") or not LibStub or core.isAscension then return end
 
 	local mod = core.QuickButton or {}
 	core.QuickButton = mod

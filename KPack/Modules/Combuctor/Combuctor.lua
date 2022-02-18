@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("Combuctor", function(_, core, L)
-	if core:IsDisabled("Combuctor") then return end
+	if core:IsDisabled("Combuctor") or _G.Combuctor then return end
 
 	local modname = "Combuctor"
 	local mod = core.Combuctor or {}
@@ -1335,7 +1335,8 @@ KPack:AddModule("Combuctor", function(_, core, L)
 
 			function ItemSlot:Create()
 				local id = self:GetNextItemSlotID()
-				local item = self:Bind(self:GetBlizzardItemSlot(id) or self:ConstructNewItemSlot(id))
+				-- local item = self:Bind(self:GetBlizzardItemSlot(id) or self:ConstructNewItemSlot(id)) -- TODO: FIXME
+				local item = self:Bind(self:ConstructNewItemSlot(id))
 
 				local border = item:CreateTexture(nil, "OVERLAY")
 				border:SetWidth(67)
@@ -1366,19 +1367,20 @@ KPack:AddModule("Combuctor", function(_, core, L)
 			end
 
 			function ItemSlot:GetBlizzardItemSlot(id)
-				if not self:CanReuseBlizzardBagSlots() then
-					return nil
-				end
+				return
+				-- if not self:CanReuseBlizzardBagSlots() then
+				-- 	return nil
+				-- end
 
-				local bag = math.ceil(id / MAX_CONTAINER_ITEMS)
-				local slot = (id - 1) % MAX_CONTAINER_ITEMS + 1
-				local item = _G[format("ContainerFrame%dItem%d", bag, slot)]
+				-- local bag = math.ceil(id / MAX_CONTAINER_ITEMS)
+				-- local slot = (id - 1) % MAX_CONTAINER_ITEMS + 1
+				-- local item = _G[format("ContainerFrame%dItem%d", bag, slot)]
 
-				if item then
-					item:SetID(0)
-					item:ClearAllPoints()
-					return item
-				end
+				-- if item then
+				-- 	item:SetID(0)
+				-- 	item:ClearAllPoints()
+				-- 	return item
+				-- end
 			end
 
 			function ItemSlot:CanReuseBlizzardBagSlots()

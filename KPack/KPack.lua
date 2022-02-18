@@ -14,24 +14,30 @@ local setmetatable = setmetatable
 local __off -- number of disabled modules
 
 -- player & class
-core.classcolors = {
-	DEATHKNIGHT = {r = 0.77, g = 0.12, b = 0.23, colorStr = "ffc41f3b"},
-	DRUID = {r = 1, g = 0.49, b = 0.04, colorStr = "ffff7d0a"},
-	HUNTER = {r = 0.67, g = 0.83, b = 0.45, colorStr = "ffabd473"},
-	MAGE = {r = 0.41, g = 0.8, b = 0.94, colorStr = "ff3fc7eb"},
-	PALADIN = {r = 0.96, g = 0.55, b = 0.73, colorStr = "fff58cba"},
-	PRIEST = {r = 1, g = 1, b = 1, colorStr = "ffffffff"},
-	ROGUE = {r = 1, g = 0.96, b = 0.41, colorStr = "fffff569"},
-	SHAMAN = {r = 0, g = 0.44, b = 0.87, colorStr = "ff0070de"},
-	WARLOCK = {r = 0.58, g = 0.51, b = 0.79, colorStr = "ff8788ee"},
-	WARRIOR = {r = 0.78, g = 0.61, b = 0.43, colorStr = "ffc79c6e"}
-}
+do
+	local function RGBPercToHex(r, g, b)
+		r = r <= 1 and r >= 0 and r or 0
+		g = g <= 1 and g >= 0 and g or 0
+		b = b <= 1 and b >= 0 and b or 0
+		return format("ff%02x%02x%02x", r * 255, g * 255, b * 255)
+	end
+
+	core.classcolors = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS
+	for classname, classtable in pairs(core.classcolors) do
+		classtable.colorStr = classtable.colorStr or RGBPercToHex(classtable.r, classtable.g, classtable.b)
+	end
+end
 
 core.name = UnitName("player")
 core.race = select(2, UnitRace("player"))
 core.faction = UnitFactionGroup("player")
-core.class = select(2, UnitClass("player"))
-core.mycolor = core.classcolors[core.class]
+
+do
+	local className
+	className, core.class = UnitClass("player")
+	core.mycolor = core.classcolors[core.class]
+	core.isAscension = (className == "Hero" and core.class == "DRUID") or (RAID_CLASS_COLORS and RAID_CLASS_COLORS.BARBARIAN)
+end
 
 -------------------------------------------------------------------------------
 -- C_Timer mimic
