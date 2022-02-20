@@ -1,7 +1,7 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit of the allowed.", function(_, core, L)
 	if core:IsDisabled("ActionBars") or core.ElvUI then return end
-	local disabled, reason = core:AddOnIsLoaded("Dominos", "Bartender4", "MiniMainBar", "ElvUI", "KActionBars")
+	local disabled, reason = core:AddOnIsLoaded("Dominos", "Bartender4", "MiniMainBar", "ElvUI", "KActionBars", "KkthnxUI")
 
 	local mod = core.ActionBars or CreateFrame("Frame")
 	mod:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)

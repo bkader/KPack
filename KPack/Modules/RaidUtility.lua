@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("RaidUtility", function(_, core, L)
-	if core:IsDisabled("RaidUtility") then return end
+	if core:IsDisabled("RaidUtility") or _G.KRU then return end
 
 	local mod = core.RaidUtility or {}
 	core.RaidUtility = mod
@@ -3144,7 +3144,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 		local options, GetOptions
 		local keyword, guidkeyword
 
-		local DoActualInvites, DoGuildInvites
+		local DoActualInvites, DoGuildInvites, ListGuildRanks
 		local inviteFrame, inviteQueue = CreateFrame("Frame"), {}
 
 		local function CanInvite()
@@ -3459,7 +3459,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 		core:RegisterForEvent("GUILD_ROSTER_UPDATE", function()
 			inGuild = IsInGuild()
 			wipe(guildRanks)
-			guildRanks = inGuild and ListGuildRanks() or {}
+			guildRanks = inGuild and ListGuildRanks() or guildRanks
 		end)
 	end
 

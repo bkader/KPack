@@ -102,7 +102,7 @@ KPack:AddModule("Tooltip", function(_, core, L)
 		core:RegisterForEvent("PLAYER_LOGIN", function()
 			SetupDatabase()
 
-			if _G.Aurora then
+			if _G.Aurora or _G.KkthnxUI then
 				disabled = true
 				return
 			end

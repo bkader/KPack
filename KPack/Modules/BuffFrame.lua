@@ -227,6 +227,8 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 
 		if _G.SBF then
 			disabled, reason = true, "Satrina Buff Frames"
+		elseif _G.KkthnxUI then
+			disabled, reason = true, "KkthnxUI"
 		end
 
 		if not disabled and core:AddOnHasModule("Dominos", "Buffs") then

@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
 KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are on cooldown to indicate when they will be ready to use.", function(_, core, L)
-	if core:IsDisabled("Cooldowns") then return end
+	if core:IsDisabled("Cooldowns") or _G.KkthnxUI then return end
 
 	local mod = {}
 	LibStub("AceHook-3.0"):Embed(mod)

@@ -4,7 +4,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 
 	-- list of addons for which the module is disabled
 	-- add as many addons as you want, i just added few.
-	local disabled, reason = core:AddOnIsLoaded("SexyMap", "MinimapBar")
+	local disabled, reason = core:AddOnIsLoaded("SexyMap", "MinimapBar", "KkthnxUI")
 
 	if not disabled and core:AddOnHasModule("Dominos", "minimap") then
 		disabled, reason = true, "Dominos"
