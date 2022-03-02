@@ -86,6 +86,11 @@ KPack:AddModule("xCT", function(_, core, L)
 
 
 		-- ==================================================================================
+		-- Incming Healing Frame (frame is called "xCTheal")
+		-- ==================================================================================
+		healwindow = true,
+
+		-- ==================================================================================
 		-- Critical Damage/Healing Outging Frame (frame is called "xCTcrit")
 		-- ==================================================================================
 		critwindow = false,
@@ -424,14 +429,20 @@ KPack:AddModule("xCT", function(_, core, L)
 	end
 
 	--[[  Defining the Frames  ]]
-	local framenames = {"dmg", "heal", "gen"} -- Default frames (Always enabled)
+	local framenames = {"dmg", "gen"} -- Default frames (Always enabled)
 	local numf = #framenames -- Number of Frames
 
 	--[[  Extra Frames  ]]
 	-- Add window for separate damage and healing windows
 	if ct.damageout or ct.healingout then
-		numf = numf + 1 -- 4
+		numf = numf + 1 -- 3
 		framenames[numf] = "done"
+	end
+
+	-- Add window for incoming heal
+	if ct.healwindow then
+		numf = numf + 1 -- 4
+		framenames[numf] = "heal"
 	end
 
 	-- Add window for loot events
@@ -709,7 +720,7 @@ KPack:AddModule("xCT", function(_, core, L)
 					xCTdmg:AddMessage("-" .. arg2, .75, .3, .85)
 				elseif subevent == "SPELL_DAMAGE_CRIT" then
 					xCTdmg:AddMessage(ct.critprefix .. "-" .. arg2 .. ct.critpostfix, 1, .3, .5)
-				elseif subevent == "HEAL" then
+				elseif subevent == "HEAL" and xCTheal then
 					if arg3 >= ct.healtreshold then
 						if arg2 then
 							if COMBAT_TEXT_SHOW_FRIENDLY_NAMES == "1" then
@@ -719,7 +730,7 @@ KPack:AddModule("xCT", function(_, core, L)
 							end
 						end
 					end
-				elseif subevent == "HEAL_CRIT" then
+				elseif subevent == "HEAL_CRIT" and xCTheal then
 					if arg3 >= ct.healtreshold then
 						if arg2 then
 							if COMBAT_TEXT_SHOW_FRIENDLY_NAMES == "1" then
@@ -730,7 +741,7 @@ KPack:AddModule("xCT", function(_, core, L)
 						end
 					end
 					return
-				elseif subevent == "PERIODIC_HEAL" then
+				elseif subevent == "PERIODIC_HEAL" and xCTheal then
 					if arg3 >= ct.healtreshold then
 						xCTheal:AddMessage("+" .. arg3, .1, .5, .1)
 					end
