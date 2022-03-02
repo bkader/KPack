@@ -14,6 +14,8 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 	local IsSpellInRange = IsSpellInRange
 	local IsUsableSpell = IsUsableSpell
 	local IsSpellKnown = IsSpellKnown
+	local GetItemInfo = GetItemInfo
+	local IsEquippedItem = IsEquippedItem
 	local UnitAura = UnitAura
 
 	local LiCD = LibStub("LibInternalCooldowns", true)
@@ -403,7 +405,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 		self.updateTimer = self.updateTimer - elapsed
 		if self.updateTimer <= 0 then
 			self.updateTimer = updateInterval
-			local _, timeLeft, _ = GetItemCooldown(self.Name[1] or "")
+			local _, timeLeft, _ = GetItemCooldown(self.iName or self.Name[1] or "")
 			if timeLeft then
 				if timeLeft == 0 or TellMeWhen_GetGCD() == timeLeft then
 					self:SetAlpha(self.usableAlpha)
@@ -414,8 +416,12 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 		end
 	end
 
-	local function TellMeWhen_Icon_ItemCooldown_OnEvent(self)
-		local startTime, timeLeft, enable = GetItemCooldown(self.Name[1] or "")
+	local function TellMeWhen_Icon_ItemCooldown_OnEvent(self, event)
+		if event == "PLAYER_EQUIPMENT_CHANGED" then
+			TellMeWhen:Icon_Update(self, self.groupID, self.iconID)
+		end
+
+		local startTime, timeLeft, enable = GetItemCooldown(self.iName or self.Name[1] or "")
 		if timeLeft then
 			CooldownFrame_SetTimer(self.Cooldown, startTime, timeLeft, 1)
 		end
@@ -1034,6 +1040,8 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 		icon.WpnEnchantType = iconSettings.WpnEnchantType
 		icon.noCooldownCount = iconSettings.noCooldownCount
 
+		icon.groupID = icon.groupID or groupID
+		icon.iconID = icon.iconID or iconID
 		icon.updateTimer = updateInterval
 
 		icon:UnregisterEvent("ACTIONBAR_UPDATE_STATE")
@@ -1043,6 +1051,7 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 		icon:UnregisterEvent("PLAYER_FOCUS_CHANGED")
 		icon:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		icon:UnregisterEvent("UNIT_INVENTORY_CHANGED")
+		icon:UnregisterEvent("PLAYER_EQUIPMENT_CHANGED")
 		icon:UnregisterEvent("BAG_UPDATE_COOLDOWN")
 		icon:UnregisterEvent("UNIT_AURA")
 		icon:UnregisterEvent("PLAYER_TOTEM_UPDATE")
@@ -1098,17 +1107,24 @@ KPack:AddModule("TellMeWhen", function(_, core, L)
 						icon.texture:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
 					end
 				elseif CooldownType == "item" then
-					local itemName, _, _, _, _, _, _, _, _, itemTexture = GetItemInfo(icon.Name[1] or "")
-					if itemName then
-						icon.texture:SetTexture(itemTexture)
-						icon:SetScript("OnUpdate", TellMeWhen_Icon_ItemCooldown_OnUpdate)
-						if icon.ShowTimer then
-							icon:RegisterEvent("BAG_UPDATE_COOLDOWN")
-							icon:SetScript("OnEvent", TellMeWhen_Icon_ItemCooldown_OnEvent)
-						else
-							icon:SetScript("OnEvent", nil)
+					icon.iName = nil
+					for _, name in ipairs(icon.Name) do
+						local itemName, _, _, _, _, _, _, _, _, itemTexture = GetItemInfo(name or "")
+						if itemName and IsEquippedItem(itemName) then
+							icon.iName = itemName
+							icon.texture:SetTexture(itemTexture)
+							icon:SetScript("OnUpdate", TellMeWhen_Icon_ItemCooldown_OnUpdate)
+							if icon.ShowTimer then
+								icon:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+								icon:RegisterEvent("BAG_UPDATE_COOLDOWN")
+								icon:SetScript("OnEvent", TellMeWhen_Icon_ItemCooldown_OnEvent)
+							else
+								icon:SetScript("OnEvent", nil)
+							end
+							break
 						end
-					else
+					end
+					if icon.iName == nil then
 						TellMeWhen:Icon_ClearScripts(icon)
 						icon.learnedTexture = false
 						icon.texture:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
