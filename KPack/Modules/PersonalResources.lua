@@ -1,6 +1,8 @@
 assert(KPack, "KPack not found!")
+if KPack.Ascension then return end
+
 KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal Resource Display".', function(folder, core, L)
-	if core:IsDisabled("Personal Resources") or core.isAscension then return end
+	if core:IsDisabled("Personal Resources") then return end
 
 	-- cache frequently used glboals
 	local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax

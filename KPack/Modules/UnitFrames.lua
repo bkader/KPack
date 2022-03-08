@@ -1,6 +1,8 @@
 assert(KPack, "KPack not found!")
+if KPack.Ascension then return end
+
 KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without going beyond the boundaries set by them.", function(_, core, L)
-	if core:IsDisabled("UnitFrames") or core.ElvUI or core.isAscension then return end
+	if core:IsDisabled("UnitFrames") or core.ElvUI then return end
 
 	-- Setup some locals
 	local UFI = CreateFrame("Frame")
@@ -53,7 +55,7 @@ KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without 
 		scale = 1,
 		improved = true,
 		portrait = false,
-		texture = "Blizzard",
+		texture = "KPack Norm",
 		font = "Friz Quadrata TT",
 		fontSize = 10,
 		fontOutline = "OUTLINE",

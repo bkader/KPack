@@ -69,6 +69,9 @@ globals = {
 	"MovAny_Print",
 	"MAOptionsToggleCategories",
 
+	-- Ascension
+	"IsCoA",
+
 	-- misc custom
 	"CUSTOM_CLASS_COLORS",
 	"L_UIDropDownMenu_CreateInfo",

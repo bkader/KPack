@@ -31,13 +31,12 @@ end
 core.name = UnitName("player")
 core.race = select(2, UnitRace("player"))
 core.faction = UnitFactionGroup("player")
+core.class = select(2, UnitClass("player"))
+core.mycolor = core.classcolors[core.class]
 
-do
-	local className
-	className, core.class = UnitClass("player")
-	core.mycolor = core.classcolors[core.class]
-	core.isAscension = (className == "Hero" and core.class == "DRUID") or (RAID_CLASS_COLORS and RAID_CLASS_COLORS.BARBARIAN)
-end
+-- Project Ascension
+core.Ascension = (type(IsCoA) == "function")
+core.AscensionCoA = core.Ascension and IsCoA()
 
 -------------------------------------------------------------------------------
 -- C_Timer mimic

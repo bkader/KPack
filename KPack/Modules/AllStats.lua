@@ -16,7 +16,7 @@ KPack:AddModule("AllStats", "Moves the functionality of the stat dropdowns to a 
 			return
 		end
 		KPackAllStats = CreateFrame("Frame", "KPackAllStats", PaperDollFrame)
-		if core.isAscension then
+		if core.Ascension then
 			KPackAllStats:SetPoint("TOPLEFT", CharacterFrameExtension, "TOPRIGHT", 5, 42)
 		else
 			KPackAllStats:SetPoint("TOPLEFT", PaperDollFrame, "TOPRIGHT", -35, -33)
