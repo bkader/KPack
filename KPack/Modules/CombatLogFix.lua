@@ -26,7 +26,6 @@ KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have exist
 	local GetTime = GetTime
 	local lower, trim, print = string.lower, string.trim, print
 	local next, select = next, select
-	local setmetatable, rawset, rawget = setmetatable, rawset, rawget
 
 	-- main print function
 	local function Print(msg)

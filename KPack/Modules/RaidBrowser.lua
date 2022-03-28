@@ -4,8 +4,9 @@ if KPack.Ascension then return end
 KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y channels and lists any found raids in the "Browse" tab of the raid browser.', function(_, core, L)
 	if core:IsDisabled("Raid Browser") then return end
 
-	local RaidBrowser = core.RaidBrowser or {}
+	local RaidBrowser = core.RaidBrowser or CreateFrame("Frame")
 	core.RaidBrowser = RaidBrowser
+	RaidBrowser:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
 
 	local pairs, ipairs = pairs, ipairs
 	local strlower = string.lower
@@ -16,8 +17,10 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 	local tinsert = table.insert
 	local math_huge, math_floor = math.huge, math.floor
 
+	local GetScore = _G.GearScore_GetScore or core.GetGearScore or core.Noop
+
 	local DB
-	local lfm_channel_listeners = {CHAT_MSG_CHANNEL = {}, CHAT_MSG_YELL = {}}
+	local lfm_event_listeners = {CHAT_MSG_CHANNEL = {}, CHAT_MSG_YELL = {}}
 	local algorithm = {}
 	do
 		function algorithm.max_of(t)
@@ -426,8 +429,6 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 			--''..sep..'/w'..csep..'[%a]+', -- Too greedy
 		}
 
-		local channel_listeners = {}
-
 		local guild_recruitment_patterns = {
 			"recrui?ti?n?g?",
 			"we" .. csep .. "raid",
@@ -633,23 +634,29 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 
 			RaidBrowser.messages = {}
 			RaidBrowser.timer = core.NewTicker(10, RefreshLFMMessages)
-			for channel, listener in pairs(lfm_channel_listeners) do
-				channel_listeners[channel] = RaidBrowser.AddEventListener(channel, EventHandler)
+			for channel, listener in pairs(lfm_event_listeners) do
+				RaidBrowser.AddEventListener(channel, EventHandler)
 			end
+
+			RaidBrowser:RegisterEvent("PLAYER_ENTERING_WORLD")
+			RaidBrowser:RegisterEvent("PLAYER_LEAVING_WORLD")
 
 			RaidBrowser.GUI.raidset.initialize()
 		end)
 
-		core:RegisterForEvent("PLAYER_ENTERING_WORLD", SetupDatabase)
-		core:RegisterForEvent("PLAYER_LEAVING_WORLD", function()
-			for channel, listener in pairs(lfm_channel_listeners) do
+		function RaidBrowser:PLAYER_ENTERING_WORLD()
+			SetupDatabase()
+		end
+
+		function RaidBrowser:PLAYER_LEAVING_WORLD()
+			for channel, listener in pairs(lfm_event_listeners) do
 				RaidBrowser.RemoveEventListener(channel, listener)
 			end
 
 			if RaidBrowser.timer then
 				core.CancelTimer(RaidBrowser.timer, true)
 			end
-		end)
+		end
 	end
 
 	---------------------------------------------------------------------------
@@ -824,16 +831,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 		end
 
 		function stats.GetActiveRaidset()
-			local spec, gs
-
-			-- Retrieve gearscore if GearScoreLite is installed
-			if GearScore_GetScore then
-				gs = GearScore_GetScore(core.name, "player")
-			elseif core.GetGearScore then
-				gs = core:GetGearScore(core.name, "player")
-			end
-
-			spec = stats.ActiveSpec()
+			local spec, gs = stats.ActiveSpec(), GetScore(core.name, "player")
 			return spec, gs
 		end
 
@@ -1144,8 +1142,8 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 
 		-- Setup LFR browser hooks
 		LFRBrowse_UpdateButtonStates = UpdateButtons
-		LFRBrowseFrameList_Update = GUI.UpdateList
-		LFRBrowseFrameListButton_SetData = insert_lfm_button
+		_G.LFRBrowseFrameList_Update = GUI.UpdateList
+		_G.LFRBrowseFrameListButton_SetData = insert_lfm_button
 
 		-- Set the "Browse" tab to be active.
 		LFRFrame_SetActiveTab(2)
@@ -1162,7 +1160,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 		local raidset = {}
 
 		local frame = CreateFrame("Frame", "RaidBrowserRaidSetMenu", LFRBrowseFrame, "UIDropDownMenuTemplate")
-		UIDropDownMenu_SetWidth(RaidBrowserRaidSetMenu, 150)
+		UIDropDownMenu_SetWidth(frame, 150)
 		frame:SetWidth(90)
 
 		local current_selection = nil
@@ -1193,7 +1191,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 				end
 			end
 
-			UIDropDownMenu_SetText(RaidBrowserRaidSetMenu, text)
+			UIDropDownMenu_SetText(frame, text)
 			current_selection = selection
 		end
 
@@ -1250,7 +1248,7 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 			ToggleDropDownMenu(1, nil, frame, frame, 25, 10, menu)
 		end
 
-		RaidBrowserRaidSetMenuButton:SetScript("OnClick", ShowMenu)
+		_G["RaidBrowserRaidSetMenuButton"]:SetScript("OnClick", ShowMenu)
 
 		local function OnRaidsetSave()
 			if current_selection == PRIMARY then

@@ -2,6 +2,7 @@ assert(KPack, "KPack not found!")
 KPack:AddModule("AddOnSkins", function(_, core, L)
 	if core:IsDisabled("AddOnSkins") or not core.ElvUI then return end
 
+	local _G = _G
 	local E = core.ElvUI
 	local S = E:GetModule("Skins", true)
 	local AS = E:GetModule("Skins", true)
@@ -52,31 +53,31 @@ KPack:AddModule("AddOnSkins", function(_, core, L)
 	local function AddOnSkins_EnhancedStackSplit()
 		if core:IsDisabled("EnhancedStackSplit") then return end
 		if core.EnhStackSplit and not core.EnhStackSplit.isSkinned then
-			EnhancedStackSplitTopTextureFrame:StripTextures()
-			EnhancedStackSplitTopTextureFrame:SetTemplate("Transparent")
+			_G["EnhancedStackSplitTopTextureFrame"]:StripTextures()
+			_G["EnhancedStackSplitTopTextureFrame"]:SetTemplate("Transparent")
 
-			EnhancedStackSplitBottomTextureFrame:StripTextures()
-			EnhancedStackSplitBottomTextureFrame:SetTemplate("Transparent")
+			_G["EnhancedStackSplitBottomTextureFrame"]:StripTextures()
+			_G["EnhancedStackSplitBottomTextureFrame"]:SetTemplate("Transparent")
 
-			EnhancedStackSplitBottom2TextureFrame:StripTextures()
-			EnhancedStackSplitBottom2TextureFrame:SetTemplate("Transparent")
+			_G["EnhancedStackSplitBottom2TextureFrame"]:StripTextures()
+			_G["EnhancedStackSplitBottom2TextureFrame"]:SetTemplate("Transparent")
 
-			EnhancedStackSplitAutoTextureFrame:StripTextures()
-			EnhancedStackSplitAutoTextureFrame:SetTemplate("Transparent")
+			_G["EnhancedStackSplitAutoTextureFrame"]:StripTextures()
+			_G["EnhancedStackSplitAutoTextureFrame"]:SetTemplate("Transparent")
 
-			S:HandleButton(EnhancedStackSplitAuto1Button)
+			S:HandleButton(_G["EnhancedStackSplitAuto1Button"])
 			for i = 1, 16 do
 				local btn = _G["EnhancedStackSplitButton" .. i]
 				S:HandleButton(btn)
 				if i == 1 then
 					btn:ClearAllPoints()
-					btn:SetPoint("TOPLEFT", EnhancedStackSplitBottomTextureFrame, "TOPLEFT", 3, 3)
+					btn:SetPoint("TOPLEFT", _G["EnhancedStackSplitBottomTextureFrame"], "TOPLEFT", 3, 3)
 					btn.ClearAllPoints = core.Noop
 					btn.SetPoint = core.Noop
 				end
 			end
-			S:HandleButton(EnhancedStackSplitAutoSplitButton)
-			S:HandleButton(EnhancedStackSplitModeTXTButton)
+			S:HandleButton(_G["EnhancedStackSplitAutoSplitButton"])
+			S:HandleButton(_G["EnhancedStackSplitModeTXTButton"])
 
 			core.EnhStackSplit.isSkinned = true
 		end
@@ -126,7 +127,7 @@ KPack:AddModule("AddOnSkins", function(_, core, L)
 			end
 
 			MAScrollFrame:Size(380, 442 + (16 * SPACING))
-			S:HandleScrollBar(MAScrollFrameScrollBar)
+			S:HandleScrollBar(_G["MAScrollFrameScrollBar"])
 			MAScrollBorder:StripTextures()
 
 			MANudger:SetTemplate("Transparent")
@@ -147,7 +148,7 @@ KPack:AddModule("AddOnSkins", function(_, core, L)
 			S:HandleButton(MANudger_MoverPlus)
 			S:HandleButton(MANudger_MoverMinus)
 
-			S:HandleButton(GameMenuButtonMoveAnything)
+			S:HandleButton(_G["GameMenuButtonMoveAnything"])
 
 			core.MA.isSkinned = true
 		end
@@ -158,13 +159,13 @@ KPack:AddModule("AddOnSkins", function(_, core, L)
 			return
 		end
 		if core.RaidBrowser and not core.RaidBrowser.isSkinned then
-			S:HandleButton(RaidBrowserRaidSetSaveButton)
-			RaidBrowserRaidSetSaveButton:ClearAllPoints()
-			RaidBrowserRaidSetSaveButton:SetPoint("BOTTOMLEFT", LFRBrowseFrameColumnHeader1, "TOPLEFT", 0, 5)
+			S:HandleButton(_G["RaidBrowserRaidSetSaveButton"])
+			_G["RaidBrowserRaidSetSaveButton"]:ClearAllPoints()
+			_G["RaidBrowserRaidSetSaveButton"]:SetPoint("BOTTOMLEFT", _G["LFRBrowseFrameColumnHeader1"], "TOPLEFT", 0, 5)
 
-			S:HandleDropDownBox(RaidBrowserRaidSetMenu)
-			RaidBrowserRaidSetMenu:ClearAllPoints()
-			RaidBrowserRaidSetMenu:SetPoint("BOTTOMRIGHT", LFRBrowseFrameColumnHeader7, "TOPRIGHT", 0, -5)
+			S:HandleDropDownBox(_G["RaidBrowserRaidSetMenu"])
+			_G["RaidBrowserRaidSetMenu"]:ClearAllPoints()
+			_G["RaidBrowserRaidSetMenu"]:SetPoint("BOTTOMRIGHT", _G["LFRBrowseFrameColumnHeader7"], "TOPRIGHT", 0, -5)
 
 			core.RaidBrowser.isSkinned = true
 		end

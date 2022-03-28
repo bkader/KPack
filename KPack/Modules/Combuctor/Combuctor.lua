@@ -6,6 +6,11 @@ KPack:AddModule("Combuctor", function(_, core, L)
 	local mod = core.Combuctor or {}
 	core.Combuctor = mod
 
+	local _G = _G
+	local BagnonDB = _G.BagnonDB
+	local BagSync = _G.BagSync
+	local BagSyncDB = _G.BagSyncDB
+
 	local DB, SetupDatabase, _
 	local defaults = {
 		inventory = {
@@ -226,8 +231,8 @@ KPack:AddModule("Combuctor", function(_, core, L)
 		local GetItemInfo, GetItemIcon = GetItemInfo, GetItemIcon
 
 		local function SetupBagnonDB()
-			if not _G.BagnonDB and _G.BagSync then
-				_G.BagnonDB = {}
+			if not BagnonDB and BagSync then
+				BagnonDB = {}
 			else
 				return
 			end
@@ -3100,7 +3105,6 @@ KPack:AddModule("Combuctor", function(_, core, L)
 		local InventoryFrame = core:NewClass("Frame")
 		mod.Frame = InventoryFrame
 
-		local _G = _G
 		local CombuctorSet = mod("Sets")
 
 		local BASE_WIDTH = 384
@@ -3610,7 +3614,6 @@ KPack:AddModule("Combuctor", function(_, core, L)
 		-- panel.lua
 		do
 			local Panel = core:NewClass("Frame")
-			local _G = _G
 			local min = math.min
 			local max = math.max
 

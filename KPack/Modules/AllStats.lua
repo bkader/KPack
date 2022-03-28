@@ -2,7 +2,9 @@ assert(KPack, "KPack not found!")
 KPack:AddModule("AllStats", "Moves the functionality of the stat dropdowns to a panel on the right side of the paperdoll, so that you can see all of your stats at once.", function(_, core, L)
 	if core:IsDisabled("AllStats") then return end
 
+	local _G = _G
 	local KPackAllStats
+
 	local function AllStats_CreateMidTex(parent)
 		local frame = parent:CreateTexture(nil, parent)
 		frame:SetSize(144, 53)
@@ -17,7 +19,7 @@ KPack:AddModule("AllStats", "Moves the functionality of the stat dropdowns to a 
 		end
 		KPackAllStats = CreateFrame("Frame", "KPackAllStats", PaperDollFrame)
 		if core.Ascension then
-			KPackAllStats:SetPoint("TOPLEFT", CharacterFrameExtension, "TOPRIGHT", 5, 42)
+			KPackAllStats:SetPoint("TOPLEFT", _G["CharacterFrameExtension"], "TOPRIGHT", 5, 42)
 		else
 			KPackAllStats:SetPoint("TOPLEFT", PaperDollFrame, "TOPRIGHT", -35, -33)
 		end

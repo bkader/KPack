@@ -110,7 +110,6 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 	function SetupDatabase()
 		if not DB then
 			if type(core.db.OmniCC) ~= "table" or next(core.db.OmniCC) == nil then
-				print("here")
 				core.db.OmniCC = CopyTable(defaults)
 			end
 			if core.db.OmniCC.blacklist == nil then

@@ -4,7 +4,7 @@ KPack:AddModule("Math", function(folder, core)
 
 	-- cache frequently used globals
 	local find, gsub = string.find, string.gsub
-	local previous
+	local previous = nil
 
 	-- main function that does calculation
 	function KPack_Math(eq)

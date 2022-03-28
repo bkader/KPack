@@ -2,13 +2,16 @@ assert(KPack, "KPack not found!")
 local L = KPack.L
 local MAOptions
 local MovAny_SetupDatabase
+local MovAny_TooltipShow
+local MovAny_TooltipHide
+local MovAny_TooltipShowMultiline
 
-local function void()
-end
+local void = KPack.Noop
+local new, del = KPack.newTable, KPack.delTable
 
 -- X: http://lua-users.org/wiki/CopyTable
-function MA_tdeepcopy(object)
-	local lookup_table = {}
+local function MA_tdeepcopy(object)
+	local lookup_table = new()
 	local function _copy(object)
 		if type(object) ~= "table" then
 			return object
@@ -22,8 +25,10 @@ function MA_tdeepcopy(object)
 		end
 		return setmetatable(new_table, getmetatable(object))
 	end
+	del(lookup_table)
 	return _copy(object)
 end
+_G.MA_tdeepcopy = MA_tdeepcopy
 
 local function tcopy(object)
 	if type(object) ~= "table" then
@@ -1500,16 +1505,7 @@ function MovAny:SyncAllFrames(dontReset)
 end
 
 function MovAny:SyncFrames(dontReset)
-	if not self.inited or self.syncingFrames then
-		return
-	end
-
-	local i = 0
-	for k in pairs(self.pendingFrames) do
-		i = i + 1
-		break
-	end
-	if i == 0 then
+	if not self.inited or self.syncingFrames or next(self.pendingFrames) == nil then
 		return
 	end
 
@@ -2759,64 +2755,6 @@ function MovAny:ResetFrameAtCursor()
 	if self.frameOptions[fn] then
 		self:ResetFrameConfirm(fn)
 	end
-end
-
-function MovAny:SafeMAFEFrameAtCursor()
-	local obj = GetMouseFocus()
-	while 1 == 1 and obj do
-		while 1 == 1 and obj do
-			if self:IsMAFrame(obj:GetName()) then
-				if self:IsMover(obj:GetName()) then
-					if obj.tagged then
-						obj = obj.tagged
-					else
-						return
-					end
-				elseif not self:IsValidObject(obj, true) then
-					obj = obj:GetParent()
-					if not obj or obj == UIParent then
-						return
-					end
-				else
-					break
-				end
-			else
-				break
-			end
-		end
-		local transName = self:Translate(obj:GetName(), 1)
-
-		if transName ~= obj:GetName() then
-			self:FrameEditor(transName)
-			break
-		end
-
-		local p = obj:GetParent()
-		-- check for minimap button
-		if (p == MinimapBackdrop or p == Minimap or p == MinimapCluster) and obj ~= Minimap then
-			self:FrameEditor(obj:GetName())
-			break
-		end
-
-		local objTest = self:GetDefaultFrameParent(obj)
-		if objTest then
-			self:FrameEditor(objTest:GetName())
-			break
-		end
-
-		objTest = self:GetTopFrameParent(obj)
-		if objTest then
-			self:FrameEditor(objTest:GetName())
-			break
-		end
-
-		if obj and obj ~= WorldFrame and obj ~= UIParent and obj.GetName then
-			self:FrameEditor(obj:GetName())
-		end
-		break
-	end
-
-	self:UpdateGUIIfShown(true)
 end
 
 function MovAny:MAFEFrameAtCursor()
@@ -6425,14 +6363,17 @@ end
 function MovAny_TooltipShow(a, b, c, d, e)
 	MovAny:TooltipShow(a, b, c, d, e)
 end
+_G.MovAny_TooltipShow = MovAny_TooltipShow
 
 function MovAny_TooltipHide(a, b, c, d, e)
 	MovAny:TooltipHide(a, b, c, d, e)
 end
+_G.MovAny_TooltipHide = MovAny_TooltipHide
 
 function MovAny_TooltipShowMultiline(a, b, c, d, e)
 	MovAny:TooltipShowMultiline(a, b, c, d, e)
 end
+_G.MovAny_TooltipShowMultiline = MovAny_TooltipShowMultiline
 
 function MovAny:Search(searchWord)
 	searchWord = searchWord:trim()
@@ -6449,7 +6390,7 @@ function MovAny:Search(searchWord)
 	end
 end
 
-function MovAny_OnEvent(self, event, arg1)
+function MovAny:OnEvent(_, event, arg1)
 	if event == "PLAYER_ENTER_COMBAT" then
 		if #MovAny.movers > 0 then
 			for i, v in ipairs(tcopy(MovAny.movers)) do
@@ -6510,17 +6451,20 @@ function MovAny_OnEvent(self, event, arg1)
 	end
 end
 
-function MAMoverTemplate_OnMouseWheel(self, dir)
+local function MAMoverTemplate_OnMouseWheel(self, dir)
 	MovAny:MoverOnMouseWheel(self, dir)
 end
+_G.MAMoverTemplate_OnMouseWheel = MAMoverTemplate_OnMouseWheel
 
-function MANudgeButton_OnClick(self, event, button)
+local function MANudgeButton_OnClick(self, event, button)
 	MovAny:Nudge(self.dir, button)
 end
+_G.MANudgeButton_OnClick = MANudgeButton_OnClick
 
-function MANudger_OnMouseWheel(self, dir)
+local function MANudger_OnMouseWheel(self, dir)
 	MovAny:NudgerChangeMover(dir)
 end
+_G.MANudger_OnMouseWheel = MANudger_OnMouseWheel
 
 function MovAny:CreateVM(name)
 	local data = MovAny.lVirtualMovers[name]

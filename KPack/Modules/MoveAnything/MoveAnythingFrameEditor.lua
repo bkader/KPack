@@ -3,6 +3,10 @@ assert(MovAny, "MovAny not found!")
 local MovAny = MovAny
 local L = KPack.L
 
+local _G = _G
+local MovAny_TooltipShow = _G.MovAny_TooltipShow or KPack.Noop
+local MA_tdeepcopy = _G.MA_tdeepcopy or _G.CopyTable
+
 function MovAny:ToggleFrameEditors(show)
 	show = show ~= nil and show or MAOptionsToggleFrameEditors:GetChecked()
 	for i, fe in pairs(MovAny.frameEditors) do
@@ -91,11 +95,8 @@ function MovAny:CreateFrameEditor(id, name)
 					if prev then
 						prev:SetFocus()
 					end
-				else
-					for i, v in pairs(tabList) do
-						v:SetFocus()
-						break
-					end
+				elseif tabList[1] then
+					tabList[1]:SetFocus()
 				end
 			end
 			if func then
@@ -291,14 +292,8 @@ function MovAny:CreateFrameEditor(id, name)
 				if type(self.confirm) == "number" and self.confirm + 5 >= time() then
 					for fn, opt in pairs(MovAny.frameOptions) do
 						if type(opt.groups) == "table" and opt.groups[self:GetID()] then
-							local dontDel = nil
-
 							opt.groups[self:GetID()] = nil
-							for i, _ in pairs(opt.groups) do
-								dontDel = true
-								break
-							end
-							if not dontDel then
+							if next(opt.groups) == nil then
 								opt.groups = nil
 							end
 						end
@@ -337,12 +332,7 @@ function MovAny:CreateFrameEditor(id, name)
 			opt.groups = {}
 		end
 		opt.groups[self:GetID()] = self:GetChecked()
-		local dontDel = nil
-		for i, _ in pairs(opt.groups) do
-			dontDel = true
-			break
-		end
-		if not dontDel then
+		if next(opt.groups) == nil then
 			opt.groups = nil
 		end
 		MovAny:UpdateGUIIfShown(true)
@@ -1110,6 +1100,8 @@ function MovAny:CreateFrameEditor(id, name)
 	widthPlusButton:SetText("+")
 	widthPlusButton:SetScript("OnClick", widthPlusFunc)
 
+	local heightSlider = CreateFrame("Slider", fn .. "HeightSlider", fe, "OptionsSliderTemplate")
+
 	local widthResetButton = CreateFrame("Button", fn .. "WidthResetButton", fe, "MAButtonTemplate")
 	widthResetButton:SetSize(20, 20)
 	widthResetButton:SetPoint("TOPLEFT", widthPlusButton, "TOPRIGHT", 3, 0)
@@ -1143,9 +1135,6 @@ function MovAny:CreateFrameEditor(id, name)
 	heightLabel:SetText("Height")
 
 	local heightEdit = CreateFrame("EditBox", fn .. "HeightEdit", fe, "InputBoxTemplate")
-
-	local heightSlider = CreateFrame("Slider", fn .. "HeightSlider", fe, "OptionsSliderTemplate")
-
 	heightEdit:SetFontObject("GameFontHighlightSmall")
 	heightEdit:SetMaxLetters(10)
 	heightEdit:SetSize(59, 20)
@@ -2080,7 +2069,7 @@ function MovAny:CreateFrameEditor(id, name)
 		fe.opt = opt
 		local editFrame = fe.editFrame
 
-		table.wipe(tabList)
+		wipe(tabList)
 
 		fe.frameHeight = 490
 

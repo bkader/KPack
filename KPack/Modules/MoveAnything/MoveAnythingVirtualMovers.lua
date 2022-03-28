@@ -354,7 +354,7 @@ MovAny.lVirtualMovers = {
 			ActionBarDownButton:SetPoint("CENTER", "MainMenuBarArtFrame", "TOPLEFT", 522, -42)
 			for i = 2, 12, 1 do
 				b = _G["ActionButton" .. i]
-				b.MAParent = BasicActionButtonsMover
+				b.MAParent = _G["BasicActionButtonsMover"]
 				b:ClearAllPoints()
 				b:SetPoint("LEFT", pb, "RIGHT", 6, 0)
 				pb = b

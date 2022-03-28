@@ -830,13 +830,9 @@
 				self:RegisterEvent("PLAYER_FOCUS_CHANGED")
 				self:RegisterEvent("PLAYER_ENTER_COMBAT")
 			</OnLoad>
-			<OnShow>
-				MovAny:OnShow()
-			</OnShow>
-			<OnHide>
-				MovAny:OnHide()
-			</OnHide>
-			<OnEvent function="MovAny_OnEvent"/>
+			<OnShow>MovAny:OnShow()</OnShow>
+			<OnHide>MovAny:OnHide()</OnHide>
+			<OnEvent>MovAny:OnEvent(self, event, ...)</OnEvent>
 		</Scripts>
 	</Frame>
 	<Button name="MA_NudgeButton" inherits="UIPanelButtonTemplate" virtual="true" hidden="false">

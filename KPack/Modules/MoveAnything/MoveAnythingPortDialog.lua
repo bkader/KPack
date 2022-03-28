@@ -2,6 +2,9 @@ assert(KPack, "KPack not found!")
 assert(MovAny, "MovAny not found!")
 local MovAny = MovAny
 
+local _G = _G
+local MA_tdeepcopy = _G.MA_tdeepcopy or _G.CopyTable
+
 function MovAny:PortDialog(mode, fn)
 	if not self.portDlg then
 		self.portDlg = self:CreatePortDialog()
@@ -310,11 +313,7 @@ function MovAny:CreatePortDialog()
 				end
 			end
 			table.sort(names, function(o1, o2) return o1:lower() < o2:lower() end)
-
-			for _, n in pairs(names) do
-				selProfile = n
-				break
-			end
+			selProfile = next(names)
 		end
 		if selProfile == nil then
 			pd.profileFound = nil
