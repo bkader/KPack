@@ -972,7 +972,7 @@ KPack:AddModule("Combuctor", function(_, core, L)
 				error("Usage: size = BagSlotInfo:IsTradeBag('player', bagSlot)", 2)
 			end
 
-			return bit.band(self:GetBagType(player, bagSlot), BAGTYPE_PROFESSION) > 0
+			return bit.band(self:GetBagType(player, bagSlot) or 0, BAGTYPE_PROFESSION) > 0
 		end
 
 		function BagSlotInfo:ToInventorySlot(bagSlot)
