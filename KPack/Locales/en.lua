@@ -355,6 +355,10 @@ L["Minutes"] = true
 L["Hours"] = true
 L["Days"] = true
 L["Filtering"] = true
+L["Blacklist"] = true
+L["Only display text on frames not on the blacklist."] = true
+L["Whitelist"] = true
+L["Only display text on registered frames."] = true
 L["Filtered Frames"] = true
 L["Enter the names of frames you don't want cooldown texts to be shown on.\nOne name per line."] = true
 -- Death Recap

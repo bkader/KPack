@@ -28,6 +28,8 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 			hrs = {0.7, 0.7, 0.7, 1}, -- >= 1 hr
 			days = {0.7, 0.7, 0.7, 1} -- >= 1 day
 		},
+		useBlacklist = true,
+		useWhitelist = false,
 		blacklist = {}
 	}
 
@@ -107,11 +109,16 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 
 	function SetupDatabase()
 		if not DB then
-			if type(core.db.OmniCC) ~= "table" then
+			if type(core.db.OmniCC) ~= "table" or next(core.db.OmniCC) == nil then
+				print("here")
 				core.db.OmniCC = CopyTable(defaults)
 			end
 			if core.db.OmniCC.blacklist == nil then
 				core.db.OmniCC.blacklist = {}
+			end
+			if core.db.OmniCC.useBlacklist == nil then
+				core.db.OmniCC.useBlacklist = true
+				core.db.OmniCC.useWhitelist = false
 			end
 			DB = core.db.OmniCC
 		end
@@ -122,6 +129,8 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 			local disabled = function()
 				return not (DB and DB.enabled)
 			end
+
+			local filterList = {}
 
 			options = {
 				type = "group",
@@ -152,7 +161,8 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 							return L:F("Are you sure you want to reset %s to default?", L["Cooldown Text"])
 						end,
 						func = function()
-							core.db.OmniCC, DB = nil, nil
+							wipe(core.db.OmniCC)
+							DB = nil
 							SetupDatabase()
 							core:Print(L["module's settings reset to default."], L["Cooldown Text"])
 							changed = true
@@ -296,31 +306,61 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 						inline = true,
 						disabled = disabled,
 						order = 8,
-						get = function()
-							local list = {}
-							for k, _ in pairs(DB.blacklist) do
-								tinsert(list, k)
-							end
-							return table.concat(list, "\n")
-						end,
-						set = function(_, val)
-							val = val:trim()
-							local lines = {}
-							for s in val:gmatch("[^\r\n]+") do
-								if s:trim() ~= "" then
-									lines[s:trim()] = true
-								end
-							end
-							DB.blacklist = lines
-						end,
 						args = {
+							useBlacklist = {
+								type = "toggle",
+								name = L["Blacklist"],
+								desc = L["Only display text on frames not on the blacklist."],
+								order = 1,
+								get = function()
+									return DB.useBlacklist
+								end,
+								set = function()
+									DB.useBlacklist = not DB.useBlacklist
+									if DB.useBlacklist == true then
+										DB.useWhitelist = false
+									end
+								end
+							},
+							useWhitelist = {
+								type = "toggle",
+								name = L["Whitelist"],
+								desc = L["Only display text on registered frames."],
+								order = 2,
+								get = function()
+									return DB.useWhitelist
+								end,
+								set = function()
+									DB.useWhitelist = not DB.useWhitelist
+									if DB.useWhitelist == true then
+										DB.useBlacklist = false
+									end
+								end
+							},
 							list = {
 								type = "input",
 								name = L["Filtered Frames"],
 								desc = L["Enter the names of frames you don't want cooldown texts to be shown on.\nOne name per line."],
 								multiline = true,
 								width = "double",
-								order = 1
+								order = 3,
+								get = function()
+									wipe(filterList)
+									for k, _ in pairs(DB.blacklist) do
+										tinsert(filterList, k)
+									end
+									return table.concat(filterList, "\n")
+								end,
+								set = function(_, val)
+									val = val:trim()
+									local lines = {}
+									for s in val:gmatch("[^\r\n]+") do
+										if s:trim() ~= "" then
+											lines[s:trim()] = true
+										end
+									end
+									DB.blacklist = lines
+								end
 							}
 						}
 					}
@@ -366,9 +406,12 @@ KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are o
 	end
 
 	function mod:SetCooldown(frame, start, duration)
-		if not frame or IsBlacklisted(frame) then
-			return
-		end
+		-- 1) invalid frame.
+		if not frame then return end
+		-- 2) blacklist frame.
+		if DB.useBlacklist and IsBlacklisted(frame) then return end
+		-- 3) not whitelisted frame.
+		if DB.useWhitelist and not IsBlacklisted(frame) then return end
 
 		if start > 0 and duration > (DB.minDuration or 3) then
 			Cooldowns_StartTimer(frame, start, duration)
