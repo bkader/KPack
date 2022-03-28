@@ -46,7 +46,7 @@ KPack:AddModule("Minimap", function(_, core, L)
 
 	function SetupDatabase()
 		if not DB then
-			if type(core.db.Minimap) ~= "table" or not next(core.db.Minimap) then
+			if type(core.db.Minimap) ~= "table" or next(core.db.Minimap) == nil then
 				core.db.Minimap = CopyTable(defaults)
 			end
 			DB = core.db.Minimap
@@ -263,8 +263,9 @@ KPack:AddModule("Minimap", function(_, core, L)
 						return L:F("Are you sure you want to reset %s to default?", MINIMAP_LABEL)
 					end,
 					func = function()
-						wipe(DB)
-						DB = defaults
+						wipe(core.db.Minimap)
+						DB = nil
+						SetupDatabase()
 						Print(L["module's settings reset to default."])
 						PLAYER_ENTERING_WORLD()
 					end
@@ -682,19 +683,20 @@ KPack:AddModule("Minimap", function(_, core, L)
 		end
 
 		local function Cluster_OnMouseDown(self, button)
-			if DB.lock then
-				return
-			end
-			if IsAltKeyDown() and IsShiftKeyDown() and button == "LeftButton" then
-				self:StartMoving()
+			if DB.lock then return end
+			if button == "LeftButton" and not MinimapCluster.isMoving then
+				MinimapCluster:SetMovable(true)
+				MinimapCluster.isMoving = true
+				MinimapCluster:StartMoving()
 			end
 		end
 
 		local function Cluster_OnMouseUp(self, button)
 			if DB.lock then return end
-			if button == "LeftButton" then
-				self:StopMovingOrSizing()
-				local point, _, _, xOfs, yOfs = self:GetPoint(1)
+			if button == "LeftButton" and MinimapCluster.isMoving then
+				MinimapCluster.isMoving = nil
+				MinimapCluster:StopMovingOrSizing()
+				local point, _, _, xOfs, yOfs = MinimapCluster:GetPoint(1)
 				DB.moved = true
 				DB.point = point
 				DB.x = xOfs
@@ -774,23 +776,30 @@ KPack:AddModule("Minimap", function(_, core, L)
 			end
 
 			if DB.locked then
-				MinimapCluster:SetMovable(false)
-				MinimapCluster:SetClampedToScreen(false)
-				MinimapCluster:RegisterForDrag(nil)
-				MinimapCluster:SetScript("OnMouseDown", nil)
-				MinimapCluster:SetScript("OnMouseUp", nil)
-				MinimapCluster:SetBackdrop(nil)
-				MinimapCluster:SetBackdropColor(0, 0, 0, 0)
-				MinimapCluster:SetBackdropBorderColor(0, 0, 0, 0)
+				if MinimapCluster.handle then
+					MinimapCluster.handle:EnableMouse(false)
+					MinimapCluster.handle:SetMovable(false)
+					MinimapCluster.handle:RegisterForDrag(nil)
+					MinimapCluster.handle:SetScript("OnMouseDown", nil)
+					MinimapCluster.handle:SetScript("OnMouseUp", nil)
+					MinimapCluster.handle:Hide()
+				end
 			else
-				MinimapCluster:SetMovable(true)
-				MinimapCluster:SetClampedToScreen(true)
-				MinimapCluster:RegisterForDrag("LeftButton")
-				MinimapCluster:SetScript("OnMouseDown", Cluster_OnMouseDown)
-				MinimapCluster:SetScript("OnMouseUp", Cluster_OnMouseUp)
-				MinimapCluster:SetBackdrop(backdrop)
-				MinimapCluster:SetBackdropColor(0, 0, 0, 0.5)
-				MinimapCluster:SetBackdropBorderColor(0, 0, 0, 1)
+				if not MinimapCluster.handle then
+					MinimapCluster.handle = CreateFrame("Frame", nil, Minimap)
+					MinimapCluster.handle:SetAllPoints(MinimapCluster)
+					MinimapCluster.handle:SetBackdrop(backdrop)
+					MinimapCluster.handle:SetBackdropColor(1, 0, 0, 0.5)
+					MinimapCluster.handle:SetBackdropBorderColor(0, 0, 0, 1)
+					MinimapCluster.handle:SetClampedToScreen(true)
+				end
+
+				MinimapCluster.handle:EnableMouse(true)
+				MinimapCluster.handle:SetMovable(true)
+				MinimapCluster.handle:RegisterForDrag("LeftButton")
+				MinimapCluster.handle:SetScript("OnMouseDown", Cluster_OnMouseDown)
+				MinimapCluster.handle:SetScript("OnMouseUp", Cluster_OnMouseUp)
+				MinimapCluster.handle:Show()
 			end
 
 			-- move to position
