@@ -738,7 +738,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 
 	local function SetupDatabase()
 		if not DB then
-			if type(core.db.Nameplates) ~= "table" or not next(core.db.Nameplates) then
+			if type(core.db.Nameplates) ~= "table" or next(core.db.Nameplates) == nil then
 				core.db.Nameplates = CopyTable(defaults)
 			end
 
@@ -756,7 +756,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 			end
 		end
 		if not CharDB then
-			if type(core.char.Nameplates) ~= "table" or not next(core.char.Nameplates) then
+			if type(core.char.Nameplates) ~= "table" or next(core.char.Nameplates) == nil then
 				core.char.Nameplates = CopyTable(defaultsChar)
 			end
 
@@ -819,11 +819,10 @@ KPack:AddModule("Nameplates", function(_, core, L)
 							return L:F("Are you sure you want to reset %s to default?", "Nameplates")
 						end,
 						func = function()
-							wipe(DB)
-							DB = defaults
-							for k, v in pairs(DB) do
-								config[k] = v
-							end
+							wipe(core.db.Nameplates)
+							wipe(core.char.Nameplates)
+							DB, CharDB = nil, nil
+							SetupDatabase()
 							Print(L["module's settings reset to default."])
 							ReloadUI()
 						end

@@ -116,7 +116,7 @@ KPack:AddModule("Bubblicious", "Chat bubble related customizations.", function(_
 
 	function Bubblicious:SetupDatabase()
 		if not self.db then
-			if type(core.db.Bubblicious) ~= "table" then
+			if type(core.db.Bubblicious) ~= "table" or next(core.db.Bubblicious) == nil then
 				core.db.Bubblicious = CopyTable(defaults)
 			end
 			self.db = core.db.Bubblicious
@@ -165,7 +165,7 @@ KPack:AddModule("Bubblicious", "Chat bubble related customizations.", function(_
 							return L:F("Are you sure you want to reset %s to default?", "Bubblicious")
 						end,
 						func = function()
-							core.db.Bubblicious = nil
+							wipe(core.db.Bubblicious)
 							Bubblicious.db = nil
 							Bubblicious:SetupDatabase()
 							core:Print(L["module's settings reset to default."], "Bubblicious")

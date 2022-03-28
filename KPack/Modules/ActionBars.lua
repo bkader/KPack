@@ -275,7 +275,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 					return L:F("Are you sure you want to reset %s to default?", "Automate")
 				end,
 				func = function()
-					core.db.ActionBars = nil
+					wipe(core.db.ActionBars)
 					DB = nil
 					mod:SetupDatabase()
 					Print(L["module's settings reset to default."])
@@ -287,7 +287,7 @@ KPack:AddModule("ActionBars", "Allows you to tweak your action bars in the limit
 
 	function mod:SetupDatabase()
 		if not DB then
-			if type(core.db.ActionBars) ~= "table" or not next(core.db.ActionBars) then
+			if type(core.db.ActionBars) ~= "table" or next(core.db.ActionBars) == nil then
 				core.db.ActionBars = CopyTable(defaults)
 			end
 			DB = core.db.ActionBars

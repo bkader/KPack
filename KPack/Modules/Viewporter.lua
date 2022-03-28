@@ -70,11 +70,11 @@ KPack:AddModule("Viewporter", function(_, core, L)
 			Print(L["|cffff0000disabled|r"])
 		elseif cmd == "reset" or cmd == "default" then
 			wipe(core.char.Viewporter)
-			core.char.Viewporter = CopyTable(defaults)
-			DB = core.char.Viewporter
+			DB = nil
+			SetupDatabase()
 			initialized = nil
-			frame:Show()
 			Print(L["module's settings reset to default."])
+			frame:Show()
 		elseif cmd == "config" or cmd == "options" then
 			core:OpenConfig("Options", "Viewporter")
 		elseif sides[cmd] then
@@ -120,7 +120,7 @@ KPack:AddModule("Viewporter", function(_, core, L)
 
 	function SetupDatabase()
 		if not DB then
-			if type(core.char.Viewporter) ~= "table" or not next(core.char.Viewporter) then
+			if type(core.char.Viewporter) ~= "table" or next(core.char.Viewporter) == nil then
 				core.char.Viewporter = CopyTable(defaults)
 			end
 			DB = core.char.Viewporter
@@ -165,7 +165,7 @@ KPack:AddModule("Viewporter", function(_, core, L)
 						return L:F("Are you sure you want to reset %s to default?", L["Viewporter"])
 					end,
 					func = function()
-						core.char.Viewporter = nil
+						wipe(core.char.Viewporter)
 						DB = nil
 						SetupDatabase()
 						Print(L["module's settings reset to default."])

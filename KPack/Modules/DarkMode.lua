@@ -362,7 +362,7 @@ KPack:AddModule("Dark Mode", function(_, core, L)
 
 	local function SetupDatabase()
 		if not DB then
-			if type(core.db.DarkMode) ~= "table" or not next(core.db.DarkMode) then
+			if type(core.db.DarkMode) ~= "table" or next(core.db.DarkMode) == nil then
 				core.db.DarkMode = CopyTable(defaults)
 			end
 
@@ -370,11 +370,13 @@ KPack:AddModule("Dark Mode", function(_, core, L)
 		end
 
 		if core.db.DarkMode.charspecific then
-			if type(core.char.DarkMode) ~= "table" or not next(core.char.DarkMode) then
+			if type(core.char.DarkMode) ~= "table" or next(core.char.DarkMode) == nil then
 				core.char.DarkMode = CopyTable(core.db.DarkMode)
 			end
 			DB = core.char.DarkMode
 			DB.charspecific = nil
+		elseif core.char.DarkMode then
+			core.char.DarkMode = nil
 		end
 
 		if DB.classcolor and core.mycolor then
@@ -499,6 +501,7 @@ KPack:AddModule("Dark Mode", function(_, core, L)
 							SetupDatabase()
 							DarkMode()
 							collectgarbage("collect")
+							core:Print(L["module's settings reset to default."], L["Dark Mode"])
 						end
 					}
 				}

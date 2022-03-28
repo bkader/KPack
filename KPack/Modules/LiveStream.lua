@@ -153,7 +153,7 @@ KPack:AddModule("LiveStream", function(_, core, L)
 			return
 		end
 		if not DB then
-			if type(core.db.LiveStream) ~= "table" then
+			if type(core.db.LiveStream) ~= "table" or next(core.db.LiveStream) == nil then
 				core.db.LiveStream = CopyTable(defaults)
 			end
 			DB = core.db.LiveStream
@@ -327,7 +327,8 @@ KPack:AddModule("LiveStream", function(_, core, L)
 							return L:F("Are you sure you want to reset %s to default?", "LiveStream")
 						end,
 						func = function()
-							core.db.LiveStream, DB, started = nil, nil, nil
+							wipe(core.db.LiveStream)
+							DB, started = nil, nil
 							SetupDatabase()
 							core:Print(L["module's settings reset to default."], "LiveStream")
 						end

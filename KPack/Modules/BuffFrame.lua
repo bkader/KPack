@@ -161,7 +161,7 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 
 	function SetupDatabase()
 		if not DB then
-			if type(core.db.BuffFrame) ~= "table" or not next(core.db.BuffFrame) then
+			if type(core.db.BuffFrame) ~= "table" or next(core.db.BuffFrame) == nil then
 				core.db.BuffFrame = CopyTable(defaults)
 			end
 			DB = core.db.BuffFrame
@@ -282,7 +282,7 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 						return L:F("Are you sure you want to reset %s to default?", L["Buff Frame"])
 					end,
 					func = function()
-						core.db.BuffFrame = nil
+						wipe(core.db.BuffFrame)
 						DB = nil
 						SetupDatabase()
 						core:Print(L["module's settings reset to default."], "BuffFrame")

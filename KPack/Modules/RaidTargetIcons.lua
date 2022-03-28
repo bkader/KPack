@@ -401,7 +401,7 @@ KPack:AddModule("Target Icons", "Allows you to quickly mark raid targets using a
 
 	function SetupDatabase()
 		if not DB then
-			if type(core.db.RTI) ~= "table" or not next(core.db.RTI) then
+			if type(core.db.RTI) ~= "table" or next(core.db.RTI) == nil then
 				core.db.RTI = CopyTable(defaults)
 			end
 			DB = core.db.RTI
@@ -510,7 +510,7 @@ KPack:AddModule("Target Icons", "Allows you to quickly mark raid targets using a
 						return L:F("Are you sure you want to reset %s to default?", L["Target Icons"])
 					end,
 					func = function()
-						core.db.RTI = nil
+						wipe(core.db.RTI)
 						DB = nil
 						SetupDatabase()
 						core:Print(L["module's settings reset to default."], L["Target Icons"])

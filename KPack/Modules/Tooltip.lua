@@ -42,7 +42,7 @@ KPack:AddModule("Tooltip", function(_, core, L)
 
 	local function SetupDatabase()
 		if not DB then
-			if type(core.char.Tooltip) ~= "table" or not next(core.char.Tooltip) then
+			if type(core.char.Tooltip) ~= "table" or next(core.char.Tooltip) == nil then
 				core.char.Tooltip = CopyTable(defaults)
 			end
 			DB = core.char.Tooltip
@@ -233,9 +233,9 @@ KPack:AddModule("Tooltip", function(_, core, L)
 							return L:F("Are you sure you want to reset %s to default?", L["Tooltips"])
 						end,
 						func = function()
-							core.char.Tooltip = nil
+							wipe(core.char.Tooltip)
 							DB = nil
-							SetupDatabase()
+							PLAYER_ENTERING_WORLD()
 						end
 					}
 				}

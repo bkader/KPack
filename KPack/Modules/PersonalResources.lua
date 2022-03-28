@@ -17,7 +17,7 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 		font = "Friz Quadrata TT",
 		fontSize = 12,
 		fontOutline = "OUTLINE",
-		texture = "Blizzard",
+		texture = "KPack Norm",
 		color = {0, 0, 0, 0.5},
 		width = 180,
 		height = 32,
@@ -37,7 +37,7 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 	-- sets up the database
 	local function SetupDatabase()
 		if not DB then
-			if type(core.char.PersonalResources) ~= "table" or not next(core.char.PersonalResources) then
+			if type(core.char.PersonalResources) ~= "table" or next(core.char.PersonalResources) == nil then
 				core.char.PersonalResources = CopyTable(defaults)
 			end
 
@@ -523,8 +523,8 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 
 		-- reset module
 		commands.reset = function()
-			wipe(DB)
-			DB = defaults
+			wipe(core.char.PersonalResources)
+			DB = nil
 			Print(L["module's settings reset to default."])
 		end
 		commands.default = commands.reset
@@ -747,11 +747,11 @@ KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal
 						order = 101,
 						width = "double",
 						confirm = function()
-							return L:F("Are you sure you want to reset %s to default?", "Automate")
+							return L:F("Are you sure you want to reset %s to default?", "Personal Resources")
 						end,
 						func = function()
-							wipe(DB)
-							DB = defaults
+							wipe(core.char.PersonalResources)
+							DB = nil
 							Print(L["module's settings reset to default."])
 							PLAYER_ENTERING_WORLD()
 						end

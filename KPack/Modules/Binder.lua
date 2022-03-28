@@ -69,7 +69,7 @@ KPack:AddModule("Binder", "Allows you to save your current keybinds as a profile
 
 	local function SetupDatabase()
 		if not DB then
-			if type(core.db.Binder) ~= "table" or not next(core.db.Binder) then
+			if type(core.db.Binder) ~= "table" or next(core.db.Binder) == nil then
 				core.db.Binder = CopyTable(defaults)
 				core.db.Binder[1].binds = Binder_SaveBindings()
 			end
@@ -198,7 +198,8 @@ KPack:AddModule("Binder", "Allows you to save your current keybinds as a profile
 						core:Print(L:F('Profile "%s" successfully deleted.', name), "Binder")
 						selectedprofile, characterspecific = nil, nil
 						if #DB == 0 then
-							core.db.Binder, DB = nil, nil
+							wipe(core.db.Binder)
+							DB = nil
 							SetupDatabase()
 						end
 					end

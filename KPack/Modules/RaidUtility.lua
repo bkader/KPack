@@ -41,6 +41,17 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			UnitIsFriend("player", unit))
 	end
 
+	local function ResetDatabase(dst, src)
+		if type(dst) ~= "table" then return end
+		for k, v in pairs(src) do
+			if type(v) == "table" then
+				ResetDatabase(dst[k], v)
+			else
+				dst[k] = v
+			end
+		end
+	end
+
 	function mod:InGroup()
 		return (GetNumRaidMembers() > 0 or GetNumPartyMembers() > 0)
 	end
@@ -490,7 +501,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 						return L:F("Are you sure you want to reset %s to default?", LOOT_METHOD)
 					end,
 					func = function()
-						DB.Loot = defaults.Loot
+						ResetDatabase(DB.Loot, defaults.Loot)
 					end
 				}
 			}
@@ -597,7 +608,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
 		-- defaults
 		defaults.Auras = {
-			enabled = true,
+			enabled = false,
 			locked = false,
 			updateInterval = 0.25,
 			hideTitle = false,
@@ -1132,7 +1143,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 						return L:F("Are you sure you want to reset %s to default?", L["Paladin Auras"])
 					end,
 					func = function()
-						DB.Auras = defaults.Auras
+						ResetDatabase(DB.Auras, defaults.Auras)
 						UpdateDisplay()
 					end
 				}
@@ -1181,7 +1192,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
 		-- defaults
 		defaults.Sunders = {
-			enabled = true,
+			enabled = false,
 			locked = false,
 			updateInterval = 0.25,
 			hideTitle = false,
@@ -1622,7 +1633,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 						return L:F("Are you sure you want to reset %s to default?", sunder)
 					end,
 					func = function()
-						DB.Sunders = defaults.Sunders
+						ResetDatabase(DB.Sunders, defaults.Sunders)
 						UpdateDisplay()
 					end
 				}
@@ -1669,7 +1680,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
 	do
 		defaults.Mana = {
-			enabled = true,
+			enabled = false,
 			locked = false,
 			updateInterval = 0.25,
 			hideTitle = false,
@@ -2285,7 +2296,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 						return L:F("Are you sure you want to reset %s to default?", L["Healers Mana"])
 					end,
 					func = function()
-						DB.Mana = defaults.Mana
+						ResetDatabase(DB.Mana, defaults.Mana)
 						UpdateDisplay()
 					end
 				}
@@ -2982,6 +2993,12 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 			else
 				display:HideIcon()
 			end
+
+			if DB.Cooldowns.enabled and not display:IsShown() then
+				ShowDisplay()
+			elseif not DB.Cooldowns.enabled and display:IsShown() then
+				HideDisplay()
+			end
 		end
 
 		do
@@ -3468,7 +3485,7 @@ KPack:AddModule("RaidUtility", function(_, core, L)
 
 	function SetupDatabase()
 		if not DB then
-			if type(core.db.RaidUtility) ~= "table" or not next(core.db.RaidUtility) then
+			if type(core.db.RaidUtility) ~= "table" or next(core.db.RaidUtility) == nil then
 				core.db.RaidUtility = CopyTable(defaults)
 			end
 			DB = core.db.RaidUtility

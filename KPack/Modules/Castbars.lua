@@ -1052,17 +1052,19 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 	}
 
 	local function Castbars_SetupDatabase()
-		if type(core.db.Castbars) ~= "table" or not next(core.db.Castbars) then
+		if type(core.db.Castbars) ~= "table" or next(core.db.Castbars) == nil then
 			core.db.Castbars = CopyTable(defaults)
 		end
 		Castbars.db = core.db.Castbars
 
 		-- character specific settings
 		if Castbars.db.UseCharacter then
-			if type(core.char.Castbars) ~= "table" or not next(core.char.Castbars) then
+			if type(core.char.Castbars) ~= "table" or next(core.char.Castbars) == nil then
 				core.char.Castbars = CopyTable(core.db.Castbars)
 			end
 			Castbars.db = core.char.Castbars
+		elseif core.char.Castbars then
+			core.char.Castbars = nil
 		end
 	end
 
@@ -1105,10 +1107,14 @@ KPack:AddModule("Castbars", "Castbars is a lightweight, efficient and easy to us
 						return L:F("Are you sure you want to reset %s to default?", "Castbars")
 					end,
 					func = function()
-						core.db.Castbars = nil
-						core.char.Castbars = nil
+						wipe(core.char.Castbars)
+						if not core.db.Castbars.UseCharacter then
+							wipe(core.db.Castbars)
+						end
+						Castbars.db = nil
 						Castbars_SetupDatabase()
 						Castbars_FrameLayoutRestoreAll()
+						core:Print(L["module's settings reset to default."], L["Castbars"])
 					end
 				},
 				player = Castbars_GetOptionsTableForBar("CastingBarFrame", L["Player/Vehicle Castbar"], 4, true, false, true, true, true, true, true, true, true, true),

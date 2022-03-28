@@ -43,14 +43,14 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
 
 	local function SetupDatabase()
 		if not DB then
-			if type(core.db.Automate) ~= "table" or not next(core.db.Automate) then
+			if type(core.db.Automate) ~= "table" or next(core.db.Automate) == nil then
 				core.db.Automate = CopyTable(defaultsDB)
 			end
 			DB = core.db.Automate
 		end
 
 		if not CharDB then
-			if type(core.char.Automate) ~= "table" or not next(core.char.Automate) then
+			if type(core.char.Automate) ~= "table" or next(core.char.Automate) == nil then
 				core.char.Automate = CopyTable(defaultsChar)
 			end
 			CharDB = core.char.Automate
@@ -117,9 +117,10 @@ KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", 
 						return L:F("Are you sure you want to reset %s to default?", "Automate")
 					end,
 					func = function()
-						core.db.Automate = nil
-						core.char.Automate = nil
+						wipe(core.db.Automate)
+						wipe(core.char.Automate)
 						DB = nil
+						CharDB = nil
 						SetupDatabase()
 					end
 				},

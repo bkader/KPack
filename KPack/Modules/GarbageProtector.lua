@@ -61,7 +61,7 @@ KPack:AddModule("GarbageProtector", "Intercepts irresponsible collectgarbage cal
 
 	function GP:SetupDatabase()
 		if not DB then
-			if type(core.db.GarbageProtector) ~= "table" then
+			if type(core.db.GarbageProtector) ~= "table" or next(core.db.GarbageProtector) == nil then
 				core.db.GarbageProtector = CopyTable(defaults)
 			end
 			DB = core.db.GarbageProtector
@@ -107,7 +107,7 @@ KPack:AddModule("GarbageProtector", "Intercepts irresponsible collectgarbage cal
 							return L:F("Are you sure you want to reset %s to default?", L["Garbage Protector"])
 						end,
 						func = function()
-							core.db.GarbageProtector = nil
+							wipe(core.db.GarbageProtector)
 							DB = nil
 							GP:SetupDatabase()
 							GP:Print(L["module's settings reset to default."])

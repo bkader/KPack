@@ -1,6 +1,6 @@
 assert(KPack, "KPack not found!")
-KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the blizzard UIErrorsFrame.", function(_, core, L)
-	if core:IsDisabled("ErrorFilter") then return end
+KPack:AddModule("Error Filter", "Manages the errors that are displayed in the blizzard UIErrorsFrame.", function(_, core, L)
+	if core:IsDisabled("Error Filter") then return end
 
 	local mod = core.ErrorFilter or {}
 	core.ErrorFilter = mod
@@ -10,9 +10,7 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
 
 	local DB, SetupDatabase
 	local function Print(msg)
-		if msg then
-			core:Print(msg, "ErrorFilter")
-		end
+		core:Print(msg, L["Error Filter"])
 	end
 
 	local defaults = {enabled = true, shown = true}
@@ -82,7 +80,7 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
 		end
 
 		exec.reset = function()
-			core.db.ErrorFilter = nil
+			wipe(core.db.ErrorFilter)
 			DB = nil
 			SetupDatabase()
 			Print(L["module's settings reset to default."])
@@ -113,7 +111,7 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
 
 	function SetupDatabase()
 		if not DB then
-			if type(core.db.ErrorFilter) ~= "table" or not next(core.db.ErrorFilter) then
+			if type(core.db.ErrorFilter) ~= "table" or next(core.db.ErrorFilter) == nil then
 				core.db.ErrorFilter = {
 					options = CopyTable(defaults),
 					filters = CopyTable(filters)
@@ -177,7 +175,7 @@ KPack:AddModule("ErrorFilter", "Manages the errors that are displayed in the bli
 							return L:F("Are you sure you want to reset %s to default?", L["Error Filter"])
 						end,
 						func = function()
-							core.db.ErrorFilter = nil
+							wipe(core.db.ErrorFilter)
 							DB = nil
 							SetupDatabase()
 							Print(L["module's settings reset to default."])
