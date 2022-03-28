@@ -28,11 +28,12 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 		spacing = 1,
 		combat = false,
 		anchor = "CENTER",
-		color = {
-			r = 0.9686274509803922,
-			g = 0.674509803921568,
-			b = 0.1450980392156863
-		},
+		opacity = 0.1,
+		color = {r = 0.969, g = 0.675, b = 0.145},
+		borderSize = 2,
+		border = {r = 0, g = 0, b = 0, a = 0.5},
+		color2on = false,
+		color2 = {r = 0.969, g = 0.675, b = 0.145},
 		xPos = xPos,
 		yPos = yPos
 	}
@@ -54,7 +55,7 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 
 	local function SetupDatabase()
 		if not DB then
-			if type(core.char.SCP) ~= "table" or not next(core.char.SCP) then
+			if type(core.char.SCP) ~= "table" or next(core.char.SCP) == nil then
 				core.char.SCP = CopyTable(defaults)
 			end
 			DB = core.char.SCP
@@ -63,19 +64,22 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 
 	-- //////////////////////////////////////////////////////////////
 
+	local backdrop = {
+		bgFile = [[Interface\Buttons\WHITE8X8]],
+		edgeFile = [[Interface\Buttons\WHITE8X8]],
+		tileSize = 2,
+		edgeSize = 2,
+		insets = {left = 0, right = 0, top = 0, bottom = 0}
+	}
+	local borderColor = {r = 0, g = 0, b = 0, a = 1}
+
 	-- initializes the frame
 	function SCP_InitializeFrames()
 		pointsFrame = wipe(pointsFrame or {})
 		for i = 1, maxPoints do
 			pointsFrame[i] = CreateFrame("Frame", "KPackSCPFrame" .. i, i == 1 and UIParent or pointsFrame[i - 1])
-			pointsFrame[i]:SetBackdrop({
-				bgFile = [[Interface\ChatFrame\ChatFrameBackground]],
-				edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
-				tile = true,
-				tileSize = 4,
-				edgeSize = 4,
-				insets = {left = 0.5, right = 0.5, top = 0.5, bottom = 0.5}
-			})
+			backdrop.edgeSize = DB.borderSize or defaults.borderSize
+			pointsFrame[i]:SetBackdrop(backdrop)
 		end
 		SCP_UpdateFrames()
 	end
@@ -93,9 +97,12 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 			end
 			i = i + 1
 		end
+		if DB.color2on and DB.color2 then
+			r, g, b = DB.color2.r, DB.color2.g, DB.color2.b
+		end
 		while i <= maxPoints do
 			if pointsFrame[i] then
-				pointsFrame[i]:SetBackdropColor(r, g, b, 0.1)
+				pointsFrame[i]:SetBackdropColor(r, g, b, DB.opacity or defaults.opacity)
 			end
 			i = i + 1
 		end
@@ -108,13 +115,15 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 	function SCP_UpdateFrames()
 		local width = DB.width or 22
 		local height = DB.height or 22
-		local r, g, b = DB.color.r, DB.color.g, DB.color.b
+
+		local fcolor = (DB.color2on and DB.color2) and DB.color2 or DB.color
+		local bcolor = DB.border or borderColor
 
 		for i = 1, maxPoints do
 			if pointsFrame[i] then
 				pointsFrame[i]:SetSize(width, height)
-				pointsFrame[i]:SetBackdropColor(r, g, b, 0.1)
-				pointsFrame[i]:SetBackdropBorderColor(0, 0, 0, 1)
+				pointsFrame[i]:SetBackdropColor(fcolor.r, fcolor.g, fcolor.b, DB.opacity or defaults.opacity)
+				pointsFrame[i]:SetBackdropBorderColor(bcolor.r, bcolor.g, bcolor.b, bcolor.a or 1)
 
 				if i == 1 then
 					pointsFrame[i]:SetPoint(DB.anchor, UIParent, DB.anchor, DB.xPos, DB.yPos)
@@ -254,9 +263,9 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 				SCP_InitializeFrames()
 			end
 		elseif cmd == "reset" then
-			-- changing size
-			wipe(DB)
-			DB = defaults
+			wipe(core.char.SCP)
+			DB = nil
+			SetupDatabase()
 
 			SCP_DestroyFrames()
 			SCP_InitializeFrames()
@@ -384,8 +393,9 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 					order = 5,
 					min = 0.5,
 					max = 3,
-					step = 0.01,
-					bigStep = 0.1
+					step = 0.001,
+					bigStep = 0.01,
+					isPercent = true
 				},
 				spacing = {
 					type = "range",
@@ -397,12 +407,31 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 					step = 0.1,
 					bigStep = 1
 				},
+				opacity = {
+					type = "range",
+					name = L["Opacity"],
+					desc = L["Changes points opacity."],
+					order = 7,
+					get = function()
+						return DB.opacity
+					end,
+					set = function(_, val)
+						DB.opacity = val
+						SCP_DestroyFrames()
+						SCP_InitializeFrames()
+					end,
+					min = 0.1,
+					max = 0.9,
+					step = 0.001,
+					bigStep = 0.01,
+					isPercent = true
+				},
 				color = {
 					type = "color",
 					name = L["Color"],
 					desc = L["Changes points color."],
 					hasAlpha = false,
-					order = 7,
+					order = 8,
 					get = function()
 						return DB.color.r, DB.color.g, DB.color.b
 					end,
@@ -412,20 +441,91 @@ KPack:AddModule("SimpleComboPoints", function(_, core, L)
 						SCP_InitializeFrames()
 					end
 				},
+				borders = {
+					type = "header",
+					name = L["Borders"],
+					order = 9
+				},
+				borderSize = {
+					type = "range",
+					name = L["Size"],
+					order = 10,
+					min = 1,
+					max = 5,
+					step = 0.1,
+					bigStep = 1
+				},
+				border = {
+					type = "color",
+					name = L["Border Color"],
+					hasAlpha = true,
+					order = 11,
+					get = function()
+						local c = DB.border or borderColor
+						return c.r, c.g, c.b, c.a or 1
+					end,
+					set = function(i, r, g, b, a)
+						DB.border = DB.border or {}
+						DB.border.r, DB.border.g, DB.border.b, DB.border.a = r, g, b, a or 1
+						SCP_DestroyFrames()
+						SCP_InitializeFrames()
+					end
+				},
+				sep_02 = {
+					type = "description",
+					name = " ",
+					width = "full",
+					order = 12
+				},
+				color2head = {
+					type = "header",
+					name = L["Empty Color"],
+					order = 13
+				},
+				color2on = {
+					type = "toggle",
+					name = L["Enable"],
+					order = 14
+				},
+				color2 = {
+					type = "color",
+					name = L["Color"],
+					desc = L["Empty points color."],
+					hasAlpha = false,
+					order = 15,
+					disabled = function() return not DB.color2on end,
+					get = function()
+						local c = DB.color2 or DB.color
+						return c.r, c.g, c.b
+					end,
+					set = function(i, r, g, b)
+						DB.color2 = DB.color2 or {}
+						DB.color2.r, DB.color2.g, DB.color2.b = r, g, b
+						SCP_DestroyFrames()
+						SCP_InitializeFrames()
+					end
+				},
+				sep_03 = {
+					type = "description",
+					name = " ",
+					width = "full",
+					order = 98
+				},
 				reset = {
 					type = "execute",
 					name = RESET,
-					order = 9,
+					order = 99,
 					width = "full",
 					confirm = function()
 						return L:F("Are you sure you want to reset %s to default?", "SimpleComboPoints")
 					end,
 					func = function()
-						wipe(DB)
-						DB = defaults
-						Print(L["module's settings reset to default."])
+						wipe(core.char.SCP)
+						DB = nil
+						SetupDatabase()
 						SCP_DestroyFrames()
 						SCP_InitializeFrames()
+						Print(L["module's settings reset to default."])
 					end
 				}
 			}
