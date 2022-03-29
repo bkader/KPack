@@ -596,15 +596,15 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		self.name:SetPoint("RIGHT", self.healthBar, -15, 3)
 		core:ShowIf(self.name, not config.hideName)
 
-		local level, elite = tonumber(self.level:GetText()), self.elite:IsShown()
+		local level = self.level:GetText() or ""
 		self.level:SetJustifyH("RIGHT")
 		self.level:ClearAllPoints()
 		self.level:SetPoint("BOTTOMRIGHT", self.healthBar, "TOPRIGHT", 3, 3)
 		if self.boss:IsShown() then
 			self.level:SetText("B")
 			self.level:SetTextColor(0.8, 0.05, 0)
-		elseif elite then
-			self.level:SetText(level .. (elite and "+" or ""))
+		else
+			self.level:SetText(level .. (self.elite:IsShown() and "+" or ""))
 		end
 		core:ShowIf(self.level, not config.hideLevel)
 
