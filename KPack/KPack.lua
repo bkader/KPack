@@ -398,6 +398,7 @@ do
 	local function SlashCommandHandler(cmd)
 		cmd = cmd and cmd:lower()
 		if cmd == "help" then
+			print(L:F("Acceptable commands for: |caaf49141%s|r", "kp"), ": config", ", about", ", reinstall")
 			core:Print(L["Accessible module commands are:"])
 			print(help:format("/abm", L:F("access |caaf49141%s|r module commands", "ActionBars")))
 			print(help:format("/align", L:F("access |caaf49141%s|r module commands", "Align")))
@@ -419,9 +420,12 @@ do
 			print(help:format("/tip", L:F("access |caaf49141%s|r module commands", "Tooltip")))
 			print(help:format("/uf", L:F("access |caaf49141%s|r module commands", "UnitFrames")))
 			print(help:format("/vp", L:F("access |caaf49141%s|r module commands", "Viewporter")))
-			print(help:format("/about", "about the addon."))
 		elseif cmd == "about" or cmd == "info" then
 			core:Print("This small addon was made with big passion by |cfff58cbaKader|r.\n If you have suggestions or you are facing issues with my addons, feel free to message me on the forums, Github, CurseForge or Discord:\n|cffffd700bkader#6361|r or |cff7289d9https://discord.gg/a8z5CyS3eW|r")
+		elseif cmd == "reinstall" or cmd == "default" then
+			wipe(KPackDB)
+			wipe(KPackCharDB)
+			ReloadUI()
 		else
 			core:OpenConfig()
 		end
@@ -437,6 +441,38 @@ do
 		end
 	end
 
+	local function CheckFirstRun()
+		if next(core.db) == nil then
+			-- modules that are disabled by default.
+			core.db.disabled = core.db.disabled or {}
+			core.db.disabled[L["BlizzMove"]] = true
+			core.db.disabled[L["Action Bar Saver"]] = true
+			core.db.disabled[L["Align"]] = true
+			core.db.disabled[L["Auto Track"]] = true
+			core.db.disabled[L["Binder"]] = true
+			core.db.disabled[L["Bubblicious"]] = true
+			core.db.disabled[L["CombatLogFix"]] = true
+			core.db.disabled[L["CombatTime"]] = true
+			core.db.disabled[L["EnhancedStackSplit"]] = true
+			core.db.disabled[L["FriendsInfo"]] = true
+			core.db.disabled[L["GarbageProtector"]] = true
+			core.db.disabled[L["GearScoreLite"]] = true
+			core.db.disabled[L["IgnoreMore"]] = true
+			core.db.disabled[L["ImprovedLootFrame"]] = true
+			core.db.disabled[L["LiveStream"]] = true
+			core.db.disabled[L["LookUp"]] = true
+			core.db.disabled[L["Math"]] = true
+			core.db.disabled[L["PullnBreak"]] = true
+			core.db.disabled[L["QuickButton"]] = true
+			core.db.disabled[L["Reflux"]] = true
+			core.db.disabled[L["SlashIn"]] = true
+			core.db.disabled[L["TellMeWhen"]] = true
+			core.db.disabled[L["Viewporter"]] = true
+			core.db.disabled[L["Virtual Plates"]] = true
+			core.db.disabled[L["AddOnSkins"]] = true
+		end
+	end
+
 	core:RegisterForEvent("ADDON_LOADED", function(_, name)
 		if name == folder then
 			KPackDB = KPackDB or {}
@@ -444,6 +480,8 @@ do
 
 			KPackCharDB = KPackCharDB or {}
 			core.char = KPackCharDB
+
+			CheckFirstRun()
 
 			LibStub("AceConfig-3.0"):RegisterOptionsTable(folder, core.options)
 			core.optionsFrame = core.ACD:AddToBlizOptions(folder, folder)
