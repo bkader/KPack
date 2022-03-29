@@ -21,7 +21,7 @@ core.locale = GetLocale()
 
 -- General:
 L["addon loaded. use |cffffd700/kp|r to access options."] = true
-L["Enable"] = true
+L["Enable"] = ENABLE
 L["Type |cffffd700/%s|r in chat for more."] = true
 L["module enabled."] = true
 L["module disabled."] = true
@@ -107,7 +107,7 @@ L["Hotkeys"] = true
 L["Changes the opacity of action bar hotkeys."] = true
 -- ActionBarSaver
 L["Count"] = true
-L["Rank"] = true
+L["Rank"] = RANK
 L["Allows you to setup different profiles for your action bars."] = true
 L["Unable to restore macros, you already have 36 global and 18 per character ones created."] = true
 L["Invalid spells passed, remember you must put quotes around both of them."] = true
@@ -563,6 +563,8 @@ L["Abbreviation"] = true
 L["Hide Level"] = true
 L["Raid Icon Color"] = true
 L["Arena Unit Number"] = true
+L["Show Totems Icons"] = true
+L["Shows totem icons instead of nameplates."] = true
 L["In arena, names will be changed to arena unit numbers."] = true
 L["Health Text"] = true
 L["Show Health Text"] = true
@@ -634,7 +636,7 @@ L["Show icon when"] = true
 L["Unusable"] = true
 L["Present"] = true
 L["Absent"] = true
-L["Always"] = true
+L["Always"] = ALWAYS
 L["Weapon slot to monitor"] = true
 L["Unit to watch"] = true
 L["Target of Target"] = true

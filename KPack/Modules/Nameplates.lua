@@ -71,6 +71,11 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	local UnitExists = UnitExists
 	local targetExists
 
+	local Nameplate_Create
+	local Nameplate_OnShow
+	local Nameplate_OnHide
+	local Nameplate_OnUpdate
+
 	-- events frame
 	local NP = CreateFrame("Frame")
 	NP:SetScript("OnEvent", function(self, event, ...)
@@ -107,6 +112,165 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	local function ColorToString(r, g, b)
 		return "C" .. floor((100 * r) + 0.5) .. floor((100 * g) + 0.5) .. floor((100 * b) + 0.5)
 	end
+
+	-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+	local Nameplate_GetTotemTable
+	do
+		local GetSpellInfo = GetSpellInfo
+		local totemsTable = nil
+
+		local function TotemsTable_Build()
+			if totemsTable and next(totemsTable) ~= nil then return end
+			totemsTable = totemsTable or {}
+
+			local function TotemName(spellid, suffix)
+				local name = GetSpellInfo(spellid)
+				if suffix then
+					return name .. " " .. suffix
+				end
+				return name
+			end
+
+			local function TotemTexture(spellid)
+				return (select(3, GetSpellInfo(spellid)))
+			end
+
+			--Air Totems
+			totemsTable[TotemName(8177)] = {TotemTexture(8177), 1, "Grounding Totem"}
+			totemsTable[TotemName(10595, "I")] = {TotemTexture(10595), 1, "Nature Resistance Totem I"}
+			totemsTable[TotemName(10600, "II")] = {TotemTexture(10600), 1, "Nature Resistance Totem II"}
+			totemsTable[TotemName(10601, "III")] = {TotemTexture(10601), 1, "Nature Resistance Totem III"}
+			totemsTable[TotemName(25574, "IV")] = {TotemTexture(25574), 1, "Nature Resistance Totem IV"}
+			totemsTable[TotemName(58746, "V")] = {TotemTexture(58746), 1, "Nature Resistance Totem V"}
+			totemsTable[TotemName(58749, "VI")] = {TotemTexture(58749), 1, "Nature Resistance Totem VI"}
+			totemsTable[TotemName(6495)] = {TotemTexture(6495), 1, "Sentry Totem"}
+			totemsTable[TotemName(8512)] = {TotemTexture(8512), 1, "Windfury Totem"}
+			totemsTable[TotemName(3738)] = {TotemTexture(3738), 1, "Wrath of Air Totem"}
+			--Earth Totems
+			totemsTable[TotemName(2062)] = {TotemTexture(2062), 2, "Earth Elemental Totem"}
+			totemsTable[TotemName(2484)] = {TotemTexture(2484), 2, "Earthbind Totem"}
+			totemsTable[TotemName(5730, "I")] = {TotemTexture(5730), 2, "Stoneclaw Totem I"}
+			totemsTable[TotemName(6390, "II")] = {TotemTexture(6390), 2, "Stoneclaw Totem II"}
+			totemsTable[TotemName(6391, "III")] = {TotemTexture(6391), 2, "Stoneclaw Totem III"}
+			totemsTable[TotemName(6392, "IV")] = {TotemTexture(6392), 2, "Stoneclaw Totem IV"}
+			totemsTable[TotemName(10427, "V")] = {TotemTexture(10427), 2, "Stoneclaw Totem V"}
+			totemsTable[TotemName(10428, "VI")] = {TotemTexture(10428), 2, "Stoneclaw Totem VI"}
+			totemsTable[TotemName(25525, "VII")] = {TotemTexture(25525), 2, "Stoneclaw Totem VII"}
+			totemsTable[TotemName(58580, "VIII")] = {TotemTexture(58580), 2, "Stoneclaw Totem VIII"}
+			totemsTable[TotemName(58581, "IX")] = {TotemTexture(58581), 2, "Stoneclaw Totem IX"}
+			totemsTable[TotemName(58582, "X")] = {TotemTexture(58582), 2, "Stoneclaw Totem X"}
+			totemsTable[TotemName(8071, "I")] = {TotemTexture(8071), 2, "Stoneskin Totem I"}
+			totemsTable[TotemName(8154, "II")] = {TotemTexture(8154), 2, "Stoneskin Totem II"}
+			totemsTable[TotemName(8155, "III")] = {TotemTexture(8155), 2, "Stoneskin Totem III"}
+			totemsTable[TotemName(10406, "IV")] = {TotemTexture(10406), 2, "Stoneskin Totem IV"}
+			totemsTable[TotemName(10407, "V")] = {TotemTexture(10407), 2, "Stoneskin Totem V"}
+			totemsTable[TotemName(10408, "VI")] = {TotemTexture(10408), 2, "Stoneskin Totem VI"}
+			totemsTable[TotemName(25508, "VII")] = {TotemTexture(25508), 2, "Stoneskin Totem VII"}
+			totemsTable[TotemName(25509, "VIII")] = {TotemTexture(25509), 2, "Stoneskin Totem VIII"}
+			totemsTable[TotemName(58751, "IX")] = {TotemTexture(58751), 2, "Stoneskin Totem IX"}
+			totemsTable[TotemName(58753, "X")] = {TotemTexture(58753), 2, "Stoneskin Totem X"}
+			totemsTable[TotemName(8075, "I")] = {TotemTexture(8075), 2, "Strength of Earth Totem I"}
+			totemsTable[TotemName(8160, "II")] = {TotemTexture(8160), 2, "Strength of Earth Totem II"}
+			totemsTable[TotemName(8161, "III")] = {TotemTexture(8161), 2, "Strength of Earth Totem III"}
+			totemsTable[TotemName(10442, "IV")] = {TotemTexture(10442), 2, "Strength of Earth Totem IV"}
+			totemsTable[TotemName(25361, "V")] = {TotemTexture(25361), 2, "Strength of Earth Totem V"}
+			totemsTable[TotemName(25528, "VI")] = {TotemTexture(25528), 2, "Strength of Earth Totem VI"}
+			totemsTable[TotemName(57622, "VII")] = {TotemTexture(57622), 2, "Strength of Earth Totem VII"}
+			totemsTable[TotemName(58643, "VIII")] = {TotemTexture(58643), 2, "Strength of Earth Totem VIII"}
+			totemsTable[TotemName(8143)] = {TotemTexture(8143), 2}
+			--Fire Totems
+			totemsTable[TotemName(2894)] = {TotemTexture(2894), 3, "Fire Elemental Totem"}
+			totemsTable[TotemName(8227, "I")] = {TotemTexture(8227), 3, "Flametongue Totem I"}
+			totemsTable[TotemName(8249, "II")] = {TotemTexture(8249), 3, "Flametongue Totem II"}
+			totemsTable[TotemName(10526, "III")] = {TotemTexture(10526), 3, "Flametongue Totem III"}
+			totemsTable[TotemName(16387, "IV")] = {TotemTexture(16387), 3, "Flametongue Totem IV"}
+			totemsTable[TotemName(25557, "V")] = {TotemTexture(25557), 3, "Flametongue Totem V"}
+			totemsTable[TotemName(58649, "VI")] = {TotemTexture(58649), 3, "Flametongue Totem VI"}
+			totemsTable[TotemName(58652, "VII")] = {TotemTexture(58652), 3, "Flametongue Totem VII"}
+			totemsTable[TotemName(58656, "VIII")] = {TotemTexture(58656), 3, "Flametongue Totem VIII"}
+			totemsTable[TotemName(8181, "I")] = {TotemTexture(8181), 3, "Frost Resistance Totem I"}
+			totemsTable[TotemName(10478, "II")] = {TotemTexture(10478), 3, "Frost Resistance Totem II"}
+			totemsTable[TotemName(10479, "III")] = {TotemTexture(10479), 3, "Frost Resistance Totem III"}
+			totemsTable[TotemName(25560, "IV")] = {TotemTexture(25560), 3, "Frost Resistance Totem IV"}
+			totemsTable[TotemName(58741, "V")] = {TotemTexture(58741), 3, "Frost Resistance Totem V"}
+			totemsTable[TotemName(58745, "VI")] = {TotemTexture(58745), 3, "Frost Resistance Totem VI"}
+			totemsTable[TotemName(8190, "I")] = {TotemTexture(8190), 3, "Magma Totem I"}
+			totemsTable[TotemName(10585, "II")] = {TotemTexture(10585), 3, "Magma Totem II"}
+			totemsTable[TotemName(10586, "III")] = {TotemTexture(10586), 3, "Magma Totem III"}
+			totemsTable[TotemName(10587, "IV")] = {TotemTexture(10587), 3, "Magma Totem IV"}
+			totemsTable[TotemName(25552, "V")] = {TotemTexture(25552), 3, "Magma Totem V"}
+			totemsTable[TotemName(58731, "VI")] = {TotemTexture(58731), 3, "Magma Totem VI"}
+			totemsTable[TotemName(58734, "VII")] = {TotemTexture(58734), 3, "Magma Totem VII"}
+			totemsTable[TotemName(3599, "I")] = {TotemTexture(3599), 3, "Searing Totem I"}
+			totemsTable[TotemName(6363, "II")] = {TotemTexture(6363), 3, "Searing Totem II"}
+			totemsTable[TotemName(6364, "III")] = {TotemTexture(6364), 3, "Searing Totem III"}
+			totemsTable[TotemName(6365, "IV")] = {TotemTexture(6365), 3, "Searing Totem IV"}
+			totemsTable[TotemName(10437, "V")] = {TotemTexture(10437), 3, "Searing Totem V"}
+			totemsTable[TotemName(10438, "VI")] = {TotemTexture(10438), 3, "Searing Totem VI"}
+			totemsTable[TotemName(25533, "VII")] = {TotemTexture(25533), 3, "Searing Totem VII"}
+			totemsTable[TotemName(58699, "VIII")] = {TotemTexture(58699), 3, "Searing Totem VIII"}
+			totemsTable[TotemName(58703, "IX")] = {TotemTexture(58703), 3, "Searing Totem IX"}
+			totemsTable[TotemName(58704, "X")] = {TotemTexture(58704), 3, "Searing Totem X"}
+			totemsTable[TotemName(30706, "I")] = {TotemTexture(30706), 3, "Totem of Wrath I"}
+			totemsTable[TotemName(57720, "II")] = {TotemTexture(57720), 3, "Totem of Wrath II"}
+			totemsTable[TotemName(57721, "III")] = {TotemTexture(57721), 3, "Totem of Wrath III"}
+			totemsTable[TotemName(57722, "IV")] = {TotemTexture(57722), 3, "Totem of Wrath IV"}
+			--Water Totems
+			totemsTable[TotemName(8170)] = {TotemTexture(8170), 4, "Cleansing Totem"}
+			totemsTable[TotemName(8184, "I")] = {TotemTexture(8184), 4, "Fire Resistance Totem I"}
+			totemsTable[TotemName(10537, "II")] = {TotemTexture(10537), 4, "Fire Resistance Totem II"}
+			totemsTable[TotemName(10538, "III")] = {TotemTexture(10538), 4, "Fire Resistance Totem III"}
+			totemsTable[TotemName(25563, "IV")] = {TotemTexture(25563), 4, "Fire Resistance Totem IV"}
+			totemsTable[TotemName(58737, "V")] = {TotemTexture(58737), 4, "Fire Resistance Totem V"}
+			totemsTable[TotemName(58739, "VI")] = {TotemTexture(58739), 4, "Fire Resistance Totem VI"}
+			totemsTable[TotemName(5394, "I")] = {TotemTexture(5394), 4, "Healing Stream Totem I"}
+			totemsTable[TotemName(6375, "II")] = {TotemTexture(6375), 4, "Healing Stream Totem II"}
+			totemsTable[TotemName(6377, "III")] = {TotemTexture(6377), 4, "Healing Stream Totem III"}
+			totemsTable[TotemName(10462, "IV")] = {TotemTexture(10462), 4, "Healing Stream Totem IV"}
+			totemsTable[TotemName(10463, "V")] = {TotemTexture(10463), 4, "Healing Stream Totem V"}
+			totemsTable[TotemName(25567, "VI")] = {TotemTexture(25567), 4, "Healing Stream Totem VI"}
+			totemsTable[TotemName(58755, "VII")] = {TotemTexture(58755), 4, "Healing Stream Totem VII"}
+			totemsTable[TotemName(58756, "VIII")] = {TotemTexture(58756), 4, "Healing Stream Totem VIII"}
+			totemsTable[TotemName(58757, "IX")] = {TotemTexture(58757), 4, "Healing Stream Totem IX"}
+			totemsTable[TotemName(5675, "I")] = {TotemTexture(5675), 4, "Mana Spring Totem I"}
+			totemsTable[TotemName(10495, "II")] = {TotemTexture(10495), 4, "Mana Spring Totem II"}
+			totemsTable[TotemName(10496, "III")] = {TotemTexture(10496), 4, "Mana Spring Totem III"}
+			totemsTable[TotemName(10497, "IV")] = {TotemTexture(10497), 4, "Mana Spring Totem IV"}
+			totemsTable[TotemName(25570, "V")] = {TotemTexture(25570), 4, "Mana Spring Totem V"}
+			totemsTable[TotemName(58771, "VI")] = {TotemTexture(58771), 4, "Mana Spring Totem VI"}
+			totemsTable[TotemName(58773, "VII")] = {TotemTexture(58773), 4, "Mana Spring Totem VII"}
+			totemsTable[TotemName(58774, "VIII")] = {TotemTexture(58774), 4, "Mana Spring Totem VIII"}
+			totemsTable[TotemName(16190)] = {TotemTexture(16190), 4, "Mana Tide Totem"}
+		end
+
+		function Nameplate_GetTotemTable(name)
+			-- feature disabled?
+			if not config.showTotemIcons then
+				-- delete the table if still exists.
+				if totemsTable ~= nil then
+					totemsTable = nil
+				end
+				return false
+			end
+
+			-- build the table if not already built.
+			if not totemsTable then
+				TotemsTable_Build()
+			end
+
+			if totemsTable and not totemsTable[name] then
+				for _, totemTable in pairs(totemsTable) do
+					if totemTable[3] and totemTable[3] == name then
+						return totemTable
+					end
+				end
+			end
+			return totemsTable and totemsTable[name] or false
+		end
+	end
+
+	-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 	-- makes sure the frame is a valid one
 	local function NameplateIsValid(frame)
@@ -286,6 +450,8 @@ KPack:AddModule("Nameplates", function(_, core, L)
 				self.text:SetPoint("CENTER", config.textOfsX or 0, config.textOfsY or 0)
 			elseif changed == "tankColor" or changed == "tankMode" or changed == "customColor" or changed == "FRIENDLY" or changed == "NEUTRAL" or changed == "HOSTILE" then
 				self:SetHealthColor()
+			elseif changed == "showTotemIcons" then
+				Nameplate_OnShow(self)
 			end
 
 			core.After(0.1, function() changed = nil end)
@@ -337,13 +503,13 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	end
 
 	local function Nameplate_OnEnter(self)
-		if self.highlight then
+		if self.highlight and not self.totem then
 			self.highlight:Show()
 		end
 	end
 
 	local function Nameplate_OnLeave(self)
-		if self.highlight then
+		if self.highlight and not self.totem then
 			self.highlight:Hide()
 		end
 	end
@@ -381,21 +547,23 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	end
 
 	-- nameplate OnUpdate
-	local function Nameplate_OnUpdate(self, elapsed)
+	function Nameplate_OnUpdate(self, elapsed)
 		self.elapsed = (self.elapsed or 0) + elapsed
 		if self.elapsed >= 0.01 then
 			self:CheckForChange()
 			self:UpdateCritical()
 			self:SetHealthColor()
 			self:FormatHealthText()
-			core:ShowIf(self.name, not config.hideName)
-			core:ShowIf(self.level, not config.hideLevel)
+			core:ShowIf(self.name, not config.hideName and not self.totem)
+			core:ShowIf(self.level, not config.hideLevel and not self.totem)
+			core:ShowIf(self.healthBar, not self.totem)
+			core:ShowIf(self.bg, not self.totem)
 
 			if targetExists and self:GetAlpha() == 1 then
 				self.healthBar:SetWidth(config.barWidth * 1.15)
 				self.castBar:SetWidth(config.barWidth * 1.15)
-				self.leftIndicator:Show()
-				self.rightIndicator:Show()
+				core:ShowIf(self.leftIndicator, not self.totem)
+				core:ShowIf(self.rightIndicator, not self.totem)
 			else
 				self.healthBar:SetWidth(config.barWidth)
 				self.castBar:SetWidth(config.barWidth)
@@ -408,7 +576,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	end
 
 	-- handles frame's show
-	local function Nameplate_OnShow(self)
+	function Nameplate_OnShow(self)
 		self.healthBar:ClearAllPoints()
 		self.healthBar:SetPoint("CENTER", self.healthBar:GetParent())
 		self.healthBar:SetWidth(config.barWidth)
@@ -455,14 +623,63 @@ KPack:AddModule("Nameplates", function(_, core, L)
 
 		self:UpdateCritical()
 		Health_OnValueChanged(self.oldHealth, self.oldHealth:GetValue())
+
+		local totemTable = Nameplate_GetTotemTable(self.oldname:GetText())
+		if totemTable then
+			if not self.totem then
+				self.totem = self:CreateTexture(nil, "BACKGROUND")
+				self.totem:SetPoint("BOTTOM", self, "TOP")
+				self.totem:SetSize(24, 24)
+				self.totem:SetAlpha(0.85)
+				self.totem:SetTexture(totemTable[1])
+				self.totem:SetTexCoord(0.15, 0.85, 0.15, 0.85)
+			else
+				self.totem:SetTexture(totemTable[1])
+				self.totem:Show()
+			end
+		elseif self.totem then
+			self.totem:Hide()
+			self.totem = nil
+		end
 	end
 
-	local function Nameplate_OnHide(self)
+	function Nameplate_OnHide(self)
 		self.highlight:Hide()
 	end
 
+	local function Nameplate_CreateBorders(healthBar)
+		if not healthBar.borderLeft then
+			healthBar.borderLeft = healthBar:CreateTexture(nil, "BORDER")
+			healthBar.borderLeft:SetPoint("TOPLEFT", healthBar, "TOPLEFT", -1, 1)
+			healthBar.borderLeft:SetPoint("BOTTOMLEFT", healthBar, "BOTTOMLEFT", -1, -1)
+			healthBar.borderLeft:SetTexture(0, 0, 0)
+			healthBar.borderLeft:SetWidth(2)
+		end
+		if not healthBar.borderRight then
+			healthBar.borderRight = healthBar:CreateTexture(nil, "BORDER")
+			healthBar.borderRight:SetPoint("TOPRIGHT", healthBar, "TOPRIGHT", 1, 1)
+			healthBar.borderRight:SetPoint("BOTTOMRIGHT", healthBar, "BOTTOMRIGHT", 1, -1)
+			healthBar.borderRight:SetTexture(0, 0, 0)
+			healthBar.borderRight:SetWidth(2)
+		end
+		if not healthBar.borderTop then
+			healthBar.borderTop = healthBar:CreateTexture(nil, "BORDER")
+			healthBar.borderTop:SetPoint("TOPLEFT", healthBar, "TOPLEFT", -1, 1)
+			healthBar.borderTop:SetPoint("TOPRIGHT", healthBar, "TOPRIGHT", 1, 1)
+			healthBar.borderTop:SetTexture(0, 0, 0)
+			healthBar.borderTop:SetHeight(2)
+		end
+		if not healthBar.borderBottom then
+			healthBar.borderBottom = healthBar:CreateTexture(nil, "BORDER")
+			healthBar.borderBottom:SetPoint("BOTTOMLEFT", healthBar, "BOTTOMLEFT", -1, -1)
+			healthBar.borderBottom:SetPoint("BOTTOMRIGHT", healthBar, "BOTTOMRIGHT", 1, -1)
+			healthBar.borderBottom:SetTexture(0, 0, 0)
+			healthBar.borderBottom:SetHeight(2)
+		end
+	end
+
 	-- creates the frame
-	local function Nameplate_Create(frame)
+	function Nameplate_Create(frame)
 		if frame.done then
 			return
 		end
@@ -505,12 +722,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		healthBar.hpBackground:SetTexture(config.barTexture)
 		healthBar.hpBackground:SetVertexColor(0.15, 0.15, 0.15)
 
-		healthBar.hpGlow = CreateFrame("Frame", nil, healthBar)
-		healthBar.hpGlow:SetPoint("TOPLEFT", healthBar, "TOPLEFT", -4.5, 4)
-		healthBar.hpGlow:SetPoint("BOTTOMRIGHT", healthBar, "BOTTOMRIGHT", 4.5, -4.5)
-		healthBar.hpGlow:SetBackdrop(backdrop)
-		healthBar.hpGlow:SetBackdropColor(0, 0, 0)
-		healthBar.hpGlow:SetBackdropBorderColor(0, 0, 0, 1)
+		Nameplate_CreateBorders(healthBar)
 
 		frame.overlay = CreateFrame("Frame", nil, frame)
 		frame.overlay:SetAllPoints(frame.healthBar)
@@ -627,9 +839,9 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		frame.SetHealthColor = Nameplate_SetHealthColor
 		frame.UpdateCritical = Nameplate_UpdateCritical
 
-		frame.r, frame.g, frame.b = oldHeath:GetStatusBarColor()
-		frame.reaction, frame.type = NameplateReaction(frame.r, frame.g, frame.b)
-		frame.class = ClassReference[ColorToString(frame.r, frame.g, frame.b)]
+		local r, g, b = oldHeath:GetStatusBarColor()
+		frame.reaction, frame.type = NameplateReaction(r, g, b)
+		frame.class = ClassReference[ColorToString(r, g, b)]
 
 		frame:SetScript("OnShow", Nameplate_OnShow)
 		frame:SetScript("OnHide", Nameplate_OnHide)
@@ -912,6 +1124,12 @@ KPack:AddModule("Nameplates", function(_, core, L)
 								name = L["Arena Unit Number"],
 								desc = L["In arena, names will be changed to arena unit numbers."],
 								order = 12
+							},
+							showTotemIcons = {
+								type = "toggle",
+								name = L["Show Totems Icons"],
+								desc = L["Shows totem icons instead of nameplates."],
+								order = 13
 							}
 						}
 					},
