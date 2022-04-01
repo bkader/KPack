@@ -8,7 +8,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 	local DB, CharDB, changed
 	local defaults = {
 		enabled = true,
-		barTexture = "KPack",
+		barTexture = "Blizzard",
 		barWidth = 120,
 		barHeight = 12,
 		font = "Yanone",
@@ -443,9 +443,13 @@ KPack:AddModule("Nameplates", function(_, core, L)
 			elseif changed == "showHealthText" or changed == "showHealthPercent" then
 				core:ShowIf(self.text, config.showHealthText or config.showHealthPercent)
 			elseif changed == "arrow" then
-				local texture = config.arrow and path .. "Textures\\Arrows\\" .. config.arrow or nil
-				self.leftIndicator:SetTexture(texture)
-				self.rightIndicator:SetTexture(texture)
+				if not config.arrow or config.arrow == "NONE" then
+					self.leftIndicator:SetTexture(nil)
+					self.rightIndicator:SetTexture(nil)
+				else
+					self.leftIndicator:SetTexture(path .. "Textures\\Arrows\\" .. config.arrow)
+					self.rightIndicator:SetTexture(path .. "Textures\\Arrows\\" .. config.arrow)
+				end
 			elseif changed == "textOfsX" or changed == "textOfsY" then
 				self.text:SetPoint("CENTER", config.textOfsX or 0, config.textOfsY or 0)
 			elseif changed == "tankColor" or changed == "tankMode" or changed == "customColor" or changed == "FRIENDLY" or changed == "NEUTRAL" or changed == "HOSTILE" then
@@ -564,11 +568,19 @@ KPack:AddModule("Nameplates", function(_, core, L)
 				self.castBar:SetWidth(config.barWidth * 1.15)
 				core:ShowIf(self.leftIndicator, not self.totem)
 				core:ShowIf(self.rightIndicator, not self.totem)
+				self.healthBar.borderLeft:SetTexture(0.8, 0.8, 0.8)
+				self.healthBar.borderRight:SetTexture(0.8, 0.8, 0.8)
+				self.healthBar.borderTop:SetTexture(0.8, 0.8, 0.8)
+				self.healthBar.borderBottom:SetTexture(0.8, 0.8, 0.8)
 			else
 				self.healthBar:SetWidth(config.barWidth)
 				self.castBar:SetWidth(config.barWidth)
 				self.leftIndicator:Hide()
 				self.rightIndicator:Hide()
+				self.healthBar.borderLeft:SetTexture(0, 0, 0)
+				self.healthBar.borderRight:SetTexture(0, 0, 0)
+				self.healthBar.borderTop:SetTexture(0, 0, 0)
+				self.healthBar.borderBottom:SetTexture(0, 0, 0)
 			end
 
 			self.elapsed = 0
@@ -653,28 +665,28 @@ KPack:AddModule("Nameplates", function(_, core, L)
 			healthBar.borderLeft:SetPoint("TOPLEFT", healthBar, "TOPLEFT", -1, 1)
 			healthBar.borderLeft:SetPoint("BOTTOMLEFT", healthBar, "BOTTOMLEFT", -1, -1)
 			healthBar.borderLeft:SetTexture(0, 0, 0)
-			healthBar.borderLeft:SetWidth(2)
+			healthBar.borderLeft:SetWidth(1)
 		end
 		if not healthBar.borderRight then
 			healthBar.borderRight = healthBar:CreateTexture(nil, "BORDER")
 			healthBar.borderRight:SetPoint("TOPRIGHT", healthBar, "TOPRIGHT", 1, 1)
 			healthBar.borderRight:SetPoint("BOTTOMRIGHT", healthBar, "BOTTOMRIGHT", 1, -1)
 			healthBar.borderRight:SetTexture(0, 0, 0)
-			healthBar.borderRight:SetWidth(2)
+			healthBar.borderRight:SetWidth(1)
 		end
 		if not healthBar.borderTop then
 			healthBar.borderTop = healthBar:CreateTexture(nil, "BORDER")
 			healthBar.borderTop:SetPoint("TOPLEFT", healthBar, "TOPLEFT", -1, 1)
 			healthBar.borderTop:SetPoint("TOPRIGHT", healthBar, "TOPRIGHT", 1, 1)
 			healthBar.borderTop:SetTexture(0, 0, 0)
-			healthBar.borderTop:SetHeight(2)
+			healthBar.borderTop:SetHeight(1)
 		end
 		if not healthBar.borderBottom then
 			healthBar.borderBottom = healthBar:CreateTexture(nil, "BORDER")
 			healthBar.borderBottom:SetPoint("BOTTOMLEFT", healthBar, "BOTTOMLEFT", -1, -1)
 			healthBar.borderBottom:SetPoint("BOTTOMRIGHT", healthBar, "BOTTOMRIGHT", 1, -1)
 			healthBar.borderBottom:SetTexture(0, 0, 0)
-			healthBar.borderBottom:SetHeight(2)
+			healthBar.borderBottom:SetHeight(1)
 		end
 	end
 
@@ -825,7 +837,7 @@ KPack:AddModule("Nameplates", function(_, core, L)
 		left:SetSize(32, 32)
 		left:Hide()
 
-		if config.arrow then
+		if config.arrow and config.arrow ~= "NONE" then
 			right:SetTexture(path .. "Textures\\Arrows\\" .. config.arrow)
 			left:SetTexture(path .. "Textures\\Arrows\\" .. config.arrow)
 		end
@@ -1322,16 +1334,11 @@ KPack:AddModule("Nameplates", function(_, core, L)
 						width = "half",
 						disabled = _disabled,
 						get = function(_, key)
-							return (config.arrow == key) or (key == "NONE" and config.arrow == nil)
+							return (config.arrow == key) or (key == "NONE" and config.arrow == "NONE")
 						end,
 						set = function(_, val)
-							if val == "NONE" then
-								DB.arrow = nil
-								config.arrow = nil
-							else
-								DB.arrow = val
-								config.arrow = val
-							end
+							DB.arrow = val
+							config.arrow = val
 							changed = "arrow"
 						end,
 						values = {}
