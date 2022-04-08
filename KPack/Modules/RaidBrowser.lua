@@ -799,22 +799,43 @@ KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y c
 			return i
 		end
 
-		function stats.ActiveSpec()
-			local active_tab = stats.ActiveSpecIndex()
-			local tab_name = GetTalentTabInfo(active_tab)
-
-			-- If we're a feral druid, then we need to distinguish between tank and cat feral.
-			if tab_name == "Feral Combat" then
-				local protector_of_pack_talent = 22
-				local _, _, _, _, points = GetTalentInfo(active_tab, protector_of_pack_talent)
-				if points > 0 then
-					return "Feral (Bear)"
-				else
-					return "Feral (Cat)"
-				end
+		do
+			local FERAL_COMBAT = "Feral Combat"
+			if core.locale == "deDE" then
+				FERAL_COMBAT = "Wilder Kampf"
+			elseif core.locale == "esES" then
+				FERAL_COMBAT = "Combate Feral"
+			elseif core.locale == "esMX" then
+				FERAL_COMBAT = "Combate feral"
+			elseif core.locale == "frFR" then
+				FERAL_COMBAT = "Combat farouche"
+			elseif core.locale == "koKR" then
+				FERAL_COMBAT = "야성"
+			elseif core.locale == "ruRU" then
+				FERAL_COMBAT = "Сила зверя"
+			elseif core.locale == "zhCN" then
+				FERAL_COMBAT = "野性战斗"
+			elseif core.locale == "zhTW" then
+				FERAL_COMBAT = "野性戰鬥"
 			end
 
-			return tab_name
+			function stats.ActiveSpec()
+				local active_tab = stats.ActiveSpecIndex()
+				local tab_name = GetTalentTabInfo(active_tab)
+
+				-- If we're a feral druid, then we need to distinguish between tank and cat feral.
+				if tab_name == FERAL_COMBAT then
+					local protector_of_pack_talent = 22
+					local _, _, _, _, points = GetTalentInfo(active_tab, protector_of_pack_talent)
+					if points > 0 then
+						return "Feral (Bear)"
+					else
+						return "Feral (Cat)"
+					end
+				end
+
+				return tab_name
+			end
 		end
 
 		function stats.RaidLockInfo(instance_name, size)
