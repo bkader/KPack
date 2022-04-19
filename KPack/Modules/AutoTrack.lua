@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Auto Track", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Auto Track", function(L)
 	core.class = core.class or select(2, UnitClass("player"))
 	if core.class ~= "HUNTER" or core:IsDisabled("Auto Track") then return end
 

@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("PullnBreak", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("PullnBreak", function(L)
 	if core:IsDisabled("PullnBreak") then return end
 
 	local mod = core.PullnBreak or {}

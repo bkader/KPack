@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("TradeTabs", function(_, core)
+local core = KPack
+if not core then return end
+core:AddModule("TradeTabs", function()
 	if core:IsDisabled("TradeTabs") then return end
 
 	-- cache frequently used globals

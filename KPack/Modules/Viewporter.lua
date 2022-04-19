@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Viewporter", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Viewporter", function(L)
 	if core:IsDisabled("Viewporter") then return end
 
 	local frame = CreateFrame("Frame")

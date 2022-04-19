@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("HalionHelper", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("HalionHelper", function(L)
 	if core:IsDisabled("HalionHelper") then return end
 
 	local HalionHelper = CreateFrame("Frame")

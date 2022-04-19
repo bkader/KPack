@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("CombatTime", "Tracks how long you spend in combat.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("CombatTime", "Tracks how long you spend in combat.", function(L)
 	if core:IsDisabled("CombatTime") then return end
 
 	local mod = CreateFrame("Frame")

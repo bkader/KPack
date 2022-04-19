@@ -1,7 +1,6 @@
-assert(KPack, "KPack not found!")
-if KPack.Ascension then return end
-
-KPack:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y channels and lists any found raids in the "Browse" tab of the raid browser.', function(_, core, L)
+local core = KPack
+if not core or core.Ascension then return end
+core:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y channels and lists any found raids in the "Browse" tab of the raid browser.', function(L)
 	if core:IsDisabled("Raid Browser") then return end
 
 	local RaidBrowser = core.RaidBrowser or CreateFrame("Frame")

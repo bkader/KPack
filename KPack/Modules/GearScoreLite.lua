@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of GearScore.", function(folder, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("GearScoreLite", "GearScoreLite is a trimmed down version of GearScore.", function(L)
 	if core:IsDisabled("GearScoreLite") then return end
 
 	local mod = core.GearScore or {}

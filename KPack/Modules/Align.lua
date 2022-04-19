@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Align", "A very simple alignment grid with no options.", function(folder, core)
+local core = KPack
+if not core then return end
+core:AddModule("Align", "A very simple alignment grid with no options.", function()
 	if core:IsDisabled("Align") then return end
 
 	-- cache some globals

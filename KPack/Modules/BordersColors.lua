@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Borders Colors", "This module adds colorized border items.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Borders Colors", "This module adds colorized border items.", function(L)
 	if core:IsDisabled("Borders Colors") or core.ElvUI then return end
 
 	local mod = CreateFrame("Frame")

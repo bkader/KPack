@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("CombatLogFix", "Fixes the combat log break bugs that have existed since 2.4.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("CombatLogFix", "Fixes the combat log break bugs that have existed since 2.4.", function(L)
 	if core:IsDisabled("CombatLogFix") then return end
 
 	local mod = core.CLF or {}

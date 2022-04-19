@@ -1,6 +1,6 @@
-# KPack - Lots-In-One AddOn Collection! (67)
+# KPack - Lots-In-One AddOn Collection! (71)
 
-Currently, this pack contains 67 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
+Currently, this pack contains 71 modules in a single addon, some of them are from existing addons (_credits to all their respective authors_) and some are completely custom made.
 
 I have been collecting these modules over the last years, randomly and just including them within the TOC file until I decided to organize everything in a better way.
 
@@ -343,3 +343,19 @@ This is a clone of [Colored Inventory Items](https://www.curseforge.com/wow/addo
 ## 67. Virtual Plates
 
 Nameplates are hard to look at. They fill your screen and make an absolute mess when you're fighting lots of mobs. This module gives them depth, so they fit into the game world instead of covering it.
+
+## 68. Dark Mode
+
+This module not only allows you to darken UI just like [LortiUI](https://www.curseforge.com/wow/addons/lorti_ui), but also allows you to color it per class and have settings stored per account or per character.
+
+## 69. Enhanced Colour Picker
+
+Adds Copy and Paste Functions to the ColorPicker and more.
+
+## 70. Enhanced Stack Split
+
+Enhances the StackSplitFrame with numbered Buttons, a '1-Click Mode' and a 'Auto Split Mode'.
+
+## 71. AddOnSkins
+
+This module is only for **[ElvUI](https://github.com/ElvUI-WotLK/ElvUI)** users, it assures all things that are added by this pack are properly skinned by ElvUI.

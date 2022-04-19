@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("RaidTabs", function(_, core)
+local core = KPack
+if not core then return end
+core:AddModule("RaidTabs", function()
 	if core:IsDisabled("RaidTabs") then return end
 
 	local libTab = _G.libTab

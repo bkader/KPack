@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Postal", function(folder, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Postal", function(L)
 	if core:IsDisabled("Postal") then return end
 
 	local Postal = {}

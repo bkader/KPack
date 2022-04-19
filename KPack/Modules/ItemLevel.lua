@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("ItemLevel", "Adds item levels to character and inspect frames.", function(folder, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("ItemLevel", "Adds item levels to character and inspect frames.", function(L)
 	if core:IsDisabled("ItemLevel") then return end
 
 	local mod = core.ItemLevel or {}

@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("FriendsInfo", "Adds info to the friends list.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("FriendsInfo", "Adds info to the friends list.", function(L)
 	if core:IsDisabled("FriendsInfo") then return end
 
 	local DB

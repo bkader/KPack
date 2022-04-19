@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("SlashIn", function(_, core)
+local core = KPack
+if not core then return end
+core:AddModule("SlashIn", function()
 	if core:IsDisabled("SlashIn") then return end
 
 	-- cache frequently used globals

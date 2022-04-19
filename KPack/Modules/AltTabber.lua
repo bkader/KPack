@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("AltTabber", "Allows you to never miss important events even if you play with the game sound off.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("AltTabber", "Allows you to never miss important events even if you play with the game sound off.", function(L)
 	if core:IsDisabled("AltTabber") then return end
 
 	local AltTabber = CreateFrame("Frame")

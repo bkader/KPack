@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("LiveStream", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("LiveStream", function(L)
 	if core:IsDisabled("LiveStream") then return end
 
 	local defaults = {

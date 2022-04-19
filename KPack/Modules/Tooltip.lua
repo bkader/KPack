@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Tooltip", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Tooltip", function(L)
 	if core:IsDisabled("Tooltip") or core.ElvUI then return end
 
 	-- saved variables & defaults

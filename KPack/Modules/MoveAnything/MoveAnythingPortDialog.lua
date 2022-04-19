@@ -1,6 +1,5 @@
-assert(KPack, "KPack not found!")
-assert(MovAny, "MovAny not found!")
 local MovAny = MovAny
+if not MovAny then return end
 
 local _G = _G
 local MA_tdeepcopy = _G.MA_tdeepcopy or _G.CopyTable

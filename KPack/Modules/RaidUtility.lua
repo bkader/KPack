@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("RaidUtility", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("RaidUtility", function(L)
 	if core:IsDisabled("RaidUtility") or _G.KRU then return end
 
 	local mod = core.RaidUtility or {}

@@ -1,5 +1,6 @@
-local KPack = KPack
-KPack:AddModule("Virtual Plates", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Virtual Plates", function(L)
 	if core:IsDisabled("Virtual Plates") then return end
 	local CreateFrame = CreateFrame
 

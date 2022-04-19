@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Nameplates", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Nameplates", function(L)
 	if core:IsDisabled("Nameplates") or core.ElvUI then return end
 	local disabled, reason
 

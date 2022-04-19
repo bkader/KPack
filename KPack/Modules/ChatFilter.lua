@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("ChatFilter", "Filters out words or completely removes sentences from the chat when a blacklisted word has been found in the sentence.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("ChatFilter", "Filters out words or completely removes sentences from the chat when a blacklisted word has been found in the sentence.", function(L)
 	if core:IsDisabled("ChatFilter") then return end
 
 	local mod = core.ChatFilter or {}

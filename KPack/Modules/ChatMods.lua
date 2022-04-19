@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removing buttons, mousewheel scroll, copy chat and clickable links.", function(folder, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removing buttons, mousewheel scroll, copy chat and clickable links.", function(L)
 	if core:IsDisabled("ChatMods") or core.ElvUI then return end
 
 	local mod = core.ChatMods or CreateFrame("Frame")

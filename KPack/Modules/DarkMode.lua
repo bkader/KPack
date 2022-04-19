@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Dark Mode", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Dark Mode", function(L)
 	if core:IsDisabled("Dark Mode") then return end
 
 	local DB

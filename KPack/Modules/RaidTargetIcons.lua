@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Target Icons", "Allows you to quickly mark raid targets using a radial menu.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Target Icons", "Allows you to quickly mark raid targets using a radial menu.", function(L)
 	if core:IsDisabled(L["Target Icons"]) then return end
 
 	local RTI = {}

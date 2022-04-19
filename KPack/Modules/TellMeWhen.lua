@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("TellMeWhen", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("TellMeWhen", function(L)
 	if core:IsDisabled("TellMeWhen") then return end
 
 	local TellMeWhen = {}

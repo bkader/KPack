@@ -1,6 +1,9 @@
-assert(KPack, "KPack not found!")
-assert(MovAny, "MovAny not found!")
 local MovAny = MovAny
+if not MovAny then return end
+
+local KPack = KPack
+if not KPack then return end
+
 local L = KPack.L
 
 MovAny.lVirtualMovers = {

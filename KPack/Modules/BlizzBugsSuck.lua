@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("BlizzBugsSuck", function(_, core)
+local core = KPack
+if not core then return end
+core:AddModule("BlizzBugsSuck", function()
 	if core:IsDisabled("BlizzBugsSuck") then return end
 
 	-- Fixes are:

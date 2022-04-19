@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("SnowfallKeyPress", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("SnowfallKeyPress", function(L)
 	if core:IsDisabled("SnowfallKeyPress") then return end
 
 	-------------------------------------------------------------------------------

@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("IgnoreMore", "Let you ignore more than 49 players, a list shared between all characters of the same account.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("IgnoreMore", "Let you ignore more than 49 players, a list shared between all characters of the same account.", function(L)
 	if core:IsDisabled("IgnoreMore") then return end
 
 	local mod = core.IgnoreMore or {}

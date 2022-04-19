@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", function(folder, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Automate", "Automates some of the more tedious tasks in WoW.", function(L, folder)
 	if core:IsDisabled("Automate") then return end
 
 	local mod = core.Automate or {}

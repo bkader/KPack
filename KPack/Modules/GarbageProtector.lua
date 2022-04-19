@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("GarbageProtector", "Intercepts irresponsible collectgarbage calls to prevent chunky lockups and freezes.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("GarbageProtector", "Intercepts irresponsible collectgarbage calls to prevent chunky lockups and freezes.", function(L)
 	if core:IsDisabled("GarbageProtector") then return end
 	if _G.GarbageProtector then return end
 

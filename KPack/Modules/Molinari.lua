@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Molinari", "Aids the player in processing various items throughout the game.", function(folder, core)
+local core = KPack
+if not core then return end
+core:AddModule("Molinari", "Aids the player in processing various items throughout the game.", function()
 	if core:IsDisabled("Molinari") then return end
 
 	local Molinari = {}

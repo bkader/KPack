@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff frames.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff frames.", function(L)
 	if core:IsDisabled("BuffFrame") or core.ElvUI then return end
 
 	local hooksecurefunc = hooksecurefunc
@@ -181,8 +182,8 @@ KPack:AddModule("BuffFrame", "Lightweight, it modifies your buff and debuff fram
 			if buff then
 				buff:SetScale(DB.buffScale)
 				buff:SetSize(DB.buffSize, DB.buffSize)
-				buff:SetScript("OnShow", function() CheckFirstButton() end)
-				buff:SetScript("OnHide", function() CheckFirstButton() end)
+				buff:SetScript("OnShow", CheckFirstButton)
+				buff:SetScript("OnHide", CheckFirstButton)
 
 				local icon = _G["TempEnchant" .. i .. "Icon"]
 				icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)

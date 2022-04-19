@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("AddOnSkins", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("AddOnSkins", function(L)
 	if core:IsDisabled("AddOnSkins") or not core.ElvUI then return end
 
 	local _G = _G

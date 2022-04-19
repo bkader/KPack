@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Error Filter", "Manages the errors that are displayed in the blizzard UIErrorsFrame.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Error Filter", "Manages the errors that are displayed in the blizzard UIErrorsFrame.", function(L)
 	if core:IsDisabled("Error Filter") then return end
 
 	local mod = core.ErrorFilter or {}

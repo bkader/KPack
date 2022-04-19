@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Reflux", "A small lightweight profile manager.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Reflux", "A small lightweight profile manager.", function(L)
 	if core:IsDisabled("Reflux") then return end
 
 	local emulated_default_addons = {}

@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("EnhancedStackSplit", "Enhances the StackSplitFrame with numbered Buttons.", function(folder, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("EnhancedStackSplit", "Enhances the StackSplitFrame with numbered Buttons.", function(L)
 	if core:IsDisabled("EnhancedStackSplit") then return end
 
 	local mod = core.EnhStackSplit or {}

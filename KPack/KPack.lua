@@ -505,7 +505,7 @@ do
 			core.ElvUI = _G.ElvUI and select(1, unpack(ElvUI)) or false
 			if core.moduleslist then
 				for i = 1, #core.moduleslist do
-					core.moduleslist[i](folder, core, L)
+					core.moduleslist[i](L, folder)
 				end
 			end
 			if LBF then

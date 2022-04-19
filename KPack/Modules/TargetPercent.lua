@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Target Percent", "Adds a health percentage to the Blizzard target and focus target frames.", function(folder, core)
+local core = KPack
+if not core then return end
+core:AddModule("Target Percent", "Adds a health percentage to the Blizzard target and focus target frames.", function()
 	if core:IsDisabled("Target Percent") or core.ElvUI then return end
 
 	local CreateFrame = CreateFrame

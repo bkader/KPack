@@ -1,7 +1,8 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("AddOns", function(addonName, addon, L)
-	if addon:IsDisabled(L["AddOns"]) or _G.KkthnxUI then return end
-	if addon.ElvUI and addon.ElvUI:GetModule("ElvUI_Enhanced", true) then return end
+local core = KPack
+if not core then return end
+core:AddModule("AddOns", function(L, addonName)
+	if core:IsDisabled(L["AddOns"]) or _G.KkthnxUI then return end
+	if core.ElvUI and core.ElvUI:GetModule("ElvUI_Enhanced", true) then return end
 
 	local _G = _G
 	local unpack = unpack
@@ -241,7 +242,7 @@ KPack:AddModule("AddOns", function(addonName, addon, L)
 	SLASH_KPACKADDONLIST2 = "/acp"
 	local function OpenAddonList()
 		if InCombatLockdown() then
-			addon:Print("|cffffe02e" .. ERR_NOT_IN_COMBAT .. "|r")
+			core:Print("|cffffe02e" .. ERR_NOT_IN_COMBAT .. "|r")
 			return
 		end
 		CreateAddonsList()
@@ -261,7 +262,7 @@ KPack:AddModule("AddOns", function(addonName, addon, L)
 	AddonListButton:SetPoint("TOP", GameMenuButtonMacros, "BOTTOM", 0, -1)
 	AddonListButton:SetScript("OnClick", OpenAddonList)
 
-	addon:RegisterForEvent("PLAYER_LOGIN", function()
+	core:RegisterForEvent("PLAYER_LOGIN", function()
 		local offset = 26
 		if _G.GameMenuButtonMoveAnything then
 			offset = offset + 26
@@ -273,8 +274,8 @@ KPack:AddModule("AddOns", function(addonName, addon, L)
 		end
 		GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + offset)
 
-		if addon.ElvUI then
-			local S = addon.ElvUI:GetModule("Skins", true)
+		if core.ElvUI then
+			local S = core.ElvUI:GetModule("Skins", true)
 			if not S then
 				return
 			end

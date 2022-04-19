@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("LootMessageFilter", "Filters loot messages from other players in your group, based on item quality.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("LootMessageFilter", "Filters loot messages from other players in your group, based on item quality.", function(L)
 	if core:IsDisabled("LootMessageFilter") then return end
 
 	local find, match, lower = string.find, string.match, string.lower

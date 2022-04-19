@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Personal Resources", 'Mimics the retail feature named "Personal Resource Display".', function(folder, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Personal Resources", 'Mimics the retail feature named "Personal Resource Display".', function(L)
 	if core:IsDisabled("Personal Resources") then return end
 
 	-- cache frequently used glboals

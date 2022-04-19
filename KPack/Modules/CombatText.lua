@@ -6,8 +6,9 @@ __  __/ ___|_   _|_
 World of Warcraft (4.3)
 Author: Dandruff
 ]]
-assert(KPack, "KPack not found!")
-KPack:AddModule("xCT", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("xCT", function(L)
 	if core:IsDisabled("xCT") then return end
 
 	-- lua api globals
@@ -19,6 +20,7 @@ KPack:AddModule("xCT", function(_, core, L)
 	local time = time
 	local strfind = string.find
 	local strlower = string.lower
+	local _
 
 	-- wow api globals
 	local CreateFrame = CreateFrame

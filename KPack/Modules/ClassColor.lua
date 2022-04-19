@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("ClassColor", "Class color guild list, friends list and who list.", function(folder, core)
+local core = KPack
+if not core then return end
+core:AddModule("ClassColor", "Class color guild list, friends list and who list.", function()
 	if core:IsDisabled("ClassColor") then return end
 
 	local type = type

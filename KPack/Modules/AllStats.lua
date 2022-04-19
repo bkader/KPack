@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("AllStats", "Moves the functionality of the stat dropdowns to a panel on the right side of the paperdoll, so that you can see all of your stats at once.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("AllStats", "Moves the functionality of the stat dropdowns to a panel on the right side of the paperdoll, so that you can see all of your stats at once.", function(L)
 	if core:IsDisabled("AllStats") then return end
 
 	local _G = _G

@@ -1,7 +1,6 @@
-assert(KPack, "KPack not found!")
-if KPack.Ascension then return end
-
-KPack:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's builtin models so that you may get a better view.", function(folder, core, L)
+local core = KPack
+if not core or core.Ascension then return end
+core:AddModule("CloseUp", "Allows you to zoom, reposition, and rotate the UI's builtin models so that you may get a better view.", function(L, folder)
 	if core:IsDisabled("CloseUp") or core.ElvUI then return end
 
 	local mod = core.CloseUp or {}

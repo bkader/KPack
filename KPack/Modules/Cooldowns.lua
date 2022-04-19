@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Cooldowns", "Adds text to items, spell and abilities that are on cooldown to indicate when they will be ready to use.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Cooldowns", "Adds text to items, spell and abilities that are on cooldown to indicate when they will be ready to use.", function(L)
 	if core:IsDisabled("Cooldowns") or _G.KkthnxUI then return end
 
 	local mod = {}

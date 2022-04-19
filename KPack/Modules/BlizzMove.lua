@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(folder, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(L)
 	if core:IsDisabled("BlizzMove") or _G.BlizzMove then return end
 
 	local mod = core.BlizzMove or {}

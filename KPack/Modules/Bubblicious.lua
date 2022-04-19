@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("Bubblicious", "Chat bubble related customizations.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Bubblicious", "Chat bubble related customizations.", function(L)
 	if core:IsDisabled("Bubblicious") then return end
 
 	local Bubblicious = CreateFrame("Frame")

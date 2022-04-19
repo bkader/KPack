@@ -1,7 +1,8 @@
 --[[ Credits:  lynstats ]]
-assert(KPack, "KPack not found!")
-KPack:AddModule("LynStats", function(_, addon, L)
-	if addon:IsDisabled("LynStats") or addon.ElvUI then return end
+local core = KPack
+if not core then return end
+core:AddModule("LynStats", function(L)
+	if core:IsDisabled("LynStats") or core.ElvUI then return end
 
 	-- CONFIG
 	---------------------------------------------
@@ -10,7 +11,7 @@ KPack:AddModule("LynStats", function(_, addon, L)
 	local font = [[Interface\AddOns\KPack\Media\Fonts\HOOGE.TTF]]
 	local fontSize = 12
 	local fontFlag = "THINOUTLINE"
-	if addon.nonLatin then font = [[Fonts\FRIZQT__.ttf]] end
+	if core.nonLatin then font = [[Fonts\FRIZQT__.ttf]] end
 
 	local textAlign = "CENTER"
 	local position = {"BOTTOMLEFT", UIParent, "BOTTOMLEFT", 3, 5}
@@ -46,7 +47,7 @@ KPack:AddModule("LynStats", function(_, addon, L)
 	if customColor then
 		color = {r = 0, g = 1, b = 0.7}
 	else
-		color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[addon.class]
+		color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[core.class]
 	end
 
 	local function memFormat(number)
@@ -111,7 +112,7 @@ KPack:AddModule("LynStats", function(_, addon, L)
 
 	local function clearGarbage()
 		if InCombatLockdown() then
-			addon:Print("|cffffe02e" .. ERR_NOT_IN_COMBAT .. "|r", "LynStats")
+			core:Print("|cffffe02e" .. ERR_NOT_IN_COMBAT .. "|r", "LynStats")
 			return
 		end
 
@@ -162,7 +163,7 @@ KPack:AddModule("LynStats", function(_, addon, L)
 		GameTooltip:ClearLines()
 		GameTooltip:SetOwner(self, tooltipAnchor)
 		local blizz = collectgarbage("count")
-		local addons = addon.newTable()
+		local addons = core.newTable()
 		local entry, memory
 		local total = 0
 		local nr = 0
@@ -183,7 +184,7 @@ KPack:AddModule("LynStats", function(_, addon, L)
 				nr = nr + 1
 			end
 		end
-		addon.delTable(addons)
+		core.delTable(addons)
 		GameTooltip:AddLine("---------------------------------------", color.r, color.g, color.b)
 		GameTooltip:AddDoubleLine(L["Total"], memFormat(total), 1, 1, 1, RGBGradient(total / (1024 * 10)))
 		GameTooltip:AddDoubleLine(L["Total incl. Blizzard"], memFormat(blizz), 1, 1, 1, RGBGradient(blizz / (1024 * 10)))

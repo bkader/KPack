@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found")
-KPack:AddModule("Action Bar Saver", "Allows you to setup different profiles for your action bars.", function(folder, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("Action Bar Saver", "Allows you to setup different profiles for your action bars.", function(L)
 	if core:IsDisabled("Action Bar Saver") then return end
 
 	local ABS = core.ActionBarSaver or {}

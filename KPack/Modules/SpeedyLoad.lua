@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("SpeedyLoad", "Disables certain events during loading screens to drastically improve loading times.", function(folder, core)
+local core = KPack
+if not core then return end
+core:AddModule("SpeedyLoad", "Disables certain events during loading screens to drastically improve loading times.", function(_, folder)
 		if core:IsDisabled("SpeedyLoad") then return end
 
 		local f = CreateFrame("Frame")

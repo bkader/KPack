@@ -1,7 +1,6 @@
-assert(KPack, "KPack not found!")
-if KPack.Ascension then return end
-
-KPack:AddModule("UnitFrames", "Improve the standard blizzard unitframes without going beyond the boundaries set by them.", function(_, core, L)
+local core = KPack
+if not core or core.Ascension then return end
+core:AddModule("UnitFrames", "Improve the standard blizzard unitframes without going beyond the boundaries set by them.", function(L)
 	if core:IsDisabled("UnitFrames") or core.ElvUI then return end
 
 	-- Setup some locals

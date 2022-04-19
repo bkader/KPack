@@ -1,4 +1,6 @@
-assert(KPack, "KPack not found!")
+local KPack = KPack
+if not KPack then return end
+
 local L = KPack.L
 local MAOptions
 local MovAny_SetupDatabase

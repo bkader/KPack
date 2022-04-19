@@ -1,5 +1,6 @@
-assert(KPack, "KPack not found!")
-KPack:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when using the Blizzard default loot frame.", function(_, core, L)
+local core = KPack
+if not core then return end
+core:AddModule("ImprovedLootFrame", "Condenses all loot onto one page when using the Blizzard default loot frame.", function(L)
 	if core:IsDisabled("ImprovedLootFrame") or core.ElvUI then return end
 
 	local mod = core.ILF or {}
