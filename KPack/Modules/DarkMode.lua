@@ -148,7 +148,10 @@ core:AddModule("Dark Mode", function(L)
 		"CompactRaidFrameContainerBorderFrameBorderBottomLeft",
 		"CompactRaidFrameContainerBorderFrameBorderBottomRight",
 		"CompactRaidFrameContainerBorderFrameBorderLeft",
-		"CompactRaidFrameContainerBorderFrameBorderRight"
+		"CompactRaidFrameContainerBorderFrameBorderRight",
+		-- Fake Dominos Textures
+		"DominosMicroMenuArtTexture",
+		"DominosActionBarArtTexture"
 	}
 
 	local function Darken_Button(name)
