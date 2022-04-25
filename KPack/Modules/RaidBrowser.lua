@@ -890,7 +890,9 @@ core:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y ch
 			local class = UnitClass("player")
 
 			local spec, gs = stats.CurrentRaidset()
-			message = message .. gs .. "gs " .. spec .. " " .. class
+			if gs then message = message .. gs .. "gs " end
+			if spec then message = message .. spec .. "spec " end
+			message = message .. class
 
 			-- Remove difficulty and raid_name size from the string
 			raid_name = strgsub(raid_name, "[1|2][0|5](%w+)", "")
