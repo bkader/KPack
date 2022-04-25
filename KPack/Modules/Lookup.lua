@@ -33,9 +33,9 @@ core:AddModule("LookUp", "A slash command that allows you to search items and sp
 		query = lower(query)
 		Print(L:F("Searching for items containing |cffffd700%s|r", query))
 
-		while i < 500000 do
+		while i < 90000 do
 			local link, name = RequestItemLink(i)
-			if link ~= 0 and find(lower(name), query) then
+			if link and link ~= 0 and find(lower(name), query) then
 				print(L:F("|cffffd700Item|r: %s", link))
 				found = found + 1
 			end
@@ -61,9 +61,9 @@ core:AddModule("LookUp", "A slash command that allows you to search items and sp
 		query = lower(query)
 		Print(L:F("Searching for spells containing |cffffd700%s|r", query))
 
-		while i < 500000 do
+		while i < 90000 do
 			local link, name, spellId = RequestSpellLink(i)
-			if link ~= 0 and find(lower(name), query) then
+			if link and link ~= 0 and find(lower(name), query) then
 				print(L:F("|cffffd700Spell|r : %s [%d]", link, spellId))
 				found = found + 1
 			end
