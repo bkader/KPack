@@ -14,6 +14,5 @@
 ## X-Email: bkader@mail.com
 ## X-Website: https://github.com/bkader/KPack
 ## X-Discord: https://discord.gg/a8z5CyS3eW
-## X-Donate: |cff0079c1PayPal|r or |cff246a96Paysera|r at |cff20ff20bkader@mail.com|r
 
 KPack.xml
