@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("Auto Track", function(L)
+core:AddModule("Auto Track", "Tracking addon for Hunters only.", function(L)
 	core.class = core.class or select(2, UnitClass("player"))
 	if core.class ~= "HUNTER" or core:IsDisabled("Auto Track") then return end
 
