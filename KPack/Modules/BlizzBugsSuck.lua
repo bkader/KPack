@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("BlizzBugsSuck", function()
+core:AddModule("BlizzBugsSuck", "Fixes some Blizzard bugs, adds a timer bar for RDF or BGs popup.", function()
 	if core:IsDisabled("BlizzBugsSuck") then return end
 
 	-- Fixes are:
