@@ -8,7 +8,7 @@ Author: Dandruff
 ]]
 local core = KPack
 if not core then return end
-core:AddModule("xCT", function(L)
+core:AddModule("xCT", "Replacement addon for Blizzard’s scrolling combat text.", function(L)
 	if core:IsDisabled("xCT") then return end
 
 	-- lua api globals

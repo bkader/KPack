@@ -67,7 +67,7 @@ L["Disable all"] = true
 L["|cffff4400Dependencies: |r"] = true
 L["|cffffffff%d|r AddOns: |cffffffff%d|r |cff00ff00Enabled|r, |cffffffff%d|r |cffff0000Disabled|r"] = true
 -- Binder
-L["Allows you to save your current keybinds as a profile that you can load whenever you want."] = true
+L["Allows you to save your current keybinds as a profile that you can load whenever you want."] = "|cff00ff00/binder|r\nAllows you to save your current keybinds as a profile that you can load whenever you want."
 L["Create Profile"] = true
 L["Enter the name of the new profile then press Enter or click OK.\nThe new created profile will store the keybinds you are currently using."] = true
 L["Restore Profile"] = true
@@ -83,7 +83,7 @@ L["%s will be saved."] = true
 L["%s will not be saved."] = true
 L["%s will move with handler %s"] = true
 -- Bubblicious
-L["Chat bubble related customizations."] = true
+L["Chat bubble related customizations."] = "|cff00ff00/bubble, /bubbles|r\nChat bubble related customizations."
 L["Shorten Bubbles"] = true
 L["Shorten the chat bubbles down to a single line each. Mouse over the bubble to expand the text."] = true
 L["Color Bubbles"] = true
@@ -94,7 +94,7 @@ L["Use Chat Font"] = true
 L["Use the same font you are using on the chatframe."] = true
 L["Set the chat bubble font size."] = true
 -- ActionBars
-L["Allows you to tweak your action bars in the limit of the allowed."] = true
+L["Allows you to tweak your action bars in the limit of the allowed."] = "|cff00ff00/abm|r\nAllows you to tweak your action bars in the limit of the allowed."
 L["Hide Gryphons"] = true
 L["Range Detection"] = true
 L["Turns your buttons red if your target is out of range."] = true
@@ -108,7 +108,7 @@ L["Changes the opacity of action bar hotkeys."] = true
 -- ActionBarSaver
 L["Count"] = true
 L["Rank"] = RANK
-L["Allows you to setup different profiles for your action bars."] = true
+L["Allows you to setup different profiles for your action bars."] = "|cff00ff00/abs|r\nAllows you to setup different profiles for your action bars."
 L["Unable to restore macros, you already have 36 global and 18 per character ones created."] = true
 L["Invalid spells passed, remember you must put quotes around both of them."] = true
 L["Auto macro restoration is now disabled!"] = true
@@ -150,13 +150,13 @@ L["Toggles if ABS should restore the highest rank of the spell, or the one saved
 L["You are AFK!"] = true
 L["I am Back"] = true
 -- Align
-L["A very simple alignment grid with no options."] = true
+L["A very simple alignment grid with no options."] = "|cff00ff00/drawgrid, /dg, /align|r\nA very simple alignment grid with no options."
 -- AllStats
 L["Moves the functionality of the stat dropdowns to a panel on the right side of the paperdoll, so that you can see all of your stats at once."] = true
 -- AltTabber
 L["Tick the sounds you want AltTabber to play:"] = true
 -- Automate
-L["Automates some of the more tedious tasks in WoW."] = true
+L["Automates some of the more tedious tasks in WoW."] = "|cff00ff00/auto, /automate|r\nAutomates some of the more tedious tasks in WoW."
 L["Automatic Tasks"] = true
 L["Repair equipment"] = true
 L["Sell Junk"] = true
@@ -181,9 +181,11 @@ L["Enter the name or link the ground and flying mounts to be used using the prov
 L["Ground Mount"] = true
 L["Flying Mount"] = true
 L["Auto Mount/Dismount"] = true
+-- BlizzBugSucks
+L["Fixes some Blizzard bugs, adds a timer bar for RDF or BGs popup."] = true
 -- BuffFrame
 L["Buff Frame"] = true
-L["Lightweight, it modifies your buff and debuff frames."] = true
+L["Lightweight, it modifies your buff and debuff frames."] = "|cff00ff00/buff, /buffframe|r\nLightweight, it modifies your buff and debuff frames."
 L["Common"] = true
 L["Icon Per Row"] = true
 L["Buffs"] = true
@@ -199,7 +201,7 @@ L["Stack Font Size"] = true
 L["Stack Anchor"] = true
 -- Castbars
 L["Castbars"] = true
-L["Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars."] = true
+L["Castbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars."] = "|cff00ff00/cb, /castbars|r\nCastbars is a lightweight, efficient and easy to use enhancement of the Blizzard castbars."
 L["|cFFFFFFFFDrag with mouse.\n|cFFCCCCCCUse arrow keys while dragging to fine tune position."] = true
 L["Configuration Mode"] = true
 L["Toggle configuration mode to allow moving frames and setting appearance options."] = true
@@ -258,7 +260,7 @@ L["Chat Filter"] = true
 L["Verbose Mode"] = true
 L["Notifies you whenever a message is filtered."] = true
 L["Keywords"] = true
-L["Filters out words or completely removes sentences from the chat when a blacklisted word has been found in the sentence."] = true
+L["Filters out words or completely removes sentences from the chat when a blacklisted word has been found in the sentence."] = "|cff00ff00/chatfilter, /cf|r\nFilters out words or completely removes sentences from the chat when a blacklisted word has been found in the sentence."
 L["filter is now %s"] = true
 L["Input is not a number"] = true
 L["filter keywords are:"] = true
@@ -276,7 +278,7 @@ L["Show or hide filter notifications"] = true
 L["View the last |cff00ffffn|r filtered messages (up to 20)"] = true
 L["filtered a message from |cff00ffff%s|r"] = true
 -- ChatMods
-L["Adds several tweaks to chat windows, such us removing buttons, mousewheel scroll, copy chat and clickable links."] = true
+L["Adds several tweaks to chat windows, such us removing buttons, mousewheel scroll, copy chat and clickable links."] = "|cff00ff00/chatmods, /cm|r\n|cff00ff00/tt|r, |cff00ff00/wt|r - wishper to your target.\nAdds several tweaks to chat windows, such us removing buttons, mousewheel scroll, copy chat and clickable links."
 L["editbox put in center"] = true
 L["editbox set to default position"] = true
 L["editbox position set to: |cff00ffff%s|r"] = true
@@ -288,7 +290,7 @@ L["Undress"] = true
 L["Cannot dress NPC models."] = true
 L["Allows you to zoom, reposition, and rotate the UI's builtin models so that you may get a better view."] = true
 -- CombatLogFix
-L["Fixes the combat log break bugs that have existed since 2.4."] = true
+L["Fixes the combat log break bugs that have existed since 2.4."] = "|cff00ff00/clf, /fixer, /logfix|r\nFixes the combat log break bugs that have existed since 2.4."
 L["Show set options"] = true
 L["Zone Clearing"] = true
 L["Auto Clearing"] = true
@@ -301,6 +303,7 @@ L["Toggles clearing combat log when it breaks."] = true
 L["Toggles not clearing until you drop combat."] = true
 L["Toggles reporting how many messages were found when it broke."] = true
 -- CombatText
+L["Replacement addon for Blizzard’s scrolling combat text."] = "|cff00ff00/xct|r\nReplacement addon for Blizzard’s scrolling combat text."
 L["No Name SpellID: %s"] = true
 L["unlocked."] = true
 L["already unlocked."] = true
@@ -313,9 +316,11 @@ L["%s: to move and resize frames."] = true
 L["%s: to lock frames."] = true
 L["%s: to toggle testmode (sample xCT output)."] = true
 -- CombatTime
+L["Tracks how long you spend in combat."] = "|cff00ff00/ct|r\nTracks how long you spend in combat."
 L["Trigger the in-game stopwatch on combat."] = true
 L["using stopwatch: %s"] = true
 -- Combuctor
+L["Bag replacement addon."] = "|cff00ff00/cbt, /combuctor|r\nBag replacement addon."
 L["%s: toggle inventory"] = true
 L["%s: toggle bank"] = true
 L["%s: access options panel"] = true
@@ -377,7 +382,7 @@ L["Adds Copy and Paste Functions to the ColorPicker."] = true
 L["Enhances the StackSplitFrame with numbered Buttons."] = true
 -- ErrorFilter
 L["Error Filter"] = true
-L["Manages the errors that are displayed in the blizzard UIErrorsFrame."] = true
+L["Manages the errors that are displayed in the blizzard UIErrorsFrame."] = "|cff00ff00/erf, /errorfilter|r\nManages the errors that are displayed in the blizzard UIErrorsFrame."
 L["Error frame is now hidden."] = true
 L["Error frame is now visible."] = true
 L["hide error frame."] = true
@@ -390,6 +395,7 @@ L["Filter Enabled: %s - Frame Shown: %s"] = true
 L["Adds info to the friends list."] = true
 L["Last seen %s ago"] = true
 -- GearScoreLite:
+L["GearScoreLite is a trimmed down version of GearScore."] = "|cff00ff00/gs, /gset, /gearscore|r\nGearScoreLite is a trimmed down version of GearScore."
 L["Toggles display of scores on players."] = true
 L["Toggles display of scores for items."] = true
 L["Resets GearScore's Options back to Default."] = true
@@ -419,6 +425,7 @@ L["Item ID"] = true
 L["Quest ID"] = true
 L["Achievement ID"] = true
 -- IgnoreMore
+L["Let you ignore more than 49 players, a list shared between all characters of the same account."] = "|cff00ff00/im, /ignoremore, /igmore|r\nLet you ignore more than 49 players, a list shared between all characters of the same account."
 L["%s does not look like a valid player name."] = true
 L["Reason for ignoring this player:"] = true
 L["wipe the ingore list"] = true
@@ -450,16 +457,19 @@ L["|cffffd700Spell|r : %s [%d]"] = true
 L["Searches for item link in local cache."] = true
 L["Searches for spell link."] = true
 -- LootMessageFilter & ImprovedLootFrame
-L["A slash command that allows you to search items and spells."] = true
-L["Filters loot messages from other players in your group, based on item quality."] = true
+L["A slash command that allows you to search items and spells."] = "|cff00ff00/lu, /lookup|r\nA slash command that allows you to search items and spells."
+L["Filters loot messages from other players in your group, based on item quality."] = "|cff00ff00/lmf|r\nFilters loot messages from other players in your group, based on item quality."
 L["Minimum item rarity for loot filter set to %s"] = true
 L["Check the filter status."] = true
 L["Condenses all loot onto one page when using the Blizzard default loot frame."] = true
 L["Random"] = true
 L["Self Loot"] = true
 -- Lynstats
+L["Shows your latencty, fps, addons memory, mail and clock."] = true
 L["Total"] = true
 L["Total incl. Blizzard"] = true
+-- Math
+L["A simple slash calculator."] = "|cff00ff00/math|r, |cff00ff00/calc|r\nA simple slash calculator."
 -- Minimap
 L["Calendar"] = true
 L["show minimap"] = true
@@ -481,7 +491,7 @@ L["Hide Zone Text"] = true
 L["Hide in combat"] = true
 -- Minimap Button
 L["Minimap Button"] = true
-L["Shows the minimap icon button."] = true
+L["Shows the kPack minimap icon button."] = true
 L["|cff00ff00Click|r to toggle the settings window."] = true
 -- MoveAnything
 L.RESET_FRAME_CONFIRM = "Reset %s? Press again within 5 seconds to confirm"
@@ -579,7 +589,7 @@ L["Bar color when you have threat."] = true
 L["Target Highlight"] = true
 -- Personal Resources
 L["Personal Resources"] = true
-L['Mimics the retail feature named "Personal Resource Display".'] = true
+L['Mimics the retail feature named "Personal Resource Display".'] = '|cff00ff00/ps config|r\nMimics the retail feature named "Personal Resource Display".'
 L["Show Text"] = true
 L["Text Position"] = true
 L["show personal resources"] = true
@@ -592,6 +602,7 @@ L["change personal resources height"] = true
 L["Show out of combat"] = true
 L["Show percentage"] = true
 -- SimpleComboPoints
+L["Highly customizable combo point module for rogues and druids."] = "|cff00ff00/scp config|r\nHighly customizable combo point module for rogues and druids."
 L["The width must be a valid number"] = true
 L["The height must be a valid number"] = true
 L["Scale has to be a number, recommended to be between 0.5 and 3"] = true
@@ -611,6 +622,7 @@ L["Opacity"] = OPACITY
 L["Borders"] = true
 L["Size"] = true
 -- Simplified
+L["Adds lots of slash commands, shortcut to lots of other functions."] = "|cff00ff00/simp help|r\nAdds lots of slash commands, shortcut to lots of other functions."
 L["Combat logging is currently %s."] = true
 L["Combat logging is now %s."] = true
 L["Change Specilization"] = true
@@ -668,6 +680,7 @@ L["Set the number of icon rows in this group."] = true
 L["Spacing"] = true
 L["Group %d position successfully reset."] = true
 -- Tooltip
+L["Enhanced tooltip."] = "|cff00ff00/tip, /tooltip|r\nEnhanced tooltip."
 L["Tooltips"] = true
 L["Enhanced Tooltips"] = true
 L["Enable this if you want the change the style of tooltips."] = true
@@ -705,6 +718,8 @@ L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."] = true
 L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = true
 L["button scale set to |cff00ffff%s|r"] = true
 L["Scales the button."] = true
+-- RaidTabs
+L["Adds tabs to raid brower, BG or RDF windows, allowing you to switch between them."] = true
 -- Raid Target Icons
 L["Target Icons"] = TARGETICONS
 L["Allows you to quickly mark raid targets using a radial menu."] = true
@@ -761,13 +776,17 @@ L["Sorry, the group is full."] = true
 L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."] = true
 L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."] = true
 L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = true
+-- TradeTabs
+L["Adds tabs for your profession windows, allows you to switch to another profession window quickly."] = "Adds tabs for your profession windows, allows you to switch to another profession window quickly."
 -- UnitFrames
+L["Improve the standard blizzard unitframes without going beyond the boundaries set by them."] = "|cff00ff00/uf config|r\nImprove the standard blizzard unitframes without going beyond the boundaries set by them."
 L["Enhance Unit Frames"] = true
 L["Class Icon Portrait"] = true
 L["changes the unit frames scale."] = true
 L["enables improved unit frames textures."] = true
 L["Text Settings"] = true
 -- Viewporter
+L["Adds black bars at top/bottom/left/right side of the screen."] = "|cff00ff00/vp config|r\nAdds black bars at top/bottom/left/right side of the screen."
 L["Viewporter"] = true
 L["toggles viewporter status"] = true
 L["where side is left, right, top or bottom."] = true
@@ -819,7 +838,7 @@ L["|cffeda55fAlt-Click|r to send this item to %s."] = true
 L["|cffeda55fCtrl-Click|r to return it to sender."] = true
 L["|cffeda55fShift-Click|r to take the contents."] = true
 -- Relux
-L["A small lightweight profile manager."] = true
+L["A small lightweight profile manager."] = "|cff00ff00/reflux|r\nA small lightweight profile manager."
 L["This switches to a given profile. Emulated variables are only touched if you previously created a profile in reflux. This automatically Reloads the UI"] = true
 L["This restores a previously saved set of addons. Due to technical reasons, it cant switch profiles at the same time. This automatically Reloads the UI"] = true
 L["This created a profile set."] = true
@@ -850,10 +869,11 @@ L["Saving %s"] = true
 L["%s added to emulation list."] = true
 L["%s not found, please check the spelling it is case sensistive."] = true
 -- Garbage Protector
-L["Intercepts irresponsible collectgarbage calls to prevent chunky lockups and freezes."] = true
+L["Intercepts irresponsible collectgarbage calls to prevent chunky lockups and freezes."] = "|cff00ff00/gp, /garbageprotector|r\nIntercepts irresponsible collectgarbage calls to prevent chunky lockups and freezes."
 L["Screw those irresponsible collectgarbage calls!"] = true
 L["UpdateAddOnMemoryUsage is a waste of CPU time and some addons call it periodically when they shouldn't.\n\n|cffffd700WARNING|r: All in-game memory usage reports obtained with GetAddOnMemoryUsage will be reported as 0 or the last returned value if this is enabled."] = true
 -- Auto Track
+L["Tracking addon for Hunters only."] = "|cff00ff00/autotrack, /track, /at|r\nTracking addon for Hunters only."
 L["Auto Track"] = true
 L["Revert"] = true
 L["Whether to revert to previous track."] = true
@@ -863,6 +883,7 @@ L["This module adds colorized border items."] = true
 L.Quest = true
 L.Intensity = true
 -- Virtual Plates
+L["Scales nameplates relative to the location of units on the screen."] = true
 L["Virtual Plates"] = true
 L["Scale Factor"] = true
 L["Nameplates this far from the camera will be normal sized."] = true

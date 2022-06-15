@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("Minimap Button", "Shows the minimap icon button.", function(L, folder)
+core:AddModule("Minimap Button", "Shows the kPack minimap icon button.", function(L, folder)
 	if core:IsDisabled("Minimap Button") then return end
 
 	-- required LibDataBroker

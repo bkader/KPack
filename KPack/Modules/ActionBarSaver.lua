@@ -363,6 +363,21 @@ core:AddModule("Action Bar Saver", "Allows you to setup different profiles for y
 			end
 		end
 
+		exec.load = function(name)
+			if name ~= "" then
+				for i = #errorsCache, 1, -1 do
+					tremove(errorsCache, i)
+				end
+
+				if not DB.sets[myclass][name] then
+					Print(L:F('Cannot restore profile "%s", you can only restore profiles saved to your class.', name))
+					return
+				end
+
+				ABS:RestoreProfile(name, myclass)
+			end
+		end
+
 		exec.rename = function(arg)
 			local old, new = strsplit(" ", arg, 2)
 			new = strtrim(new or "")
@@ -488,6 +503,7 @@ core:AddModule("Action Bar Saver", "Allows you to setup different profiles for y
 				Print(L:F("Acceptable commands for: |caaf49141%s|r", "/"..command))
 				print(L["/abs save <profile> - Saves your current action bar setup under the given profile."])
 				print(L["/abs restore <profile> - Changes your action bars to the passed profile."])
+				print(L["/abs load <profile> - Same as /abs restore <profile>."])
 				print(L["/abs delete <profile> - Deletes the saved profile."])
 				print(L["/abs rename <oldProfile> <newProfile> - Renames a saved profile from oldProfile to newProfile."])
 				print(L['/abs link "<spell 1>" "<spell 2>" - Links a spell with another, INCLUDE QUOTES for example you can use "Shadowmeld" "War Stomp" so if War Stomp can\'t be found, it\'ll use Shadowmeld and vica versa.'])

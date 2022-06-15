@@ -1,6 +1,6 @@
 local core = KPack
 if not core or core.Ascension or not LibStub then return end
-core:AddModule("QuickButton", function(L)
+core:AddModule("QuickButton", "|cff00ff00/qb, /quickbutton|r", function(L)
 	if core:IsDisabled("QuickButton") then return end
 
 	local mod = core.QuickButton or {}

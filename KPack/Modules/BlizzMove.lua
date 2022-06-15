@@ -132,6 +132,12 @@ core:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(L)
 					return
 				end
 				handler = handler or frameToMove
+							
+				--fix for elvui AchievementFrame skin
+				--i dont know how to look at "ElvPrivateDB.profiles.CharacterName-RealmName.skins.blizzard.achievement" for proper fix :(
+				if (handler == AchievementFrameHeader) and (IsAddOnLoaded("ElvUI")) then
+					handler = frameToMove
+				end
 
 				local settings = DB[frameToMove:GetName()]
 				if not settings then
@@ -148,7 +154,8 @@ core:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(L)
 
 				frameToMove:EnableMouse(true)
 				frameToMove:SetMovable(true)
-				handler:RegisterForDrag("RightButton")
+				--can we have settings to choose between left (was default for blizzmove alll these years) and right mouse buttons?
+				handler:RegisterForDrag("LeftButton")
 
 				handler:SetScript("OnDragStart", OnDragStart)
 				handler:SetScript("OnDragStop", OnDragStop)
@@ -234,7 +241,7 @@ core:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(L)
 					elseif name == "Blizzard_BarbershopUI" then
 						SetMoveHandler(BarberShopFrame)
 					elseif name == "Blizzard_GlyphUI" then
-						SetMoveHandler(SpellBookFrame, GlyphFrame)
+						SetMoveHandler(PlayerTalentFrame, GlyphFrame)
 					elseif name == "Blizzard_MacroUI" then
 						SetMoveHandler(MacroFrame)
 					elseif name == "Blizzard_AchievementUI" then

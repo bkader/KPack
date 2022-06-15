@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("PullnBreak", function(L)
+core:AddModule("PullnBreak", "|cff00ff00/pull|r\n|cff00ff00/break|r", function(L)
 	if core:IsDisabled("PullnBreak") then return end
 
 	local mod = core.PullnBreak or {}

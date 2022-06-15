@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("Tooltip", function(L)
+core:AddModule("Tooltip", "Enhanced tooltip.", function(L)
 	if core:IsDisabled("Tooltip") or core.ElvUI then return end
 
 	-- saved variables & defaults

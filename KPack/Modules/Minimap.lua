@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("Minimap", function(L)
+core:AddModule("Minimap", "|cff00ff00/mm, /minimap|r", function(L)
 	if core:IsDisabled("Minimap") or core.ElvUI then return end
 
 	-- list of addons for which the module is disabled

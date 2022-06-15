@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("SimpleComboPoints", function(L)
+core:AddModule("SimpleComboPoints", "Highly customizable combo point module for rogues and druids.", function(L)
 	if core:IsDisabled("SimpleComboPoints") then return end
 
 	local mod = core.SCP or {}

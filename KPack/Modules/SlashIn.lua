@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("SlashIn", function()
+core:AddModule("SlashIn", "|cff00ff00/in|r", function()
 	if core:IsDisabled("SlashIn") then return end
 
 	-- cache frequently used globals

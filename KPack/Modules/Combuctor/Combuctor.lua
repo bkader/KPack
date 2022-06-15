@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("Combuctor", function(L)
+core:AddModule("Combuctor", "Bag replacement addon.", function(L)
 	if core:IsDisabled("Combuctor") or _G.Combuctor then return end
 
 	local modname = "Combuctor"
