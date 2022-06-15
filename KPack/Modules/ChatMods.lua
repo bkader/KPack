@@ -543,7 +543,7 @@ core:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removin
 			-- Tell Target Command!
 			SlashCmdList["KPACKTELLTARGET"] = ChatMods_TellTarget
 			SLASH_KPACKTELLTARGET1 = "/tt"
-			SLASH_KPACKTELLTARGET2 = "/ее"
+			SLASH_KPACKTELLTARGET2 = "/ее"	-- only for ruRU locale
 			SLASH_KPACKTELLTARGET3 = "/wt"
 
 			hooksecurefunc("FloatingChatFrame_OnMouseScroll", ChatMods_FloatingChatFrame_OnMouseScroll)
