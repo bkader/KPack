@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("TellMeWhen", function(L)
+core:AddModule("TellMeWhen", "|cff00ff00/tmw|r", function(L)
 	if core:IsDisabled("TellMeWhen") then return end
 
 	local TellMeWhen = {}
