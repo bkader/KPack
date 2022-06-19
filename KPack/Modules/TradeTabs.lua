@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("TradeTabs", function()
+core:AddModule("TradeTabs", "Adds tabs for your profession windows, allows you to switch to another profession window quickly.", function()
 	if core:IsDisabled("TradeTabs") then return end
 
 	-- cache frequently used globals
