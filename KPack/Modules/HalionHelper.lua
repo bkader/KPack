@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("HalionHelper", function(L)
+core:AddModule("HalionHelper", "|cff00ff00/halionhelper|r", function(L)
 	if core:IsDisabled("HalionHelper") then return end
 
 	local HalionHelper = CreateFrame("Frame")
