@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("Virtual Plates", function(L)
+core:AddModule("Virtual Plates", "Scales nameplates relative to the location of units on the screen.", function(L)
 	if core:IsDisabled("Virtual Plates") then return end
 	local CreateFrame = CreateFrame
 
