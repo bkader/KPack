@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("RaidUtility", function(L)
+core:AddModule("RaidUtility", "|cff00ff00/mana, /healersmana\n/invites\n/sunder\n/auras\n/rcd|r",function(L)
 	if core:IsDisabled("RaidUtility") or _G.KRU then return end
 
 	local mod = core.RaidUtility or {}
