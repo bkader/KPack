@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("Viewporter", function(L)
+core:AddModule("Viewporter", "Adds black bars at top/bottom/left/right side of the screen.", function(L)
 	if core:IsDisabled("Viewporter") then return end
 
 	local frame = CreateFrame("Frame")
