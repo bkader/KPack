@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("SnowfallKeyPress", function(L)
+core:AddModule("SnowfallKeyPress", "Allows you to cast your spells on key down instead of on key up.", function(L)
 	if core:IsDisabled("SnowfallKeyPress") then return end
 
 	-------------------------------------------------------------------------------
