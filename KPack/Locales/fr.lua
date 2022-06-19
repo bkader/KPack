@@ -60,6 +60,7 @@ L["Move/Lock a Frame"] = "Bouger/Verrouiller"
 L["%s will be saved."] = "%s sera enregistrée."
 L["%s will not be saved."] = "%s ne sera pas enregistrée."
 L["%s will move with handler %s"] = "%s sera bougée avec %s"
+L["Mouse Button"] = "Bouton de la souris"
 -- Bubblicious
 L["Chat bubble related customizations."] = "|cff00ff00/bubble, /bubbles|r\nPersonnalisations liées des bulles de discussion."
 L["Shorten Bubbles"] = "Raccourcir les bulles"

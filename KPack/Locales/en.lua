@@ -82,6 +82,10 @@ L["Move/Lock a Frame"] = true
 L["%s will be saved."] = true
 L["%s will not be saved."] = true
 L["%s will move with handler %s"] = true
+L["Mouse Button"] = true
+L["Left Mouse Button"] = KEY_BUTTON1
+L["Right Mouse Button"] = KEY_BUTTON2
+L["Middle Mouse"] = KEY_BUTTON3
 -- Bubblicious
 L["Chat bubble related customizations."] = "|cff00ff00/bubble, /bubbles|r\nChat bubble related customizations."
 L["Shorten Bubbles"] = true

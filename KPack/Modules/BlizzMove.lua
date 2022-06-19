@@ -8,6 +8,7 @@ core:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(L)
 
 	local DB, _
 	local defaults = {
+		mouseButton = "LeftButton",
 		AchievementFrame = {save = true},
 		CalendarFrame = {save = true},
 		AuctionFrame = {save = true},
@@ -132,7 +133,7 @@ core:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(L)
 					return
 				end
 				handler = handler or frameToMove
-							
+
 				--fix for elvui AchievementFrame skin
 				--i dont know how to look at "ElvPrivateDB.profiles.CharacterName-RealmName.skins.blizzard.achievement" for proper fix :(
 				if (handler == AchievementFrameHeader) and (IsAddOnLoaded("ElvUI")) then
@@ -154,8 +155,7 @@ core:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(L)
 
 				frameToMove:EnableMouse(true)
 				frameToMove:SetMovable(true)
-				--can we have settings to choose between left (was default for blizzmove alll these years) and right mouse buttons?
-				handler:RegisterForDrag("LeftButton")
+				handler:RegisterForDrag(DB.mouseButton or "LeftButton")
 
 				handler:SetScript("OnDragStart", OnDragStart)
 				handler:SetScript("OnDragStop", OnDragStop)
@@ -207,16 +207,51 @@ core:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(L)
 			SetMoveHandler(TradeFrame)
 
 			-- create option frame
+			local mouseBtn = DB.mouseButton
+			local unchanged = function()
+				return (not DB.mouseButton or DB.mouseButton == mouseBtn)
+			end
+
 			core.options.args.Options.args.BlizzMove = {
 				type = "group",
 				name = "BlizzMove",
 				width = "full",
 				args = {
+					button = {
+						type = "select",
+						name = function()
+							if unchanged() then
+								return L["Mouse Button"]
+							else
+								return format("%s - \124cffffffff%s\124r", L["Mouse Button"], L["Please reload ui."])
+							end
+						end,
+						get = function() return DB.mouseButton or "LeftButton" end,
+						set = function(_, val) DB.mouseButton = val end,
+						values = {LeftButton = L["Left Mouse Button"], RightButton = L["Right Mouse Button"], MiddleButton = L["Middle Mouse"]},
+						width = "double",
+						order = 1,
+					},
+					reload = {
+						type = "execute",
+						name = L["Reload UI"],
+						func = function() ReloadUI() end,
+						width = "double",
+						order = 2,
+						hidden = unchanged
+					},
+					empty_1 = {
+						type = "description",
+						name = " ",
+						width = "full",
+						order = 3
+					},
 					reset = {
 						type = "execute",
 						name = RESET,
 						desc = L["Click the button below to reset all frames."],
-						width = "full",
+						width = "double",
+						order = 4,
 						func = function()
 							for k, v in pairs(DB) do
 								wipe(v)
@@ -227,38 +262,35 @@ core:AddModule("BlizzMove", "Makes the Blizzard windows movable.", function(L)
 				}
 			}
 
-			core:RegisterForEvent(
-				"ADDON_LOADED",
-				function(_, name)
-					if name == "Blizzard_InspectUI" then
-						SetMoveHandler(InspectFrame)
-					elseif name == "Blizzard_GuildBankUI" then
-						SetMoveHandler(GuildBankFrame)
-					elseif name == "Blizzard_TradeSkillUI" then
-						SetMoveHandler(TradeSkillFrame)
-					elseif name == "Blizzard_ItemSocketingUI" then
-						SetMoveHandler(ItemSocketingFrame)
-					elseif name == "Blizzard_BarbershopUI" then
-						SetMoveHandler(BarberShopFrame)
-					elseif name == "Blizzard_GlyphUI" then
-						SetMoveHandler(PlayerTalentFrame, GlyphFrame)
-					elseif name == "Blizzard_MacroUI" then
-						SetMoveHandler(MacroFrame)
-					elseif name == "Blizzard_AchievementUI" then
-						SetMoveHandler(AchievementFrame, AchievementFrameHeader)
-					elseif name == "Blizzard_TalentUI" then
-						SetMoveHandler(PlayerTalentFrame)
-					elseif name == "Blizzard_Calendar" then
-						SetMoveHandler(CalendarFrame)
-					elseif name == "Blizzard_TrainerUI" then
-						SetMoveHandler(ClassTrainerFrame)
-					elseif name == "Blizzard_BindingUI" then
-						SetMoveHandler(KeyBindingFrame)
-					elseif name == "Blizzard_AuctionUI" then
-						SetMoveHandler(AuctionFrame)
-					end
+			core:RegisterForEvent("ADDON_LOADED", function(_, name)
+				if name == "Blizzard_InspectUI" then
+					SetMoveHandler(InspectFrame)
+				elseif name == "Blizzard_GuildBankUI" then
+					SetMoveHandler(GuildBankFrame)
+				elseif name == "Blizzard_TradeSkillUI" then
+					SetMoveHandler(TradeSkillFrame)
+				elseif name == "Blizzard_ItemSocketingUI" then
+					SetMoveHandler(ItemSocketingFrame)
+				elseif name == "Blizzard_BarbershopUI" then
+					SetMoveHandler(BarberShopFrame)
+				elseif name == "Blizzard_GlyphUI" then
+					SetMoveHandler(PlayerTalentFrame, GlyphFrame)
+				elseif name == "Blizzard_MacroUI" then
+					SetMoveHandler(MacroFrame)
+				elseif name == "Blizzard_AchievementUI" then
+					SetMoveHandler(AchievementFrame, AchievementFrameHeader)
+				elseif name == "Blizzard_TalentUI" then
+					SetMoveHandler(PlayerTalentFrame)
+				elseif name == "Blizzard_Calendar" then
+					SetMoveHandler(CalendarFrame)
+				elseif name == "Blizzard_TrainerUI" then
+					SetMoveHandler(ClassTrainerFrame)
+				elseif name == "Blizzard_BindingUI" then
+					SetMoveHandler(KeyBindingFrame)
+				elseif name == "Blizzard_AuctionUI" then
+					SetMoveHandler(AuctionFrame)
 				end
-			)
+			end)
 		end)
 	end
 
