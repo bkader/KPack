@@ -298,6 +298,7 @@ L["Combat Time"] = "Chrono. de combat"
 L["Trigger the in-game stopwatch on combat."] = "Déclencher le chronomètre du jeu au combat"
 L["using stopwatch: %s"] = "utilisation du chronomètre: %s"
 -- Combuctor
+-- L["Bag replacement addon."] = "|cff00ff00/cbt, /combuctor|r\nBag replacement addon."
 L["%s: toggle inventory"] = "%s: ouvre l'inventaire"
 L["%s: toggle bank"] = "%s: toggle la banque"
 L["%s: access options panel"] = "%s: accéder aux options"
@@ -372,6 +373,7 @@ L["Filter Enabled: %s - Frame Shown: %s"] = "Filtre activé: %s - Cadre affiché
 -- L["Adds info to the friends list."] = true
 -- L["Last seen %s ago"] = true
 -- GearScoreLite:
+-- L["GearScoreLite is a trimmed down version of GearScore."] = "|cff00ff00/gs, /gset, /gearscore|r\nGearScoreLite is a trimmed down version of GearScore."
 -- L["Toggles display of scores on players."] = true
 -- L["Toggles display of scores for items."] = true
 -- L["Resets GearScore's Options back to Default."] = true
@@ -401,6 +403,7 @@ L["Slow DPS Outside!"] = "DPS doucement à l'extérieur"
 -- L["Quest ID"] = true
 -- L["Achievement ID"] = true
 -- IgnoreMore
+-- L["Let you ignore more than 49 players, a list shared between all characters of the same account."] = "|cff00ff00/im, /ignoremore, /igmore|r\nLet you ignore more than 49 players, a list shared between all characters of the same account."
 L["%s does not look like a valid player name."] = "%s ne semble pas être un nom de joueur valide."
 L["Reason for ignoring this player:"] = "Raison pour ignorer de ce joueur:"
 L["wipe the ingore list"] = "efface la liste des ignorés"
@@ -432,16 +435,19 @@ L["message broadcasting %s"] = "diffusion %s"
 -- L["Searches for item link in local cache."] = true
 -- L["Searches for spell link."] = true
 -- LootMessageFilter & ImprovedLootFrame
--- L["A slash command that allows you to search items and spells."] = true
--- L["Filters loot messages from other players in your group, based on item quality."] = true
+-- L["A slash command that allows you to search items and spells."] = "|cff00ff00/lu, /lookup|r\nA slash command that allows you to search items and spells."
+-- L["Filters loot messages from other players in your group, based on item quality."] = "|cff00ff00/lmf|r\nFilters loot messages from other players in your group, based on item quality."
 -- L["Minimum item rarity for loot filter set to %s"] = true
 -- L["Check the filter status."] = true
 -- L["Condenses all loot onto one page when using the Blizzard default loot frame."] = true
 -- L["Random"] = true
 -- L["Self Loot"] = true
 -- Lynstats
+-- L["Shows your latencty, fps, addons memory, mail and clock."] = true
 -- L["Total"] = true
 -- L["Total incl. Blizzard"] = true
+-- Math
+-- L["A simple slash calculator."] = "|cff00ff00/math|r, |cff00ff00/calc|r\nA simple slash calculator."
 -- Minimap
 L["Calendar"] = "Calendrier"
 L["show minimap"] = "afficher la minicarte"
@@ -463,7 +469,7 @@ L["Hide Zone Text"] = "Cacher le texte de zone"
 L["Hide in combat"] = "Cache en combat"
 -- Minimap Button
 L["Minimap Button"] = "Bouton de minicarte"
-L["Shows the minimap icon button."] = "Montre le bouton de la minicarte."
+L["Shows the kPack minimap icon button."] = "Montre le kPack bouton de la minicarte."
 L["|cff00ff00Click|r to toggle the settings window."] = "|cff00ff00Clic|r pour accéder à la config."
 -- MoveAnything
 L["Reset %s? Press again to confirm"] = "Réinitialiser %s? Cliquez encore pour confirmer"
@@ -539,7 +545,7 @@ L["Bar color when you have threat."] = "Couleur de la barre d'info en fonction d
 L["Target Highlight"] = "Flèche de cible"
 -- Personal Resources
 L["Personal Resources"] = "Ressources personnelles"
--- L['Mimics the retail feature named "Personal Resource Display".'] = true
+-- L['Mimics the retail feature named "Personal Resource Display".'] = '|cff00ff00/ps config|r\nMimics the retail feature named "Personal Resource Display".'
 L["Show Text"] = "Afficher le texte"
 L["Text Position"] = "Position du texte"
 L["show personal resources"] = "affiche les ressources personnelles"
@@ -552,6 +558,7 @@ L["change personal resources height"] = "change la hauteur des ressources person
 L["Show out of combat"] = "Afficher hors du combat"
 L["Show percentage"] = "Afficher les pourcentages"
 -- SimpleComboPoints
+-- L["Highly customizable combo point module for rogues and druids."] = "|cff00ff00/scp config|r\nHighly customizable combo point module for rogues and druids."
 L["The width must be a valid number"] = "La largeur doit être un nombre valide"
 L["The height must be a valid number"] = "La hauteur doit être un nombre valide"
 L["Scale has to be a number, recommended to be between 0.5 and 3"] = "L'échelle doit être un nombre. Recommandé: entre 0.5 et 3"
@@ -568,6 +575,7 @@ L["Empty Color"] = "Couleur vide"
 L["Borders"] = "Bordures"
 L["Size"] = "Taille"
 -- Simplified
+-- L["Adds lots of slash commands, shortcut to lots of other functions."] = "|cff00ff00/simp help|r\nAdds lots of slash commands, shortcut to lots of other functions."
 L["Combat logging is currently %s."] = "La journal de combat est actuellement %s."
 L["Combat logging is now %s."] = "La journal de combat est maintenant %s."
 L["Change Specilization"] = "Changer la spécialisation"
@@ -624,6 +632,7 @@ L["Set the number of icon rows in this group."] = "Nombre de lignes d'icônes da
 L["Spacing"] = "Espacement"
 L["Group %d position successfully reset."] = "La position du groupe %d a été réinitialisée avec succès."
 -- Tooltip
+L["Enhanced tooltip."] = "|cff00ff00/tip, /tooltip|r\nEnhanced tooltip."
 L["Tooltips"] = "Info-bulles"
 L["Enhanced Tooltips"] = "Info-bulles améliorées"
 L["Enable this if you want the change the style of tooltips."] = "Activez cette option si vous souhaitez modifier le style des info-bulles."
@@ -661,6 +670,8 @@ L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."] = "|cff00ff00Active|r ou |c
 L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = "|cff00ff00Active|r ou |cffff0000désactive|r la création de macro "
 L["button scale set to |cff00ffff%s|r"] = "échelle de bouton réglée sur |cff00ffff%s|r"
 L["Scales the button."] = "Change l'échelle du bouton."
+-- RaidTabs
+-- L["Adds tabs to raid brower, BG or RDF windows, allowing you to switch between them."] = true
 -- Raid Target Icons
 L["Allows you to quickly mark raid targets using a radial menu."] = "Vous permet de marquer rapidement les cibles de raid à l'aide d'un menu radial."
 L["Left Click"] = "Clic gauche"
@@ -716,13 +727,17 @@ L["Sorry, the group is full."] = "Désolé mais le groupe est plein!"
 L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."] = "Tous les personnages de niveau maximal seront invités dans le raid dans 10 sec. Veuillez quitter vos groupes."
 L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."] = "Tous les personnages se trouvant à %s seront invités dans le raid rans 10 sec. Veuillez quitter vos groupes."
 L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = "Tous les personnages de rang %s ou supérieur seront invités dans le raid dans 10 sec. Veuillez quitter vos groupes."
+-- TradeTabs
+-- L["Adds tabs for your profession windows, allows you to switch to another profession window quickly."] = "Adds tabs for your profession windows, allows you to switch to another profession window quickly."
 -- UnitFrames
+-- L["Improve the standard blizzard unitframes without going beyond the boundaries set by them."] = "|cff00ff00/uf config|r\nImprove the standard blizzard unitframes without going beyond the boundaries set by them."
 L["Enhance Unit Frames"] = "Portraits améliorés"
 L["Class Icon Portrait"] = "Portraits icône de classe"
 L["changes the unit frames scale."] = "modifie l'échelle des portraits d'unités."
 L["enables improved unit frames textures."] = "utilise des textures améliorées."
 L["Text Settings"] = "Paramètres de texte"
 -- Viewporter
+-- L["Adds black bars at top/bottom/left/right side of the screen."] = "|cff00ff00/vp config|r\nAdds black bars at top/bottom/left/right side of the screen."
 L["Viewporter"] = "Fenêtre d'affichage"
 L["toggles viewporter status"] = "active/désactive la fenêtre d'affichage"
 L["where side is left, right, top or bottom."] = "où <side> est <left>, <right>, <top> ou <bottom>."
@@ -771,6 +786,37 @@ L["Wire"] = "Wire"
 L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt-clic gauche|r pour envoyer cet objet à %s."
 L["|cffeda55fCtrl-Click|r to return it to sender."] = "|cffeda55fCtrl-clic gauche|r pour renvoyer à l'expéditeur."
 L["|cffeda55fShift-Click|r to take the contents."] = "|cffeda55fMaj-clic gauche|r pour prendre le contenu."
+-- Relux
+-- L["A small lightweight profile manager."] = "|cff00ff00/reflux|r\nA small lightweight profile manager."
+-- L["This switches to a given profile. Emulated variables are only touched if you previously created a profile in reflux. This automatically Reloads the UI"] = true
+-- L["This restores a previously saved set of addons. Due to technical reasons, it cant switch profiles at the same time. This automatically Reloads the UI"] = true
+-- L["This created a profile set."] = true
+-- L["This will add a given saved variable to the profile emulation. You will need to get this name from the .toc file"] = true
+-- L["This saves the emulated profiles. Optionally if you can save addon state as well in the profile."] = true
+-- L["This will clear out all Reflux saved information."] = true
+-- L["This will show you what the active profile is, and all emulated variables."] = true
+-- L["This will attempt to copy the provide profile to the current profile. This automatically Reloads the UI."] = true
+-- L["This is delete a given profile. Please NOTE you can NOT delete the active profile."] = true
+-- L["This will reset JUST the profiled addonSVname to the given profile. This requires advance knowledge of the addon saved variable name."] = true
+-- L["This will instruct Reflux to scan your profiles and copy them into the new profile name. This command should allow you to snapshot your current config to a new profile"] = true
+-- L["There is no active profile."] = true
+-- L["Nothing is being emulated"] = true
+-- L["Addon state for the active profile."] = true
+-- L["Addon state is not being saved."] = true
+-- L["Reflux database cleared."] = true
+-- L["No profiles are active, please create or switch to one."] = true
+-- L["No emulations saved."] = true
+-- L["Saving addons."] = true
+-- L["You need to activate a profile before you can copy from another profile."] = true
+-- L["Loading %s since it is configured as LoadOnDemand and NOT loaded"] = true
+-- L["Loading %s since it is configured as LoadOnDemand and NOT loaded"] = true
+-- L["Loading %s since it is configured as LoadOnDemand and NOT loaded"] = true
+-- L["Active profile is %s"] = true
+-- L["%s is an available profile."] = true
+-- L["%s is being emulated."] = true
+-- L["Saving %s"] = true
+-- L["%s added to emulation list."] = true
+-- L["%s not found, please check the spelling it is case sensistive."] = true
 -- Garbage Protector
 L["Intercepts irresponsible collectgarbage calls to prevent chunky lockups and freezes."] = "|cff00ff00/gp, /garbageprotector|r\nBloque les appels irresponsables de la fonction collectgarbage pour éviter les problèmes de performance."
 L["Screw those irresponsible collectgarbage calls!"] = "Que ces appels de collectgarbage aillent au diable!"
@@ -786,6 +832,7 @@ L["This module adds colorized border items."] = "Ce module ajoute des bordures c
 L["Quest"] = "Quête"
 L.Intensity = "Intensité"
 -- Virtual Plates
+-- L["Scales nameplates relative to the location of units on the screen."] = "Scales nameplates relative to the location of units on the screen."
 L["Virtual Plates"] = "Virtual Plates"
 L["Scale Factor"] = "Facteur d'échelle"
 L["Nameplates this far from the camera will be normal sized."] = "Les barres aussi éloignées de la caméra seront de taille normale."
