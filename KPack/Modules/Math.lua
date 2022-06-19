@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("Math", function()
+core:AddModule("Math", "A simple slash calculator.", function()
 	if core:IsDisabled("Math") then return end
 
 	-- cache frequently used globals
