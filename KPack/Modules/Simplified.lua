@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("Simplified", function(L)
+core:AddModule("Simplified", "Adds lots of slash commands, shortcut to lots of other functions.", function(L)
 	if core:IsDisabled("Simplified") then return end
 
 	local function Print(msg)
