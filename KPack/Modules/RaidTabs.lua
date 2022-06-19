@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("RaidTabs", function()
+core:AddModule("RaidTabs", "Adds tabs to raid brower, BG or RDF windows, allowing you to switch between them.", function()
 	if core:IsDisabled("RaidTabs") then return end
 
 	local libTab = _G.libTab
