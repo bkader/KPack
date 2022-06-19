@@ -1,7 +1,7 @@
 --[[ Credits:  lynstats ]]
 local core = KPack
 if not core then return end
-core:AddModule("LynStats", function(L)
+core:AddModule("LynStats", "Shows your latencty, fps, addons memory, mail and clock.", function(L)
 	if core:IsDisabled("LynStats") or core.ElvUI then return end
 
 	-- CONFIG
