@@ -320,6 +320,7 @@ L["Tracks how long you spend in combat."] = "|cff00ff00/ct|r\nTracks how long yo
 L["Trigger the in-game stopwatch on combat."] = true
 L["using stopwatch: %s"] = true
 -- Combuctor
+L["Bag replacement addon."] = "|cff00ff00/cbt, /combuctor|r\nBag replacement addon."
 L["%s: toggle inventory"] = true
 L["%s: toggle bank"] = true
 L["%s: access options panel"] = true
@@ -394,6 +395,7 @@ L["Filter Enabled: %s - Frame Shown: %s"] = true
 L["Adds info to the friends list."] = true
 L["Last seen %s ago"] = true
 -- GearScoreLite:
+L["GearScoreLite is a trimmed down version of GearScore."] = "|cff00ff00/gs, /gset, /gearscore|r\nGearScoreLite is a trimmed down version of GearScore."
 L["Toggles display of scores on players."] = true
 L["Toggles display of scores for items."] = true
 L["Resets GearScore's Options back to Default."] = true
@@ -423,6 +425,7 @@ L["Item ID"] = true
 L["Quest ID"] = true
 L["Achievement ID"] = true
 -- IgnoreMore
+L["Let you ignore more than 49 players, a list shared between all characters of the same account."] = "|cff00ff00/im, /ignoremore, /igmore|r\nLet you ignore more than 49 players, a list shared between all characters of the same account."
 L["%s does not look like a valid player name."] = true
 L["Reason for ignoring this player:"] = true
 L["wipe the ingore list"] = true
@@ -454,16 +457,19 @@ L["|cffffd700Spell|r : %s [%d]"] = true
 L["Searches for item link in local cache."] = true
 L["Searches for spell link."] = true
 -- LootMessageFilter & ImprovedLootFrame
-L["A slash command that allows you to search items and spells."] = true
-L["Filters loot messages from other players in your group, based on item quality."] = true
+L["A slash command that allows you to search items and spells."] = "|cff00ff00/lu, /lookup|r\nA slash command that allows you to search items and spells."
+L["Filters loot messages from other players in your group, based on item quality."] = "|cff00ff00/lmf|r\nFilters loot messages from other players in your group, based on item quality."
 L["Minimum item rarity for loot filter set to %s"] = true
 L["Check the filter status."] = true
 L["Condenses all loot onto one page when using the Blizzard default loot frame."] = true
 L["Random"] = true
 L["Self Loot"] = true
 -- Lynstats
+L["Shows your latencty, fps, addons memory, mail and clock."] = true
 L["Total"] = true
 L["Total incl. Blizzard"] = true
+-- Math
+L["A simple slash calculator."] = "|cff00ff00/math|r, |cff00ff00/calc|r\nA simple slash calculator."
 -- Minimap
 L["Calendar"] = true
 L["show minimap"] = true
@@ -485,7 +491,7 @@ L["Hide Zone Text"] = true
 L["Hide in combat"] = true
 -- Minimap Button
 L["Minimap Button"] = true
-L["Shows the minimap icon button."] = true
+L["Shows the kPack minimap icon button."] = true
 L["|cff00ff00Click|r to toggle the settings window."] = true
 -- MoveAnything
 L.RESET_FRAME_CONFIRM = "Reset %s? Press again within 5 seconds to confirm"
@@ -583,7 +589,7 @@ L["Bar color when you have threat."] = true
 L["Target Highlight"] = true
 -- Personal Resources
 L["Personal Resources"] = true
-L['Mimics the retail feature named "Personal Resource Display".'] = true
+L['Mimics the retail feature named "Personal Resource Display".'] = '|cff00ff00/ps config|r\nMimics the retail feature named "Personal Resource Display".'
 L["Show Text"] = true
 L["Text Position"] = true
 L["show personal resources"] = true
@@ -596,6 +602,7 @@ L["change personal resources height"] = true
 L["Show out of combat"] = true
 L["Show percentage"] = true
 -- SimpleComboPoints
+L["Highly customizable combo point module for rogues and druids."] = "|cff00ff00/scp config|r\nHighly customizable combo point module for rogues and druids."
 L["The width must be a valid number"] = true
 L["The height must be a valid number"] = true
 L["Scale has to be a number, recommended to be between 0.5 and 3"] = true
@@ -615,6 +622,7 @@ L["Opacity"] = OPACITY
 L["Borders"] = true
 L["Size"] = true
 -- Simplified
+L["Adds lots of slash commands, shortcut to lots of other functions."] = "|cff00ff00/simp help|r\nAdds lots of slash commands, shortcut to lots of other functions."
 L["Combat logging is currently %s."] = true
 L["Combat logging is now %s."] = true
 L["Change Specilization"] = true
@@ -672,6 +680,7 @@ L["Set the number of icon rows in this group."] = true
 L["Spacing"] = true
 L["Group %d position successfully reset."] = true
 -- Tooltip
+L["Enhanced tooltip."] = "|cff00ff00/tip, /tooltip|r\nEnhanced tooltip."
 L["Tooltips"] = true
 L["Enhanced Tooltips"] = true
 L["Enable this if you want the change the style of tooltips."] = true
@@ -709,6 +718,8 @@ L["Turns module |cff00ff00ON|r or |cffff0000OFF|r."] = true
 L["Turns macro creation |cff00ff00ON|r or |cffff0000OFF|r."] = true
 L["button scale set to |cff00ffff%s|r"] = true
 L["Scales the button."] = true
+-- RaidTabs
+L["Adds tabs to raid brower, BG or RDF windows, allowing you to switch between them."] = true
 -- Raid Target Icons
 L["Target Icons"] = TARGETICONS
 L["Allows you to quickly mark raid targets using a radial menu."] = true
@@ -765,13 +776,17 @@ L["Sorry, the group is full."] = true
 L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."] = true
 L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."] = true
 L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = true
+-- TradeTabs
+L["Adds tabs for your profession windows, allows you to switch to another profession window quickly."] = "Adds tabs for your profession windows, allows you to switch to another profession window quickly."
 -- UnitFrames
+L["Improve the standard blizzard unitframes without going beyond the boundaries set by them."] = "|cff00ff00/uf config|r\nImprove the standard blizzard unitframes without going beyond the boundaries set by them."
 L["Enhance Unit Frames"] = true
 L["Class Icon Portrait"] = true
 L["changes the unit frames scale."] = true
 L["enables improved unit frames textures."] = true
 L["Text Settings"] = true
 -- Viewporter
+L["Adds black bars at top/bottom/left/right side of the screen."] = "|cff00ff00/vp config|r\nAdds black bars at top/bottom/left/right side of the screen."
 L["Viewporter"] = true
 L["toggles viewporter status"] = true
 L["where side is left, right, top or bottom."] = true
@@ -823,7 +838,7 @@ L["|cffeda55fAlt-Click|r to send this item to %s."] = true
 L["|cffeda55fCtrl-Click|r to return it to sender."] = true
 L["|cffeda55fShift-Click|r to take the contents."] = true
 -- Relux
-L["A small lightweight profile manager."] = true
+L["A small lightweight profile manager."] = "|cff00ff00/reflux|r\nA small lightweight profile manager."
 L["This switches to a given profile. Emulated variables are only touched if you previously created a profile in reflux. This automatically Reloads the UI"] = true
 L["This restores a previously saved set of addons. Due to technical reasons, it cant switch profiles at the same time. This automatically Reloads the UI"] = true
 L["This created a profile set."] = true
@@ -868,6 +883,7 @@ L["This module adds colorized border items."] = true
 L.Quest = true
 L.Intensity = true
 -- Virtual Plates
+L["Scales nameplates relative to the location of units on the screen."] = true
 L["Virtual Plates"] = true
 L["Scale Factor"] = true
 L["Nameplates this far from the camera will be normal sized."] = true
