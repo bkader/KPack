@@ -1,6 +1,6 @@
 local core = KPack
 if not core then return end
-core:AddModule("LiveStream", function(L)
+core:AddModule("LiveStream", "|cff00ff00/stream, /livestream|r", function(L)
 	if core:IsDisabled("LiveStream") then return end
 
 	local defaults = {
