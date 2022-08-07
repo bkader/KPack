@@ -1,7 +1,7 @@
 ## Interface: 30300
 ## Title: |cfff58cbaKader|r|caaf49141Pack|r
 ## Notes: A collection of useful and tiny scripts and addons, All-In-One.
-## Author: Kader (|cff808080bkader#6361|r)
+## Author: Kader (|cff808080bkader#5341|r)
 ## SavedVariables: KPackDB, kMADB
 ## SavedVariablesPerCharacter: KPackCharDB
 ## LoadOnDemand: 0

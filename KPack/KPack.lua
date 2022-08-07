@@ -421,7 +421,7 @@ do
 			print(help:format("/uf", L:F("access |caaf49141%s|r module commands", "UnitFrames")))
 			print(help:format("/vp", L:F("access |caaf49141%s|r module commands", "Viewporter")))
 		elseif cmd == "about" or cmd == "info" then
-			core:Print("This small addon was made with big passion by |cfff58cbaKader|r.\n If you have suggestions or you are facing issues with my addons, feel free to message me on the forums, Github, CurseForge or Discord:\n|cffffd700bkader#6361|r or |cff7289d9https://discord.gg/a8z5CyS3eW|r")
+			core:Print("This small addon was made with big passion by |cfff58cbaKader|r.\n If you have suggestions or you are facing issues with my addons, feel free to message me on the forums, Github, CurseForge or Discord:\n|cffffd700bkader#5341|r or |cff7289d9https://discord.gg/a8z5CyS3eW|r")
 		elseif cmd == "reinstall" or cmd == "default" then
 			wipe(KPackDB)
 			wipe(KPackCharDB)
