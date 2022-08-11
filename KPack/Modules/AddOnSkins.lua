@@ -45,7 +45,7 @@ core:AddModule("AddOnSkins", function(L)
 
 	-- Death Recap
 	local function AddOnSkins_DeathRecap()
-		if core:IsDisabled("DeathRecap") then return end
+		if core:IsDisabled("Death Recap") then return end
 		KPackDeathRecapFrame:SetTemplate("Transparent")
 		S:HandleButton(KPackDeathRecapFrameCloseButton)
 	end
