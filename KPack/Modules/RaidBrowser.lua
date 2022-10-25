@@ -78,6 +78,7 @@ core:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y ch
 
 	---------------------------------------------------------------------------
 
+	local RefreshLFMMessages
 	do
 		local sep = "[%s-_,.]"
 		local csep = sep .. "*"
@@ -447,7 +448,7 @@ core:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y ch
 			"selling" .. sep
 		}
 
-		local function RefreshLFMMessages()
+		function RefreshLFMMessages()
 			for name, info in pairs(RaidBrowser.messages) do
 				-- If the last message from the sender was too long ago, then
 				-- remove his raid from lfm_messages.
@@ -939,6 +940,11 @@ core:AddModule("Raid Browser", 'Searches for LFR messages sent in chat and /y ch
 
 		join_button:SetText(JOIN)
 		join_button:SetScript("OnClick", OnJoin)
+		if refresh_button:GetScript("OnClick") then
+			refresh_button:HookScript("OnClick", RefreshLFMMessages)
+		else
+			refresh_button:SetScript("OnClick", RefreshLFMMessages)
+		end
 
 		local function FormatCount(value)
 			if value == 1 then
