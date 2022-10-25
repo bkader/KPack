@@ -70,7 +70,7 @@ globals = {
 	"MAOptionsToggleCategories",
 
 	-- Ascension
-	"IsCoA",
+	"IsCustomClass",
 
 	-- misc custom
 	"CUSTOM_CLASS_COLORS",

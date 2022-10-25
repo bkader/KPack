@@ -35,8 +35,8 @@ core.class = select(2, UnitClass("player"))
 core.mycolor = core.classcolors[core.class]
 
 -- Project Ascension
-core.Ascension = (type(IsCoA) == "function")
-core.AscensionCoA = core.Ascension and IsCoA()
+core.Ascension = (type(IsCustomClass) == "function")
+core.AscensionCoA = core.Ascension and IsCustomClass()
 
 -------------------------------------------------------------------------------
 -- C_Timer mimic
