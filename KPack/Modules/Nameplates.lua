@@ -569,10 +569,17 @@ core:AddModule("Nameplates", function(L)
 				self.castBar:SetWidth(config.barWidth * 1.15)
 				core:ShowIf(self.leftIndicator, not self.totem)
 				core:ShowIf(self.rightIndicator, not self.totem)
-				self.healthBar.borderLeft:SetTexture(0.8, 0.8, 0.8)
-				self.healthBar.borderRight:SetTexture(0.8, 0.8, 0.8)
-				self.healthBar.borderTop:SetTexture(0.8, 0.8, 0.8)
-				self.healthBar.borderBottom:SetTexture(0.8, 0.8, 0.8)
+				if not config.arrow or config.arrow == "NONE" then
+					self.healthBar.borderLeft:SetTexture(0.8, 0.8, 0.8)
+					self.healthBar.borderRight:SetTexture(0.8, 0.8, 0.8)
+					self.healthBar.borderTop:SetTexture(0.8, 0.8, 0.8)
+					self.healthBar.borderBottom:SetTexture(0.8, 0.8, 0.8)
+				else
+					self.healthBar.borderLeft:SetTexture(0, 0, 0)
+					self.healthBar.borderRight:SetTexture(0, 0, 0)
+					self.healthBar.borderTop:SetTexture(0, 0, 0)
+					self.healthBar.borderBottom:SetTexture(0, 0, 0)
+				end
 			else
 				self.healthBar:SetWidth(config.barWidth)
 				self.castBar:SetWidth(config.barWidth)
