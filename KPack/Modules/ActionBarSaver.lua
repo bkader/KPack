@@ -273,7 +273,7 @@ core:AddModule("Action Bar Saver", "Allows you to setup different profiles for y
 	function ABS:RestoreProfile(name, overrideClass)
 		local set = DB.sets[overrideClass or myclass][name]
 		if not set then
-			Print(L:F('No profile with the name "%s" exists.', set))
+			Print(L:F('No profile with the name "%s" exists.', set or "NaN"))
 			return
 		elseif InCombatLockdown() then
 			Print(ERR_NOT_IN_COMBAT)

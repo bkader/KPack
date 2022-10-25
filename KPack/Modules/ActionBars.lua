@@ -273,7 +273,7 @@ core:AddModule("ActionBars", "Allows you to tweak your action bars in the limit 
 				disabled = function() return disabled end,
 				width = "full",
 				confirm = function()
-					return L:F("Are you sure you want to reset %s to default?", "Automate")
+					return L:F("Are you sure you want to reset %s to default?", "ActionBars")
 				end,
 				func = function()
 					wipe(core.db.ActionBars)
