@@ -251,8 +251,12 @@ core:AddModule("Personal Resources", 'Mimics the retail feature named "Personal 
 
 				-- create main frame
 				frame = CreateFrame("Frame", fname, UIParent)
-				frame:SetSize(width, height)
+				frame:SetWidth(width)
+				frame:SetHeight(height)
 				frame:SetPoint(anchor, xOfs, yOfs)
+			elseif cmd then
+				frame:SetWidth(width)
+				frame:SetHeight(height)
 			end
 
 			-- background color
@@ -667,6 +671,7 @@ core:AddModule("Personal Resources", 'Mimics the retail feature named "Personal 
 						max = 3,
 						step = 0.01,
 						bigStep = 0.1,
+						isPercent = true,
 						disabled = disabled
 					},
 					sep2 = {
