@@ -1,5 +1,8 @@
 _dev
 Makefile
+*_bak*.*
 *.zip
+*.7z
 *.sublime-project
 *.sublime-workspace
+*.todolist

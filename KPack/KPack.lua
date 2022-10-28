@@ -35,8 +35,8 @@ core.class = select(2, UnitClass("player"))
 core.mycolor = core.classcolors[core.class]
 
 -- Project Ascension
-core.Ascension = (type(IsCustomClass) == "function")
-core.AscensionCoA = core.Ascension and IsCustomClass()
+core.Ascension = (type(C_Realm) == "table")
+core.AscensionCoA = core.Ascension and C_Realm:IsConquestOfAzeroth()
 
 -------------------------------------------------------------------------------
 -- C_Timer mimic
