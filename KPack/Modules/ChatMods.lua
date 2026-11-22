@@ -51,7 +51,9 @@ core:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removin
 		-- reset to default
 		exec.reset = function()
 			wipe(DB)
-			DB = defaults
+			for k, v in pairs(defaults) do
+				DB[k] = v
+			end
 			Print(L["module's settings reset to default."])
 		end
 		exec.default = exec.reset
@@ -136,8 +138,6 @@ core:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removin
 				bb:ClearAllPoints()
 				bb:SetPoint("TOPRIGHT", cf, "TOPRIGHT", 0, -6)
 				bb:SetAlpha(0.4)
-				bb.SetPoint = function()
-				end
 				bb:SetScript("OnClick", ChatMods_ScrollToBottom)
 			end
 			BNToastFrame:SetClampedToScreen(true)
@@ -443,9 +443,12 @@ core:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removin
 		end
 
 		local ChatMods_CopyFunc = function(frame, button)
-			local cf = _G[format("%s%d", "ChatFrame", frame:GetID())]
+		local cf = _G[format("%s%d", "ChatFrame", frame:GetID())]
+			if not cf then return end
 			local _, size = cf:GetFont()
-			FCF_SetChatWindowFontSize(cf, cf, 0.01)
+			if size then
+				FCF_SetChatWindowFontSize(cf, cf, 0.01)
+			end
 
 			lines = core.newTable()
 			local ct = 1
@@ -459,7 +462,9 @@ core:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removin
 
 			local lineCt = ct - 1
 			local text = table.concat(lines, "\n", 1, lineCt)
-			FCF_SetChatWindowFontSize(cf, cf, size)
+			if size then
+				FCF_SetChatWindowFontSize(cf, cf, size)
+			end
 			_G.KPack_ChatModsCopyFrame:Show()
 			_G.ChatModsCopyBox:SetText(text)
 			_G.ChatModsCopyBox:HighlightText(0)
@@ -553,15 +558,20 @@ core:AddModule("ChatMods", "Adds several tweaks to chat windows, such us removin
 
 	-- :::::::::::::::::::::::::::::::::::::::::::::
 
+	local hooksRegistered = false
+
 	ChatMods_Initialize = function()
-		hooksecurefunc("ChatFrame_OpenChat", ChatMods_ChatFrame_OpenChat)
-		hooksecurefunc("ChatEdit_SendText", ChatMods_ChatEdit_SendText)
+		if not hooksRegistered then
+			hooksecurefunc("ChatFrame_OpenChat", ChatMods_ChatFrame_OpenChat)
+			hooksecurefunc("ChatEdit_SendText", ChatMods_ChatEdit_SendText)
+
+			ChatFrame_AddMessageEventFilter("CHAT_MSG_AFK", ChatMods_ChatEvent)
+			ChatFrame_AddMessageEventFilter("CHAT_MSG_DND", ChatMods_ChatEvent)
+			ChatMobs_AddMessageEventFilters()
+			hooksRegistered = true
+		end
 
 		ChatMods_LinkHover()
-
-		ChatFrame_AddMessageEventFilter("CHAT_MSG_AFK", ChatMods_ChatEvent)
-		ChatFrame_AddMessageEventFilter("CHAT_MSG_DND", ChatMods_ChatEvent)
-		ChatMobs_AddMessageEventFilters()
 		ChatMods_ChatCopy()
 		ChatMods_ChatFrame()
 		ChatMods_EditBox()
