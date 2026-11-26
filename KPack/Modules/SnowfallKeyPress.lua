@@ -604,6 +604,42 @@ core:AddModule("SnowfallKeyPress", "Allows you to cast your spells on key down i
 		end
 	end
 
+	-- ACTIONBUTTON1-12 can point to the main bar, the bonus bar (stances, stealth, possess)
+	-- or the vehicle bar. Instead of checking frame visibility on every click (which fails
+	-- in combat because IsProtected() can return nil for VehicleMenuBar/BonusActionBarFrame),
+	-- a secure state driver tracks the current bar and rewrites the macro as soon as it changes.
+	local VEHICLE_BUTTONS = VEHICLE_MAX_ACTIONBUTTONS or 6
+	local ACTIONBAR_STATE_DRIVER = "[vehicleui] vehicle; [bonusbar] bonus; normal"
+	local ACTIONBAR_ONSTATE = string.format([[
+		local id = self:GetAttribute("snowfall-actionid")
+		if not id then return end
+		local prefix = "ActionButton"
+		if newstate == "vehicle" then
+			if id <= %d then
+				prefix = "VehicleMenuBarActionButton"
+			end
+		elseif newstate == "bonus" then
+			prefix = "BonusActionButton"
+		end
+		self:SetAttribute("macrotext", "/click " .. prefix .. id)
+	]], VEHICLE_BUTTONS)
+
+	-- same logic as ACTIONBAR_ONSTATE, used out of combat when the key is (re)bound
+	local function setActionButtonID(bindButton, id)
+		bindButton:SetAttribute("snowfall-actionid", id)
+		if not id then return end
+		local state = SecureCmdOptionParse(ACTIONBAR_STATE_DRIVER)
+		local prefix = "ActionButton"
+		if state == "vehicle" then
+			if id <= VEHICLE_BUTTONS then
+				prefix = "VehicleMenuBarActionButton"
+			end
+		elseif state == "bonus" then
+			prefix = "BonusActionButton"
+		end
+		bindButton:SetAttribute("macrotext", "/click " .. prefix .. id)
+	end
+
 	-- Accelerate a key, which we must not currently be overriding
 	local function accelerateKey(key, command)
 		local bindButtonName, bindButton
@@ -644,8 +680,10 @@ core:AddModule("SnowfallKeyPress", "Allows you to cast your spells on key down i
 					bindButtonName = "SnowfallKeyPress_Button_" .. key
 					bindButton = _G[bindButtonName]
 					if (not bindButton) then
-						bindButton = CreateFrame("Button", "SnowfallKeyPress_Button_" .. key, nil, "SecureActionButtonTemplate")
+						bindButton = CreateFrame("Button", "SnowfallKeyPress_Button_" .. key, nil, "SecureActionButtonTemplate, SecureHandlerStateTemplate")
 						bindButton:RegisterForClicks("AnyDown")
+						bindButton:SetAttribute("_onstate-snowfallbar", ACTIONBAR_ONSTATE)
+						RegisterStateDriver(bindButton, "snowfallbar", ACTIONBAR_STATE_DRIVER)
 						SecureHandlerSetFrameRef(bindButton, "VehicleMenuBar", VehicleMenuBar)
 						SecureHandlerSetFrameRef(bindButton, "BonusActionBarFrame", BonusActionBarFrame)
 						SecureHandlerSetFrameRef(bindButton, "MultiCastSummonSpellButton", MultiCastSummonSpellButton)
@@ -658,6 +696,8 @@ core:AddModule("SnowfallKeyPress", "Allows you to cast your spells on key down i
 
 					-- Clear out any old wrap script that may exist
 					SecureHandlerUnwrapScript(bindButton, "OnClick")
+					-- the key may have been an action button before; stop tracking bars unless it still is
+					setActionButtonID(bindButton, nil)
 
 					-- apply specified attributes
 					for _, attribute in ipairs(template.attributes) do
@@ -670,16 +710,9 @@ core:AddModule("SnowfallKeyPress", "Allows you to cast your spells on key down i
 							bindButton.clickButtonName = attributeValue
 							bindButton:SetScript("PostClick", animateKey)
 						elseif attributeName == "actionbutton" then
-							-- For our custom "actionbutton" attribute, we'll make the decision which button (vehicle/bonus/action) to click similar to how Blizzard does it in ActionButton.lua:ActionButtonUp()
-							SecureHandlerWrapScript(bindButton, "OnClick", bindButton, [[
-								local clickMacro = "/click ActionButton]] .. attributeValue .. [[";
-								if (VehicleMenuBar:IsProtected() and VehicleMenuBar:IsShown() and ]] .. tostring(tonumber(attributeValue) <= VEHICLE_MAX_ACTIONBUTTONS) .. [[) then
-									clickMacro = "/click VehicleMenuBarActionButton]] .. attributeValue .. [[";
-								elseif (BonusActionBarFrame:IsProtected() and BonusActionBarFrame:IsShown()) then
-									clickMacro = "/click BonusActionButton]] .. attributeValue .. [[";
-								end
-								self:SetAttribute("macrotext", clickMacro);
-							]])
+							-- For our custom "actionbutton" attribute, the state driver picks which button
+							-- (vehicle/bonus/action) to click, like Blizzard's ActionButton.lua:ActionButtonDown()
+							setActionButtonID(bindButton, tonumber(attributeValue))
 							bindButton:SetScript("PostClick", function(self)
 								bindButton.clickButtonName = strsub(bindButton:GetAttribute("macrotext"), 8)
 								animateKey(bindButton)
