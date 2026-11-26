@@ -250,6 +250,7 @@ core:AddModule("RaidUtility", "|cff00ff00/mana, /healersmana\n/invites\n/sunder\
 		end
 
 		function mod:RaidUtilityToggle()
+			SetupDatabase()
 			if not DB.Menu.enabled then
 				if KPackRaidControlPanel then
 					KPackRaidControlPanel:Hide()
@@ -520,6 +521,7 @@ core:AddModule("RaidUtility", "|cff00ff00/mana, /healersmana\n/invites\n/sunder\
 		end)
 
 		function HandleLootMethod()
+			SetupDatabase()
 			if not DB.Loot.enabled then
 				return
 			end
